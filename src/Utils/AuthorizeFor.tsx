@@ -1,7 +1,7 @@
 import { UserRole } from "@/common/constants";
 import React from "react";
 import useAuthUser from "@/common/hooks/useAuthUser";
-import Error404 from "@/components/ErrorPages/404";
+import ErrorPage from "@/components/ErrorPages/DefaultErrorPage";
 
 export type AuthorizedForCB = (userType: UserRole) => boolean;
 
@@ -44,6 +44,6 @@ export const AuthorizeUserRoute: React.FC<AuthorizeUserRouteProps> = ({
   if (userTypes.includes(authUser.user_type)) {
     return <>{children}</>;
   } else {
-    return <Error404 />;
+    return <ErrorPage />;
   }
 };

@@ -4,6 +4,7 @@ import { VitePWA } from "vite-plugin-pwa";
 import react from "@vitejs/plugin-react-swc";
 import checker from "vite-plugin-checker";
 import { viteStaticCopy } from "vite-plugin-static-copy";
+import federation from "@originjs/vite-plugin-federation";
 import { treeShakeCareIcons } from "./plugins/treeShakeCareIcons";
 import fs from "fs";
 import { defineConfig } from "vite";
@@ -76,6 +77,13 @@ function getPluginDependencies() {
 export default defineConfig({
   envPrefix: "REACT_",
   plugins: [
+    federation({
+      name: "core",
+      filename: "coreComponents.js",
+      exposes: {
+        "./Plausible": "./src/Integrations/Plausible", // Path to the shared component
+      },
+    }),
     viteStaticCopy({
       targets: [
         {

@@ -1,18 +1,48 @@
 Care is a React Typescript Project, built with Vite and styled with TailwindCSS.
 
-Care uses a Plugin Architecture. Apps are installed in /apps. 
+Pages are defined in /src/pages.
 
-Care uses a custom useQuery hook to fetch data from the API. APIs are defined in the api.tsx file
+The React Components for the pages are defined in /src/components. Care primarily uses shadcn/ui components.
 
-Here's an example of how to use the useQuery hook to fetch data from the API:
+Routing for the React Pages are defined in /src/Routers/AppRouter.tsx using `raviger`. The AppRouter has a Routes object that maps paths to React Components.
+
+For Icons, Care uses an implementation of Unicons which can be used like this:
 
 ```
-useQuery from "@/common/hooks/useQuery";
+import CareIcon from "@/CAREUI/icons/CareIcon";
+
+<CareIcon icon="l-hospital" />
+```
+
+The main routes are accessible from the BaseNavItems defined within the StatelessSidebar component in /src/components/Common/Sidebar/Sidebar.tsx.
+
+Care uses a custom useQuery hook to fetch data from the API. API routes are defined in the api.tsx file like:
+
+```
+routes = {
+  createScribe: {
+    path: "/api/care_scribe/scribe/",
+    method: "POST",
+    TReq: Type<ScribeModel>(),
+    TRes: Type<ScribeModel>(),
+  },
+  ...otherRoutes
+}
+```
+
+Here's an example of how to use the useQuery hook to fetch data from the API
+
+```
+import useQuery from "@/Utils/request/useQuery";
 const { data, loading, error } = useQuery(routes.getFacilityUsers, {
   facility_id: "1",
 });
+```
 
-request from "@/common/utils/request";
+Here's an example of how to make a request to the API
+
+```
+import request from "@/Utils/request/request";
 const { res } = await request(routes.partialUpdateAsset, {
   pathParams: { external_id: assetId },
   body: data,

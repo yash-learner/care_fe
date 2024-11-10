@@ -3,7 +3,7 @@ import { useState, useEffect } from "react";
 
 import ShowPushNotification from "@/components/Notifications/ShowPushNotification";
 import { NoticeBoard } from "@/components/Notifications/NoticeBoard";
-import Error404 from "@/components/ErrorPages/404";
+import ErrorPage from "@/components/ErrorPages/DefaultErrorPage";
 import {
   DesktopSidebar,
   MobileSidebar,
@@ -27,6 +27,9 @@ import ResourceRoutes from "./routes/ResourceRoutes";
 import { usePluginRoutes } from "@/common/hooks/useCareApps";
 import careConfig from "@careConfig";
 import IconIndex from "../CAREUI/icons/Index";
+import { PlugConfigList } from "@/pages/Apps/PlugConfigList";
+import { PlugConfigEdit } from "@/pages/Apps/PlugConfigEdit";
+import ErrorBoundary from "@/components/Common/ErrorBoundary";
 
 export type RouteParams<T extends string> =
   T extends `${string}:${infer Param}/${infer Rest}`
@@ -66,11 +69,14 @@ const Routes: AppRoutes = {
   ),
 
   "/session-expired": () => <SessionExpired />,
-  "/not-found": () => <Error404 />,
+  "/not-found": () => <ErrorPage />,
   "/icons": () => <IconIndex />,
 
   // Only include the icon route in development environment
   ...(import.meta.env.PROD ? { "/icons": () => <IconIndex /> } : {}),
+
+  "/apps": () => <PlugConfigList />,
+  "/apps/plug-configs/:slug": ({ slug }) => <PlugConfigEdit slug={slug} />,
 };
 
 export default function AppRouter() {
@@ -90,7 +96,7 @@ export default function AppRouter() {
     ...pluginRoutes,
   };
 
-  const pages = useRoutes(routes) || <Error404 />;
+  const pages = useRoutes(routes) || <ErrorPage />;
 
   const path = usePath();
   const [sidebarOpen, setSidebarOpen] = useState(false);
@@ -170,7 +176,11 @@ export default function AppRouter() {
             className="flex-1 overflow-y-scroll bg-gray-100 pb-4 focus:outline-none md:py-0"
           >
             <div className="max-w-8xl mx-auto mt-4 min-h-[96vh] rounded-lg border bg-gray-50 p-3 shadow">
-              {pages}
+              <ErrorBoundary
+                fallback={<ErrorPage forError="PAGE_LOAD_ERROR" />}
+              >
+                {pages}
+              </ErrorBoundary>
             </div>
           </main>
         </div>

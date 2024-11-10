@@ -105,6 +105,7 @@ import {
 } from "@/components/ABDM/types/health-facility";
 import { PMJAYPackageItem } from "@/components/Common/PMJAYProcedurePackageAutocomplete";
 import { InsurerOptionModel } from "@/components/HCX/InsurerAutocomplete";
+import { PlugConfig } from "@/types/plugConfig";
 
 /**
  * A fake function that returns an empty object casted to type T
@@ -1805,6 +1806,35 @@ const routes = {
           communication: string;
         }>(),
       },
+    },
+  },
+  plugConfig: {
+    listPlugConfigs: {
+      path: "/api/v1/plug_config/",
+      method: "GET",
+      TRes: Type<{ configs: PlugConfig[] }>(),
+    },
+    getPlugConfig: {
+      path: "/api/v1/plug_config/{slug}/",
+      method: "GET",
+      TRes: Type<PlugConfig>(),
+    },
+    createPlugConfig: {
+      path: "/api/v1/plug_config/",
+      method: "POST",
+      TReq: Type<PlugConfig>(),
+      TRes: Type<PlugConfig>(),
+    },
+    updatePlugConfig: {
+      path: "/api/v1/plug_config/{slug}/",
+      method: "PATCH",
+      TReq: Type<PlugConfig>(),
+      TRes: Type<PlugConfig>(),
+    },
+    deletePlugConfig: {
+      path: "/api/v1/plug_config/{slug}/",
+      method: "DELETE",
+      TRes: Type<Record<string, never>>(),
     },
   },
 } as const;

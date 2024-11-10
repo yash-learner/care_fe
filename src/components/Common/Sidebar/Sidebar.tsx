@@ -56,6 +56,7 @@ const StatelessSidebar = ({
     { text: t("resource"), to: "/resource", icon: "l-heart-medical" },
     { text: t("users"), to: "/users", icon: "l-users-alt" },
     { text: t("notice_board"), to: "/notice_board", icon: "l-meeting-board" },
+    { text: t("app_settings"), to: "/apps", icon: "l-setting" },
   ];
 
   const PluginNavItems = useCareAppNavItems();

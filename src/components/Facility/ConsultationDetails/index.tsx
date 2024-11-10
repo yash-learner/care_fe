@@ -35,7 +35,7 @@ import { AbhaNumberModel } from "../../ABDM/types/abha";
 import routes from "../../../Redux/api";
 import request from "../../../Utils/request/request";
 import { CameraFeedPermittedUserTypes } from "../../../Utils/permissions";
-import Error404 from "../../ErrorPages/404";
+import ErrorPage from "../../ErrorPages/DefaultErrorPage";
 import { useTranslation } from "react-i18next";
 import useQuery from "../../../Utils/request/useQuery";
 
@@ -189,7 +189,7 @@ export const ConsultationDetails = (props: any) => {
   };
 
   if (!tab) {
-    return <Error404 />;
+    return <ErrorPage />;
   }
 
   const SelectedTab = TABS[tab];

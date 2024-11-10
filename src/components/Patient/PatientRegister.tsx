@@ -44,7 +44,7 @@ import ConfirmDialog from "@/components/Common/ConfirmDialog";
 import DateFormField from "../Form/FormFields/DateFormField";
 import DialogModal from "@/components/Common/Dialog";
 import DuplicatePatientDialog from "../Facility/DuplicatePatientDialog";
-import Error404 from "../ErrorPages/404";
+import ErrorPage from "../ErrorPages/DefaultErrorPage";
 import Form from "../Form/Form";
 import { HCXPolicyModel } from "../HCX/models";
 import HCXPolicyValidator from "../HCX/validators";
@@ -929,7 +929,7 @@ export const PatientRegister = (props: PatientRegisterProps) => {
   };
 
   if (!isLoading && facilityId && facilityObject && !PatientRegisterAuth()) {
-    return <Error404 />;
+    return <ErrorPage />;
   }
 
   return (
