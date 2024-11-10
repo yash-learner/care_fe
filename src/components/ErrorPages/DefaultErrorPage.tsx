@@ -1,7 +1,8 @@
 import { Link } from "raviger";
-import * as Notification from "../../Utils/Notifications";
 import { useEffect } from "react";
 import { useTranslation } from "react-i18next";
+
+import * as Notification from "@/Utils/Notifications";
 
 type ErrorType = "PAGE_NOT_FOUND" | "PAGE_LOAD_ERROR";
 

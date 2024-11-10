@@ -1,6 +1,7 @@
 import { navigate } from "raviger";
-import useQuery from "@/Utils/request/useQuery";
-import routes from "@/Redux/api";
+
+import CareIcon from "@/CAREUI/icons/CareIcon";
+
 import { Button } from "@/components/ui/button";
 import {
   Table,
@@ -10,9 +11,12 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import CareIcon from "@/CAREUI/icons/CareIcon";
-import { PlugConfig } from "@/types/plugConfig";
+
 import Loading from "@/components/Common/Loading";
+
+import routes from "@/Utils/request/api";
+import useQuery from "@/Utils/request/useQuery";
+import { PlugConfig } from "@/types/plugConfig";
 
 export function PlugConfigList() {
   const { data, loading } = useQuery(routes.plugConfig.listPlugConfigs);

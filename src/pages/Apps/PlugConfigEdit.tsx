@@ -1,12 +1,8 @@
-import { useEffect, useState } from "react";
 import { navigate } from "raviger";
-import routes from "@/Redux/api";
-import useQuery from "@/Utils/request/useQuery";
-import request from "@/Utils/request/request";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Textarea } from "@/components/ui/textarea";
-import Loading from "@/components/Common/Loading";
+import { useEffect, useState } from "react";
+
+import CareIcon from "@/CAREUI/icons/CareIcon";
+
 import {
   AlertDialog,
   AlertDialogAction,
@@ -18,7 +14,15 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
-import CareIcon from "@/CAREUI/icons/CareIcon";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
+
+import Loading from "@/components/Common/Loading";
+
+import routes from "@/Utils/request/api";
+import request from "@/Utils/request/request";
+import useQuery from "@/Utils/request/useQuery";
 
 interface Props {
   slug: string;
