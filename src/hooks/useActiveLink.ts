@@ -18,6 +18,8 @@ const activeLinkPriority = {
   "/users": "/users",
   "/notice_board": "/notice_board",
   "/facility": "/facility",
+  "/schedule": "/schedule",
+  "/exceptions": "/schedule",
 };
 
 /**

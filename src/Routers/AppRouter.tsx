@@ -16,6 +16,7 @@ import Error404 from "@/components/ErrorPages/404";
 import SessionExpired from "@/components/ErrorPages/SessionExpired";
 import { NoticeBoard } from "@/components/Notifications/NoticeBoard";
 import ShowPushNotification from "@/components/Notifications/ShowPushNotification";
+import ScheduleRoutes from "@/components/Schedule/routes";
 
 import { usePluginRoutes } from "@/hooks/useCareApps";
 
@@ -55,6 +56,7 @@ const Routes: AppRoutes = {
   ...ResourceRoutes,
   ...SampleRoutes,
   ...ShiftingRoutes,
+  ...ScheduleRoutes,
   ...UserRoutes,
 
   "/notifications/:id": ({ id }) => <ShowPushNotification id={id} />,
