@@ -1,3 +1,5 @@
+import { useTranslation } from "react-i18next";
+
 import CareIcon from "@/CAREUI/icons/CareIcon";
 import WeekdayCheckbox from "@/CAREUI/interactive/WeekdayCheckbox";
 
@@ -41,9 +43,17 @@ export default function ScheduleTemplateForm() {
           <strong className="font-medium">Regular OP Day</strong> template to
           schedule appointments
         </span>
-        <WeekdayCheckbox onChange={() => {}} />
+        <div className="py-2">
+          <WeekdayCheckbox value={[3, 7]} onChange={() => {}} />
+        </div>
 
-        <ul className="mb-2 mt-6 space-y-4">
+        <ul className="space-y-4 pb-2 pt-12">
+          <li>
+            <ScheduleAvailabilityForm />
+          </li>
+          <li>
+            <ScheduleAvailabilityForm />
+          </li>
           <li>
             <ScheduleAvailabilityForm />
           </li>
@@ -61,6 +71,7 @@ export default function ScheduleTemplateForm() {
 }
 
 const ScheduleAvailabilityForm = () => {
+  const { t } = useTranslation();
   return (
     <div className="flex flex-col rounded-lg bg-white p-4 shadow">
       <div className="flex items-center justify-between pb-4">
@@ -87,14 +98,14 @@ const ScheduleAvailabilityForm = () => {
           label="Appointment Type"
           required
           options={[
-            "emergency",
-            "op_schedule",
-            "ip_schedule",
-            "operation_theatre",
-            "follow_up_visit",
-            "specialist_referral",
+            "EMERGENCY",
+            "OP_SCHEDULE",
+            "IP_SCHEDULE",
+            "OPERATION_THEATRE",
+            "FOLLOW_UP_VISIT",
+            "SPECIALIST_REFERRAL",
           ]}
-          optionLabel={(o) => o}
+          optionLabel={(option) => t(`SCHEDULE_APPOINTMENT_TYPE__${option}`)}
           optionValue={(o) => o}
           onChange={() => {}}
         />
@@ -123,7 +134,7 @@ const ScheduleAvailabilityForm = () => {
         />
         <div className="mt-8 flex h-min gap-2 rounded-md bg-purple-50 px-2 py-1.5 text-sm/tight text-purple-500">
           <div className="h-min rounded-full border border-purple-300 bg-white px-2 py-0.5">
-            <span className="font-semibold">Info</span>
+            <span className="font-medium">Info</span>
           </div>
           <span className="font-medium">
             Allocating 10 tokens in this schedule provides approximately 6

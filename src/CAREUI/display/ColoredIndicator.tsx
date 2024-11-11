@@ -1,15 +1,17 @@
 import { cn } from "@/lib/utils";
 
-const colorForID = (uuid: string, pallete: string[]) => {
+const colorForID = (id: string | undefined, pallete: string[]) => {
+  if (!id) return "bg-zinc-200";
+
   let hash = 0;
-  for (let i = 0; i < uuid.length; i++) {
-    hash = uuid.charCodeAt(i) + ((hash << 5) - hash);
+  for (let i = 0; i < id.length; i++) {
+    hash = id.charCodeAt(i) + ((hash << 5) - hash);
   }
   return pallete[Math.abs(hash) % pallete.length];
 };
 
 interface Props {
-  id: string;
+  id?: string;
   pallete?: string[];
   className?: string;
 }

@@ -22,12 +22,12 @@ export default function ScheduleTemplatesList() {
           <SheetTrigger asChild>
             <Button variant="primary">Create Template</Button>
           </SheetTrigger>
-          <SheetContent className="min-w-full bg-gray-100 sm:min-w-[45rem]">
+          <SheetContent className="flex min-w-full flex-col bg-gray-100 sm:min-w-[45rem]">
             <SheetHeader>
               <SheetTitle>Create Schedule Template</SheetTitle>
             </SheetHeader>
 
-            <div className="py-6">
+            <div className="-mx-6 mb-16 overflow-auto px-6 pb-16 pt-6">
               <ScheduleTemplateForm />
             </div>
 
