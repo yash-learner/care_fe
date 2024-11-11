@@ -21,6 +21,7 @@ export default function SchedulingHomePage(props: Props) {
       <nav className="mt-6 flex gap-2 border-b border-gray-200">
         {(["schedule", "exceptions"] as const).map((view) => (
           <Link
+            key={view}
             className={cn(
               "relative px-3 py-2 font-medium",
               props.view === view ? "text-primary-600" : "text-gray-500",

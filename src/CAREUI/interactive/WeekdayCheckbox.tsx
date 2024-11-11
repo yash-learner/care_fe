@@ -18,44 +18,47 @@ export type DayOfWeekValue = (typeof DAYS_OF_WEEK)[keyof typeof DAYS_OF_WEEK];
 
 interface Props {
   value?: DayOfWeekValue[];
-  onChange: (value: DayOfWeekValue[]) => void;
+  onChange?: (value: DayOfWeekValue[]) => void;
 }
 
-export default function WeekdayCheckbox(props: Props) {
+export default function WeekdayCheckbox({ value = [], onChange }: Props) {
   const { t } = useTranslation();
-  const checkedDays = new Set(props.value ?? []);
+
+  const handleDayToggle = (day: DayOfWeekValue) => {
+    if (!onChange) return;
+
+    if (value.includes(day)) {
+      onChange(value.filter((d) => d !== day));
+    } else {
+      onChange([...value, day]);
+    }
+  };
 
   return (
     <ul className="flex justify-between">
       {Object.values(DAYS_OF_WEEK).map((day) => {
-        const isChecked = checkedDays.has(day);
-
-        const handleChange = (checked: boolean) => {
-          const result = new Set(checkedDays);
-          result[checked ? "add" : "delete"](day);
-          props.onChange([...result]);
-        };
+        const isChecked = value.includes(day);
 
         return (
           <li key={day}>
             <div
               className={cn(
-                "flex cursor-pointer flex-col items-center justify-center gap-2 rounded-lg border px-8 py-6 transition-all duration-200 ease-in-out",
+                "flex flex-col items-center justify-center gap-2 rounded-lg border px-8 py-6 transition-all duration-200 ease-in-out",
                 isChecked
                   ? "border-primary-500 bg-white shadow"
                   : "border-gray-300",
               )}
-              onClick={() => handleChange(!isChecked)}
             >
               <Checkbox
                 id={`day_of_week_checkbox_${day}`}
                 checked={isChecked}
-                onCheckedChange={handleChange}
+                onCheckedChange={() => handleDayToggle(day)}
                 className="border-gray-500 data-[state=checked]:border-primary-500 data-[state=checked]:bg-primary-500"
               />
               <label
                 htmlFor={`day_of_week_checkbox_${day}`}
                 className="cursor-pointer text-xs font-semibold uppercase"
+                onClick={(e) => e.stopPropagation()}
               >
                 {t(`DAYS_OF_WEEK_SHORT__${day}`)}
               </label>

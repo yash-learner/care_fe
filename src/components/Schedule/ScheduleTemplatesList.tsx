@@ -45,24 +45,24 @@ export default function ScheduleTemplatesList() {
       </div>
       <ul className="flex flex-col gap-4 py-6">
         <li>
-          <ScheduleTemplateItem />
+          <ScheduleTemplateItem id="5" />
         </li>
         <li>
-          <ScheduleTemplateItem />
+          <ScheduleTemplateItem id="1" />
         </li>
       </ul>
     </div>
   );
 }
 
-const ScheduleTemplateItem = () => {
+const ScheduleTemplateItem = (props: { id: string }) => {
   return (
     <div className="rounded-lg bg-white py-2 shadow">
       <div className="flex items-center justify-between py-2 pr-4">
         <div className="flex">
           <ColoredIndicator
             className="my-1 mr-2.5 h-5 w-1.5 rounded-r"
-            id="a6a72-8c43-4eea-88cd-79c9d0070fee"
+            id={props.id}
           />
           <div className="flex flex-col">
             <span className="text-lg font-semibold">Regular OP Day</span>
