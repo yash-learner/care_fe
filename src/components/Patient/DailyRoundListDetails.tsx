@@ -28,7 +28,7 @@ export const DailyRoundListDetails = (props: any) => {
 
   return (
     <Page
-      title={`Consultation Update #${id}`}
+      title={t("log_update") + ` #${id}`}
       backUrl={`/facility/${facilityId}/patient/${patientId}/consultation/${consultationId}/daily-rounds`}
     >
       <div
