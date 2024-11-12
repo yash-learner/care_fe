@@ -598,7 +598,7 @@ export default function PatientInfoCard(props: {
                       href={
                         consultation?.admitted && !consultation?.current_bed
                           ? undefined
-                          : `/facility/${patient.facility}/patient/${patient.id}/consultation/${consultation?.id}/daily-rounds`
+                          : `/facility/${patient.facility}/patient/${patient.id}/consultation/${consultation?.id}/log_updates`
                       }
                       onClick={() => {
                         if (

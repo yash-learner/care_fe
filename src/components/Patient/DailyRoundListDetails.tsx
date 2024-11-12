@@ -29,7 +29,7 @@ export const DailyRoundListDetails = (props: any) => {
   return (
     <Page
       title={t("log_update") + ` #${id}`}
-      backUrl={`/facility/${facilityId}/patient/${patientId}/consultation/${consultationId}/daily-rounds`}
+      backUrl={`/facility/${facilityId}/patient/${patientId}/consultation/${consultationId}/log_updates`}
       crumbsReplacements={{
         "daily-rounds": { name: t("log_updates") },
       }}
@@ -51,7 +51,7 @@ export const DailyRoundListDetails = (props: any) => {
           <div>
             <div className="mt-2">
               <ButtonV2
-                href={`/facility/${facilityId}/patient/${patientId}/consultation/${consultationId}/daily-rounds/${id}/update`}
+                href={`/facility/${facilityId}/patient/${patientId}/consultation/${consultationId}/log_updates/${id}/update`}
               >
                 Update Details
               </ButtonV2>
