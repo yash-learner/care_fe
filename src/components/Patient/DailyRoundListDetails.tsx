@@ -30,9 +30,6 @@ export const DailyRoundListDetails = (props: any) => {
     <Page
       title={t("log_update") + ` #${id}`}
       backUrl={`/facility/${facilityId}/patient/${patientId}/consultation/${consultationId}/log_updates`}
-      crumbsReplacements={{
-        "daily-rounds": { name: t("log_updates") },
-      }}
     >
       <div
         className="mt-4 h-full rounded-lg border bg-white p-4 text-black shadow hover:border-primary-500"

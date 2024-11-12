@@ -548,7 +548,6 @@ export const DailyRounds = (props: any) => {
       crumbsReplacements={{
         [facilityId]: { name: facilityName },
         [patientId]: { name: patientName },
-        "daily-rounds": { name: t("log_updates") },
       }}
       backUrl={
         id
