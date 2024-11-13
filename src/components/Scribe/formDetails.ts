@@ -240,10 +240,10 @@ const DAILY_ROUND_FORM_SCRIBE_DATA: Field[] = [
     friendlyName: "Investigations",
     id: "investigations",
     type: `{
-      type: string[], 
-      repetitive: boolean, 
-      time?: string, 
-      frequency?: '15 min' | '30 min' | '1 hr' | '6 hrs' | '12 hrs' | '24 hrs' | '48 hrs', 
+      type: string[],
+      repetitive: boolean,
+      time?: string,
+      frequency?: '15 min' | '30 min' | '1 hr' | '6 hrs' | '12 hrs' | '24 hrs' | '48 hrs',
       notes?: string
     }[]`,
     default: [],
@@ -252,7 +252,7 @@ const DAILY_ROUND_FORM_SCRIBE_DATA: Field[] = [
         type: ["Haemotology (GROUP)"],
         repetitive: false,
         time: "2024-07-31T18:10",
-        notes: "Patient is allergic to penicillin."      
+        notes: "Patient is allergic to penicillin."
       },
       {
         type: ["ECG", "X-Ray"],
@@ -291,7 +291,7 @@ const DAILY_ROUND_FORM_SCRIBE_DATA: Field[] = [
       {base_dosage: "5 ampule(s)", days: 7, dosage_type: "REGULAR", frequency: "STAT", medicine: "DOLO", notes: "Give with water", route: "ORAL"},
       {base_dosage: "7 ml", days: 3, dosage_type: "TITRATED", frequency: "Q4H", medicine: "Albumin", route: "INHALATION", instruction_on_titration: "Example", target_dosage: "40 ml"},
     ]`,
-    description: `A list of objects to store the patient's prescriptions. The prescription can be regular or titrated. If titrated, the prescription should also include instruction_on_titration, and a target_dosage. NOTE: target_dosage should have the same unit as base_dosage. 
+    description: `A list of objects to store the patient's prescriptions. The prescription can be regular or titrated. If titrated, the prescription should also include instruction_on_titration, and a target_dosage. NOTE: target_dosage should have the same unit as base_dosage.
     The frequency should be any of the mentioned ones. They are short for:
     STAT: Imediately,
     OD: Once daily,
@@ -360,9 +360,9 @@ const DAILY_ROUND_FORM_SCRIBE_DATA: Field[] = [
 ];
 
 export const SCRIBE_FORMS: { [key: string]: ScribeForm } = {
-  daily_round: {
-    id: "daily_round",
-    name: "Daily Round",
+  log_update: {
+    id: "log_update",
+    name: "Log Update",
     fields: async () => {
       const investigations = await loadInvestigations();
 
