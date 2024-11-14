@@ -1,16 +1,5 @@
 import ColoredIndicator from "@/CAREUI/display/ColoredIndicator";
 
-import { Button } from "@/components/ui/button";
-import {
-  Sheet,
-  SheetClose,
-  SheetContent,
-  SheetFooter,
-  SheetHeader,
-  SheetTitle,
-  SheetTrigger,
-} from "@/components/ui/sheet";
-
 import ScheduleTemplateForm from "@/components/Schedule/ScheduleTemplateForm";
 
 export default function ScheduleTemplatesList() {
@@ -18,30 +7,7 @@ export default function ScheduleTemplatesList() {
     <div>
       <div className="flex items-end justify-between">
         <h4 className="text-lg font-semibold">Schedule Templates</h4>
-        <Sheet>
-          <SheetTrigger asChild>
-            <Button variant="primary">Create Template</Button>
-          </SheetTrigger>
-          <SheetContent className="flex min-w-full flex-col bg-gray-100 sm:min-w-[45rem]">
-            <SheetHeader>
-              <SheetTitle>Create Schedule Template</SheetTitle>
-            </SheetHeader>
-
-            <div className="-mx-6 mb-16 overflow-auto px-6 pb-16 pt-6">
-              <ScheduleTemplateForm />
-            </div>
-
-            <SheetFooter className="absolute inset-x-0 bottom-0 border-t bg-white p-6">
-              <SheetClose asChild>
-                <Button variant="outline">Cancel</Button>
-              </SheetClose>
-
-              <SheetClose asChild>
-                <Button variant="primary">Save & Generate Slots</Button>
-              </SheetClose>
-            </SheetFooter>
-          </SheetContent>
-        </Sheet>
+        <ScheduleTemplateForm />
       </div>
       <ul className="flex flex-col gap-4 py-6">
         <li>

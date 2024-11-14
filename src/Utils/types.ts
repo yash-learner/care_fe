@@ -8,6 +8,11 @@ export interface BaseModel {
   readonly updated_by: UserBareMinimum;
 }
 
+/**
+ * A utility type that makes all properties of `T` writable.
+ * If a property was originally `readonly`, it becomes optional.
+ * Otherwise, it remains required.
+ */
 export type Writable<T> = {
   [P in keyof T as IfEquals<
     { [Q in P]: T[P] },
@@ -24,6 +29,10 @@ export type Writable<T> = {
   >]: T[P];
 };
 
+/**
+ * A utility type that includes only the non-readonly properties of `T`.
+ * Or in other words, excludes all `readonly` properties.
+ */
 export type WritableOnly<T> = {
   [P in keyof T as IfEquals<
     { [Q in P]: T[P] },
@@ -34,3 +43,5 @@ export type WritableOnly<T> = {
 
 type IfEquals<X, Y, A = X, B = never> =
   (<T>() => T extends X ? 1 : 2) extends <T>() => T extends Y ? 1 : 2 ? A : B;
+
+export type Time = `${number}:${number}`;
