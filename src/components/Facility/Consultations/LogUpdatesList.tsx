@@ -21,7 +21,7 @@ interface Props {
   query: QueryParams;
 }
 
-export default function DailyRoundsList({ consultation, query }: Props) {
+export default function LogUpdatesList({ consultation, query }: Props) {
   const [consultationId] = useSlugs("consultation");
   const { t } = useTranslation();
 

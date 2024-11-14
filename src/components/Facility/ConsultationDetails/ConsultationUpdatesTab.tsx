@@ -22,7 +22,7 @@ import Tabs from "@/components/Common/Tabs";
 import EventsList from "@/components/Facility/ConsultationDetails/Events/EventsList";
 import { ConsultationTabProps } from "@/components/Facility/ConsultationDetails/index";
 import DailyRoundsFilter from "@/components/Facility/Consultations/DailyRoundsFilter";
-import DailyRoundsList from "@/components/Facility/Consultations/DailyRoundsList";
+import LogUpdatesList from "@/components/Facility/Consultations/LogUpdatesList";
 import { BedModel } from "@/components/Facility/models";
 import PrescriptionsTable from "@/components/Medicine/PrescriptionsTable";
 import EncounterSymptomsCard from "@/components/Symptoms/SymptomsCard";
@@ -756,7 +756,7 @@ export const ConsultationUpdatesTab = (props: ConsultationTabProps) => {
           {showEvents ? (
             <EventsList query={eventsQuery!} />
           ) : (
-            <DailyRoundsList
+            <LogUpdatesList
               consultation={props.consultationData}
               query={dailyRoundsQuery!}
             />
