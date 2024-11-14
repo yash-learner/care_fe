@@ -3,9 +3,9 @@ import { useTranslation } from "react-i18next";
 import Timeline, { TimelineNode } from "@/CAREUI/display/Timeline";
 import PaginatedList from "@/CAREUI/misc/PaginatedList";
 
-import DefaultLogUpdateCard from "@/components/Facility/Consultations/DailyRounds/DefaultLogUpdateCard";
-import LoadingLogUpdateCard from "@/components/Facility/Consultations/DailyRounds/LoadingCard";
-import VirtualNursingAssistantLogUpdateCard from "@/components/Facility/Consultations/DailyRounds/VirtualNursingAssistantLogUpdateCard";
+import DefaultLogUpdateCard from "@/components/Facility/Consultations/LogUpdates/DefaultLogUpdateCard";
+import LoadingLogUpdateCard from "@/components/Facility/Consultations/LogUpdates/LoadingCard";
+import VirtualNursingAssistantLogUpdateCard from "@/components/Facility/Consultations/LogUpdates/VirtualNursingAssistantLogUpdateCard";
 import { ConsultationModel } from "@/components/Facility/models";
 import { DailyRoundsModel } from "@/components/Patient/models";
 
