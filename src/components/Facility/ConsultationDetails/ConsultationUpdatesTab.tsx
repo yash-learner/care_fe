@@ -21,7 +21,7 @@ import ReadMore from "@/components/Common/Readmore";
 import Tabs from "@/components/Common/Tabs";
 import EventsList from "@/components/Facility/ConsultationDetails/Events/EventsList";
 import { ConsultationTabProps } from "@/components/Facility/ConsultationDetails/index";
-import DailyRoundsFilter from "@/components/Facility/Consultations/DailyRoundsFilter";
+import LogUpdatesFilter from "@/components/Facility/Consultations/LogUpdatesFilter";
 import LogUpdatesList from "@/components/Facility/Consultations/LogUpdatesList";
 import { BedModel } from "@/components/Facility/models";
 import PrescriptionsTable from "@/components/Medicine/PrescriptionsTable";
@@ -773,7 +773,7 @@ function DailyRoundsSortDropdown({
   setDailyRoundsQuery: (query: QueryParams) => void;
 }) {
   return (
-    <DailyRoundsFilter
+    <LogUpdatesFilter
       onApply={(query) => {
         setDailyRoundsQuery(query);
       }}
