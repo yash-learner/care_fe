@@ -3,10 +3,19 @@ import {
   ScheduleTemplateCreate,
 } from "@/components/Schedule/schemas";
 
-import { ModelCrudApis } from "@/Utils/request/api";
+import { Type } from "@/Utils/request/api";
+import { PaginatedResponse } from "@/Utils/request/types";
 
 export const ScheduleAPIs = {
-  templates: ModelCrudApis<ScheduleTemplate, ScheduleTemplateCreate>(
-    "/api/v1/facility/{facility_id}/schedule",
-  ),
-};
+  createScheduleTemplate: {
+    path: "/api/v1/facility/{facility_id}/schedule/",
+    method: "POST",
+    TRes: Type<ScheduleTemplate>(),
+    TBody: Type<ScheduleTemplateCreate>(),
+  },
+  listScheduleTemplates: {
+    path: "/api/v1/facility/{facility_id}/schedule/",
+    method: "GET",
+    TRes: Type<PaginatedResponse<ScheduleTemplate>>(),
+  },
+} as const;

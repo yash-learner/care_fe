@@ -36,8 +36,12 @@ import {
   SheetTrigger,
 } from "@/components/ui/sheet";
 
+import { ScheduleAPIs } from "@/components/Schedule/api";
 import { ScheduleSlotTypes } from "@/components/Schedule/schemas";
 
+import useAuthUser from "@/hooks/useAuthUser";
+
+import useMutation from "@/Utils/request/useMutation";
 import { Time } from "@/Utils/types";
 
 const formSchema = z.object({
@@ -66,6 +70,8 @@ const formSchema = z.object({
 
 export default function ScheduleTemplateForm() {
   const { t } = useTranslation();
+  const authUser = useAuthUser();
+
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
@@ -85,26 +91,40 @@ export default function ScheduleTemplateForm() {
     },
   });
 
-  function onSubmit(values: z.infer<typeof formSchema>) {
-    console.log({
-      doctor_username: "",
-      valid_from: values.valid_from.toISOString(),
-      valid_to: values.valid_to.toISOString(),
-      name: values.name,
-      availability: values.availability.map((availability) => ({
-        ...availability,
-        id: "",
-        slot_size_in_minutes: 0,
-        tokens_per_slot: 0,
-        days_of_week: values.weekdays,
-      })),
+  const { mutate, isProcessing } = useMutation(
+    ScheduleAPIs.createScheduleTemplate,
+    {
+      pathParams: {
+        facility_id: authUser.home_facility_object!.id!,
+      },
+    },
+  );
+
+  async function onSubmit(values: z.infer<typeof formSchema>) {
+    await mutate({
+      body: {
+        doctor_username: authUser.username,
+        valid_from: values.valid_from.toISOString(),
+        valid_to: values.valid_to.toISOString(),
+        name: values.name,
+        availability: values.availability.map((availability) => ({
+          ...availability,
+          slot_type: 1,
+          id: undefined as unknown as string,
+          slot_size_in_minutes: 0,
+          tokens_per_slot: 0,
+          days_of_week: values.weekdays,
+        })),
+      },
     });
   }
 
   return (
     <Sheet>
       <SheetTrigger asChild>
-        <Button variant="primary">Create Template</Button>
+        <Button variant="primary" disabled={isProcessing}>
+          Create Template
+        </Button>
       </SheetTrigger>
       <SheetContent className="flex min-w-full flex-col bg-gray-100 sm:min-w-[45rem]">
         <SheetHeader>
@@ -348,13 +368,17 @@ export default function ScheduleTemplateForm() {
 
               <SheetFooter className="absolute inset-x-0 bottom-0 border-t bg-white p-6">
                 <SheetClose asChild>
-                  <Button variant="outline" type="button">
+                  <Button
+                    variant="outline"
+                    type="button"
+                    disabled={isProcessing}
+                  >
                     Cancel
                   </Button>
                 </SheetClose>
 
-                <Button variant="primary" type="submit">
-                  Save & Generate Slots
+                <Button variant="primary" type="submit" disabled={isProcessing}>
+                  {isProcessing ? "Saving..." : "Save & Generate Slots"}
                 </Button>
               </SheetFooter>
             </form>
