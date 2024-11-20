@@ -544,3 +544,10 @@ export const fahrenheitToCelsius = (fahrenheit: number) => {
 export const keysOf = <T extends object>(obj: T) => {
   return Object.keys(obj) as (keyof T)[];
 };
+
+export const getMonthStartAndEnd = (date: Date) => {
+  return {
+    start: new Date(date.getFullYear(), date.getMonth(), 1),
+    end: new Date(date.getFullYear(), date.getMonth() + 1, 0),
+  };
+};

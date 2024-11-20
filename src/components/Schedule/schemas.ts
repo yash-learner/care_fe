@@ -2,13 +2,12 @@ import { DayOfWeekValue } from "@/CAREUI/interactive/WeekdayCheckbox";
 
 import { Time, WritableOnly } from "@/Utils/types";
 
-interface ScheduleResource {
-  id: string;
-  facility: {
-    id: string;
-    name: string;
-  };
+interface ScheduleResourceUser {
+  readonly id: string;
+  readonly name: string;
 }
+
+type ScheduleResource = ScheduleResourceUser;
 
 export interface ScheduleTemplate {
   readonly id: string;
@@ -23,14 +22,7 @@ export interface ScheduleTemplateCreate extends WritableOnly<ScheduleTemplate> {
   doctor_username: string;
 }
 
-export const ScheduleSlotTypes = [
-  "EMERGENCY",
-  "OP_SCHEDULE",
-  "IP_SCHEDULE",
-  "OPERATION_THEATRE",
-  "FOLLOW_UP_VISIT",
-  "SPECIALIST_REFERRAL",
-] as const;
+export const ScheduleSlotTypes = ["Open", "Appointment"] as const;
 
 export interface ScheduleAvailability {
   readonly id: string;
@@ -41,4 +33,17 @@ export interface ScheduleAvailability {
   days_of_week: DayOfWeekValue[];
   start_time: Time;
   end_time: Time;
+}
+
+export interface ScheduleExceptionCreate {
+  doctor_username: string;
+  name: string;
+  is_available: boolean;
+  valid_from: string;
+  valid_to: string;
+  start_time: Time;
+  end_time: Time;
+  slot_type: (typeof ScheduleSlotTypes)[number];
+  slot_size_in_minutes: number;
+  tokens_per_slot: number;
 }

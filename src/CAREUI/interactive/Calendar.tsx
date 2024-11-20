@@ -4,6 +4,8 @@ import { cn } from "@/lib/utils";
 
 import CareIcon from "@/CAREUI/icons/CareIcon";
 
+import { getMonthStartAndEnd } from "@/Utils/utils";
+
 interface Props {
   className?: string;
   month?: Date;
@@ -13,21 +15,10 @@ interface Props {
 
 export default function Calendar(props: Props) {
   const currentMonth = props.month ?? new Date();
-
-  // Get first day of the month and total days
-  const firstDayOfMonth = new Date(
-    currentMonth.getFullYear(),
-    currentMonth.getMonth(),
-    1,
-  );
-  const lastDayOfMonth = new Date(
-    currentMonth.getFullYear(),
-    currentMonth.getMonth() + 1,
-    0,
-  );
+  const currentMonthRange = getMonthStartAndEnd(currentMonth);
 
   // Calculate days to display from previous month
-  const startingDayOfWeek = firstDayOfMonth.getDay();
+  const startingDayOfWeek = currentMonthRange.start.getDay();
 
   // Generate calendar days array for current month only
   const calendarDays: Date[] = [];
@@ -38,7 +29,7 @@ export default function Calendar(props: Props) {
   }
 
   // Add current month's days
-  for (let i = 1; i <= lastDayOfMonth.getDate(); i++) {
+  for (let i = 1; i <= currentMonthRange.end.getDate(); i++) {
     calendarDays.push(
       new Date(currentMonth.getFullYear(), currentMonth.getMonth(), i),
     );
