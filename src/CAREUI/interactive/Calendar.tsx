@@ -6,15 +6,13 @@ import CareIcon from "@/CAREUI/icons/CareIcon";
 
 interface Props {
   className?: string;
-  initialMonth?: Date;
+  month?: Date;
   onMonthChange?: (month: Date) => void;
   renderDay?: (date: Date) => React.ReactNode;
 }
 
 export default function Calendar(props: Props) {
-  const [currentMonth, setCurrentMonth] = React.useState(
-    props.initialMonth ?? new Date(),
-  );
+  const currentMonth = props.month ?? new Date();
 
   // Get first day of the month and total days
   const firstDayOfMonth = new Date(
@@ -51,7 +49,6 @@ export default function Calendar(props: Props) {
       currentMonth.getFullYear(),
       currentMonth.getMonth() - 1,
     );
-    setCurrentMonth(prevMonth);
     props.onMonthChange?.(prevMonth);
   };
 
@@ -60,7 +57,6 @@ export default function Calendar(props: Props) {
       currentMonth.getFullYear(),
       currentMonth.getMonth() + 1,
     );
-    setCurrentMonth(nextMonth);
     props.onMonthChange?.(nextMonth);
   };
 
