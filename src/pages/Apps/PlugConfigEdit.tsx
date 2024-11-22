@@ -51,18 +51,21 @@ export function PlugConfigEdit({ slug }: Props) {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    // Meta is parsed to a JSON object to clear whitespaces when saving
+    const meta = JSON.parse(config.meta);
+    const configPayload = { ...config, meta };
     try {
       if (isNew) {
         await request(routes.plugConfig.createPlugConfig, {
-          body: config,
+          body: configPayload,
         });
       } else {
         await request(routes.plugConfig.updatePlugConfig, {
           pathParams: { slug },
-          body: config,
+          body: configPayload,
         });
       }
-      navigate("/apps/plug-configs");
+      navigate("/apps");
     } catch (error) {
       console.error("Error saving config:", error);
     }
