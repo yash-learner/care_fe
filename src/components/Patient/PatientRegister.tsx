@@ -84,6 +84,11 @@ import {
   scrollTo,
 } from "@/Utils/utils";
 
+import ErrorPage from "../ErrorPages/DefaultErrorPage";
+import { ILocalBodies } from "../ExternalResult/models";
+import DuplicatePatientDialog from "../Facility/DuplicatePatientDialog";
+import TransferPatientDialog from "../Facility/TransferPatientDialog";
+
 export type PatientForm = PatientModel &
   PatientMeta & { age?: number; is_postpartum?: boolean };
 
