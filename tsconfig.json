@@ -22,7 +22,8 @@
       "@core/*": ["src/*"],
       "@apps/*": ["apps/*/src"],
       "@app-manifest/*": ["apps/*/src/manifest.ts"],
-      "@careConfig": ["./care.config.ts"]
+      "@careConfig": ["./care.config.ts"],
+      "care_livekit/*": ["src/types/*"]
     }
   },
   "include": ["src/**/*", "apps/**/*", "care.config.ts"],

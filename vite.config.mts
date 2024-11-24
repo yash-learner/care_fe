@@ -1,8 +1,6 @@
 import { ValidateEnv } from "@julr/vite-plugin-validate-env";
-import react from "@vitejs/plugin-react-swc";
-import checker from "vite-plugin-checker";
-import { viteStaticCopy } from "vite-plugin-static-copy";
 import federation from "@originjs/vite-plugin-federation";
+import react from "@vitejs/plugin-react-swc";
 import DOMPurify from "dompurify";
 import fs from "fs";
 import { JSDOM } from "jsdom";
@@ -108,11 +106,11 @@ export default defineConfig(({ mode }) => {
     },
     plugins: [
       federation({
-        name: "core",
-        filename: "coreComponents.js",
-        exposes: {
-          "./Plausible": "./src/Integrations/Plausible", // Path to the shared component
+        name: "host",
+        remotes: {
+          care_livekit: "http://localhost:5173/assets/remoteEntry.js", // URL of the microfrontend
         },
+        shared: ["react", "react-dom"], // Shared dependencies
       }),
       ValidateEnv({
         validator: "zod",
