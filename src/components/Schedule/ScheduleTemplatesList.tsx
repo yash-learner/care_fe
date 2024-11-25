@@ -1,3 +1,5 @@
+import { format, parseISO } from "date-fns";
+
 import ColoredIndicator from "@/CAREUI/display/ColoredIndicator";
 import CareIcon from "@/CAREUI/icons/CareIcon";
 
@@ -56,7 +58,7 @@ const ScheduleTemplateItem = (props: ScheduleTemplate) => {
       <div className="flex flex-col gap-2 px-4 py-2">
         <ul className="flex flex-col gap-2">
           {props.availability.map((slot) => (
-            <li className="w-full">
+            <li key={slot.id} className="w-full">
               <div className="rounded-lg bg-gray-50 px-3 py-2">
                 <div className="flex w-full items-center justify-between">
                   <div className="flex flex-col">
@@ -64,7 +66,10 @@ const ScheduleTemplateItem = (props: ScheduleTemplate) => {
                     <p className="text-gray-600">
                       <span className="text-sm">{slot.slot_type}</span>
                       <span className="px-2 text-gray-300">|</span>
-                      <span className="text-sm">5 slots (20 mins.)</span>
+                      <span className="text-sm">
+                        {slot.tokens_per_slot} slots (
+                        {slot.slot_size_in_minutes} mins.)
+                      </span>
                     </p>
                   </div>
                   <span className="text-sm">
@@ -74,25 +79,16 @@ const ScheduleTemplateItem = (props: ScheduleTemplate) => {
               </div>
             </li>
           ))}
-          {/* <li className="w-full">
-            <div className="rounded-lg bg-gray-50 px-3 py-2">
-              <div className="flex w-full items-center justify-between">
-                <div className="flex flex-col">
-                  <span>Morning Consultations</span>
-                  <p className="text-gray-600">
-                    <span className="text-sm">Outpatient Schedule</span>
-                    <span className="px-2 text-gray-300">|</span>
-                    <span className="text-sm">5 slots (20 mins.)</span>
-                  </p>
-                </div>
-                <span className="text-sm">09:00 AM - 12:00 PM</span>
-              </div>
-            </div>
-          </li> */}
         </ul>
         <span className="text-sm text-gray-500">
-          Valid from <strong className="font-semibold">01 Nov 2024</strong> till{" "}
-          <strong className="font-semibold">31 Jan 2025</strong>
+          Valid from{" "}
+          <strong className="font-semibold">
+            {format(parseISO(props.valid_from), "EEE, dd MMM yyyy")}
+          </strong>{" "}
+          till{" "}
+          <strong className="font-semibold">
+            {format(parseISO(props.valid_to), "EEE, dd MMM yyyy")}
+          </strong>
         </span>
       </div>
     </div>

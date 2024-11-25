@@ -30,9 +30,10 @@ export default function ColoredIndicator(props: Props) {
           props.pallete ?? [
             "bg-amber-600",
             "bg-blue-600",
+            "bg-purple-500",
             "bg-red-500",
             "bg-red-700",
-            "bg-primary-400",
+            "bg-primary-300",
             "bg-primary-500",
             "bg-zinc-600",
           ],

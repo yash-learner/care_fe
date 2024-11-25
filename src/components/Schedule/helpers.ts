@@ -1,3 +1,20 @@
+import { isSameDay, isWithinInterval } from "date-fns";
+
+export const isDateInRange = (
+  date: Date,
+  startDate: string,
+  endDate: string,
+) => {
+  const start = new Date(startDate);
+  const end = new Date(endDate);
+
+  return (
+    isWithinInterval(date, { start, end }) ||
+    isSameDay(date, start) ||
+    isSameDay(date, end)
+  );
+};
+
 export function calculateTokenDuration(
   startTime: string,
   endTime: string,

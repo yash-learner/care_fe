@@ -25,9 +25,22 @@ import useAuthUser from "@/hooks/useAuthUser";
 import useQuery from "@/Utils/request/useQuery";
 import { getMonthStartAndEnd } from "@/Utils/utils";
 
+import { isDateInRange } from "./helpers";
+
 interface Props {
   view: "schedule" | "exceptions";
 }
+
+// Add this CSS class to your global styles or use inline styles
+const diagonalStripes = {
+  backgroundImage: `repeating-linear-gradient(
+    -45deg,
+    rgb(243 244 246), /* gray-100 */
+    rgb(243 244 246) 4px,
+    rgb(229 231 235) 4px, /* gray-200 */
+    rgb(229 231 235) 8px
+  )`,
+};
 
 export default function SchedulingHomePage(props: Props) {
   const { t } = useTranslation();
@@ -93,6 +106,23 @@ export default function SchedulingHomePage(props: Props) {
           renderDay={(date: Date) => {
             const isToday = date.toDateString() === new Date().toDateString();
 
+            const templates = templatesQuery.data?.results.filter((template) =>
+              isDateInRange(date, template.valid_from, template.valid_to),
+            );
+
+            const unavailableExceptions =
+              exceptionsQuery.data?.results.filter(
+                (exception) =>
+                  !exception.is_available &&
+                  isDateInRange(date, exception.valid_from, exception.valid_to),
+              ) ?? [];
+
+            const isFullDayUnavailable = unavailableExceptions.some(
+              (exception) =>
+                exception.start_time.startsWith("00:00") &&
+                exception.end_time.startsWith("23:59"),
+            );
+
             return (
               <Popover>
                 <PopoverTrigger asChild>
@@ -102,10 +132,20 @@ export default function SchedulingHomePage(props: Props) {
                       templatesQuery.loading &&
                         "opacity-50 pointer-events-none",
                       "transition-all duration-200 ease-in-out",
+                      "relative overflow-hidden",
                     )}
                   >
+                    {unavailableExceptions.length > 0 && (
+                      <div
+                        className={cn(
+                          "absolute top-0 left-0 right-0 z-10",
+                          isFullDayUnavailable ? "h-full" : "h-1/4",
+                        )}
+                        style={diagonalStripes}
+                      />
+                    )}
                     <div />
-                    <div className="flex flex-col items-center gap-2">
+                    <div className="flex flex-col items-center gap-2 relative z-20">
                       <span
                         className={cn(
                           "text-base",
@@ -115,15 +155,15 @@ export default function SchedulingHomePage(props: Props) {
                         {date.getDate()}
                       </span>
                       <div className="flex justify-center gap-0.5">
-                        {Array.from({ length: Math.random() * 2 + 1 }).map(
-                          (_) => (
+                        {templates
+                          ?.slice(0, 5)
+                          .map((template) => (
                             <ColoredIndicator
-                              key={Math.random().toString()}
-                              id={Math.random().toString()}
+                              key={template.id}
+                              id={template.id}
                               className="size-1.5 rounded-full"
                             />
-                          ),
-                        )}
+                          ))}
                       </div>
                     </div>
                     <div />
