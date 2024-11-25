@@ -1,5 +1,6 @@
 import { Suspense } from "react";
 
+import { Toaster as Sonner } from "@/components/ui/sonner";
 import { Toaster } from "@/components/ui/toaster";
 
 import Loading from "@/components/Common/Loading";
@@ -30,6 +31,12 @@ const App = () => {
             <Integrations.Plausible />
           </HistoryAPIProvider>
           <Toaster />
+          <Sonner
+            position="top-right"
+            theme="light"
+            richColors
+            toastOptions={{}}
+          />
         </PluginEngine>
       </PubSubProvider>
     </Suspense>

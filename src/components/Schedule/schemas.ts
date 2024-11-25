@@ -27,6 +27,7 @@ export const ScheduleSlotTypes = ["Open", "Appointment"] as const;
 export interface ScheduleAvailability {
   readonly id: string;
   name: string;
+  reason: string; // TODO: integrate this
   slot_type: (typeof ScheduleSlotTypes)[number];
   slot_size_in_minutes: number;
   tokens_per_slot: number;
@@ -35,15 +36,21 @@ export interface ScheduleAvailability {
   end_time: Time;
 }
 
-export interface ScheduleExceptionCreate {
-  doctor_username: string;
+export interface ScheduleException {
+  readonly id: string;
   name: string;
   is_available: boolean;
+  reason: string;
   valid_from: string;
   valid_to: string;
   start_time: Time;
   end_time: Time;
-  slot_type: (typeof ScheduleSlotTypes)[number];
-  slot_size_in_minutes: number;
-  tokens_per_slot: number;
+  slot_type?: (typeof ScheduleSlotTypes)[number];
+  slot_size_in_minutes?: number;
+  tokens_per_slot?: number;
+}
+
+export interface ScheduleExceptionCreate
+  extends WritableOnly<ScheduleException> {
+  doctor_username: string;
 }

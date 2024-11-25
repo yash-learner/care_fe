@@ -1,4 +1,5 @@
 import { Link } from "raviger";
+import React from "react";
 import { useTranslation } from "react-i18next";
 
 import { cn } from "@/lib/utils";
@@ -22,6 +23,7 @@ import { ScheduleAPIs } from "@/components/Schedule/api";
 import useAuthUser from "@/hooks/useAuthUser";
 
 import useQuery from "@/Utils/request/useQuery";
+import { getMonthStartAndEnd } from "@/Utils/utils";
 
 interface Props {
   view: "schedule" | "exceptions";
@@ -30,14 +32,33 @@ interface Props {
 export default function SchedulingHomePage(props: Props) {
   const { t } = useTranslation();
   const authUser = useAuthUser();
+  const [month, setMonth] = React.useState(new Date());
 
-  const templatesQuery = useQuery(ScheduleAPIs.listScheduleTemplates, {
+  const monthRange = getMonthStartAndEnd(month);
+
+  const templatesQuery = useQuery(ScheduleAPIs.templates.list, {
     pathParams: {
       facility_id: authUser.home_facility_object!.id!,
     },
+    query: {
+      doctor_username: authUser.username,
+      date_from: monthRange.start.toISOString().split("T")[0],
+      date_to: monthRange.end.toISOString().split("T")[0],
+    },
   });
 
-  if (templatesQuery.loading) {
+  const exceptionsQuery = useQuery(ScheduleAPIs.exceptions.list, {
+    pathParams: {
+      facility_id: authUser.home_facility_object!.id!,
+    },
+    query: {
+      doctor_username: authUser.username,
+      date_from: monthRange.start.toISOString().split("T")[0],
+      date_to: monthRange.end.toISOString().split("T")[0],
+    },
+  });
+
+  if (!templatesQuery.data || !exceptionsQuery.data) {
     return <Loading />;
   }
 
@@ -67,13 +88,22 @@ export default function SchedulingHomePage(props: Props) {
       <div className="grid grid-cols-1 gap-8 py-4 md:grid-cols-2">
         <Calendar
           className="md:order-last"
+          month={month}
+          onMonthChange={setMonth}
           renderDay={(date: Date) => {
             const isToday = date.toDateString() === new Date().toDateString();
 
             return (
               <Popover>
                 <PopoverTrigger asChild>
-                  <div className="grid h-full cursor-pointer grid-rows-[1fr_auto_1fr] rounded-lg transition-all bg-gray-100 hover:bg-white data-[state=open]:bg-white">
+                  <div
+                    className={cn(
+                      "grid h-full cursor-pointer grid-rows-[1fr_auto_1fr] rounded-lg transition-all bg-gray-100 hover:bg-white data-[state=open]:bg-white",
+                      templatesQuery.loading &&
+                        "opacity-50 pointer-events-none",
+                      "transition-all duration-200 ease-in-out",
+                    )}
+                  >
                     <div />
                     <div className="flex flex-col items-center gap-2">
                       <span
@@ -88,6 +118,7 @@ export default function SchedulingHomePage(props: Props) {
                         {Array.from({ length: Math.random() * 2 + 1 }).map(
                           (_) => (
                             <ColoredIndicator
+                              key={Math.random().toString()}
                               id={Math.random().toString()}
                               className="size-1.5 rounded-full"
                             />
@@ -158,9 +189,22 @@ export default function SchedulingHomePage(props: Props) {
         />
 
         {props.view === "schedule" && (
-          <ScheduleTemplatesList items={templatesQuery.data?.results ?? []} />
+          <ScheduleTemplatesList
+            items={
+              templatesQuery.loading ? undefined : templatesQuery.data.results
+            }
+            onRefresh={templatesQuery.refetch}
+          />
         )}
-        {props.view === "exceptions" && <ScheduleExceptionsList />}
+
+        {props.view === "exceptions" && (
+          <ScheduleExceptionsList
+            items={
+              exceptionsQuery.loading ? undefined : exceptionsQuery.data.results
+            }
+            onRefresh={exceptionsQuery.refetch}
+          />
+        )}
       </div>
     </Page>
   );

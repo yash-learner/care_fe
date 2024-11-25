@@ -1,11 +1,13 @@
 import ColoredIndicator from "@/CAREUI/display/ColoredIndicator";
 import CareIcon from "@/CAREUI/icons/CareIcon";
 
+import Loading from "@/components/Common/Loading";
 import ScheduleTemplateForm from "@/components/Schedule/ScheduleTemplateForm";
 import { ScheduleTemplate } from "@/components/Schedule/schemas";
 
 interface Props {
-  items: ScheduleTemplate[];
+  items?: ScheduleTemplate[];
+  onRefresh?: () => void;
 }
 
 export default function ScheduleTemplatesList(props: Props) {
@@ -13,20 +15,22 @@ export default function ScheduleTemplatesList(props: Props) {
     <div>
       <div className="flex items-end justify-between">
         <h4 className="text-lg font-semibold">Schedule Templates</h4>
-        <ScheduleTemplateForm />
+        <ScheduleTemplateForm onRefresh={props.onRefresh} />
       </div>
-      <ul className="flex flex-col gap-4 py-6">
-        {props.items.map((template) => (
-          <li key={template.id}>
-            <ScheduleTemplateItem {...template} />
-          </li>
-        ))}
-      </ul>
-      {props.items.length === 0 && (
-        <div className="flex flex-col items-center text-center text-gray-500 py-10">
-          <CareIcon icon="l-calendar-slash" className="size-10 mb-2" />
-          <p>No schedule templates found</p>
-          <p>Create a schedule template to get started</p>
+      {props.items == undefined && <Loading />}
+      {!!props.items?.length && (
+        <ul className="flex flex-col gap-4 py-6">
+          {props.items.map((template) => (
+            <li key={template.id}>
+              <ScheduleTemplateItem {...template} />
+            </li>
+          ))}
+        </ul>
+      )}
+      {props.items?.length === 0 && (
+        <div className="flex flex-col items-center text-center text-gray-500 py-64">
+          <CareIcon icon="l-calendar-slash" className="size-10 mb-3" />
+          <p>No schedule templates found for this month.</p>
         </div>
       )}
     </div>
