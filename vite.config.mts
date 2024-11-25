@@ -84,6 +84,29 @@ function getPluginDependencies(): string[] {
   return Array.from(dependencies);
 }
 
+// Recursive function to check if the module is statically imported by an entry point
+function isStaticallyImportedByEntry(moduleId, visited = new Set()) {
+  if (visited.has(moduleId)) return false;
+  visited.add(moduleId);
+
+  const modInfo = getModuleInfo(moduleId);
+  if (!modInfo) return false;
+
+  // Check if the module is an entry point
+  if (modInfo.isEntry) {
+    return true;
+  }
+
+  // Check all static importers
+  for (const importerId of modInfo.importers) {
+    if (isStaticallyImportedByEntry(importerId, visited)) {
+      return true;
+    }
+  }
+
+  return false;
+}
+
 /** @type {import('vite').UserConfig} */
 
 export default defineConfig(({ mode }) => {
@@ -214,36 +237,9 @@ export default defineConfig(({ mode }) => {
       sourcemap: true,
       rollupOptions: {
         output: {
-          manualChunks(id, { getModuleInfo }) {
+          manualChunks: (id, { getModuleInfo }) => {
             if (id.includes("node_modules")) {
               const moduleInfo = getModuleInfo(id);
-
-              // Recursive function to check if the module is statically imported by an entry point
-              function isStaticallyImportedByEntry(
-                moduleId,
-                visited = new Set(),
-              ) {
-                if (visited.has(moduleId)) return false;
-                visited.add(moduleId);
-
-                const modInfo = getModuleInfo(moduleId);
-                if (!modInfo) return false;
-
-                // Check if the module is an entry point
-                if (modInfo.isEntry) {
-                  return true;
-                }
-
-                // Check all static importers
-                for (const importerId of modInfo.importers) {
-                  if (isStaticallyImportedByEntry(importerId, visited)) {
-                    return true;
-                  }
-                }
-
-                return false;
-              }
-
               // Determine if the module should be in the 'vendor' chunk
               const manualVendorChunks = /tiny-invariant/;
               if (
