@@ -152,6 +152,10 @@
     "vite-plugin-static-copy": "^2.0.0",
     "zod": "^3.23.8"
   },
+  "optionalDependencies": {
+    "@rollup/rollup-linux-x64-gnu": "4.13.0",
+    "@rollup/rollup-linux-arm64-gnu": "4.13.0"
+  },
   "browserslist": {
     "production": [
       ">0.2%",
