@@ -208,8 +208,11 @@ export default defineConfig(({ mode }) => {
       outDir: "build",
       assetsDir: "bundle",
       sourcemap: true,
+      target: "es2022",
+      modulePreload: false,
       rollupOptions: {
         output: {
+          format: "esm",
           manualChunks(id, { getModuleInfo }) {
             if (id.includes("node_modules")) {
               const moduleInfo = getModuleInfo(id);
