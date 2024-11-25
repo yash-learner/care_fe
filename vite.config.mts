@@ -115,18 +115,6 @@ export default defineConfig(({ mode }) => {
             from: "vite",
           },
         },
-        shared: {
-          react: {
-            singleton: true,
-            eager: true,
-            requiredVersion: "^18.0.0",
-          },
-          "react-dom": {
-            singleton: true,
-            eager: true,
-            requiredVersion: "^18.0.0",
-          },
-        },
       }),
       ValidateEnv({
         validator: "zod",
@@ -226,23 +214,58 @@ export default defineConfig(({ mode }) => {
       sourcemap: true,
       rollupOptions: {
         output: {
-          manualChunks(id) {
+          manualChunks(id, { getModuleInfo }) {
             if (id.includes("node_modules")) {
-              if (/tiny-invariant/.test(id)) {
-                return "vendor";
+              const moduleInfo = getModuleInfo(id);
+
+              // Recursive function to check if the module is statically imported by an entry point
+              function isStaticallyImportedByEntry(
+                moduleId,
+                visited = new Set(),
+              ) {
+                if (visited.has(moduleId)) return false;
+                visited.add(moduleId);
+
+                const modInfo = getModuleInfo(moduleId);
+                if (!modInfo) return false;
+
+                // Check if the module is an entry point
+                if (modInfo.isEntry) {
+                  return true;
+                }
+
+                // Check all static importers
+                for (const importerId of modInfo.importers) {
+                  if (isStaticallyImportedByEntry(importerId, visited)) {
+                    return true;
+                  }
+                }
+
+                return false;
               }
-              const chunks = id.toString().split("node_modules/")[1];
-              if (chunks) {
-                const [name] = chunks.split("/");
-                return `vendor-${name}`;
+
+              // Determine if the module should be in the 'vendor' chunk
+              const manualVendorChunks = /tiny-invariant/;
+              if (
+                manualVendorChunks.test(id) ||
+                isStaticallyImportedByEntry(id)
+              ) {
+                return "vendor";
+              } else {
+                // group lazy-loaded dependencies by their dynamic importer
+                const dynamicImporters = moduleInfo?.dynamicImporters || [];
+                if (dynamicImporters && dynamicImporters.length > 0) {
+                  // Use the first dynamic importer to name the chunk
+                  const importerChunkName = dynamicImporters[0]
+                    ? dynamicImporters[0].split("/").pop()
+                    : "vendor".split(".")[0];
+                  return `chunk-${importerChunkName}`;
+                }
+                // If no dynamic importers are found, let Rollup handle it automatically
               }
             }
           },
         },
-      },
-      target: "esnext",
-      modulePreload: {
-        polyfill: false,
       },
     },
     server: {
