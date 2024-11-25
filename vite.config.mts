@@ -1,6 +1,6 @@
 import { ValidateEnv } from "@julr/vite-plugin-validate-env";
 import federation from "@originjs/vite-plugin-federation";
-import react from "@vitejs/plugin-react";
+import react from "@vitejs/plugin-react-swc";
 import DOMPurify from "dompurify";
 import fs from "fs";
 import { JSDOM } from "jsdom";
@@ -84,31 +84,7 @@ function getPluginDependencies(): string[] {
   return Array.from(dependencies);
 }
 
-// Recursive function to check if the module is statically imported by an entry point
-function isStaticallyImportedByEntry(moduleId, visited = new Set()) {
-  if (visited.has(moduleId)) return false;
-  visited.add(moduleId);
-
-  const modInfo = getModuleInfo(moduleId);
-  if (!modInfo) return false;
-
-  // Check if the module is an entry point
-  if (modInfo.isEntry) {
-    return true;
-  }
-
-  // Check all static importers
-  for (const importerId of modInfo.importers) {
-    if (isStaticallyImportedByEntry(importerId, visited)) {
-      return true;
-    }
-  }
-
-  return false;
-}
-
 /** @type {import('vite').UserConfig} */
-
 export default defineConfig(({ mode }) => {
   const env = loadEnv(mode, process.cwd(), "");
 
@@ -128,11 +104,12 @@ export default defineConfig(({ mode }) => {
       ),
     },
     plugins: [
+      // Federation Config for care_livekit_fe
       federation({
-        name: "host",
+        name: "care_livekit",
         remotes: {
           care_livekit:
-            "http://ohcnetwork.github.io/care_livekit_fe/assets/remoteEntry.js",
+            "http://ohcnetwrok.github.io/care_livekit_fe/assets/remoteEntry.js",
         },
       }),
       ValidateEnv({
@@ -231,21 +208,56 @@ export default defineConfig(({ mode }) => {
       outDir: "build",
       assetsDir: "bundle",
       sourcemap: true,
-      target: ["chrome87", "edge88", "es2020", "firefox78", "safari14"],
-      modulePreload: {
-        polyfill: false,
-      },
       rollupOptions: {
         output: {
-          manualChunks(id) {
+          manualChunks(id, { getModuleInfo }) {
             if (id.includes("node_modules")) {
-              if (/tiny-invariant/.test(id)) {
-                return "vendor";
+              const moduleInfo = getModuleInfo(id);
+
+              // Recursive function to check if the module is statically imported by an entry point
+              function isStaticallyImportedByEntry(
+                moduleId,
+                visited = new Set(),
+              ) {
+                if (visited.has(moduleId)) return false;
+                visited.add(moduleId);
+
+                const modInfo = getModuleInfo(moduleId);
+                if (!modInfo) return false;
+
+                // Check if the module is an entry point
+                if (modInfo.isEntry) {
+                  return true;
+                }
+
+                // Check all static importers
+                for (const importerId of modInfo.importers) {
+                  if (isStaticallyImportedByEntry(importerId, visited)) {
+                    return true;
+                  }
+                }
+
+                return false;
               }
-              const chunks = id.toString().split("node_modules/")[1];
-              if (chunks) {
-                const [name] = chunks.split("/");
-                return `vendor-${name}`;
+
+              // Determine if the module should be in the 'vendor' chunk
+              const manualVendorChunks = /tiny-invariant/;
+              if (
+                manualVendorChunks.test(id) ||
+                isStaticallyImportedByEntry(id)
+              ) {
+                return "vendor";
+              } else {
+                // group lazy-loaded dependencies by their dynamic importer
+                const dynamicImporters = moduleInfo?.dynamicImporters || [];
+                if (dynamicImporters && dynamicImporters.length > 0) {
+                  // Use the first dynamic importer to name the chunk
+                  const importerChunkName = dynamicImporters[0]
+                    ? dynamicImporters[0].split("/").pop()
+                    : "vendor".split(".")[0];
+                  return `chunk-${importerChunkName}`;
+                }
+                // If no dynamic importers are found, let Rollup handle it automatically
               }
             }
           },
