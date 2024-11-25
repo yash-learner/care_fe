@@ -109,7 +109,7 @@ export default defineConfig(({ mode }) => {
         name: "care_livekit",
         remotes: {
           care_livekit:
-            "http://ohcnetwork.github.io/care_livekit_fe/assets/remoteEntry.js",
+            "https://ohcnetwork.github.io/care_livekit_fe/assets/remoteEntry.js",
         },
       }),
       ValidateEnv({
