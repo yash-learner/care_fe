@@ -1,5 +1,5 @@
 /* eslint-disable i18next/no-literal-string */
-import React, { Suspense, useEffect, useState } from "react";
+import React, { Suspense } from "react";
 
 import ErrorBoundary from "@/components/Common/ErrorBoundary";
 import Loading from "@/components/Common/Loading";
@@ -7,6 +7,9 @@ import Loading from "@/components/Common/Loading";
 import { CareAppsContext, useCareApps } from "@/hooks/useCareApps";
 
 import { SupportedPluginComponents, pluginMap } from "@/pluginTypes";
+
+// Import the remote component synchronously
+const CareLivekit = React.lazy(() => import("care_livekit/CareLivekit"));
 
 export default function PluginEngine({
   children,
@@ -23,12 +26,9 @@ export default function PluginEngine({
         }
       >
         <CareAppsContext.Provider value={pluginMap}>
-          {/* <RemoteComponent
-            url="http://localhost:5000/assets/remoteEntry.js"
-            scope="care_livekit"
-            module="CareLivekit"
-          /> */}
-          <DynamicMicrofrontend configUrl="http://localhost:5173/assets/remoteEntry.js" />
+          <Suspense fallback={<Loading />}>
+            <CareLivekit />
+          </Suspense>
           {children}
         </CareAppsContext.Provider>
       </ErrorBoundary>
@@ -61,75 +61,3 @@ export function PLUGIN_Component<K extends keyof SupportedPluginComponents>({
     </>
   );
 }
-
-type MicrofrontendConfig = {
-  url: string; // URL to the remoteEntry.js
-  module: string; // Exposed module key (e.g., "./CareLivekit")
-};
-
-type DynamicMicrofrontendProps = {
-  configUrl: string; // API endpoint to fetch microfrontend config
-};
-
-const DynamicMicrofrontend: React.FC<DynamicMicrofrontendProps> = ({
-  configUrl,
-}) => {
-  const [MicrofrontendComponent, setMicrofrontendComponent] =
-    useState<React.ComponentType | null>(null);
-  const [error, setError] = useState<string | null>(null);
-
-  useEffect(() => {
-    const loadMicrofrontend = async () => {
-      try {
-        // Fetch microfrontend configuration
-        const response = await fetch(configUrl);
-        if (!response.ok) {
-          throw new Error(
-            `Failed to fetch microfrontend configuration from ${configUrl}`,
-          );
-        }
-
-        const config: MicrofrontendConfig = {
-          url: "http://localhost:5173/assets/remoteEntry.js",
-          module: "./CareLivekit",
-        };
-
-        // Dynamically import the remoteEntry.js
-        const remote = await import(/* @vite-ignore */ config.url);
-
-        // Initialize shared dependencies
-        await remote.init({
-          react: { singleton: true, version: "18.0.0" },
-          "react-dom": { singleton: true, version: "18.0.0" },
-        });
-
-        // Get the exposed module
-        const ModuleFactory = await remote.get(config.module);
-        const Component = ModuleFactory();
-
-        setMicrofrontendComponent(() => Component);
-      } catch (err: any) {
-        console.error("Error loading microfrontend:", err);
-        setError(
-          err.message || "An error occurred while loading the microfrontend.",
-        );
-      }
-    };
-
-    loadMicrofrontend();
-  }, [configUrl]);
-
-  if (error) {
-    return <div>Error: {error}</div>;
-  }
-
-  if (!MicrofrontendComponent) {
-    return <div>Loading microfrontend...</div>;
-  }
-
-  return (
-    <Suspense fallback={<div>Loading microfrontend component...</div>}>
-      <MicrofrontendComponent />
-    </Suspense>
-  );
-};

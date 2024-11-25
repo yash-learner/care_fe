@@ -108,9 +108,25 @@ export default defineConfig(({ mode }) => {
       federation({
         name: "host",
         remotes: {
-          care_livekit: "http://localhost:5173/assets/remoteEntry.js", // URL of the microfrontend
+          care_livekit: {
+            external:
+              "http://ohcnetwork.github.io/care_livekit_fe/assets/remoteEntry.js",
+            format: "esm",
+            from: "vite",
+          },
         },
-        shared: ["react", "react-dom"], // Shared dependencies
+        shared: {
+          react: {
+            singleton: true,
+            eager: true,
+            requiredVersion: "^18.0.0",
+          },
+          "react-dom": {
+            singleton: true,
+            eager: true,
+            requiredVersion: "^18.0.0",
+          },
+        },
       }),
       ValidateEnv({
         validator: "zod",
@@ -208,63 +224,25 @@ export default defineConfig(({ mode }) => {
       outDir: "build",
       assetsDir: "bundle",
       sourcemap: true,
-      target: "es2022",
-      modulePreload: false,
       rollupOptions: {
         output: {
-          format: "esm",
-          manualChunks(id, { getModuleInfo }) {
+          manualChunks(id) {
             if (id.includes("node_modules")) {
-              const moduleInfo = getModuleInfo(id);
-
-              // Recursive function to check if the module is statically imported by an entry point
-              function isStaticallyImportedByEntry(
-                moduleId,
-                visited = new Set(),
-              ) {
-                if (visited.has(moduleId)) return false;
-                visited.add(moduleId);
-
-                const modInfo = getModuleInfo(moduleId);
-                if (!modInfo) return false;
-
-                // Check if the module is an entry point
-                if (modInfo.isEntry) {
-                  return true;
-                }
-
-                // Check all static importers
-                for (const importerId of modInfo.importers) {
-                  if (isStaticallyImportedByEntry(importerId, visited)) {
-                    return true;
-                  }
-                }
-
-                return false;
-              }
-
-              // Determine if the module should be in the 'vendor' chunk
-              const manualVendorChunks = /tiny-invariant/;
-              if (
-                manualVendorChunks.test(id) ||
-                isStaticallyImportedByEntry(id)
-              ) {
+              if (/tiny-invariant/.test(id)) {
                 return "vendor";
-              } else {
-                // group lazy-loaded dependencies by their dynamic importer
-                const dynamicImporters = moduleInfo?.dynamicImporters || [];
-                if (dynamicImporters && dynamicImporters.length > 0) {
-                  // Use the first dynamic importer to name the chunk
-                  const importerChunkName = dynamicImporters[0]
-                    ? dynamicImporters[0].split("/").pop()
-                    : "vendor".split(".")[0];
-                  return `chunk-${importerChunkName}`;
-                }
-                // If no dynamic importers are found, let Rollup handle it automatically
+              }
+              const chunks = id.toString().split("node_modules/")[1];
+              if (chunks) {
+                const [name] = chunks.split("/");
+                return `vendor-${name}`;
               }
             }
           },
         },
+      },
+      target: "esnext",
+      modulePreload: {
+        polyfill: false,
       },
     },
     server: {
