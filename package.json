@@ -38,6 +38,7 @@
     "supported-browsers": "node ./scripts/generate-supported-browsers.mjs",
     "build": "npm run setup && npm run build:meta && npm run supported-browsers && npm run build:react",
     "setup": "node scripts/setup-care-apps.js",
+    "postinstall": "ts-node scripts/install-platform-deps.ts",
     "install-all": "npm install && npm run setup && npm install",
     "test": "snyk test",
     "cypress:open": "cross-env NODE_ENV=development cypress open",
@@ -150,7 +151,8 @@
     "vite-plugin-checker": "^0.8.0",
     "vite-plugin-pwa": "^0.20.5",
     "vite-plugin-static-copy": "^2.0.0",
-    "zod": "^3.23.8"
+    "zod": "^3.23.8",
+    "ts-node": "^10.9.2"
   },
   "optionalDependencies": {
     "@rollup/rollup-linux-x64-gnu": "4.13.0",
