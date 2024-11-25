@@ -36,7 +36,7 @@
     "build:meta": "node ./scripts/generate-build-version.js",
     "build:react": "cross-env NODE_ENV=production vite build",
     "supported-browsers": "node ./scripts/generate-supported-browsers.mjs",
-    "build": "npm run build:meta && npm run supported-browsers && npm run build:react",
+    "build": "npm run setup && npm run build:meta && npm run supported-browsers && npm run build:react",
     "setup": "node scripts/setup-care-apps.js",
     "install-all": "npm install && npm run setup && npm install",
     "test": "snyk test",
