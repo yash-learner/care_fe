@@ -1,6 +1,6 @@
 import { ValidateEnv } from "@julr/vite-plugin-validate-env";
 import federation from "@originjs/vite-plugin-federation";
-import react from "@vitejs/plugin-react-swc";
+import react from "@vitejs/plugin-react";
 import DOMPurify from "dompurify";
 import fs from "fs";
 import { JSDOM } from "jsdom";
@@ -131,12 +131,8 @@ export default defineConfig(({ mode }) => {
       federation({
         name: "host",
         remotes: {
-          care_livekit: {
-            external:
-              "http://ohcnetwork.github.io/care_livekit_fe/assets/remoteEntry.js",
-            format: "esm",
-            from: "vite",
-          },
+          care_livekit:
+            "http://ohcnetwork.github.io/care_livekit_fe/assets/remoteEntry.js",
         },
       }),
       ValidateEnv({
@@ -235,29 +231,21 @@ export default defineConfig(({ mode }) => {
       outDir: "build",
       assetsDir: "bundle",
       sourcemap: true,
+      target: ["chrome87", "edge88", "es2020", "firefox78", "safari14"],
+      modulePreload: {
+        polyfill: false,
+      },
       rollupOptions: {
         output: {
-          manualChunks: (id, { getModuleInfo }) => {
+          manualChunks(id) {
             if (id.includes("node_modules")) {
-              const moduleInfo = getModuleInfo(id);
-              // Determine if the module should be in the 'vendor' chunk
-              const manualVendorChunks = /tiny-invariant/;
-              if (
-                manualVendorChunks.test(id) ||
-                isStaticallyImportedByEntry(id)
-              ) {
+              if (/tiny-invariant/.test(id)) {
                 return "vendor";
-              } else {
-                // group lazy-loaded dependencies by their dynamic importer
-                const dynamicImporters = moduleInfo?.dynamicImporters || [];
-                if (dynamicImporters && dynamicImporters.length > 0) {
-                  // Use the first dynamic importer to name the chunk
-                  const importerChunkName = dynamicImporters[0]
-                    ? dynamicImporters[0].split("/").pop()
-                    : "vendor".split(".")[0];
-                  return `chunk-${importerChunkName}`;
-                }
-                // If no dynamic importers are found, let Rollup handle it automatically
+              }
+              const chunks = id.toString().split("node_modules/")[1];
+              if (chunks) {
+                const [name] = chunks.split("/");
+                return `vendor-${name}`;
               }
             }
           },
