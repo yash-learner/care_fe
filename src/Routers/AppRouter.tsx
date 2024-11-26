@@ -22,6 +22,7 @@ import { BLACKLISTED_PATHS } from "@/common/constants";
 import AssetRoutes from "@/Routers/routes/AssetRoutes";
 import ConsultationRoutes from "@/Routers/routes/ConsultationRoutes";
 import FacilityRoutes from "@/Routers/routes/FacilityRoutes";
+import LabTestRoutes from "@/Routers/routes/LabTestRoutes";
 import PatientRoutes from "@/Routers/routes/PatientRoutes";
 import ResourceRoutes from "@/Routers/routes/ResourceRoutes";
 import SampleRoutes from "@/Routers/routes/SampleRoutes";
@@ -48,6 +49,7 @@ const Routes: AppRoutes = {
 
   ...AssetRoutes,
   ...ConsultationRoutes,
+  ...LabTestRoutes,
   ...FacilityRoutes,
   ...PatientRoutes,
   ...ResourceRoutes,
