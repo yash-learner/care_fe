@@ -140,9 +140,12 @@ export default defineConfig(({ mode }) => {
         exposes: {
           "./components/Common/PageTitle":
             "./src/components/Common/PageTitle.tsx",
+          "./components/Common/ErrorBoundary":
+            "./src/components/Common/ErrorBoundary.tsx",
           "./Integrations/Plausible": "./src/Integrations/Plausible.tsx",
           "./CAREUI/icons/CareIcon": "./src/CAREUI/icons/CareIcon.tsx",
-          "./common/hooks/useAuthUser": "./src/common/hooks/useAuthUser.ts",
+          "./hooks/useAuthUser": "./src/hooks/useAuthUser.ts",
+          "./Utils/request/request": "./src/Utils/request/request.ts",
           // Add other shared components...
         },
         remotes: {
@@ -151,7 +154,6 @@ export default defineConfig(({ mode }) => {
           care_livekit: "http://localhost:5173/assets/remoteEntry.js",
         },
         // Share core components with micro-frontends
-        shared: ["@core"],
       }),
       ValidateEnv({
         validator: "zod",
