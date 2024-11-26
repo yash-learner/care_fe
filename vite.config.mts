@@ -84,6 +84,33 @@ function getPluginDependencies(): string[] {
   return Array.from(dependencies);
 }
 
+// Recursive function to check if the module is statically imported by an entry point
+function isStaticallyImportedByEntry(
+  getModuleInfo: (moduleId: string) => any,
+  moduleId: string,
+  visited = new Set(),
+) {
+  if (visited.has(moduleId)) return false;
+  visited.add(moduleId);
+
+  const modInfo = getModuleInfo(moduleId);
+  if (!modInfo) return false;
+
+  // Check if the module is an entry point
+  if (modInfo.isEntry) {
+    return true;
+  }
+
+  // Check all static importers
+  for (const importerId of modInfo.importers) {
+    if (isStaticallyImportedByEntry(getModuleInfo, importerId, visited)) {
+      return true;
+    }
+  }
+
+  return false;
+}
+
 /** @type {import('vite').UserConfig} */
 export default defineConfig(({ mode }) => {
   const env = loadEnv(mode, process.cwd(), "");
@@ -106,11 +133,25 @@ export default defineConfig(({ mode }) => {
     plugins: [
       // Federation Config for care_livekit_fe
       federation({
-        name: "care_livekit",
-        remotes: {
-          care_livekit:
-            "https://ohcnetwork.github.io/care_livekit_fe/assets/remoteEntry.js",
+        name: "core",
+        // This file exposes shared components to microfrontends
+        filename: "sharedCore.js",
+        // Expose shared components that microfrontends can use
+        exposes: {
+          "./components/Common/PageTitle":
+            "./src/components/Common/PageTitle.tsx",
+          "./Integrations/Plausible": "./src/Integrations/Plausible.tsx",
+          "./CAREUI/icons/CareIcon": "./src/CAREUI/icons/CareIcon.tsx",
+          "./common/hooks/useAuthUser": "./src/common/hooks/useAuthUser.ts",
+          // Add other shared components...
         },
+        remotes: {
+          // care_livekit:
+          //   "https://ohcnetwork.github.io/care_livekit_fe/assets/remoteEntry.js",
+          care_livekit: "http://localhost:5173/assets/remoteEntry.js",
+        },
+        // Share core components with micro-frontends
+        shared: ["@core"],
       }),
       ValidateEnv({
         validator: "zod",
@@ -214,37 +255,11 @@ export default defineConfig(({ mode }) => {
             if (id.includes("node_modules")) {
               const moduleInfo = getModuleInfo(id);
 
-              // Recursive function to check if the module is statically imported by an entry point
-              function isStaticallyImportedByEntry(
-                moduleId,
-                visited = new Set(),
-              ) {
-                if (visited.has(moduleId)) return false;
-                visited.add(moduleId);
-
-                const modInfo = getModuleInfo(moduleId);
-                if (!modInfo) return false;
-
-                // Check if the module is an entry point
-                if (modInfo.isEntry) {
-                  return true;
-                }
-
-                // Check all static importers
-                for (const importerId of modInfo.importers) {
-                  if (isStaticallyImportedByEntry(importerId, visited)) {
-                    return true;
-                  }
-                }
-
-                return false;
-              }
-
               // Determine if the module should be in the 'vendor' chunk
               const manualVendorChunks = /tiny-invariant/;
               if (
                 manualVendorChunks.test(id) ||
-                isStaticallyImportedByEntry(id)
+                isStaticallyImportedByEntry(getModuleInfo, id)
               ) {
                 return "vendor";
               } else {
