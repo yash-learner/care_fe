@@ -185,6 +185,8 @@ export default function SchedulingHomePage(props: Props) {
                       })}
                     </p>
 
+                    {/* TODO: repalce this with actual things... */}
+
                     <div className="space-y-4">
                       <div>
                         <h4 className="font-medium">Morning Consultations</h4>

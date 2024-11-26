@@ -110,7 +110,6 @@ export default function ScheduleExceptionForm(props: Props) {
   }, [isAllDay, form]);
 
   async function onSubmit(data: FormValues) {
-    console.log("hello world");
     toast.promise(
       mutate({
         body: {
