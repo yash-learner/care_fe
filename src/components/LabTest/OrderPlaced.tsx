@@ -1,6 +1,7 @@
-import React from "react";
+import React, { useState } from "react";
 
 import { DataTable } from "@/components/LabTest/DataTable";
+import TableFilter, { Filter } from "@/components/LabTest/TableFilter";
 
 export const OrderPlaced: React.FC = () => {
   const columns = [
@@ -13,7 +14,33 @@ export const OrderPlaced: React.FC = () => {
     { label: "Status", key: "status" },
   ];
 
-  const data = [
+  const keys = [
+    {
+      label: "Specimen",
+      key: "specimen",
+      type: "checkbox",
+      options: ["Blood", "Swab"],
+      defaultOperator: "is",
+      operators: ["is", "is_not"],
+    },
+    {
+      label: "Status",
+      key: "status",
+      type: "checkbox",
+      options: ["Pending", "Collected"],
+      defaultOperator: "is",
+      operators: ["is", "is_not"],
+    },
+    {
+      label: "Order ID",
+      key: "orderId",
+      type: "text",
+      defaultOperator: "contains",
+      operators: ["contains", "is", "is_not"],
+    },
+  ];
+
+  const initialData = [
     {
       specimenId: "SPEC009213",
       orderId: "CARE_LAB-001",
@@ -30,28 +57,30 @@ export const OrderPlaced: React.FC = () => {
       specimen: "Swab",
       tests: "COVID-19 PCR, Influenza Test",
       collector: "Jane Doe",
-      status: "Pending",
+      status: "Collected",
     },
   ];
 
-  const handleAction = (row: Record<string, any>) => {
-    alert(`Collect Specimen for ${row.orderId}`);
+  const [data, setData] = useState(initialData);
+
+  const handleFiltersChange = (filters: Filter[]) => {
+    const filteredData = initialData.filter((row) =>
+      filters.every((filter) => {
+        const value = row[filter.column as keyof typeof row];
+        if (filter.operator === "is") return value === filter.value;
+        if (filter.operator === "is_not") return value !== filter.value;
+        if (filter.operator === "contains")
+          return String(value).includes(filter.value);
+        return true;
+      }),
+    );
+    setData(filteredData);
   };
 
   return (
     <div className="p-4">
-      <DataTable
-        columns={columns}
-        data={data}
-        actions={(row) => (
-          <button
-            onClick={() => handleAction(row)}
-            className="px-3 py-1 text-sm text-white bg-blue-500 rounded hover:bg-blue-600"
-          >
-            Collect Specimen
-          </button>
-        )}
-      />
+      <TableFilter keys={keys} onFiltersChange={handleFiltersChange} />
+      <DataTable columns={columns} data={data} />
     </div>
   );
 };
