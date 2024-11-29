@@ -78,7 +78,7 @@ export const OrderPlaced: React.FC = () => {
   };
 
   return (
-    <div className="p-4">
+    <div className="space-y-4">
       <TableFilter keys={keys} onFiltersChange={handleFiltersChange} />
       <DataTable columns={columns} data={data} />
     </div>
