@@ -8,6 +8,7 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
+import { Separator } from "@/components/ui/separator";
 
 export interface Filter {
   column: string;
@@ -51,65 +52,78 @@ const TableFilter: React.FC<TableFilterProps> = ({ keys, onFiltersChange }) => {
     onFiltersChange(updatedFilters);
   };
 
-  return (
-    <div className="space-y-4">
-      <h3 className="text-lg font-medium">Filters</h3>
+  const clearFilters = () => {
+    setFilters([]);
+    onFiltersChange([]);
+  };
 
+  return (
+    <div className="flex items-center space-x-4">
       {/* Display Applied Filters */}
-      <div className="space-y-2">
+      <div className="flex flex-wrap items-center gap-x-2 border rounded-md">
         {filters.map((filter, index) => (
           <div
             key={index}
-            className="flex items-center space-x-2 border rounded p-2"
+            className="flex items-center gap-x-2 px-3 bg-gray-50 border rounded-lg shadow-sm"
           >
-            <Popover>
-              <PopoverTrigger asChild>
-                <Button variant="ghost" className="text-sm">
-                  {keys.find((key) => key.key === filter.column)?.label ||
-                    "Select Column"}
-                </Button>
-              </PopoverTrigger>
-              <PopoverContent className="p-4 w-64 space-y-2">
-                {keys.map((key) => (
-                  <Button
-                    key={key.key}
-                    variant="ghost"
-                    onClick={() => updateFilter(index, "column", key.key)}
-                  >
-                    {key.label}
-                  </Button>
-                ))}
-              </PopoverContent>
-            </Popover>
+            <img
+              src="/images/filter.svg"
+              alt="filter"
+              className="w-4 h-4 text-gray-600"
+            />
+            {/* Column Label */}
+            <span className="font-medium text-sm text-gray-700">
+              {keys.find((key) => key.key === filter.column)?.label}
+            </span>
 
+            {/* Separator */}
+            <Separator orientation="vertical" className="h-9 bg-gray-300" />
+
+            {/* Operator */}
             <Popover>
               <PopoverTrigger asChild>
-                <Button variant="ghost" className="text-sm">
+                <Button
+                  variant="ghost"
+                  className="px-2 py-0 text-sm text-gray-700 hover:bg-gray-100"
+                >
                   {filter.operator}
                 </Button>
               </PopoverTrigger>
-              <PopoverContent className="p-4 w-64 space-y-2">
-                {keys
-                  .find((key) => key.key === filter.column)
-                  ?.operators.map((op) => (
-                    <Button
-                      key={op}
-                      variant="ghost"
-                      onClick={() => updateFilter(index, "operator", op)}
-                    >
-                      {op}
-                    </Button>
-                  ))}
+              <PopoverContent className="w-auto">
+                <ul className="list-none">
+                  {keys
+                    .find((key) => key.key === filter.column)
+                    ?.operators.map((op) => (
+                      <li key={op}>
+                        <Button
+                          key={op}
+                          variant="ghost"
+                          size="sm"
+                          className="text-gray-700 hover:bg-gray-200 w-full"
+                          onClick={() => updateFilter(index, "operator", op)}
+                        >
+                          {op}
+                        </Button>
+                      </li>
+                    ))}
+                </ul>
               </PopoverContent>
             </Popover>
 
+            {/* Separator */}
+            <Separator orientation="vertical" className="h-9 bg-gray-300" />
+
+            {/* Value */}
             <Popover>
               <PopoverTrigger asChild>
-                <Button variant="ghost" className="text-sm">
+                <Button
+                  variant="ghost"
+                  className="px-2 py-0 text-sm text-gray-700 hover:bg-gray-100"
+                >
                   {filter.value}
                 </Button>
               </PopoverTrigger>
-              <PopoverContent className="p-4 w-64 space-y-2">
+              <PopoverContent className="p-2 space-y-1">
                 {keys.find((key) => key.key === filter.column)?.type ===
                 "checkbox" ? (
                   keys
@@ -132,13 +146,17 @@ const TableFilter: React.FC<TableFilterProps> = ({ keys, onFiltersChange }) => {
                       updateFilter(index, "value", e.target.value)
                     }
                     placeholder="Enter value"
+                    className="text-sm"
                   />
                 )}
               </PopoverContent>
             </Popover>
 
+            <Separator orientation="vertical" className="h-9 bg-gray-300" />
+
+            {/* Remove Button */}
             <Button
-              variant="destructive"
+              variant="ghost"
               size="sm"
               onClick={() => removeFilter(index)}
             >
@@ -147,33 +165,41 @@ const TableFilter: React.FC<TableFilterProps> = ({ keys, onFiltersChange }) => {
           </div>
         ))}
       </div>
-
       {/* Add Filter Button */}
       <Popover>
         <PopoverTrigger asChild>
-          <Button variant="outline">+ Add Filter</Button>
+          <Button variant="outline" className="flex items-center gap-2">
+            <img
+              src="/images/filter.svg"
+              alt="filter"
+              className="w-4 h-4 text-gray-600"
+            />
+            Filter
+          </Button>
         </PopoverTrigger>
-        <PopoverContent className="p-4 w-64 space-y-4">
+        <PopoverContent className="p-4 space-y-2 w-64">
           {!currentFilter.column && (
             <>
               <h4 className="text-sm font-medium">Select Column</h4>
-              {keys.map((key) => (
-                <Button
-                  key={key.key}
-                  variant="ghost"
-                  onClick={() =>
-                    setCurrentFilter({
-                      column: key.key,
-                      operator: key.defaultOperator || "is",
-                    })
-                  }
-                >
-                  {key.label}
-                </Button>
-              ))}
+              <div className="flex flex-col">
+                {keys.map((key) => (
+                  <Button
+                    key={key.key}
+                    variant="ghost"
+                    size="sm"
+                    onClick={() =>
+                      setCurrentFilter({
+                        column: key.key,
+                        operator: key.defaultOperator || "is",
+                      })
+                    }
+                  >
+                    {key.label}
+                  </Button>
+                ))}
+              </div>
             </>
           )}
-
           {currentFilter.column && !currentFilter.value && (
             <>
               <h4 className="text-sm font-medium">Select Value</h4>
@@ -212,6 +238,13 @@ const TableFilter: React.FC<TableFilterProps> = ({ keys, onFiltersChange }) => {
           )}
         </PopoverContent>
       </Popover>
+
+      {/* Clear Filters */}
+      {filters.length > 0 && (
+        <Button variant="secondary" onClick={clearFilters}>
+          Clear
+        </Button>
+      )}
     </div>
   );
 };
