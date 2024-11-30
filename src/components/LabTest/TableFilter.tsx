@@ -3,11 +3,13 @@ import React, { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 import {
   Popover,
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Separator } from "@/components/ui/separator";
 
 export interface Filter {
@@ -20,8 +22,8 @@ interface TableFilterProps {
   keys: Array<{
     key: string;
     label: string;
-    type: string; // "text", "dropdown", or "checkbox"
-    options?: string[]; // Available options for dropdown/checkbox
+    type: string; // "text", "checkbox", or "radio"
+    options?: string[]; // Available options for dropdown/checkbox/radio
     defaultOperator?: string; // Default operator for this key
     operators: string[]; // Allowed operators
   }>;
@@ -139,6 +141,29 @@ const TableFilter: React.FC<TableFilterProps> = ({ keys, onFiltersChange }) => {
                         <span>{option}</span>
                       </div>
                     ))
+                ) : keys.find((key) => key.key === filter.column)?.type ===
+                  "radio" ? (
+                  <RadioGroup
+                    value={filter.value}
+                    onValueChange={(val) => updateFilter(index, "value", val)}
+                  >
+                    <div className="flex flex-col space-y-2">
+                      {keys
+                        .find((key) => key.key === filter.column)
+                        ?.options?.map((option, idx) => {
+                          const optionId = `${filter.column}-${idx}`;
+                          return (
+                            <div
+                              key={option}
+                              className="flex items-center space-x-2"
+                            >
+                              <RadioGroupItem value={option} id={optionId} />
+                              <Label htmlFor={optionId}>{option}</Label>
+                            </div>
+                          );
+                        })}
+                    </div>
+                  </RadioGroup>
                 ) : (
                   <Input
                     value={filter.value}
@@ -222,6 +247,34 @@ const TableFilter: React.FC<TableFilterProps> = ({ keys, onFiltersChange }) => {
                       <span>{option}</span>
                     </div>
                   ))
+              ) : keys.find((key) => key.key === currentFilter.column)?.type ===
+                "radio" ? (
+                <RadioGroup
+                  onValueChange={(val) =>
+                    addFilter({
+                      column: currentFilter.column!,
+                      operator: currentFilter.operator || "is",
+                      value: val,
+                    })
+                  }
+                >
+                  <div className="flex flex-col space-y-2">
+                    {keys
+                      .find((key) => key.key === currentFilter.column)
+                      ?.options?.map((option, idx) => {
+                        const optionId = `${currentFilter.column}-${idx}`;
+                        return (
+                          <div
+                            key={option}
+                            className="flex items-center space-x-2"
+                          >
+                            <RadioGroupItem value={option} id={optionId} />
+                            <Label htmlFor={optionId}>{option}</Label>
+                          </div>
+                        );
+                      })}
+                  </div>
+                </RadioGroup>
               ) : (
                 <Input
                   placeholder="Enter value"
