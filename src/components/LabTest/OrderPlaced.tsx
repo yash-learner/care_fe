@@ -52,8 +52,17 @@ export const OrderPlaced: React.FC = () => {
       operators: ["is", "is_not"],
       render_as: "badge",
     },
+    {
+      key: "priority",
+      label: "Priority",
+      type: "radio", // New filter type
+      options: ["High", "Medium", "Low"],
+      operators: ["is"], // Typically, only "is" makes sense for radio
+      defaultOperator: "is",
+    },
   ];
 
+  // dummy data until we have API wired up
   const initialData = [
     {
       specimenId: "SPEC009213",
@@ -63,6 +72,7 @@ export const OrderPlaced: React.FC = () => {
       tests: "Complete Blood Count (CBC)",
       collector: "John Doe",
       status: "Pending",
+      priority: "High",
     },
     {
       specimenId: "SPEC009412",
@@ -72,6 +82,7 @@ export const OrderPlaced: React.FC = () => {
       tests: "COVID-19 PCR, Influenza Test",
       collector: "Jane Doe",
       status: "Collected",
+      priority: "Medium",
     },
     {
       specimenId: "SPEC009425",
@@ -81,6 +92,7 @@ export const OrderPlaced: React.FC = () => {
       tests: "Biopsy of tissue",
       collector: "Dr. Rajmohan",
       status: "Completed",
+      priority: "Low",
     },
     {
       specimenId: "SPEC009876",
@@ -90,6 +102,7 @@ export const OrderPlaced: React.FC = () => {
       tests: "COVID-19 PCR",
       collector: "Jeena Mathew",
       status: "Cancelled",
+      priority: "High",
     },
     {
       specimenId: "SPEC001234",
@@ -99,16 +112,18 @@ export const OrderPlaced: React.FC = () => {
       tests: "Lipid Profile",
       collector: "John Doe",
       status: "Pending",
+      priority: "Medium",
     },
   ];
 
   const [data, setData] = useState(initialData);
+  // Removed filters state as per previous conversation
 
   const handleFiltersChange = (appliedFilters: Filter[]) => {
     const filteredData = initialData.filter((row) =>
       appliedFilters.every((filter) => {
-        const columnKey = filter.column as keyof typeof row; // Ensure column matches row keys
-        const value = row[columnKey]; // Access the row value
+        const columnKey = filter.column as keyof typeof row;
+        const value = row[columnKey];
 
         if (filter.operator === "is") return value === filter.value;
         if (filter.operator === "is_not") return value !== filter.value;
