@@ -15,7 +15,7 @@ import { Separator } from "@/components/ui/separator";
 export interface Filter {
   column: string;
   operator: string;
-  value: string;
+  value: string | string[];
 }
 
 interface TableFilterProps {
@@ -33,6 +33,7 @@ interface TableFilterProps {
 const TableFilter: React.FC<TableFilterProps> = ({ keys, onFiltersChange }) => {
   const [filters, setFilters] = useState<Filter[]>([]);
   const [currentFilter, setCurrentFilter] = useState<Partial<Filter>>({});
+  const [selectedOptions, setSelectedOptions] = useState<string[]>([]);
 
   const addFilter = (filter: Filter) => {
     const updatedFilters = [...filters, filter];
@@ -47,7 +48,11 @@ const TableFilter: React.FC<TableFilterProps> = ({ keys, onFiltersChange }) => {
     onFiltersChange(updatedFilters);
   };
 
-  const updateFilter = (index: number, field: keyof Filter, value: string) => {
+  const updateFilter = (
+    index: number,
+    field: keyof Filter,
+    value: string | string[],
+  ) => {
     const updatedFilters = [...filters];
     updatedFilters[index] = { ...updatedFilters[index], [field]: value };
     setFilters(updatedFilters);
@@ -122,29 +127,51 @@ const TableFilter: React.FC<TableFilterProps> = ({ keys, onFiltersChange }) => {
                   variant="ghost"
                   className="px-2 py-0 text-sm text-gray-700 hover:bg-gray-100"
                 >
-                  {filter.value}
+                  {Array.isArray(filter.value)
+                    ? filter.value.length > 1
+                      ? `${filter.value.length} selected`
+                      : filter.value[0]
+                    : filter.value}
                 </Button>
               </PopoverTrigger>
               <PopoverContent className="p-2 space-y-1">
                 {keys.find((key) => key.key === filter.column)?.type ===
                 "checkbox" ? (
-                  keys
-                    .find((key) => key.key === filter.column)
-                    ?.options?.map((option) => (
-                      <div key={option} className="flex items-center space-x-2">
-                        <Checkbox
-                          checked={filter.value === option}
-                          onCheckedChange={() =>
-                            updateFilter(index, "value", option)
-                          }
-                        />
-                        <span>{option}</span>
-                      </div>
-                    ))
+                  <div className="flex flex-col space-y-2">
+                    {keys
+                      .find((key) => key.key === filter.column)
+                      ?.options?.map((option) => (
+                        <div
+                          key={option}
+                          className="flex items-center space-x-2"
+                        >
+                          <Checkbox
+                            checked={
+                              Array.isArray(filter.value) &&
+                              filter.value.includes(option)
+                            }
+                            onCheckedChange={(checked) => {
+                              let newValues = Array.isArray(filter.value)
+                                ? [...filter.value]
+                                : [];
+                              if (checked) {
+                                newValues.push(option);
+                              } else {
+                                newValues = newValues.filter(
+                                  (val) => val !== option,
+                                );
+                              }
+                              updateFilter(index, "value", newValues);
+                            }}
+                          />
+                          <Label>{option}</Label>
+                        </div>
+                      ))}
+                  </div>
                 ) : keys.find((key) => key.key === filter.column)?.type ===
                   "radio" ? (
                   <RadioGroup
-                    value={filter.value}
+                    value={filter.value as string}
                     onValueChange={(val) => updateFilter(index, "value", val)}
                   >
                     <div className="flex flex-col space-y-2">
@@ -230,23 +257,45 @@ const TableFilter: React.FC<TableFilterProps> = ({ keys, onFiltersChange }) => {
               <h4 className="text-sm font-medium">Select Value</h4>
               {keys.find((key) => key.key === currentFilter.column)?.type ===
               "checkbox" ? (
-                keys
-                  .find((key) => key.key === currentFilter.column)
-                  ?.options?.map((option) => (
-                    <div key={option} className="flex items-center space-x-2">
-                      <Checkbox
-                        checked={currentFilter.value === option}
-                        onCheckedChange={() =>
-                          addFilter({
-                            column: currentFilter.column!,
-                            operator: currentFilter.operator || "is",
-                            value: option,
-                          })
-                        }
-                      />
-                      <span>{option}</span>
-                    </div>
-                  ))
+                <div className="flex flex-col space-y-2">
+                  {keys
+                    .find((key) => key.key === currentFilter.column)
+                    ?.options?.map((option) => (
+                      <div key={option} className="flex items-center space-x-2">
+                        <Checkbox
+                          checked={selectedOptions.includes(option)}
+                          onCheckedChange={(checked) => {
+                            let newValues = [...selectedOptions];
+                            if (checked) {
+                              newValues.push(option);
+                            } else {
+                              newValues = newValues.filter(
+                                (val) => val !== option,
+                              );
+                            }
+                            setSelectedOptions(newValues);
+                          }}
+                        />
+                        <Label>{option}</Label>
+                      </div>
+                    ))}
+                  <Button
+                    variant="primary"
+                    size="sm"
+                    onClick={() => {
+                      if (selectedOptions.length > 0) {
+                        addFilter({
+                          column: currentFilter.column!,
+                          operator:
+                            selectedOptions.length > 1 ? "is any of" : "is",
+                          value: selectedOptions,
+                        });
+                      }
+                    }}
+                  >
+                    Apply
+                  </Button>
+                </div>
               ) : keys.find((key) => key.key === currentFilter.column)?.type ===
                 "radio" ? (
                 <RadioGroup

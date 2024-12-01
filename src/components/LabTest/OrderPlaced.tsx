@@ -117,22 +117,34 @@ export const OrderPlaced: React.FC = () => {
   ];
 
   const [data, setData] = useState(initialData);
-  // Removed filters state as per previous conversation
 
+  // Remove this function and use the actual API call to fetch data
   const handleFiltersChange = (appliedFilters: Filter[]) => {
     const filteredData = initialData.filter((row) =>
       appliedFilters.every((filter) => {
         const columnKey = filter.column as keyof typeof row;
         const value = row[columnKey];
 
-        if (filter.operator === "is") return value === filter.value;
-        if (filter.operator === "is_not") return value !== filter.value;
-        if (filter.operator === "contains")
-          return typeof value === "string" && value.includes(filter.value);
-        if (filter.operator === "does_not_contain")
-          return typeof value === "string" && !value.includes(filter.value);
-        if (filter.operator === "is_empty") return !value;
-        if (filter.operator === "is_not_empty") return !!value;
+        if (Array.isArray(filter.value)) {
+          if (filter.operator === "is any of") {
+            return filter.value.includes(value);
+          }
+        } else {
+          if (filter.operator === "is") return value === filter.value;
+          if (filter.operator === "is_not") return value !== filter.value;
+          if (filter.operator === "contains")
+            return (
+              typeof value === "string" &&
+              value.toLowerCase().includes(filter.value.toLowerCase())
+            );
+          if (filter.operator === "does_not_contain")
+            return (
+              typeof value === "string" &&
+              !value.toLowerCase().includes(filter.value.toLowerCase())
+            );
+          if (filter.operator === "is_empty") return !value;
+          if (filter.operator === "is_not_empty") return !!value;
+        }
         return true;
       }),
     );
