@@ -28,6 +28,10 @@ import SampleRoutes from "@/Routers/routes/SampleRoutes";
 import ShiftingRoutes from "@/Routers/routes/ShiftingRoutes";
 import UserRoutes from "@/Routers/routes/UserRoutes";
 
+import { QuestionnaireList } from "../components/Questionnaire";
+import { QuestionnaireEdit } from "../components/Questionnaire/QuestionnaireEdit";
+import { QuestionnaireShow } from "../components/Questionnaire/show";
+
 export type RouteParams<T extends string> =
   T extends `${string}:${infer Param}/${infer Rest}`
     ? { [K in Param | keyof RouteParams<Rest>]: string }
@@ -64,6 +68,12 @@ const Routes: AppRoutes = {
 
   // Only include the icon route in development environment
   ...(import.meta.env.PROD ? { "/icons": () => <IconIndex /> } : {}),
+
+  // Questionnaire Routes
+  "/questionnaire": () => <QuestionnaireList />,
+  "/questionnaire/:id": ({ id }) => <QuestionnaireShow id={id} />,
+  "/questionnaire/create": () => <QuestionnaireEdit />,
+  "/questionnaire/:id/edit": ({ id }) => <QuestionnaireEdit id={id} />,
 };
 
 export default function AppRouter() {

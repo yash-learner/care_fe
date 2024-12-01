@@ -90,6 +90,10 @@ import {
 } from "@/components/Users/models";
 
 import { PaginatedResponse } from "@/Utils/request/types";
+import type {
+  QuestionnaireDetail,
+  QuestionnaireResponse,
+} from "@/types/questionnaire";
 
 /**
  * A fake function that returns an empty object casted to type T
@@ -1397,6 +1401,64 @@ const routes = {
         TBody: Type<{ policy: string }>(),
         TRes: Type<HCXPolicyModel>(),
       },
+    },
+  },
+
+  // Questionnaire Routes
+  questionnaire: {
+    list: {
+      path: "/api/v1/questionnaire/",
+      method: "GET",
+      TRes: Type<PaginatedResponse<QuestionnaireDetail>>(),
+    },
+
+    detail: {
+      path: "/api/v1/questionnaire/{id}/",
+      method: "GET",
+      TRes: Type<QuestionnaireDetail>(),
+    },
+
+    create: {
+      path: "/api/v1/questionnaire/",
+      method: "POST",
+      TRes: Type<QuestionnaireDetail>(),
+      TBody: Type<Partial<QuestionnaireDetail>>(),
+    },
+
+    update: {
+      path: "/api/v1/questionnaire/{id}/",
+      method: "PUT",
+      TRes: Type<QuestionnaireDetail>(),
+      TBody: Type<QuestionnaireDetail>(),
+    },
+
+    partialUpdate: {
+      path: "/api/v1/questionnaire/{id}/",
+      method: "PATCH",
+      TRes: Type<QuestionnaireDetail>(),
+      TBody: Type<Partial<QuestionnaireDetail>>(),
+    },
+
+    delete: {
+      path: "/api/v1/questionnaire/{id}/",
+      method: "DELETE",
+      TRes: Type<Record<string, never>>(),
+    },
+
+    submit: {
+      path: "/api/v1/questionnaire/{id}/submit/",
+      method: "POST",
+      TRes: Type<Record<string, never>>(),
+      TBody: Type<{
+        encounter: string;
+        responses: Array<{
+          question_id: string;
+          value: string | number | boolean;
+          note?: string;
+          bodysite?: string;
+          method?: string;
+        }>;
+      }>(),
     },
   },
 } as const;
