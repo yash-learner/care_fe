@@ -53,7 +53,6 @@ export default function WeekdayCheckbox({ value = [], onChange }: Props) {
                 id={`day_of_week_checkbox_${day}`}
                 checked={isChecked}
                 onCheckedChange={() => handleDayToggle(day)}
-                className="border-gray-500 data-[state=checked]:border-primary-500 data-[state=checked]:bg-primary-500"
               />
               <label
                 htmlFor={`day_of_week_checkbox_${day}`}

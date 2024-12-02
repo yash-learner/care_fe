@@ -1,5 +1,7 @@
 import DeathReport from "@/components/DeathReport/DeathReport";
 import InvestigationReports from "@/components/Facility/Investigations/Reports";
+import AppointmentTokenPreview from "@/components/Patient/AppointmentTokenPreview";
+import CreateAppointment from "@/components/Patient/CreateAppointment";
 import FileUploadPage from "@/components/Patient/FileUploadPage";
 import { InsuranceDetails } from "@/components/Patient/InsuranceDetails";
 import { PatientManager } from "@/components/Patient/ManagePatients";
@@ -29,6 +31,21 @@ const PatientRoutes: AppRoutes = {
     }) => <PatientHome facilityId={facilityId} id={id} page={tab.route} />;
     return acc;
   }, {}),
+  "/facility/:facilityId/patient/:id/appointments/create": ({
+    facilityId,
+    id,
+  }) => <CreateAppointment facilityId={facilityId} id={id} />,
+  "/facility/:facilityId/patient/:id/appointments/:appointmentId/token": ({
+    facilityId,
+    id,
+    appointmentId,
+  }) => (
+    <AppointmentTokenPreview
+      facilityId={facilityId}
+      patientId={id}
+      appointmentId={appointmentId}
+    />
+  ),
   "/facility/:facilityId/patient/:id/insurance": ({ facilityId, id }) => (
     <InsuranceDetails facilityId={facilityId} id={id} />
   ),

@@ -11,10 +11,12 @@ interface Props {
   month?: Date;
   onMonthChange?: (month: Date) => void;
   renderDay?: (date: Date) => React.ReactNode;
+  highlightToday?: boolean;
 }
 
 export default function Calendar(props: Props) {
   const currentMonth = props.month ?? new Date();
+  const highlightToday = props.highlightToday ?? true;
   const currentMonthRange = getMonthStartAndEnd(currentMonth);
 
   // Calculate days to display from previous month
@@ -96,8 +98,8 @@ export default function Calendar(props: Props) {
             <div
               key={index}
               className={cn(
-                "relative min-h-[80px] rounded-lg",
-                isToday && "ring-2 ring-primary-400",
+                "relative min-h-16 rounded-lg",
+                isToday && highlightToday && "ring-2 ring-primary-400",
               )}
             >
               {props.renderDay ? (
