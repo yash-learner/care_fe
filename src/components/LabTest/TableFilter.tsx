@@ -65,7 +65,7 @@ const TableFilter: React.FC<TableFilterProps> = ({ keys, onFiltersChange }) => {
   };
 
   return (
-    <div className="flex items-center space-x-4">
+    <div className="flex items-center gap-2">
       {/* Display Applied Filters */}
       <div className="flex flex-wrap items-center gap-x-2 border rounded-md">
         {filters.map((filter, index) => (

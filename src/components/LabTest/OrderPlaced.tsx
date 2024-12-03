@@ -1,3 +1,4 @@
+import { navigate } from "raviger";
 import React, { useState } from "react";
 
 import { Button } from "@/components/ui/button";
@@ -153,7 +154,7 @@ export const OrderPlaced: React.FC = () => {
   };
 
   const handleAction = (row: Record<string, any>) => {
-    alert(`Collect Specimen for ${row.orderId}`);
+    navigate(`/lab_tests/${row.orderId}`);
   };
 
   return (
