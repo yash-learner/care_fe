@@ -1,3 +1,6 @@
+import CareIcon from "@/CAREUI/icons/CareIcon";
+
+import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
@@ -5,7 +8,9 @@ import { Textarea } from "@/components/ui/textarea";
 import type { QuestionnaireResponse } from "@/types/questionnaire/form";
 import type { EnableWhen, Question } from "@/types/questionnaire/question";
 
+import { AllergyQuestion } from "./AllergyQuestion";
 import { ChoiceQuestion } from "./ChoiceQuestion";
+import { MedicationQuestion } from "./MedicationQuestion";
 
 interface QuestionInputProps {
   question: Question;
@@ -69,76 +74,180 @@ export function QuestionInput({
       : question.enable_when.every(checkCondition);
   };
 
-  const handleNumberChange = (newValue: string) => {
-    const response = {
-      question_id: question.id,
-      link_id: question.link_id,
-      values: [
-        question.type === "decimal"
-          ? parseFloat(newValue)
-          : parseInt(newValue, 10),
-      ],
-    };
-    updateQuestionnaireResponseCB(response);
+  const handleNumberChange = (newValue: string, index: number) => {
+    const updatedValues = [...questionnaireResponse.values];
+    updatedValues[index] =
+      question.type === "decimal"
+        ? parseFloat(newValue)
+        : parseInt(newValue, 10);
+
+    updateQuestionnaireResponseCB({
+      ...questionnaireResponse,
+      values: updatedValues,
+    });
   };
 
-  const renderInput = () => {
+  const addValue = () => {
+    updateQuestionnaireResponseCB({
+      ...questionnaireResponse,
+      values: [...questionnaireResponse.values, null],
+    });
+  };
+
+  const removeValue = (index: number) => {
+    const updatedValues = questionnaireResponse.values.filter(
+      (_, i) => i !== index,
+    );
+    updateQuestionnaireResponseCB({
+      ...questionnaireResponse,
+      values: updatedValues,
+    });
+  };
+
+  const renderSingleInput = (value: any, index: number) => {
     const isEnabled = isQuestionEnabled();
     const commonProps = {
       disabled: !isEnabled,
       "aria-hidden": !isEnabled,
     };
 
+    const removeButton = question.repeats &&
+      questionnaireResponse.values.length > 1 && (
+        <Button
+          variant="ghost"
+          size="icon"
+          onClick={() => removeValue(index)}
+          className="h-10 w-10"
+        >
+          <CareIcon icon="l-trash" className="h-4 w-4" />
+        </Button>
+      );
+
     switch (question.type) {
       case "decimal":
       case "integer":
         return (
-          <Input
-            type="number"
-            value={questionnaireResponse.values[0]?.toString() || ""}
-            onChange={(e) => handleNumberChange(e.target.value)}
-            step={question.type === "decimal" ? "0.01" : "1"}
-            {...commonProps}
-          />
+          <div className="flex gap-2">
+            <Input
+              type="number"
+              value={value?.toString() || ""}
+              onChange={(e) => handleNumberChange(e.target.value, index)}
+              step={question.type === "decimal" ? "0.01" : "1"}
+              {...commonProps}
+            />
+            {removeButton}
+          </div>
         );
       case "choice":
         return (
-          <ChoiceQuestion
-            question={question}
-            questionnaireResponse={questionnaireResponse}
-            updateQuestionnaireResponseCB={updateQuestionnaireResponseCB}
-            disabled={!isEnabled}
-          />
+          <div className="flex gap-2">
+            <ChoiceQuestion
+              question={question}
+              questionnaireResponse={{
+                ...questionnaireResponse,
+                values: [value],
+              }}
+              updateQuestionnaireResponseCB={(response) => {
+                const updatedValues = [...questionnaireResponse.values];
+                updatedValues[index] = response.values[0];
+                updateQuestionnaireResponseCB({
+                  ...questionnaireResponse,
+                  values: updatedValues,
+                });
+              }}
+              disabled={!isEnabled}
+            />
+            {removeButton}
+          </div>
         );
       case "text":
         return (
-          <Textarea
-            value={questionnaireResponse.values[0]?.toString() || ""}
-            onChange={(e) =>
-              updateQuestionnaireResponseCB({
-                ...questionnaireResponse,
-                values: [e.target.value],
-              })
-            }
-            className="min-h-[100px]"
-            {...commonProps}
-          />
+          <div className="flex gap-2">
+            <Textarea
+              value={value?.toString() || ""}
+              onChange={(e) => {
+                const updatedValues = [...questionnaireResponse.values];
+                updatedValues[index] = e.target.value;
+                updateQuestionnaireResponseCB({
+                  ...questionnaireResponse,
+                  values: updatedValues,
+                });
+              }}
+              className="min-h-[100px]"
+              {...commonProps}
+            />
+            {removeButton}
+          </div>
         );
+      case "display":
+        return null;
+      case "structured":
+        switch (question.structured_type) {
+          case "medication_request":
+            return (
+              <MedicationQuestion
+                question={question}
+                questionnaireResponse={questionnaireResponse}
+                updateQuestionnaireResponseCB={updateQuestionnaireResponseCB}
+                disabled={!isEnabled}
+              />
+            );
+          case "allergy_intolerance":
+            return (
+              <AllergyQuestion
+                question={question}
+                questionnaireResponse={questionnaireResponse}
+                updateQuestionnaireResponseCB={updateQuestionnaireResponseCB}
+                disabled={!isEnabled}
+              />
+            );
+        }
+        return null;
       default:
         return (
-          <Input
-            type="text"
-            value={questionnaireResponse.values[0]?.toString() || ""}
-            onChange={(e) =>
-              updateQuestionnaireResponseCB({
-                ...questionnaireResponse,
-                values: [e.target.value],
-              })
-            }
-            {...commonProps}
-          />
+          <div className="flex gap-2">
+            <Input
+              type="text"
+              value={value?.toString() || ""}
+              onChange={(e) => {
+                const updatedValues = [...questionnaireResponse.values];
+                updatedValues[index] = e.target.value;
+                updateQuestionnaireResponseCB({
+                  ...questionnaireResponse,
+                  values: updatedValues,
+                });
+              }}
+              {...commonProps}
+            />
+            {removeButton}
+          </div>
         );
     }
+  };
+
+  const renderInput = () => {
+    if (!questionnaireResponse.values.length) {
+      questionnaireResponse.values.push("");
+    }
+
+    return (
+      <div className="space-y-2">
+        {questionnaireResponse.values.map((value, index) => (
+          <div key={index}>{renderSingleInput(value, index)}</div>
+        ))}
+        {question.repeats && (
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={addValue}
+            className="mt-2"
+          >
+            <CareIcon icon="l-plus" className="mr-2 h-4 w-4" />
+            Add Another
+          </Button>
+        )}
+      </div>
+    );
   };
 
   const isEnabled = isQuestionEnabled();
@@ -153,11 +262,7 @@ export function QuestionInput({
           {question.text}
           {question.required && <span className="ml-1 text-red-500">*</span>}
         </Label>
-        {question.code && (
-          <span className="text-sm text-gray-500">{question.code.display}</span>
-        )}
       </div>
-
       {renderInput()}
     </div>
   );

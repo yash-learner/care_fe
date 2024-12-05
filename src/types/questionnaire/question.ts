@@ -15,6 +15,10 @@ export type QuestionType =
   | "choice"
   | "structured";
 
+export type StructuredQuestionType =
+  | "allergy_intolerance"
+  | "medication_request";
+
 export interface EnableWhen {
   question: string;
   operator:
@@ -39,6 +43,7 @@ export interface Question {
   code?: Code;
   text: string;
   type: QuestionType;
+  structured_type?: StructuredQuestionType;
   required?: boolean;
   collect_time?: boolean;
   collect_performer?: boolean;
