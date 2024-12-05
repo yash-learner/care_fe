@@ -53,7 +53,7 @@ export function QuestionnaireList() {
             {questionnaireList.map((questionnaire: QuestionnaireDetail) => (
               <tr
                 key={questionnaire.id}
-                onClick={() => navigate(`/questionnaire/${questionnaire.id}`)}
+                onClick={() => navigate(`/questionnaire/${questionnaire.slug}`)}
                 className="cursor-pointer hover:bg-gray-50"
               >
                 <td className="whitespace-nowrap px-6 py-4">

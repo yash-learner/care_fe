@@ -10,6 +10,7 @@ export type QuestionnaireType =
 
 export interface QuestionnaireDetail {
   id: string;
+  slug: string;
   version?: string;
   code?: Code;
   questions: Question[];

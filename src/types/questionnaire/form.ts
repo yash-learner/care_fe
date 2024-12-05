@@ -1,16 +1,20 @@
+import type { Code } from "./base";
 import type { QuestionnaireDetail } from "./questionnaire";
 
-export interface QuestionValue {
-  id: string;
-  value: string | number | boolean;
-  linkId: string;
+export type QuestionValue = string | number | boolean | Code;
+
+export interface QuestionnaireSubmitResult {
+  question_id: string;
+  values: QuestionValue[];
+  link_id: string;
   note?: string;
-  bodysite?: string;
-  method?: string;
+  taken_at?: string;
+  body_site?: Code;
+  method?: Code;
 }
 
 export interface QuestionnaireFormProps {
   questionnaire: QuestionnaireDetail;
-  onSubmit: (values: QuestionValue[]) => void;
+  onSubmit: (values: QuestionnaireSubmitResult[]) => void;
   isSubmitting?: boolean;
 }

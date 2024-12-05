@@ -29,10 +29,7 @@ export type QuestionType =
   | "text"
   | "url"
   | "choice"
-  | "open-choice"
-  | "attachment"
-  | "reference"
-  | "quantity";
+  | "structured";
 
 export type QuestionStatus = "active" | "retired" | "draft";
 export type SubjectType = "patient";
