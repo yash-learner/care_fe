@@ -1,4 +1,4 @@
-import { ChangeEvent, useState } from "react";
+import { useState } from "react";
 
 import CareIcon from "@/CAREUI/icons/CareIcon";
 
@@ -17,18 +17,17 @@ export function QuestionnaireForm({
   onSubmit,
   isSubmitting = false,
 }: QuestionnaireFormProps) {
-  const [values, setValues] = useState<Record<string, QuestionValue>>({});
+  const [values, setValues] = useState<QuestionValue[]>([]);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    onSubmit(Object.values(values));
+    onSubmit(values);
   };
 
-  const handleChange = (id: string, value: QuestionValue) => {
-    setValues((prev) => ({
-      ...prev,
-      [id]: value,
-    }));
+  const handleChange = (value: QuestionValue) => {
+    setValues((prev) => {
+      return prev.filter((v) => v.id !== value.id).concat(value);
+    });
   };
 
   return (

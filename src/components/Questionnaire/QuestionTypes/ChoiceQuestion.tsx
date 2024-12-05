@@ -1,4 +1,10 @@
-import { Button } from "@/components/ui/button";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 
 import type { AnswerOption } from "@/types/questionnaire/base";
 import type { QuestionValue } from "@/types/questionnaire/form";
@@ -8,12 +14,14 @@ interface ChoiceQuestionProps {
   question: Question;
   value: QuestionValue;
   onChange: (value: QuestionValue) => void;
+  disabled?: boolean;
 }
 
 export function ChoiceQuestion({
   question,
   value,
   onChange,
+  disabled = false,
 }: ChoiceQuestionProps) {
   const options: AnswerOption[] = question.answer_option || [];
 
@@ -25,18 +33,24 @@ export function ChoiceQuestion({
   };
 
   return (
-    <div className="flex flex-col gap-2">
-      {options.map((option: AnswerOption, index: number) => (
-        <Button
-          key={index}
-          type="button"
-          variant={value.value === option.value ? "default" : "outline"}
-          onClick={() => handleValueChange(option.value.toString())}
-          className="justify-start"
-        >
-          {option.value}
-        </Button>
-      ))}
-    </div>
+    <Select
+      value={value.value?.toString()}
+      onValueChange={handleValueChange}
+      disabled={disabled}
+    >
+      <SelectTrigger className="w-full">
+        <SelectValue placeholder="Select an option" />
+      </SelectTrigger>
+      <SelectContent>
+        {options.map((option: AnswerOption) => (
+          <SelectItem
+            key={option.value.toString()}
+            value={option.value.toString()}
+          >
+            {option.value}
+          </SelectItem>
+        ))}
+      </SelectContent>
+    </Select>
   );
 }

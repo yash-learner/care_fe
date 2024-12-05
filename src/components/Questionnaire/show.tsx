@@ -209,9 +209,9 @@ export function QuestionnaireShow({ id }: QuestionnaireShowProps) {
         <TabsContent value="preview">
           <Card>
             <CardHeader>
-              <CardTitle>Form Preview</CardTitle>
+              <CardTitle>{questionnaire.title}</CardTitle>
               <p className="text-sm text-gray-500">
-                Preview how the questionnaire will appear to users
+                {questionnaire.description}
               </p>
             </CardHeader>
             <CardContent>

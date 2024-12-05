@@ -2,7 +2,14 @@ import { AnswerOption, AnswerUnit, Code, QuestionType } from "./base";
 
 export interface EnableWhen {
   question: string;
-  operator: "exists" | "eq" | "ne" | "gt" | "lt" | "ge" | "le";
+  operator:
+    | "exists"
+    | "equals"
+    | "not_equals"
+    | "greater"
+    | "less"
+    | "greater_or_equals"
+    | "less_or_equals";
   answer: string | number | boolean;
 }
 

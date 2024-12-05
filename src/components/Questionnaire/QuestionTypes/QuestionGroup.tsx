@@ -5,8 +5,8 @@ import { QuestionInput } from "./QuestionInput";
 
 interface QuestionGroupProps {
   question: Question;
-  values: Record<string, QuestionValue>;
-  onChange: (id: string, value: QuestionValue) => void;
+  values: QuestionValue[];
+  onChange: (value: QuestionValue) => void;
   depth?: number;
 }
 
@@ -16,22 +16,16 @@ export function QuestionGroup({
   onChange,
   depth = 0,
 }: QuestionGroupProps) {
-  const value = values[question.id] || {
-    id: question.id,
-    value: "",
-  };
-
   const isGroup = question.type === "group";
 
   return (
-    <div className={`space-y-4 ${depth > 0 ? "ml-4 border-l pl-4" : ""}`}>
+    <div className="space-y-4">
+      {isGroup && question.text && <h3>{question.text}</h3>}
       {!isGroup && (
         <QuestionInput
           question={question}
-          value={value}
-          onChange={(newValue: QuestionValue) =>
-            onChange(question.id, newValue)
-          }
+          values={values}
+          onChange={(newValue: QuestionValue) => onChange(newValue)}
         />
       )}
 
