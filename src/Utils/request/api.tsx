@@ -93,7 +93,7 @@ import { PaginatedResponse } from "@/Utils/request/types";
 import type {
   QuestionnaireDetail,
   QuestionnaireResponse,
-} from "@/types/questionnaire";
+} from "@/types/questionnaire/questionnaire";
 
 /**
  * A fake function that returns an empty object casted to type T

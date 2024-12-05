@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 
 import routes from "@/Utils/request/api";
 import useQuery from "@/Utils/request/useQuery";
-import type { QuestionnaireDetail } from "@/types/questionnaire";
+import { QuestionnaireDetail } from "@/types/questionnaire/questionnaire";
 
 import Loading from "../Common/Loading";
 

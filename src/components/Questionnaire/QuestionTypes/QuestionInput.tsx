@@ -2,35 +2,39 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 
-import type { QuestionValue } from "@/types/questionnaire/form";
+import type { QuestionnaireResponse } from "@/types/questionnaire/form";
 import type { EnableWhen, Question } from "@/types/questionnaire/question";
 
 import { ChoiceQuestion } from "./ChoiceQuestion";
 
 interface QuestionInputProps {
   question: Question;
-  values: QuestionValue[];
-  onChange: (value: QuestionValue) => void;
+  questionnaireResponses: QuestionnaireResponse[];
+  updateQuestionnaireResponseCB: (
+    questionnaireResponse: QuestionnaireResponse,
+  ) => void;
 }
 
 export function QuestionInput({
   question,
-  values,
-  onChange,
+  questionnaireResponses,
+  updateQuestionnaireResponseCB,
 }: QuestionInputProps) {
-  const value = values.find((v) => v.id === question.id) || {
-    id: question.id,
-    linkId: question.link_id,
-    value: "",
+  const questionnaireResponse = questionnaireResponses.find(
+    (v) => v.question_id === question.id,
+  ) || {
+    question_id: question.id,
+    link_id: question.link_id,
+    values: [],
   };
 
   const isQuestionEnabled = () => {
     if (!question.enable_when?.length) return true;
 
     const checkCondition = (enableWhen: EnableWhen) => {
-      const dependentValue = values.find(
-        (v) => v.linkId === enableWhen.question,
-      )?.value;
+      const dependentValue = questionnaireResponses.find(
+        (v) => v.link_id === enableWhen.question,
+      )?.values[0];
 
       switch (enableWhen.operator) {
         case "exists":
@@ -66,13 +70,16 @@ export function QuestionInput({
   };
 
   const handleNumberChange = (newValue: string) => {
-    onChange({
-      ...value,
-      value:
+    const response = {
+      question_id: question.id,
+      link_id: question.link_id,
+      values: [
         question.type === "decimal"
           ? parseFloat(newValue)
           : parseInt(newValue, 10),
-    });
+      ],
+    };
+    updateQuestionnaireResponseCB(response);
   };
 
   const renderInput = () => {
@@ -88,7 +95,7 @@ export function QuestionInput({
         return (
           <Input
             type="number"
-            value={value.value?.toString() || ""}
+            value={questionnaireResponse.values[0]?.toString() || ""}
             onChange={(e) => handleNumberChange(e.target.value)}
             step={question.type === "decimal" ? "0.01" : "1"}
             {...commonProps}
@@ -98,16 +105,21 @@ export function QuestionInput({
         return (
           <ChoiceQuestion
             question={question}
-            value={value}
-            onChange={onChange}
+            questionnaireResponse={questionnaireResponse}
+            updateQuestionnaireResponseCB={updateQuestionnaireResponseCB}
             disabled={!isEnabled}
           />
         );
       case "text":
         return (
           <Textarea
-            value={value.value?.toString() || ""}
-            onChange={(e) => onChange({ ...value, value: e.target.value })}
+            value={questionnaireResponse.values[0]?.toString() || ""}
+            onChange={(e) =>
+              updateQuestionnaireResponseCB({
+                ...questionnaireResponse,
+                values: [e.target.value],
+              })
+            }
             className="min-h-[100px]"
             {...commonProps}
           />
@@ -116,8 +128,13 @@ export function QuestionInput({
         return (
           <Input
             type="text"
-            value={value.value?.toString() || ""}
-            onChange={(e) => onChange({ ...value, value: e.target.value })}
+            value={questionnaireResponse.values[0]?.toString() || ""}
+            onChange={(e) =>
+              updateQuestionnaireResponseCB({
+                ...questionnaireResponse,
+                values: [e.target.value],
+              })
+            }
             {...commonProps}
           />
         );

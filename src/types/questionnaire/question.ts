@@ -1,4 +1,19 @@
-import { AnswerOption, AnswerUnit, Code, QuestionType } from "./base";
+import { Code } from "./code";
+
+export type QuestionType =
+  | "group"
+  | "display"
+  | "boolean"
+  | "decimal"
+  | "integer"
+  | "date"
+  | "dateTime"
+  | "time"
+  | "string"
+  | "text"
+  | "url"
+  | "choice"
+  | "structured";
 
 export interface EnableWhen {
   question: string;
@@ -11,6 +26,11 @@ export interface EnableWhen {
     | "greater_or_equals"
     | "less_or_equals";
   answer: string | number | boolean;
+}
+
+export interface AnswerOption {
+  value: string | number | boolean;
+  initialSelected?: boolean;
 }
 
 export interface Question {
@@ -33,7 +53,7 @@ export interface Question {
   answer_constraint?: string;
   answer_option?: AnswerOption[];
   answer_value_set?: string;
-  answer_unit?: AnswerUnit;
+  answer_unit?: Code;
   is_observation?: boolean;
   questions?: Question[];
   formula?: string;

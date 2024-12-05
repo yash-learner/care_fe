@@ -1,19 +1,21 @@
-import type { QuestionValue } from "@/types/questionnaire/form";
+import type { QuestionnaireResponse } from "@/types/questionnaire/form";
 import type { Question } from "@/types/questionnaire/question";
 
 import { QuestionInput } from "./QuestionInput";
 
 interface QuestionGroupProps {
   question: Question;
-  values: QuestionValue[];
-  onChange: (value: QuestionValue) => void;
+  questionnaireResponses: QuestionnaireResponse[];
+  updateQuestionnaireResponseCB: (
+    questionnaireResponse: QuestionnaireResponse,
+  ) => void;
   depth?: number;
 }
 
 export function QuestionGroup({
   question,
-  values,
-  onChange,
+  questionnaireResponses,
+  updateQuestionnaireResponseCB,
   depth = 0,
 }: QuestionGroupProps) {
   const isGroup = question.type === "group";
@@ -24,8 +26,8 @@ export function QuestionGroup({
       {!isGroup && (
         <QuestionInput
           question={question}
-          values={values}
-          onChange={(newValue: QuestionValue) => onChange(newValue)}
+          questionnaireResponses={questionnaireResponses}
+          updateQuestionnaireResponseCB={updateQuestionnaireResponseCB}
         />
       )}
 
@@ -34,8 +36,8 @@ export function QuestionGroup({
           <QuestionGroup
             key={subQuestion.id}
             question={subQuestion}
-            values={values}
-            onChange={onChange}
+            questionnaireResponses={questionnaireResponses}
+            updateQuestionnaireResponseCB={updateQuestionnaireResponseCB}
             depth={depth + 1}
           />
         ))}

@@ -1,5 +1,9 @@
-import { Code, QuestionStatus, SubjectType } from "./base";
+import { Code } from "./code";
 import { Question } from "./question";
+
+export type SubjectType = "patient";
+
+export type QuestionStatus = "active" | "retired" | "draft";
 
 export type QuestionnaireType =
   | "custom"

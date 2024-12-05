@@ -6,35 +6,37 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 
-import type { AnswerOption } from "@/types/questionnaire/base";
-import type { QuestionValue } from "@/types/questionnaire/form";
+import type { QuestionnaireResponse } from "@/types/questionnaire/form";
+import type { AnswerOption } from "@/types/questionnaire/question";
 import type { Question } from "@/types/questionnaire/question";
 
 interface ChoiceQuestionProps {
   question: Question;
-  value: QuestionValue;
-  onChange: (value: QuestionValue) => void;
+  questionnaireResponse: QuestionnaireResponse;
+  updateQuestionnaireResponseCB: (
+    questionnaireResponse: QuestionnaireResponse,
+  ) => void;
   disabled?: boolean;
 }
 
 export function ChoiceQuestion({
   question,
-  value,
-  onChange,
+  questionnaireResponse,
+  updateQuestionnaireResponseCB,
   disabled = false,
 }: ChoiceQuestionProps) {
   const options: AnswerOption[] = question.answer_option || [];
 
   const handleValueChange = (newValue: string) => {
-    onChange({
-      ...value,
-      value: newValue,
+    updateQuestionnaireResponseCB({
+      ...questionnaireResponse,
+      values: [newValue],
     });
   };
 
   return (
     <Select
-      value={value.value?.toString()}
+      value={questionnaireResponse.values[0]?.toString()}
       onValueChange={handleValueChange}
       disabled={disabled}
     >

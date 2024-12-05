@@ -29,7 +29,6 @@ import ShiftingRoutes from "@/Routers/routes/ShiftingRoutes";
 import UserRoutes from "@/Routers/routes/UserRoutes";
 
 import { QuestionnaireList } from "../components/Questionnaire";
-import { QuestionnaireEdit } from "../components/Questionnaire/QuestionnaireEdit";
 import { QuestionnaireShow } from "../components/Questionnaire/show";
 
 export type RouteParams<T extends string> =
@@ -72,8 +71,6 @@ const Routes: AppRoutes = {
   // Questionnaire Routes
   "/questionnaire": () => <QuestionnaireList />,
   "/questionnaire/:id": ({ id }) => <QuestionnaireShow id={id} />,
-  "/questionnaire/create": () => <QuestionnaireEdit />,
-  "/questionnaire/:id/edit": ({ id }) => <QuestionnaireEdit id={id} />,
 };
 
 export default function AppRouter() {

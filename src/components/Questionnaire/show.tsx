@@ -12,11 +12,8 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import routes from "@/Utils/request/api";
 import request from "@/Utils/request/request";
 import useQuery from "@/Utils/request/useQuery";
-import type {
-  Question,
-  QuestionValue,
-  QuestionnaireDetail,
-} from "@/types/questionnaire";
+import type { QuestionnaireResponse } from "@/types/questionnaire/form";
+import type { Question } from "@/types/questionnaire/question";
 
 import Loading from "../Common/Loading";
 import { QuestionnaireForm } from "./QuestionnaireForm";
@@ -103,21 +100,21 @@ export function QuestionnaireShow({ id }: QuestionnaireShowProps) {
     );
   }
 
-  const handleFormSubmit = async (values: QuestionValue[]) => {
+  const handleFormSubmit = async (values: QuestionnaireResponse[]) => {
     try {
-      await request(routes.questionnaire.submit, {
-        pathParams: { id },
-        body: {
-          encounter: "some-encounter-id",
-          responses: values.map((v) => ({
-            question_id: v.id,
-            value: v.value,
-            note: v.note,
-            bodysite: v.bodysite,
-            method: v.method,
-          })),
-        },
-      });
+      // await request(routes.questionnaire.submit, {
+      //   pathParams: { id },
+      //   body: {
+      //     encounter: "some-encounter-id",
+      //     responses: values.map((v) => ({
+      //       question_id: v.id,
+      //       value: v.value,
+      //       note: v.note,
+      //       bodysite: v.bodysite,
+      //       method: v.method,
+      //     })),
+      //   },
+      // });
     } catch (error) {
       console.error("Failed to submit form:", error);
     }

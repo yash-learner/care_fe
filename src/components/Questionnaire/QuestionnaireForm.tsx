@@ -4,29 +4,39 @@ import CareIcon from "@/CAREUI/icons/CareIcon";
 
 import { Button } from "@/components/ui/button";
 
-import type {
-  QuestionValue,
-  QuestionnaireFormProps,
-} from "@/types/questionnaire/form";
+import type { QuestionnaireResponse } from "@/types/questionnaire/form";
 import type { Question } from "@/types/questionnaire/question";
+import { QuestionnaireDetail } from "@/types/questionnaire/questionnaire";
 
 import { QuestionGroup } from "./QuestionTypes/QuestionGroup";
+
+export interface QuestionnaireFormProps {
+  questionnaire: QuestionnaireDetail;
+  onSubmit: (questionnaireResponse: QuestionnaireResponse[]) => void;
+  isSubmitting?: boolean;
+}
 
 export function QuestionnaireForm({
   questionnaire,
   onSubmit,
   isSubmitting = false,
 }: QuestionnaireFormProps) {
-  const [values, setValues] = useState<QuestionValue[]>([]);
+  const [questionnaireResponses, setQuestionnaireResponses] = useState<
+    QuestionnaireResponse[]
+  >([]);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    onSubmit(values);
+    onSubmit(questionnaireResponses);
   };
 
-  const handleChange = (value: QuestionValue) => {
-    setValues((prev) => {
-      return prev.filter((v) => v.id !== value.id).concat(value);
+  const updateQuestionnaireResponse = (
+    questionnaireResponse: QuestionnaireResponse,
+  ) => {
+    setQuestionnaireResponses((prev) => {
+      return prev
+        .filter((v) => v.question_id !== questionnaireResponse.question_id)
+        .concat(questionnaireResponse);
     });
   };
 
@@ -36,8 +46,8 @@ export function QuestionnaireForm({
         <QuestionGroup
           key={question.id}
           question={question}
-          values={values}
-          onChange={handleChange}
+          questionnaireResponses={questionnaireResponses}
+          updateQuestionnaireResponseCB={updateQuestionnaireResponse}
         />
       ))}
 
