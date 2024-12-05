@@ -154,7 +154,7 @@ export const OrderPlaced: React.FC = () => {
   };
 
   const handleAction = (row: Record<string, any>) => {
-    navigate(`/lab_tests/${row.orderId}`);
+    navigate(`/lab_tests/:patientId/orders`);
   };
 
   return (

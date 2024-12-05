@@ -7,7 +7,7 @@ const LabTestRoutes: AppRoutes = {
   "/lab_tests/order_placed": () => <LabTest />,
   "/lab_tests/specimen_collected": () => <LabTest />,
   "/lab_tests/sent_to_lab": () => <LabTest />,
-  "/lab_tests/:orderId": ({ orderId }) => <CollectSpecimen orderId={orderId} />,
+  "/lab_tests/:patientId/orders": ({ patientId }) => <CollectSpecimen />,
 };
 
 export default LabTestRoutes;
