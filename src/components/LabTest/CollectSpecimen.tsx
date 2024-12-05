@@ -107,7 +107,7 @@ export const CollectSpecimen: React.FC = () => {
       </nav>
 
       {/* Right - Main Content */}
-      <main className="flex-1 p-6 lg:p-8 max-w-5xl">
+      <main className="flex-1 p-6 lg:p-8 max-w-5xl mx-auto">
         {/* Header Section */}
         <Button
           variant="outline"
