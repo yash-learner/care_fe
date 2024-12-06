@@ -111,6 +111,25 @@ function isStaticallyImportedByEntry(
   return false;
 }
 
+function getRemotes(enabledApps: string) {
+  if (!enabledApps) return {};
+
+  return enabledApps.split(",").reduce((acc, app) => {
+    const [package_, branch = "main"] = app.split("@");
+    const [org, repo] = package_.split("/");
+    const remoteUrl = `"https://${org}.github.io/${repo}/assets/remoteEntry.js"`;
+    console.log("Using Remote Module:", remoteUrl);
+    return {
+      ...acc,
+      [repo]: {
+        external: `Promise.resolve(${remoteUrl})`,
+        from: "vite",
+        externalType: "promise",
+      },
+    };
+  }, {});
+}
+
 /** @type {import('vite').UserConfig} */
 export default defineConfig(({ mode }) => {
   const env = loadEnv(mode, process.cwd(), "");
@@ -131,19 +150,12 @@ export default defineConfig(({ mode }) => {
       ),
     },
     plugins: [
-      // Federation Config for care_livekit_fe
       federation({
         name: "core",
-        remotes: {
-          livekit: {
-            external: `Promise.resolve("https://ohcnetwork.github.io/care_livekit_fe/assets/remoteEntry.js")`,
-            from: "vite",
-            externalType: "promise",
-          },
-        },
+        remotes: getRemotes(env.REACT_ENABLED_APPS || ""),
         shared: {
-          react: { requiredVersion: "^18.0.0", singleton: true },
-          "react-dom": { requiredVersion: "^18.0.0", singleton: true },
+          react: { requiredVersion: "^18.0.0" },
+          "react-dom": { requiredVersion: "^18.0.0" },
         },
       }),
       ValidateEnv({
