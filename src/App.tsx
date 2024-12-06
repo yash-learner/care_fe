@@ -21,8 +21,7 @@ const App = () => {
           <HistoryAPIProvider>
             <AuthUserProvider unauthorized={<Routers.SessionRouter />}>
               <FeatureFlagsProvider>
-                {/* <Routers.AppRouter /> */}
-                <div>Hello</div>
+                <Routers.AppRouter />
               </FeatureFlagsProvider>
             </AuthUserProvider>
 

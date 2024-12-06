@@ -134,26 +134,17 @@ export default defineConfig(({ mode }) => {
       // Federation Config for care_livekit_fe
       federation({
         name: "core",
-        // This file exposes shared components to microfrontends
-        filename: "sharedCore.js",
-        // Expose shared components that microfrontends can use
-        exposes: {
-          "./components/Common/PageTitle":
-            "./src/components/Common/PageTitle.tsx",
-          "./components/Common/ErrorBoundary":
-            "./src/components/Common/ErrorBoundary.tsx",
-          "./Integrations/Plausible": "./src/Integrations/Plausible.tsx",
-          "./CAREUI/icons/CareIcon": "./src/CAREUI/icons/CareIcon.tsx",
-          "./hooks/useAuthUser": "./src/hooks/useAuthUser.ts",
-          "./Utils/request/request": "./src/Utils/request/request.ts",
-          // Add other shared components...
-        },
         remotes: {
-          // care_livekit:
-          //   "https://ohcnetwork.github.io/care_livekit_fe/assets/remoteEntry.js",
-          care_livekit: "http://localhost:5173/assets/remoteEntry.js",
+          livekit: {
+            external: `Promise.resolve("https://ohcnetwork.github.io/care_livekit_fe/assets/remoteEntry.js")`,
+            from: "vite",
+            externalType: "promise",
+          },
         },
-        // Share core components with micro-frontends
+        shared: {
+          react: { requiredVersion: "^18.0.0", singleton: true },
+          "react-dom": { requiredVersion: "^18.0.0", singleton: true },
+        },
       }),
       ValidateEnv({
         validator: "zod",
@@ -244,10 +235,11 @@ export default defineConfig(({ mode }) => {
         "@core": path.resolve(__dirname, "src/"),
       },
     },
-    optimizeDeps: {
-      include: getPluginDependencies(),
-    },
+    // optimizeDeps: {
+    //   include: getPluginDependencies(),
+    // },
     build: {
+      target: "es2022",
       outDir: "build",
       assetsDir: "bundle",
       sourcemap: true,
@@ -281,17 +273,20 @@ export default defineConfig(({ mode }) => {
         },
       },
     },
+    esbuild: {
+      target: "es2022",
+    },
     server: {
       port: 4000,
     },
     preview: {
       headers: {
         "Content-Security-Policy-Report-Only": `default-src 'self';\
-        script-src 'self' blob: 'nonce-f51b9742' https://plausible.10bedicu.in;\
-        style-src 'self' 'unsafe-inline';\
-        connect-src 'self' https://plausible.10bedicu.in;\
-        img-src 'self' https://cdn.ohc.network ${cdnUrls};\
-        object-src 'self' ${cdnUrls};`,
+          script-src 'self' blob: 'nonce-f51b9742' https://plausible.10bedicu.in;\
+          style-src 'self' 'unsafe-inline';\
+          connect-src 'self' https://plausible.10bedicu.in;\
+          img-src 'self' https://cdn.ohc.network ${cdnUrls};\
+          object-src 'self' ${cdnUrls};`,
       },
       port: 4000,
     },

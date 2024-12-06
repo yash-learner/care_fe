@@ -12,13 +12,6 @@ import { PatientForm } from "./components/Patient/PatientRegister";
 import { PatientModel } from "./components/Patient/models";
 import { pluginMap } from "./pluginMap";
 
-// Define the available plugins
-export type AvailablePlugin = "@apps/care_livekit_fe" | "@apps/care_hcx_fe";
-
-export type AvailablePluginManifest =
-  | "@app-manifest/care_livekit_fe"
-  | "@app-manifest/care_hcx_fe";
-
 export type DoctorConnectButtonComponentType = React.FC<{
   user: UserAssignedModel;
 }>;
@@ -96,16 +89,6 @@ export type PluginManifest = {
     string,
     LazyComponent<React.FC<ConsultationTabProps>>
   >;
-};
-
-// Create a type that ensures only available plugins can be used
-export type EnabledPluginConfig = {
-  plugin: string;
-  manifestPath: AvailablePluginManifest;
-  path: AvailablePlugin;
-  manifest: Promise<PluginManifest>;
-  // Components are a dictionary, with the key being the component name, and the value being the component type
-  components: PluginComponentMap;
 };
 
 export { pluginMap };
