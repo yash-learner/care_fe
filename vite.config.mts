@@ -152,11 +152,14 @@ export default defineConfig(({ mode }) => {
     plugins: [
       federation({
         name: "core",
-        remotes: getRemotes(env.REACT_ENABLED_APPS || ""),
-        shared: {
-          react: { requiredVersion: "^18.0.0" },
-          "react-dom": { requiredVersion: "^18.0.0" },
+        remotes: {
+          care_livekit_fe: {
+            external: `Promise.resolve("http://localhost:5173/assets/remoteEntry.js")`,
+            externalType: "promise",
+            from: "vite",
+          },
         },
+        shared: ["react", "react-dom"],
       }),
       ValidateEnv({
         validator: "zod",
@@ -252,38 +255,7 @@ export default defineConfig(({ mode }) => {
     // },
     build: {
       target: "es2022",
-      outDir: "build",
-      assetsDir: "bundle",
       sourcemap: true,
-      rollupOptions: {
-        output: {
-          manualChunks(id, { getModuleInfo }) {
-            if (id.includes("node_modules")) {
-              const moduleInfo = getModuleInfo(id);
-
-              // Determine if the module should be in the 'vendor' chunk
-              const manualVendorChunks = /tiny-invariant/;
-              if (
-                manualVendorChunks.test(id) ||
-                isStaticallyImportedByEntry(getModuleInfo, id)
-              ) {
-                return "vendor";
-              } else {
-                // group lazy-loaded dependencies by their dynamic importer
-                const dynamicImporters = moduleInfo?.dynamicImporters || [];
-                if (dynamicImporters && dynamicImporters.length > 0) {
-                  // Use the first dynamic importer to name the chunk
-                  const importerChunkName = dynamicImporters[0]
-                    ? dynamicImporters[0].split("/").pop()
-                    : "vendor".split(".")[0];
-                  return `chunk-${importerChunkName}`;
-                }
-                // If no dynamic importers are found, let Rollup handle it automatically
-              }
-            }
-          },
-        },
-      },
     },
     esbuild: {
       target: "es2022",
