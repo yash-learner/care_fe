@@ -255,6 +255,7 @@ export default defineConfig(({ mode }) => {
     // },
     build: {
       target: "es2022",
+      outDir: "build",
       sourcemap: true,
     },
     esbuild: {
