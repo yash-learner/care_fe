@@ -11,6 +11,7 @@ import type { EnableWhen, Question } from "@/types/questionnaire/question";
 import { AllergyQuestion } from "./AllergyQuestion";
 import { ChoiceQuestion } from "./ChoiceQuestion";
 import { MedicationQuestion } from "./MedicationQuestion";
+import { NotesInput } from "./NotesInput";
 
 interface QuestionInputProps {
   question: Question;
@@ -90,7 +91,7 @@ export function QuestionInput({
   const addValue = () => {
     updateQuestionnaireResponseCB({
       ...questionnaireResponse,
-      values: [...questionnaireResponse.values, null],
+      values: [...questionnaireResponse.values],
     });
   };
 
@@ -257,13 +258,20 @@ export function QuestionInput({
 
   return (
     <div className={`space-y-2 ${!isEnabled ? "opacity-50" : ""}`}>
-      <div className="flex items-center justify-between">
-        <Label className="text-base font-medium">
-          {question.text}
-          {question.required && <span className="ml-1 text-red-500">*</span>}
-        </Label>
+      <div className="space-y-1">
+        <div className="flex items-center justify-between">
+          <Label className="text-base font-medium">
+            {question.text}
+            {question.required && <span className="ml-1 text-red-500">*</span>}
+          </Label>
+        </div>
       </div>
-      {renderInput()}
+      <div className="space-y-2">{renderInput()}</div>
+      <NotesInput
+        questionnaireResponse={questionnaireResponse}
+        updateQuestionnaireResponseCB={updateQuestionnaireResponseCB}
+        disabled={!isEnabled}
+      />
     </div>
   );
 }

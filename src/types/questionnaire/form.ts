@@ -1,11 +1,11 @@
 import type { Code } from "./code";
 
-export type QuestionValueX = string | number | boolean | Code;
+export type QuestionValue = string | number | boolean | Code | never[];
 
 export interface QuestionnaireResponse {
   question_id: string;
-  values: QuestionValueX[];
   link_id: string;
+  values: QuestionValue[];
   note?: string;
   taken_at?: string;
   body_site?: Code;

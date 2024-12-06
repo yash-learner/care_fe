@@ -33,7 +33,7 @@ export interface EnableWhen {
 }
 
 export interface AnswerOption {
-  value: string | number | boolean;
+  value: string | number | boolean | Code;
   initialSelected?: boolean;
 }
 
