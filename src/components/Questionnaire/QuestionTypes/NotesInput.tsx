@@ -27,7 +27,10 @@ export function NotesInput({
       <Button
         variant="ghost"
         size="sm"
-        onClick={() => setShowNotes(!showNotes)}
+        onClick={(e) => {
+          e.preventDefault();
+          setShowNotes(!showNotes);
+        }}
         className={`h-6 px-2 ${
           hasNotes ? "text-blue-500" : "text-gray-500"
         } hover:bg-gray-100`}
