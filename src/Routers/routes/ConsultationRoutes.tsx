@@ -9,9 +9,9 @@ import CriticalCareEditor from "@/components/LogUpdate/CriticalCareEditor";
 import CriticalCarePreview from "@/components/LogUpdate/CriticalCarePreview";
 import ManagePrescriptions from "@/components/Medicine/ManagePrescriptions";
 import PrescriptionsPrintPreview from "@/components/Medicine/PrintPreview";
-import ConsultationQuestionnaire from "@/components/Patient/ConsultationQuestionnaire";
 import { DailyRoundListDetails } from "@/components/Patient/DailyRoundListDetails";
 import { DailyRounds } from "@/components/Patient/DailyRounds";
+import EncounterQuestionnaire from "@/components/Patient/EncounterQuestionnaire";
 import FileUploadPage from "@/components/Patient/FileUploadPage";
 import PatientConsentRecords from "@/components/Patient/PatientConsentRecords";
 
@@ -162,7 +162,7 @@ const consultationRoutes: AppRoutes = {
     ),
   "/facility/:facilityId/patient/:patientId/consultation/:consultationId/questionnaire":
     ({ facilityId, patientId, consultationId }) => (
-      <ConsultationQuestionnaire
+      <EncounterQuestionnaire
         facilityId={facilityId}
         patientId={patientId}
         consultationId={consultationId}
@@ -170,7 +170,7 @@ const consultationRoutes: AppRoutes = {
     ),
   "/facility/:facilityId/patient/:patientId/consultation/:consultationId/questionnaire/:slug":
     ({ facilityId, patientId, consultationId, slug }) => (
-      <ConsultationQuestionnaire
+      <EncounterQuestionnaire
         facilityId={facilityId}
         patientId={patientId}
         consultationId={consultationId}

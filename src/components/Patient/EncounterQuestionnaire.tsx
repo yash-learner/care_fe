@@ -15,7 +15,7 @@ interface Props {
   questionnaireSlug?: string;
 }
 
-export default function ConsultationQuestionnaire({
+export default function EncounterQuestionnaire({
   facilityId,
   patientId,
   consultationId,
