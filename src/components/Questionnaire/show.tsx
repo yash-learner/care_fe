@@ -10,7 +10,6 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 import routes from "@/Utils/request/api";
-import request from "@/Utils/request/request";
 import useQuery from "@/Utils/request/useQuery";
 import type { QuestionnaireResponse } from "@/types/questionnaire/form";
 import type { Question } from "@/types/questionnaire/question";
@@ -213,7 +212,7 @@ export function QuestionnaireShow({ id }: QuestionnaireShowProps) {
             </CardHeader>
             <CardContent>
               <QuestionnaireForm
-                questionnaires={[questionnaire]}
+                questionnaireSlug={id}
                 resourceId={"af7564f2-682c-43fc-81e4-d1583e5f31cf"}
                 encounterId={"d8ee0842-d213-469c-9e63-4549c2aa4610"}
               />

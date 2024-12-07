@@ -1,13 +1,16 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 import CareIcon from "@/CAREUI/icons/CareIcon";
 
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
 import {
   Popover,
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
+
+import Loading from "@/components/Common/Loading";
 
 import { BadRequest, Error, Success } from "@/Utils/Notifications";
 import routes from "@/Utils/request/api";
@@ -33,35 +36,66 @@ interface QuestionnaireFormState {
 }
 
 export interface QuestionnaireFormProps {
-  questionnaires: QuestionnaireDetail[];
+  questionnaireSlug?: string;
   resourceId: string;
   encounterId: string;
 }
 
 export function QuestionnaireForm({
-  questionnaires,
+  questionnaireSlug,
   resourceId,
   encounterId,
 }: QuestionnaireFormProps) {
   const [questionnaireForms, setQuestionnaireForms] = useState<
     QuestionnaireFormState[]
-  >(
-    questionnaires.map((q) => ({
-      questionnaire: q,
-      responses: [],
-      errors: [],
-    })),
-  );
+  >([]);
 
   const [isOpen, setIsOpen] = useState(false);
   const [search, setSearch] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const {
+    data: questionnaireData,
+    loading: isQuestionnaireLoading,
+    error: questionnaireError,
+  } = useQuery(routes.questionnaire.detail, {
+    pathParams: { id: questionnaireSlug ?? "" },
+    prefetch: !!questionnaireSlug,
+  });
+
+  const {
     data: questionnaireList,
-    loading,
-    error,
+    loading: listLoading,
+    error: listError,
   } = useQuery(routes.questionnaire.list);
+
+  useEffect(() => {
+    if (questionnaireData) {
+      setQuestionnaireForms([
+        {
+          questionnaire: questionnaireData,
+          responses: [],
+          errors: [],
+        },
+      ]);
+    }
+  }, [questionnaireData]);
+
+  if (questionnaireSlug && isQuestionnaireLoading) {
+    return <Loading />;
+  }
+
+  if (questionnaireSlug && questionnaireError) {
+    return (
+      <Alert variant="destructive">
+        <CareIcon icon="l-exclamation-circle" className="h-4 w-4" />
+        <AlertTitle>Error</AlertTitle>
+        <AlertDescription>
+          Failed to load questionnaire. Please try again later.
+        </AlertDescription>
+      </Alert>
+    );
+  }
 
   const clearErrors = (questionnaireId: string) => {
     setQuestionnaireForms((prev) =>
@@ -198,9 +232,11 @@ export function QuestionnaireForm({
   };
 
   const removeQuestionnaire = (id: string) => {
-    setQuestionnaireForms((prev) =>
-      prev.filter((form) => form.questionnaire.id !== id),
-    );
+    if (id !== questionnaireData?.id) {
+      setQuestionnaireForms((prev) =>
+        prev.filter((form) => form.questionnaire.id !== id),
+      );
+    }
   };
 
   const availableQuestionnaires =
@@ -217,15 +253,17 @@ export function QuestionnaireForm({
     (form) => form.responses.length > 0,
   );
 
-  console.log("errors", questionnaireForms[0].errors);
-
   return (
     <div className="space-y-6">
       <div className="flex items-center gap-2">
         <Popover open={isOpen} onOpenChange={setIsOpen}>
           <PopoverTrigger asChild>
-            <Button variant="outline" className="w-full justify-between">
-              {loading ? (
+            <Button
+              variant="outline"
+              className="w-full justify-between"
+              disabled={listLoading}
+            >
+              {listLoading ? (
                 <>
                   <CareIcon
                     icon="l-spinner"
@@ -234,16 +272,15 @@ export function QuestionnaireForm({
                   Loading...
                 </>
               ) : (
-                <>
-                  <span className="text-muted-foreground">
-                    Press ⌘ K to search for existing forms, or add a
-                    group/individual from the list.
-                  </span>
-                </>
+                <span className="text-muted-foreground">
+                  {questionnaireForms.length === 0
+                    ? "Add a questionnaire to get started"
+                    : "Add another questionnaire"}
+                </span>
               )}
             </Button>
           </PopoverTrigger>
-          {!loading && !error && (
+          {!listLoading && !listError && (
             <PopoverContent className="w-[600px] p-0" align="start">
               <div className="flex items-center border-b px-3">
                 <CareIcon
@@ -291,6 +328,16 @@ export function QuestionnaireForm({
         </Popover>
       </div>
 
+      {listError && (
+        <Alert variant="destructive">
+          <CareIcon icon="l-exclamation-circle" className="h-4 w-4" />
+          <AlertTitle>Error</AlertTitle>
+          <AlertDescription>
+            Failed to load questionnaire list. Please try again later.
+          </AlertDescription>
+        </Alert>
+      )}
+
       <form onSubmit={handleSubmit} className="space-y-8">
         {questionnaireForms.map((form) => (
           <div key={form.questionnaire.id} className="space-y-4">
@@ -298,7 +345,7 @@ export function QuestionnaireForm({
               <h2 className="text-lg font-semibold text-primary">
                 {form.questionnaire.title}
               </h2>
-              {!questionnaires.some((q) => q.id === form.questionnaire.id) && (
+              {form.questionnaire.id !== questionnaireData?.id && (
                 <Button
                   type="button"
                   variant="ghost"
@@ -325,21 +372,23 @@ export function QuestionnaireForm({
           </div>
         ))}
 
-        <div className="flex justify-end">
-          <Button type="submit" disabled={isSubmitting || !hasResponses}>
-            {isSubmitting ? (
-              <>
-                <CareIcon
-                  icon="l-spinner"
-                  className="mr-2 h-4 w-4 animate-spin"
-                />
-                Submitting...
-              </>
-            ) : (
-              "Submit Forms"
-            )}
-          </Button>
-        </div>
+        {questionnaireForms.length > 0 && (
+          <div className="flex justify-end">
+            <Button type="submit" disabled={isSubmitting || !hasResponses}>
+              {isSubmitting ? (
+                <>
+                  <CareIcon
+                    icon="l-spinner"
+                    className="mr-2 h-4 w-4 animate-spin"
+                  />
+                  Submitting...
+                </>
+              ) : (
+                "Submit Forms"
+              )}
+            </Button>
+          </div>
+        )}
       </form>
     </div>
   );
