@@ -5,7 +5,11 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 
-import type { QuestionnaireResponse } from "@/types/questionnaire/form";
+import { QuestionValidationError } from "@/types/questionnaire/batch";
+import type {
+  QuestionnaireResponse,
+  ResponseValue,
+} from "@/types/questionnaire/form";
 import type { EnableWhen, Question } from "@/types/questionnaire/question";
 
 import { AllergyQuestion } from "./AllergyQuestion";
@@ -19,12 +23,14 @@ interface QuestionInputProps {
   updateQuestionnaireResponseCB: (
     questionnaireResponse: QuestionnaireResponse,
   ) => void;
+  errors: QuestionValidationError[];
 }
 
 export function QuestionInput({
   question,
   questionnaireResponses,
   updateQuestionnaireResponseCB,
+  errors,
 }: QuestionInputProps) {
   const questionnaireResponse = questionnaireResponses.find(
     (v) => v.question_id === question.id,
@@ -77,10 +83,12 @@ export function QuestionInput({
 
   const handleNumberChange = (newValue: string, index: number) => {
     const updatedValues = [...questionnaireResponse.values];
-    updatedValues[index] =
-      question.type === "decimal"
-        ? parseFloat(newValue)
-        : parseInt(newValue, 10);
+    updatedValues[index] = {
+      value:
+        question.type === "decimal"
+          ? parseFloat(newValue)
+          : parseInt(newValue, 10),
+    };
 
     updateQuestionnaireResponseCB({
       ...questionnaireResponse,
@@ -88,7 +96,8 @@ export function QuestionInput({
     });
   };
 
-  const addValue = () => {
+  const addValue = (e: React.MouseEvent<HTMLButtonElement>) => {
+    e.preventDefault();
     updateQuestionnaireResponseCB({
       ...questionnaireResponse,
       values: [...questionnaireResponse.values],
@@ -105,7 +114,7 @@ export function QuestionInput({
     });
   };
 
-  const renderSingleInput = (value: any, index: number) => {
+  const renderSingleInput = (responseValue: ResponseValue, index: number) => {
     const isEnabled = isQuestionEnabled();
     const commonProps = {
       disabled: !isEnabled,
@@ -131,7 +140,7 @@ export function QuestionInput({
           <div className="flex gap-2">
             <Input
               type="number"
-              value={value?.toString() || ""}
+              value={responseValue.value?.toString() || ""}
               onChange={(e) => handleNumberChange(e.target.value, index)}
               step={question.type === "decimal" ? "0.01" : "1"}
               {...commonProps}
@@ -146,7 +155,7 @@ export function QuestionInput({
               question={question}
               questionnaireResponse={{
                 ...questionnaireResponse,
-                values: [value],
+                values: [responseValue],
               }}
               updateQuestionnaireResponseCB={(response) => {
                 const updatedValues = [...questionnaireResponse.values];
@@ -165,10 +174,10 @@ export function QuestionInput({
         return (
           <div className="flex gap-2">
             <Textarea
-              value={value?.toString() || ""}
+              value={responseValue.value?.toString() || ""}
               onChange={(e) => {
                 const updatedValues = [...questionnaireResponse.values];
-                updatedValues[index] = e.target.value;
+                updatedValues[index] = { value: e.target.value };
                 updateQuestionnaireResponseCB({
                   ...questionnaireResponse,
                   values: updatedValues,
@@ -209,10 +218,10 @@ export function QuestionInput({
           <div className="flex gap-2">
             <Input
               type="text"
-              value={value?.toString() || ""}
+              value={responseValue.value?.toString() || ""}
               onChange={(e) => {
                 const updatedValues = [...questionnaireResponse.values];
-                updatedValues[index] = e.target.value;
+                updatedValues[index] = { value: e.target.value };
                 updateQuestionnaireResponseCB({
                   ...questionnaireResponse,
                   values: updatedValues,
@@ -228,7 +237,7 @@ export function QuestionInput({
 
   const renderInput = () => {
     if (!questionnaireResponse.values.length) {
-      questionnaireResponse.values.push("");
+      questionnaireResponse.values.push({ value: "" });
     }
 
     return (
@@ -256,8 +265,10 @@ export function QuestionInput({
     return null;
   }
 
+  const error = errors.find((e) => e.question_id === question.id)?.error;
+
   return (
-    <div className={`space-y-2 ${!isEnabled ? "opacity-50" : ""}`}>
+    <div className="space-y-2">
       <div className="space-y-1">
         <div className="flex items-center justify-between">
           <Label className="text-base font-medium">
@@ -266,7 +277,10 @@ export function QuestionInput({
           </Label>
         </div>
       </div>
-      <div className="space-y-2">{renderInput()}</div>
+      <div className="space-y-2">
+        {renderInput()}
+        {error && <p className="text-sm font-medium text-red-500">{error}</p>}
+      </div>
       <NotesInput
         questionnaireResponse={questionnaireResponse}
         updateQuestionnaireResponseCB={updateQuestionnaireResponseCB}

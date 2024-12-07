@@ -213,8 +213,9 @@ export function QuestionnaireShow({ id }: QuestionnaireShowProps) {
             </CardHeader>
             <CardContent>
               <QuestionnaireForm
-                questionnaire={questionnaire}
-                onSubmit={handleFormSubmit}
+                questionnaires={[questionnaire]}
+                resourceId={"af7564f2-682c-43fc-81e4-d1583e5f31cf"}
+                encounterId={"d8ee0842-d213-469c-9e63-4549c2aa4610"}
               />
             </CardContent>
           </Card>

@@ -1,3 +1,4 @@
+import { QuestionValidationError } from "@/types/questionnaire/batch";
 import type { QuestionnaireResponse } from "@/types/questionnaire/form";
 import type { Question } from "@/types/questionnaire/question";
 
@@ -6,31 +7,29 @@ import { QuestionInput } from "./QuestionInput";
 interface QuestionGroupProps {
   question: Question;
   questionnaireResponses: QuestionnaireResponse[];
-  updateQuestionnaireResponseCB: (
-    questionnaireResponse: QuestionnaireResponse,
-  ) => void;
-  depth?: number;
+  updateQuestionnaireResponseCB: (response: QuestionnaireResponse) => void;
+  errors: QuestionValidationError[];
+  clearError?: () => void;
 }
 
 export function QuestionGroup({
   question,
   questionnaireResponses,
   updateQuestionnaireResponseCB,
-  depth = 0,
+  errors,
+  clearError,
 }: QuestionGroupProps) {
   const isGroup = question.type === "group";
-
   return (
-    <div className="space-y-4">
-      {isGroup && question.text && <h3>{question.text}</h3>}
+    <div className="space-y-2">
       {!isGroup && (
         <QuestionInput
           question={question}
           questionnaireResponses={questionnaireResponses}
           updateQuestionnaireResponseCB={updateQuestionnaireResponseCB}
+          errors={errors}
         />
       )}
-
       {isGroup &&
         question.questions?.map((subQuestion) => (
           <QuestionGroup
@@ -38,7 +37,8 @@ export function QuestionGroup({
             question={subQuestion}
             questionnaireResponses={questionnaireResponses}
             updateQuestionnaireResponseCB={updateQuestionnaireResponseCB}
-            depth={depth + 1}
+            errors={errors}
+            clearError={clearError}
           />
         ))}
     </div>

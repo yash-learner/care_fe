@@ -10,7 +10,10 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 
-import type { QuestionnaireResponse } from "@/types/questionnaire/form";
+import type {
+  QuestionnaireResponse,
+  ResponseValue,
+} from "@/types/questionnaire/form";
 import type { Question } from "@/types/questionnaire/question";
 
 interface AllergyQuestionProps {
@@ -56,7 +59,7 @@ export function AllergyQuestion({
 
     updateQuestionnaireResponseCB({
       ...questionnaireResponse,
-      values: [updatedAllergies] as unknown as [string],
+      values: [updatedAllergies] as unknown as ResponseValue[],
     });
   };
 
@@ -71,7 +74,7 @@ export function AllergyQuestion({
 
     updateQuestionnaireResponseCB({
       ...questionnaireResponse,
-      values: [allergies.concat(newAllergy)] as unknown as [string],
+      values: [allergies.concat(newAllergy)] as unknown as ResponseValue[],
     });
   };
 
@@ -79,7 +82,7 @@ export function AllergyQuestion({
     const updatedAllergies = allergies.filter((_, i) => i !== index);
     updateQuestionnaireResponseCB({
       ...questionnaireResponse,
-      values: [updatedAllergies] as unknown as [string],
+      values: [updatedAllergies] as unknown as ResponseValue[],
     });
   };
 

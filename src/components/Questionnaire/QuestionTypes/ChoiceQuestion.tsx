@@ -6,7 +6,6 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 
-import type { Code } from "@/types/questionnaire/code";
 import type { QuestionnaireResponse } from "@/types/questionnaire/form";
 import type { AnswerOption } from "@/types/questionnaire/question";
 import type { Question } from "@/types/questionnaire/question";
@@ -20,16 +19,6 @@ interface ChoiceQuestionProps {
   disabled?: boolean;
 }
 
-// Type guard to check if a value is a Code object
-function isCode(value: unknown): value is Code {
-  return (
-    typeof value === "object" &&
-    value !== null &&
-    "system" in value &&
-    "code" in value
-  );
-}
-
 export function ChoiceQuestion({
   question,
   questionnaireResponse,
@@ -41,20 +30,15 @@ export function ChoiceQuestion({
   const handleValueChange = (newValue: string) => {
     updateQuestionnaireResponseCB({
       ...questionnaireResponse,
-      values: [newValue],
+      values: [{ value: newValue }],
     });
   };
 
-  const getDisplayValue = (value: string | number | boolean | Code) => {
-    if (isCode(value)) {
-      return value.display || value.code;
-    }
-    return value.toString();
-  };
+  console.log("questionnaireResponse", questionnaireResponse);
 
   return (
     <Select
-      value={questionnaireResponse.values[0]?.toString()}
+      value={questionnaireResponse.values[0]?.value?.toString()}
       onValueChange={handleValueChange}
       disabled={disabled}
     >
@@ -67,7 +51,7 @@ export function ChoiceQuestion({
             key={option.value.toString()}
             value={option.value.toString()}
           >
-            {getDisplayValue(option.value)}
+            {option.value}
           </SelectItem>
         ))}
       </SelectContent>

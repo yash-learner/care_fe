@@ -61,7 +61,7 @@ export default async function request<TData, TBody>(
       result = {
         res,
         data: res.ok ? data : undefined,
-        error: res.ok ? undefined : (data as Record<string, unknown>),
+        error: res.ok ? undefined : (data as Record<any, unknown>),
       };
 
       onResponse?.(result);

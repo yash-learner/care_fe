@@ -10,7 +10,10 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 
-import type { QuestionnaireResponse } from "@/types/questionnaire/form";
+import type {
+  QuestionnaireResponse,
+  ResponseValue,
+} from "@/types/questionnaire/form";
 import type { Question } from "@/types/questionnaire/question";
 
 interface MedicationQuestionProps {
@@ -63,7 +66,7 @@ export function MedicationQuestion({
 
     updateQuestionnaireResponseCB({
       ...questionnaireResponse,
-      values: [updatedMedications] as unknown as [string],
+      values: [updatedMedications] as unknown as ResponseValue[],
     });
   };
 
@@ -79,7 +82,7 @@ export function MedicationQuestion({
 
     updateQuestionnaireResponseCB({
       ...questionnaireResponse,
-      values: [medications.concat(newMedication)] as unknown as [string],
+      values: [medications.concat(newMedication)] as unknown as ResponseValue[],
     });
   };
 
@@ -87,7 +90,7 @@ export function MedicationQuestion({
     const updatedMedications = medications.filter((_, i) => i !== index);
     updateQuestionnaireResponseCB({
       ...questionnaireResponse,
-      values: [updatedMedications] as unknown as [string],
+      values: [updatedMedications] as unknown as ResponseValue[],
     });
   };
 

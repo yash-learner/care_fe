@@ -90,6 +90,10 @@ import {
 } from "@/components/Users/models";
 
 import { PaginatedResponse } from "@/Utils/request/types";
+import {
+  BatchRequestBody,
+  BatchSubmissionResult,
+} from "@/types/questionnaire/batch";
 import type {
   QuestionnaireDetail,
   QuestionnaireResponse,
@@ -1460,6 +1464,15 @@ const routes = {
         }>;
       }>(),
     },
+  },
+
+  batchRequest: {
+    path: "/api/v1/batch_requests/",
+    method: "POST",
+    TRes: Type<{
+      results: BatchSubmissionResult[];
+    }>(),
+    TBody: Type<BatchRequestBody>(),
   },
 } as const;
 
