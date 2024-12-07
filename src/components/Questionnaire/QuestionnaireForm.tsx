@@ -224,7 +224,7 @@ export function QuestionnaireForm({
       <div className="flex items-center gap-2">
         <Popover open={isOpen} onOpenChange={setIsOpen}>
           <PopoverTrigger asChild>
-            <Button variant="outline" className="w-[200px] justify-start">
+            <Button variant="outline" className="w-full justify-between">
               {loading ? (
                 <>
                   <CareIcon
@@ -234,35 +234,56 @@ export function QuestionnaireForm({
                   Loading...
                 </>
               ) : (
-                <span>Add Form</span>
+                <>
+                  <span className="text-muted-foreground">
+                    Press ⌘ K to search for existing forms, or add a
+                    group/individual from the list.
+                  </span>
+                </>
               )}
             </Button>
           </PopoverTrigger>
           {!loading && !error && (
-            <PopoverContent className="w-[200px] p-0" align="start">
-              <div className="border-b p-2">
+            <PopoverContent className="w-[600px] p-0" align="start">
+              <div className="flex items-center border-b px-3">
+                <CareIcon
+                  icon="l-search"
+                  className="mr-2 h-4 w-4 shrink-0 text-muted-foreground"
+                />
                 <input
-                  className="w-full bg-transparent outline-none placeholder:text-muted-foreground"
+                  className="flex h-11 w-full rounded-md bg-transparent py-3 text-sm outline-none placeholder:text-muted-foreground disabled:cursor-not-allowed disabled:opacity-50"
                   placeholder="Search forms..."
                   value={search}
                   onChange={(e) => setSearch(e.target.value)}
                 />
               </div>
-              <div className="max-h-[300px] overflow-y-auto">
+              <div className="max-h-[400px] overflow-y-auto p-0">
                 {filteredQuestionnaires.length === 0 ? (
                   <div className="p-4 text-sm text-muted-foreground">
                     No forms found
                   </div>
                 ) : (
-                  filteredQuestionnaires.map((item) => (
-                    <button
-                      key={item.id}
-                      className="w-full p-2 text-left hover:bg-accent hover:text-accent-foreground"
-                      onClick={() => addQuestionnaire(item)}
-                    >
-                      {item.title}
-                    </button>
-                  ))
+                  <div className="space-y-4 p-4">
+                    {filteredQuestionnaires.map((item) => (
+                      <button
+                        key={item.id}
+                        className="flex w-full items-center justify-between rounded-md px-3 py-2 text-sm hover:bg-accent hover:text-accent-foreground"
+                        onClick={() => addQuestionnaire(item)}
+                      >
+                        <div className="flex items-center space-x-3">
+                          <CareIcon icon="l-file-export" className="h-4 w-4" />
+                          <div className="space-y-1 text-left">
+                            <div>{item.title}</div>
+                            {item.description && (
+                              <div className="text-xs text-muted-foreground">
+                                {item.description}
+                              </div>
+                            )}
+                          </div>
+                        </div>
+                      </button>
+                    ))}
+                  </div>
                 )}
               </div>
             </PopoverContent>
@@ -272,11 +293,11 @@ export function QuestionnaireForm({
 
       <form onSubmit={handleSubmit} className="space-y-8">
         {questionnaireForms.map((form) => (
-          <div key={form.questionnaire.id} className="rounded-lg border p-4">
-            <div className="mb-4 flex items-center justify-between">
-              <h3 className="text-lg font-semibold">
+          <div key={form.questionnaire.id} className="space-y-4">
+            <div className="flex items-center justify-between">
+              <h2 className="text-lg font-semibold text-primary">
                 {form.questionnaire.title}
-              </h3>
+              </h2>
               {!questionnaires.some((q) => q.id === form.questionnaire.id) && (
                 <Button
                   type="button"
@@ -289,16 +310,17 @@ export function QuestionnaireForm({
               )}
             </div>
             {form.questionnaire.questions.map((question: Question) => (
-              <QuestionGroup
-                key={question.id}
-                question={question}
-                questionnaireResponses={form.responses}
-                updateQuestionnaireResponseCB={(response) =>
-                  updateQuestionnaireResponse(form.questionnaire.id, response)
-                }
-                errors={form.errors}
-                clearError={() => clearErrors(form.questionnaire.id)}
-              />
+              <div key={question.id} className="rounded-lg border bg-card p-4">
+                <QuestionGroup
+                  question={question}
+                  questionnaireResponses={form.responses}
+                  updateQuestionnaireResponseCB={(response) =>
+                    updateQuestionnaireResponse(form.questionnaire.id, response)
+                  }
+                  errors={form.errors}
+                  clearError={() => clearErrors(form.questionnaire.id)}
+                />
+              </div>
             ))}
           </div>
         ))}

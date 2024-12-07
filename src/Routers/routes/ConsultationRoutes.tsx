@@ -13,6 +13,7 @@ import { DailyRoundListDetails } from "@/components/Patient/DailyRoundListDetail
 import { DailyRounds } from "@/components/Patient/DailyRounds";
 import FileUploadPage from "@/components/Patient/FileUploadPage";
 import PatientConsentRecords from "@/components/Patient/PatientConsentRecords";
+import { QuestionnaireForm } from "@/components/Questionnaire/QuestionnaireForm";
 
 import { AppRoutes } from "@/Routers/AppRouter";
 
@@ -168,6 +169,14 @@ const consultationRoutes: AppRoutes = {
         tab={tab}
       />
     ),
+  // "/facility/:facilityId/patient/:patientId/consultation/:consultationId/questionnaire":
+  //   ({ facilityId, patientId, consultationId }) => (
+  //     <QuestionnaireForm
+  //       facilityId={facilityId}
+  //       patientId={patientId}
+  //       consultationId={consultationId}
+  //     />
+  //   ),
 };
 
 export default consultationRoutes;
