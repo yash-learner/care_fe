@@ -39,7 +39,7 @@ export interface ValidationErrorResponse {
   data: {
     errors: Array<QuestionValidationError | DetailedValidationError>;
   };
-  status_code: 400 | 404 | 500;
+  status_code: 400 | 404;
 }
 
 export type BatchResponseResult = SuccessResponse | ValidationErrorResponse;

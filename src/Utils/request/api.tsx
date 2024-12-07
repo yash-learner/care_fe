@@ -1454,6 +1454,7 @@ const routes = {
       method: "POST",
       TRes: Type<Record<string, never>>(),
       TBody: Type<{
+        resource_id: string;
         encounter: string;
         responses: Array<{
           question_id: string;

@@ -12,13 +12,11 @@ import {
 
 import Loading from "@/components/Common/Loading";
 
-import { BadRequest, Error, Success } from "@/Utils/Notifications";
+import { Error, Success } from "@/Utils/Notifications";
 import routes from "@/Utils/request/api";
-import request from "@/Utils/request/request";
+import useMutation from "@/Utils/request/useMutation";
 import useQuery from "@/Utils/request/useQuery";
 import {
-  BatchRequestBody,
-  BatchSubmissionResult,
   DetailedValidationError,
   QuestionValidationError,
   ValidationErrorResponse,
@@ -39,12 +37,16 @@ export interface QuestionnaireFormProps {
   questionnaireSlug?: string;
   resourceId: string;
   encounterId: string;
+  onSubmit?: () => void;
+  onCancel?: () => void;
 }
 
 export function QuestionnaireForm({
   questionnaireSlug,
   resourceId,
   encounterId,
+  onSubmit,
+  onCancel,
 }: QuestionnaireFormProps) {
   const [questionnaireForms, setQuestionnaireForms] = useState<
     QuestionnaireFormState[]
@@ -52,7 +54,6 @@ export function QuestionnaireForm({
 
   const [isOpen, setIsOpen] = useState(false);
   const [search, setSearch] = useState("");
-  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const {
     data: questionnaireData,
@@ -68,6 +69,12 @@ export function QuestionnaireForm({
     loading: listLoading,
     error: listError,
   } = useQuery(routes.questionnaire.list);
+
+  const {
+    mutate: submitBatch,
+    isProcessing,
+    error: submitError,
+  } = useMutation(routes.batchRequest, {});
 
   useEffect(() => {
     if (questionnaireData) {
@@ -131,6 +138,7 @@ export function QuestionnaireForm({
   const handleSubmissionError = (results: ValidationErrorResponse[]) => {
     const updatedForms = [...questionnaireForms];
     const errorMessages: string[] = [];
+    console.log("results", results);
 
     results.forEach((result, index) => {
       const form = updatedForms[index];
@@ -141,9 +149,12 @@ export function QuestionnaireForm({
           if ("question_id" in error) {
             form.errors.push({
               question_id: error.question_id,
-              error: `${error.error}`,
+              error: error.error,
             } as QuestionValidationError);
+            console.log("form", form.errors);
+            updatedForms[index] = form;
           }
+
           // Handle form-level errors
           else if ("loc" in error) {
             const fieldName = error.loc[0];
@@ -158,67 +169,50 @@ export function QuestionnaireForm({
         },
       );
     });
-
     setQuestionnaireForms(updatedForms);
-
-    if (errorMessages.length > 0) {
-      BadRequest({ errs: errorMessages });
-    }
   };
 
-  const prepareSubmissionData = () =>
-    questionnaireForms.map((form) => ({
-      url: `/api/v1/questionnaire/${form.questionnaire.slug}/submit/`,
-      method: "POST",
+  const handleSubmit = async () => {
+    const hasErrors = questionnaireForms.some((form) => form.errors.length > 0);
+
+    if (hasErrors) {
+      return;
+    }
+
+    const response = await submitBatch({
       body: {
-        resource_id: resourceId,
-        encounter: encounterId,
-        results: form.responses.map((response) => ({
-          question_id: response.question_id,
-          values: response.values.map((value) => ({
-            ...(value.code
-              ? { code: value.code }
-              : { value: String(value.value || "") }),
-          })),
-          note: response.note,
-          taken_at: response.taken_at,
-          body_site: response.body_site,
-          method: response.method,
+        requests: questionnaireForms.map((form) => ({
+          url: `/api/v1/questionnaire/${form.questionnaire.slug}/submit/`,
+          method: "POST",
+          body: {
+            resource_id: resourceId,
+            encounter: encounterId,
+            results: form.responses.map((response) => ({
+              question_id: response.question_id,
+              values: response.values.map((value) => ({
+                ...(value.code
+                  ? { code: value.code }
+                  : { value: String(value.value || "") }),
+              })),
+              note: response.note,
+              body_site: response.body_site,
+              method: response.method,
+            })),
+          },
         })),
       },
-    }));
+    });
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setIsSubmitting(true);
-
-    try {
-      const batchRequests = prepareSubmissionData();
-
-      const response = await request<
-        { results: BatchSubmissionResult[] },
-        BatchRequestBody
-      >(routes.batchRequest, {
-        body: {
-          requests: batchRequests,
-        },
-      });
-
-      if (!response.data) {
-        if (response.error) {
-          handleSubmissionError(
-            response.error.results as ValidationErrorResponse[],
-          );
-        } else {
-          Error({ msg: "No response data received" });
-        }
-      } else {
-        Success({ msg: "All forms submitted successfully" });
+    if (!response.data) {
+      if (response.error) {
+        handleSubmissionError(
+          response.error.results as ValidationErrorResponse[],
+        );
+        Error({ msg: "Failed to submit questionnaire" });
       }
-    } catch (error) {
-      Error({ msg: "Failed to submit forms. Please try again." });
-    } finally {
-      setIsSubmitting(false);
+    } else {
+      Success({ msg: "Questionnaire submitted successfully" });
+      onSubmit?.();
     }
   };
 
@@ -247,10 +241,6 @@ export function QuestionnaireForm({
 
   const filteredQuestionnaires = availableQuestionnaires.filter((item) =>
     item.title.toLowerCase().includes(search.toLowerCase()),
-  );
-
-  const hasResponses = questionnaireForms.some(
-    (form) => form.responses.length > 0,
   );
 
   return (
@@ -373,23 +363,30 @@ export function QuestionnaireForm({
         ))}
 
         {questionnaireForms.length > 0 && (
-          <div className="flex justify-end">
-            <Button type="submit" disabled={isSubmitting || !hasResponses}>
-              {isSubmitting ? (
-                <>
-                  <CareIcon
-                    icon="l-spinner"
-                    className="mr-2 h-4 w-4 animate-spin"
-                  />
-                  Submitting...
-                </>
-              ) : (
-                "Submit Forms"
-              )}
+          <div className="flex justify-end gap-4 mt-4">
+            <Button
+              type="button"
+              variant="outline"
+              onClick={onCancel}
+              disabled={isProcessing}
+            >
+              Cancel
+            </Button>
+            <Button
+              type="button"
+              onClick={handleSubmit}
+              disabled={isProcessing}
+            >
+              {isProcessing ? "Submitting..." : "Submit"}
             </Button>
           </div>
         )}
       </form>
+      {submitError && (
+        <Alert variant="destructive" className="mt-4">
+          Failed to submit questionnaire
+        </Alert>
+      )}
     </div>
   );
 }
