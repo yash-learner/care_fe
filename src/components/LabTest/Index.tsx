@@ -26,7 +26,7 @@ export const LabTest = () => {
   };
 
   return (
-    <Page title="Lab Tests">
+    <Page title="Lab Orders">
       <nav className="flex space-x-4 border-b border-gray-200 py-2">
         <Link
           href="/lab_tests/order_placed"
