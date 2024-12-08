@@ -1,3 +1,5 @@
+import { memo } from "react";
+
 import {
   Select,
   SelectContent,
@@ -7,8 +9,7 @@ import {
 } from "@/components/ui/select";
 
 import type { QuestionnaireResponse } from "@/types/questionnaire/form";
-import type { AnswerOption } from "@/types/questionnaire/question";
-import type { Question } from "@/types/questionnaire/question";
+import type { AnswerOption, Question } from "@/types/questionnaire/question";
 
 interface ChoiceQuestionProps {
   question: Question;
@@ -19,13 +20,14 @@ interface ChoiceQuestionProps {
   disabled?: boolean;
 }
 
-export function ChoiceQuestion({
+export const ChoiceQuestion = memo(function ChoiceQuestion({
   question,
   questionnaireResponse,
   updateQuestionnaireResponseCB,
   disabled = false,
 }: ChoiceQuestionProps) {
-  const options: AnswerOption[] = question.answer_option || [];
+  const options = question.answer_option || [];
+  const currentValue = questionnaireResponse.values[0]?.value?.toString();
 
   const handleValueChange = (newValue: string) => {
     updateQuestionnaireResponseCB({
@@ -34,11 +36,9 @@ export function ChoiceQuestion({
     });
   };
 
-  console.log("questionnaireResponse", questionnaireResponse);
-
   return (
     <Select
-      value={questionnaireResponse.values[0]?.value?.toString()}
+      value={currentValue}
       onValueChange={handleValueChange}
       disabled={disabled}
     >
@@ -57,4 +57,4 @@ export function ChoiceQuestion({
       </SelectContent>
     </Select>
   );
-}
+});

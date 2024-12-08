@@ -18,7 +18,7 @@ interface BaseValidationError {
 
 export interface QuestionValidationError extends BaseValidationError {
   question_id: string;
-  error: string;
+  error?: string;
 }
 
 export interface DetailedValidationError extends BaseValidationError {

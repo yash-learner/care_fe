@@ -42,6 +42,7 @@ export interface Question {
   link_id: string;
   code?: Code;
   text: string;
+  description?: string;
   type: QuestionType;
   structured_type?: StructuredQuestionType;
   required?: boolean;

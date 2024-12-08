@@ -24,6 +24,8 @@ interface QuestionInputProps {
     questionnaireResponse: QuestionnaireResponse,
   ) => void;
   errors: QuestionValidationError[];
+  clearError: () => void;
+  disabled?: boolean;
 }
 
 export function QuestionInput({
@@ -31,6 +33,8 @@ export function QuestionInput({
   questionnaireResponses,
   updateQuestionnaireResponseCB,
   errors,
+  clearError,
+  disabled,
 }: QuestionInputProps) {
   const questionnaireResponse = questionnaireResponses.find(
     (v) => v.question_id === question.id,
@@ -81,6 +85,11 @@ export function QuestionInput({
       : question.enable_when.every(checkCondition);
   };
 
+  const handleValueChange = (newValue: QuestionnaireResponse) => {
+    clearError();
+    updateQuestionnaireResponseCB(newValue);
+  };
+
   const handleNumberChange = (newValue: string, index: number) => {
     const updatedValues = [...questionnaireResponse.values];
     updatedValues[index] = {
@@ -90,7 +99,7 @@ export function QuestionInput({
           : parseInt(newValue, 10),
     };
 
-    updateQuestionnaireResponseCB({
+    handleValueChange({
       ...questionnaireResponse,
       values: updatedValues,
     });
@@ -100,7 +109,7 @@ export function QuestionInput({
     e.preventDefault();
     updateQuestionnaireResponseCB({
       ...questionnaireResponse,
-      values: [...questionnaireResponse.values],
+      values: [...questionnaireResponse.values, { value: "" }],
     });
   };
 
@@ -117,7 +126,7 @@ export function QuestionInput({
   const renderSingleInput = (responseValue: ResponseValue, index: number) => {
     const isEnabled = isQuestionEnabled();
     const commonProps = {
-      disabled: !isEnabled,
+      disabled: !isEnabled || disabled,
       "aria-hidden": !isEnabled,
     };
 
@@ -128,6 +137,7 @@ export function QuestionInput({
           size="icon"
           onClick={() => removeValue(index)}
           className="h-10 w-10"
+          disabled={disabled}
         >
           <CareIcon icon="l-trash" className="h-4 w-4" />
         </Button>
@@ -151,22 +161,24 @@ export function QuestionInput({
       case "choice":
         return (
           <div className="flex gap-2">
-            <ChoiceQuestion
-              question={question}
-              questionnaireResponse={{
-                ...questionnaireResponse,
-                values: [responseValue],
-              }}
-              updateQuestionnaireResponseCB={(response) => {
-                const updatedValues = [...questionnaireResponse.values];
-                updatedValues[index] = response.values[0];
-                updateQuestionnaireResponseCB({
+            <div className="flex-1">
+              <ChoiceQuestion
+                question={question}
+                questionnaireResponse={{
                   ...questionnaireResponse,
-                  values: updatedValues,
-                });
-              }}
-              disabled={!isEnabled}
-            />
+                  values: [responseValue],
+                }}
+                updateQuestionnaireResponseCB={(response) => {
+                  const updatedValues = [...questionnaireResponse.values];
+                  updatedValues[index] = response.values[0];
+                  handleValueChange({
+                    ...questionnaireResponse,
+                    values: updatedValues,
+                  });
+                }}
+                disabled={!isEnabled || disabled}
+              />
+            </div>
             {removeButton}
           </div>
         );
@@ -178,7 +190,7 @@ export function QuestionInput({
               onChange={(e) => {
                 const updatedValues = [...questionnaireResponse.values];
                 updatedValues[index] = { value: e.target.value };
-                updateQuestionnaireResponseCB({
+                handleValueChange({
                   ...questionnaireResponse,
                   values: updatedValues,
                 });
@@ -222,7 +234,7 @@ export function QuestionInput({
               onChange={(e) => {
                 const updatedValues = [...questionnaireResponse.values];
                 updatedValues[index] = { value: e.target.value };
-                updateQuestionnaireResponseCB({
+                handleValueChange({
                   ...questionnaireResponse,
                   values: updatedValues,
                 });
@@ -236,13 +248,13 @@ export function QuestionInput({
   };
 
   const renderInput = () => {
-    if (!questionnaireResponse.values.length) {
-      questionnaireResponse.values.push({ value: "" });
-    }
+    const values = !questionnaireResponse.values.length
+      ? [{ value: "" }]
+      : questionnaireResponse.values;
 
     return (
       <div className="space-y-2">
-        {questionnaireResponse.values.map((value, index) => (
+        {values.map((value, index) => (
           <div key={index}>{renderSingleInput(value, index)}</div>
         ))}
         {question.repeats && (
@@ -251,6 +263,7 @@ export function QuestionInput({
             size="sm"
             onClick={addValue}
             className="mt-2"
+            disabled={!isQuestionEnabled() || disabled}
           >
             <CareIcon icon="l-plus" className="mr-2 h-4 w-4" />
             Add Another
