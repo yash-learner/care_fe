@@ -2,6 +2,7 @@ import { Link, usePath } from "raviger";
 
 import Page from "@/components/Common/Page";
 import { OrderPlaced } from "@/components/LabTest/OrderPlaced";
+import { ReceivedAtLab } from "@/components/LabTest/ReceivedAtLab";
 import { SpecimenCollected } from "@/components/LabTest/SpecimenCollected";
 
 export const LabTest = () => {
@@ -20,6 +21,8 @@ export const LabTest = () => {
         return <OrderPlaced />;
       case "/lab_tests/specimen_collected":
         return <SpecimenCollected />;
+      case "/lab_tests/received_at_lab":
+        return <ReceivedAtLab />;
       default:
         return <div className="text-center text-red-500">Tab not found</div>;
     }
@@ -49,6 +52,14 @@ export const LabTest = () => {
           className={tabButtonClasses(currentPath === "/lab_tests/sent_to_lab")}
         >
           Sent to Lab
+        </Link>
+        <Link
+          href="/lab_tests/received_at_lab"
+          className={tabButtonClasses(
+            currentPath === "/lab_tests/received_at_lab",
+          )}
+        >
+          Received at Lab
         </Link>
       </nav>
 
