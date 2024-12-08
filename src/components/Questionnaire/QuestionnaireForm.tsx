@@ -241,31 +241,30 @@ export function QuestionnaireForm({
       <div className="flex-1 overflow-y-auto max-w-3xl pb-8">
         <div className="p-4 space-y-6">
           {/* Search and Add Questionnaire */}
-          {!questionnaireSlug && (
-            <div className="flex gap-4 items-center">
-              <QuestionnaireSearch
-                onSelect={(selected) => {
-                  if (
-                    questionnaireForms.some(
-                      (form) => form.questionnaire.id === selected.id,
-                    )
-                  ) {
-                    return;
-                  }
 
-                  setQuestionnaireForms((prev) => [
-                    ...prev,
-                    {
-                      questionnaire: selected,
-                      responses: initializeResponses(selected.questions),
-                      errors: [],
-                    },
-                  ]);
-                }}
-                disabled={isProcessing}
-              />
-            </div>
-          )}
+          <div className="flex gap-4 items-center">
+            <QuestionnaireSearch
+              onSelect={(selected) => {
+                if (
+                  questionnaireForms.some(
+                    (form) => form.questionnaire.id === selected.id,
+                  )
+                ) {
+                  return;
+                }
+
+                setQuestionnaireForms((prev) => [
+                  ...prev,
+                  {
+                    questionnaire: selected,
+                    responses: initializeResponses(selected.questions),
+                    errors: [],
+                  },
+                ]);
+              }}
+              disabled={isProcessing}
+            />
+          </div>
 
           {/* Questionnaire Forms */}
           {questionnaireForms.map((form, index) => (
