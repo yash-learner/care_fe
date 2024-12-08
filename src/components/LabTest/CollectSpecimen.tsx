@@ -1,4 +1,9 @@
-import { ChevronDownIcon, ChevronUpIcon } from "@radix-ui/react-icons";
+import {
+  ArrowRightIcon,
+  ChevronDownIcon,
+  ChevronUpIcon,
+  Cross2Icon,
+} from "@radix-ui/react-icons";
 import React from "react";
 import { FaDroplet } from "react-icons/fa6";
 
@@ -10,16 +15,55 @@ import {
 } from "@/components/ui/collapsible";
 import { Input } from "@/components/ui/input";
 
+interface Sample {
+  status: string;
+  barcode?: string;
+  tubeType?: string;
+  test: string;
+  collectionDateTime?: string;
+}
+
 interface Order {
   orderId: string;
   specimen: string;
+  specimenId: string;
   status: string;
+  samples: Sample[];
 }
 
 // Mock Data
 const orders: Order[] = [
-  { orderId: "CARE_LAB-001", specimen: "Blood", status: "Pending" },
-  { orderId: "CARE_LAB-002", specimen: "Urine", status: "Pending" },
+  {
+    orderId: "CARE_LAB-001",
+    specimen: "Blood",
+    specimenId: "SPEC009213",
+    status: "Pending",
+    samples: [
+      {
+        status: "Collection Pending",
+        test: "Complete Blood Count (CBC)",
+      },
+      {
+        status: "Collected",
+        barcode: "123456789",
+        tubeType: "EDTA",
+        test: "Liver Function Test (LFT)",
+        collectionDateTime: "28-Nov-2024, 2:30PM",
+      },
+    ],
+  },
+  {
+    orderId: "CARE_LAB-002",
+    specimen: "Urine",
+    specimenId: "SPEC009412",
+    status: "Pending",
+    samples: [
+      {
+        status: "Collection Pending",
+        test: "Urine Analysis",
+      },
+    ],
+  },
 ];
 
 export const CollectSpecimen: React.FC = () => {
@@ -119,12 +163,13 @@ export const CollectSpecimen: React.FC = () => {
         </Button>
 
         <div className="flex flex-col lg:flex-row items-center justify-between mb-8 mt-4">
-          <div className="flex items-center justify-center">
-            <h2 className="text-2xl leading-tight">Collect Specimen</h2>
-          </div>
+          <h2 className="text-2xl leading-tight">Collect Specimen</h2>
           <div className="space-x-4 flex mt-4 lg:mt-0">
             <Button variant={"link"}>Specimen Collected</Button>
-            <Button variant="secondary">Next Patient</Button>
+            <Button variant="secondary" className="flex items-center gap-1">
+              Next Patient
+              <ArrowRightIcon className="h-4 w-4" />
+            </Button>
           </div>
         </div>
 
@@ -299,52 +344,132 @@ export const CollectSpecimen: React.FC = () => {
                             </div>
                           </div>
                         </div>
+                        <div className="space-y-5">
+                          {Array.from(
+                            { length: samples[order.orderId] },
+                            (_, index) => {
+                              const sampleCollected =
+                                order.samples[index].status === "Collected";
+                              return (
+                                <div key={index} className="bg-gray-100 pt-1">
+                                  <div
+                                    className={`items-center px-4 py-3 border rounded-lg shadow-sm bg-white relative before:content-[''] before:absolute before:top-3 before:left-0 before:h-6 before:w-1 ${sampleCollected ? "before:bg-blue-600" : "before:bg-gray-400"} before:rounded-r-sm`}
+                                  >
+                                    <div className="flex items-center justify-between ">
+                                      <h3 className="text-sm font-semibold text-gray-600">
+                                        {order.samples[index].status ===
+                                        "Collected"
+                                          ? order.specimenId
+                                          : `Sample ${index + 1}`}
+                                      </h3>
+                                      <span
+                                        className={`ml-2 px-2 py-1 text-xs font-medium  ${sampleCollected ? "bg-blue-100 text-blue-600" : "text-orange-800 bg-orange-100"} rounded`}
+                                      >
+                                        {order.samples[index].status}
+                                      </span>
+                                    </div>
+                                  </div>
+                                  <div className="mt-4 px-4 py-3 bg-gray-100 space-y-4">
+                                    <div className="flex justify-between items-center">
+                                      <h3 className="text-sm font-semibold text-gray-900">
+                                        Barcode
+                                      </h3>
 
-                        {Array.from(
-                          { length: samples[order.orderId] },
-                          (_, index) => (
-                            <div key={index} className="bg-gray-100 pt-1 mb-8">
-                              <div
-                                className={`items-center px-4 py-3 border rounded-lg shadow-sm bg-white relative before:content-[''] before:absolute before:top-3 before:left-0 before:h-6 before:w-1 before:bg-gray-400 before:rounded-r-sm`}
-                              >
-                                <div className="flex items-center justify-between ">
-                                  <h3 className="text-sm font-semibold text-gray-600">
-                                    Sample {index + 1}
-                                  </h3>
-                                  <span className="ml-2 px-2 py-1 text-xs font-medium bg-orange-100 text-orange-900 rounded">
-                                    Collection Pending
-                                  </span>
+                                      {sampleCollected ? (
+                                        <Button
+                                          className="flex items-center justify-between gap-2 bg-white px-2 py-2 rounded-md shadow-sm"
+                                          variant={"outline"}
+                                        >
+                                          <Cross2Icon className="h-5 w-5 text-red-600" />
+                                          <span className="font-semibold text-gray-900">
+                                            Remove
+                                          </span>
+                                        </Button>
+                                      ) : null}
+                                    </div>
+                                    {sampleCollected ? (
+                                      <div className="space-y-4">
+                                        <div className="flex items-center justify-between bg-green-50 border rounded-lg p-3">
+                                          {/* Success Badge */}
+                                          <div className="flex items-center gap-2">
+                                            <span className="px-3 py-1 text-sm font-medium text-green-900 border border-green-300 rounded-full bg-white">
+                                              Success
+                                            </span>
+                                            {/* Success Message */}
+                                            <span className="text-green-900 font-semibold">
+                                              Barcode scanned successfully
+                                            </span>
+                                          </div>
+
+                                          {/* Barcode */}
+                                          <div className="flex items-center gap-2">
+                                            {/* Barcode Icon */}
+                                            <img
+                                              src="/images/barcode.svg"
+                                              alt="filter"
+                                              className="w-5 h-5 text-gray-600"
+                                            />
+                                            <span className="text-gray-700 font-semibold">
+                                              P2828656-E
+                                            </span>
+                                          </div>
+                                        </div>
+                                        <div className="flex items-center justify-between">
+                                          <div className="items-center justify-between ">
+                                            <h3 className="text-sm font-normal">
+                                              Tube Type
+                                            </h3>
+                                            <span className="text-gray-900 font-semibold">
+                                              EDTA
+                                            </span>
+                                          </div>
+                                          <div className="items-center justify-between">
+                                            <h3 className="text-sm font-normal">
+                                              Test
+                                            </h3>
+                                            <span className="text-gray-900 font-semibold">
+                                              Liver Function Test (LFT)
+                                            </span>
+                                          </div>
+                                          <div className="items-center justify-between">
+                                            <h3 className="text-sm font-normal">
+                                              Collection Date/Time
+                                            </h3>
+                                            <span className="text-gray-900 font-semibold">
+                                              28-Nov-2024, 2:30PM
+                                            </span>
+                                          </div>
+                                        </div>
+                                      </div>
+                                    ) : (
+                                      <div className="flex items-center justify-between space-x-4 bg-gray-100">
+                                        <div className="bg-white w-full">
+                                          <Input
+                                            type="text"
+                                            placeholder="Scan Barcode/Enter number"
+                                            className="text-center"
+                                          />
+                                        </div>
+                                        <div className="text-gray-600 text-sm">
+                                          OR
+                                        </div>
+                                        <div className="w-full">
+                                          <Button
+                                            variant="outline"
+                                            size="lg"
+                                            className="w-full"
+                                          >
+                                            Generate Barcode
+                                          </Button>
+                                        </div>
+                                      </div>
+                                    )}
+                                  </div>
                                 </div>
-                              </div>
-                              <div className="mt-4 px-4 py-3 bg-gray-100 space-y-4">
-                                <h3 className="text-sm font-semibold text-gray-600">
-                                  Barcode
-                                </h3>
-                                <div className="flex items-center justify-between space-x-4 bg-gray-100">
-                                  <div className="bg-white w-full">
-                                    <Input
-                                      type="text"
-                                      placeholder="Scan Barcode/Enter number"
-                                      className="text-center"
-                                    />
-                                  </div>
-                                  <div className="text-gray-600 text-sm">
-                                    OR
-                                  </div>
-                                  <div className="w-full">
-                                    <Button
-                                      variant="outline"
-                                      size="lg"
-                                      className="w-full"
-                                    >
-                                      Generate Barcode
-                                    </Button>
-                                  </div>
-                                </div>
-                              </div>
-                            </div>
-                          ),
-                        )}
+                              );
+                            },
+                          )}
+                        </div>
                       </div>
                     </div>
                   </CollapsibleContent>
