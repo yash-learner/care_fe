@@ -196,16 +196,16 @@ export function QuestionnaireForm({
   };
 
   return (
-    <div className="flex gap-4 h-full">
+    <div className="flex gap-4">
       {/* Left Navigation */}
-      <div className="w-64 border-r p-4 space-y-4 overflow-y-auto">
+      <div className="w-64 border-r p-4 space-y-4 overflow-y-auto sticky top-6 h-screen">
         {questionnaireForms.map((form) => (
           <div key={form.questionnaire.id} className="space-y-2">
             <button
               className={cn(
                 "w-full text-left px-2 py-1 rounded hover:bg-gray-100 font-medium",
                 activeQuestionnaireId === form.questionnaire.id &&
-                  "bg-gray-100",
+                  "bg-gray-100 text-green-600",
               )}
               onClick={() => setActiveQuestionnaireId(form.questionnaire.id)}
               disabled={isProcessing}
@@ -220,7 +220,8 @@ export function QuestionnaireForm({
                     key={group.id}
                     className={cn(
                       "w-full text-left px-2 py-1 rounded text-sm hover:bg-gray-100",
-                      activeGroupId === group.id && "bg-gray-100",
+                      activeGroupId === group.id &&
+                        "bg-gray-100 text-green-600",
                     )}
                     onClick={() => {
                       setActiveQuestionnaireId(form.questionnaire.id);
@@ -237,7 +238,7 @@ export function QuestionnaireForm({
       </div>
 
       {/* Main Content */}
-      <div className="flex-1 overflow-y-auto">
+      <div className="flex-1 overflow-y-auto max-w-3xl pb-8">
         <div className="p-4 space-y-6">
           {/* Search and Add Questionnaire */}
           {!questionnaireSlug && (
@@ -270,11 +271,7 @@ export function QuestionnaireForm({
           {questionnaireForms.map((form, index) => (
             <div
               key={`${form.questionnaire.id}-${index}`}
-              className={cn(
-                "border rounded-lg p-6 space-y-6",
-                activeQuestionnaireId === form.questionnaire.id &&
-                  "ring-2 ring-primary",
-              )}
+              className="border rounded-lg p-6 space-y-6"
             >
               <div className="flex justify-between items-center">
                 <h2 className="text-xl font-semibold">

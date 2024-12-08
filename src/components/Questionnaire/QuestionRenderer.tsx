@@ -54,7 +54,6 @@ export function QuestionRenderer({
       {questions.map((question) => (
         <div
           key={question.id}
-          className="rounded-lg border bg-card p-4"
           ref={(el) => (questionRefs.current[question.id] = el)}
         >
           <QuestionGroup
@@ -64,6 +63,7 @@ export function QuestionRenderer({
             errors={errors}
             clearError={clearError}
             disabled={disabled}
+            activeGroupId={activeGroupId}
           />
         </div>
       ))}

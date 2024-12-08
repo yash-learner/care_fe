@@ -1,5 +1,7 @@
 import { memo } from "react";
 
+import { cn } from "@/lib/utils";
+
 import { Label } from "@/components/ui/label";
 
 import { QuestionValidationError } from "@/types/questionnaire/batch";
@@ -15,6 +17,7 @@ interface QuestionGroupProps {
   errors: QuestionValidationError[];
   clearError: (questionId: string) => void;
   disabled?: boolean;
+  activeGroupId?: string;
 }
 
 export const QuestionGroup = memo(function QuestionGroup({
@@ -24,6 +27,7 @@ export const QuestionGroup = memo(function QuestionGroup({
   errors,
   clearError,
   disabled,
+  activeGroupId,
 }: QuestionGroupProps) {
   if (question.type !== "group") {
     return (
@@ -38,32 +42,42 @@ export const QuestionGroup = memo(function QuestionGroup({
     );
   }
 
+  const isActive = activeGroupId === question.id;
+
   return (
-    <div className="space-y-4">
-      {question.text && (
-        <div className="space-y-1">
-          <Label className="text-lg font-semibold text-green-600">
-            {question.text}
-          </Label>
-          {question.description && (
-            <p className="text-sm text-muted-foreground">
-              {question.description}
-            </p>
-          )}
+    <div className="pt-4">
+      <div
+        className={cn(
+          "space-y-4 rounded-lg border p-4",
+          isActive && "ring-2 ring-primary",
+        )}
+      >
+        {question.text && (
+          <div className="space-y-1">
+            <Label className="text-lg font-semibold text-green-600">
+              {question.text}
+            </Label>
+            {question.description && (
+              <p className="text-sm text-muted-foreground">
+                {question.description}
+              </p>
+            )}
+          </div>
+        )}
+        <div className="space-y-2">
+          {question.questions?.map((subQuestion) => (
+            <QuestionGroup
+              key={subQuestion.id}
+              question={subQuestion}
+              questionnaireResponses={questionnaireResponses}
+              updateQuestionnaireResponseCB={updateQuestionnaireResponseCB}
+              errors={errors}
+              clearError={clearError}
+              disabled={disabled}
+              activeGroupId={activeGroupId}
+            />
+          ))}
         </div>
-      )}
-      <div className="space-y-2">
-        {question.questions?.map((subQuestion) => (
-          <QuestionGroup
-            key={subQuestion.id}
-            question={subQuestion}
-            questionnaireResponses={questionnaireResponses}
-            updateQuestionnaireResponseCB={updateQuestionnaireResponseCB}
-            errors={errors}
-            clearError={clearError}
-            disabled={disabled}
-          />
-        ))}
       </div>
     </div>
   );

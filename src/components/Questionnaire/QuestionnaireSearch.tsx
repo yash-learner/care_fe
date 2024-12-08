@@ -41,7 +41,7 @@ export function QuestionnaireSearch({
       <PopoverTrigger asChild>
         <Button
           variant="outline"
-          className="w-[300px] justify-between"
+          className="w-full justify-between"
           disabled={disabled || listLoading}
         >
           {listLoading ? (
@@ -55,7 +55,7 @@ export function QuestionnaireSearch({
           ) : (
             <span>Add Questionnaire</span>
           )}
-          {/* <CareIcon icon="l-chevron-down" className="ml-2 h-4 w-4" /> */}
+          <CareIcon icon="l-arrow-down" className="ml-2 h-4 w-4" />
         </Button>
       </PopoverTrigger>
       <PopoverContent className="w-[600px] p-0" align="start">
