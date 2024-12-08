@@ -10,15 +10,6 @@ import {
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 
-// Mock Labs Data
-const labs = [
-  { id: "lab-001", name: "Central Lab" },
-  { id: "lab-002", name: "Northside Lab" },
-  { id: "lab-003", name: "Southside Lab" },
-  { id: "lab-004", name: "Eastside Lab" },
-  { id: "lab-005", name: "Westside Lab" },
-];
-
 export const ReceiveSpecimen: React.FC = () => {
   return (
     <div className="mx-auto max-w-5xl flex flex-col gap-5">
