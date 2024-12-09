@@ -2,7 +2,7 @@ import {
   ArrowRightIcon,
   ChevronDownIcon,
   ChevronUpIcon,
-  Cross2Icon,
+  CrossCircledIcon,
 } from "@radix-ui/react-icons";
 import React from "react";
 import { FaDroplet } from "react-icons/fa6";
@@ -429,7 +429,7 @@ export const CollectSpecimen: React.FC = () => {
                                           )
                                         }
                                       >
-                                        <Cross2Icon className="h-5 w-5 text-red-600" />
+                                        <CrossCircledIcon className="h-4 w-4 text-red-600" />
                                         <span className="font-semibold text-gray-900">
                                           Remove
                                         </span>
