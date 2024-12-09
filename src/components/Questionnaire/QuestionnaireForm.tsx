@@ -62,7 +62,7 @@ export function QuestionnaireForm({
 
   const { mutate: submitBatch, isProcessing } = useMutation(
     routes.batchRequest,
-    {},
+    { silent: true },
   );
 
   useEffect(() => {
