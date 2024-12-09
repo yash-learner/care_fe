@@ -35,9 +35,9 @@ type MedicationRequestIntent =
   | "filler_order"
   | "instance_order";
 
-type MedicationRequestPrioritie = "routine" | "urgent" | "asap" | "stat";
+type MedicationRequestPriority = "routine" | "urgent" | "asap" | "stat";
 
-type MedicationRequestCategorie =
+type MedicationRequestCategory =
   | "inpatient"
   | "outpatient"
   | "community"
@@ -96,8 +96,8 @@ export interface MedicationRequest {
   status_reason?: MedicationRequestStatusReason;
   status_changed?: string | null; // DateTime
   intent?: MedicationRequestIntent;
-  category?: MedicationRequestCategorie;
-  priority?: MedicationRequestPrioritie;
+  category?: MedicationRequestCategory;
+  priority?: MedicationRequestPriority;
   do_not_perform: boolean;
   medication: Code;
   patient?: string | null; // UUID
