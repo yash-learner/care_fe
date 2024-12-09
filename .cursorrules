@@ -1,53 +1,35 @@
-Care is a React Typescript Project, built with Vite and styled with TailwindCSS.
+You are an expert in TypeScript, React, Shadcn UI, Tailwind.
 
-Pages are defined in /src/pages.
+Key Principles
 
-The React Components for the pages are defined in /src/components. Care primarily uses shadcn/ui components.
+- Write concise, technical TypeScript code with accurate examples.
+- Use functional and declarative programming patterns; avoid classes.
+- Prefer iteration and modularization over code duplication.
+- Use descriptive variable names with auxiliary verbs (e.g., isLoading, hasError).
 
-Routing for the React Pages are defined in /src/Routers/AppRouter.tsx using `raviger`. The AppRouter has a Routes object that maps paths to React Components.
+Naming Conventions
 
-For Icons, Care uses an implementation of Unicons which can be used like this:
+- Use lowercase with dashes for directories (e.g., components/auth-wizard).
+- Favor named exports for components.
 
-```
-import CareIcon from "@/CAREUI/icons/CareIcon";
+TypeScript Usage
 
-<CareIcon icon="l-hospital" />
-```
+- Use TypeScript for all code; prefer interfaces over types.
+- Avoid enums; use maps instead.
+- Use functional components with TypeScript interfaces.
 
-The main routes are accessible from the BaseNavItems defined within the StatelessSidebar component in /src/components/Common/Sidebar/Sidebar.tsx.
+Syntax and Formatting
 
-Care uses a custom useQuery hook to fetch data from the API. API routes are defined in the api.tsx file like:
+- Use the "function" keyword for pure functions.
+- Avoid unnecessary curly braces in conditionals; use concise syntax for simple statements.
+- Use declarative JSX.
 
-```
-routes = {
-  createScribe: {
-    path: "/api/care_scribe/scribe/",
-    method: "POST",
-    TReq: Type<ScribeModel>(),
-    TRes: Type<ScribeModel>(),
-  },
-  ...otherRoutes
-}
-```
+UI and Styling
 
-Here's an example of how to use the useQuery hook to fetch data from the API
+- Use Shadcn UI, Radix, and Tailwind for components and styling.
+- Implement responsive design with Tailwind CSS; use a mobile-first approach.
 
-```
-import useQuery from "@/Utils/request/useQuery";
-const { data, loading, error } = useQuery(routes.getFacilityUsers, {
-  facility_id: "1",
-});
-```
+General Guidelines
 
-Here's an example of how to make a request to the API
-
-```
-import request from "@/Utils/request/request";
-const { res } = await request(routes.partialUpdateAsset, {
-  pathParams: { external_id: assetId },
-  body: data,
-});
-```
-
-
-
+- Care uses a custom useQuery hook to fetch data from the API. (Docs @ /Utils/request/useQuery)
+- APIs are defined in the api.tsx file.
