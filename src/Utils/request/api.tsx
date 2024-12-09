@@ -94,10 +94,8 @@ import {
   BatchRequestBody,
   BatchSubmissionResult,
 } from "@/types/questionnaire/batch";
-import type {
-  QuestionnaireDetail,
-  QuestionnaireResponse,
-} from "@/types/questionnaire/questionnaire";
+import { Code } from "@/types/questionnaire/code";
+import type { QuestionnaireDetail } from "@/types/questionnaire/questionnaire";
 
 /**
  * A fake function that returns an empty object casted to type T
@@ -1405,6 +1403,20 @@ const routes = {
         TBody: Type<{ policy: string }>(),
         TRes: Type<HCXPolicyModel>(),
       },
+    },
+  },
+
+  valueset: {
+    // list: {
+    //   path: "/api/v1/valueset/",
+    //   method: "GET",
+    //   TRes: Type<PaginatedResponse<ValueSet>>(),
+    // },
+    expand: {
+      path: "/api/v1/valueset/{system}/expand/",
+      method: "POST",
+      TBody: Type<{ search: string; count: number }>(),
+      TRes: Type<{ results: Code[] }>(),
     },
   },
 

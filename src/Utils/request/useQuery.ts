@@ -14,8 +14,8 @@ export interface QueryOptions<TData> extends RequestOptions<TData> {
   key?: string;
 }
 
-export default function useQuery<TData>(
-  route: QueryRoute<TData>,
+export default function useQuery<TData, TBody = unknown>(
+  route: QueryRoute<TData, TBody>,
   options?: QueryOptions<TData>,
 ) {
   const [response, setResponse] = useState<RequestResult<TData>>();
