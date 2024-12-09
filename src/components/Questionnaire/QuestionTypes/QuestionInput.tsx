@@ -52,28 +52,35 @@ export function QuestionInput({
         (v) => v.link_id === enableWhen.question,
       )?.values[0];
 
+      // Early return if no dependent value exists
+      if (!dependentValue?.value) return false;
+
       switch (enableWhen.operator) {
         case "exists":
           return dependentValue !== undefined && dependentValue !== null;
         case "equals":
-          return dependentValue === enableWhen.answer;
+          return dependentValue.value === enableWhen.answer;
         case "not_equals":
-          return dependentValue !== enableWhen.answer;
+          return dependentValue.value !== enableWhen.answer;
         case "greater":
           return (
-            dependentValue !== undefined && dependentValue > enableWhen.answer
+            typeof dependentValue.value === "number" &&
+            dependentValue.value > enableWhen.answer
           );
         case "less":
           return (
-            dependentValue !== undefined && dependentValue < enableWhen.answer
+            typeof dependentValue.value === "number" &&
+            dependentValue.value < enableWhen.answer
           );
         case "greater_or_equals":
           return (
-            dependentValue !== undefined && dependentValue >= enableWhen.answer
+            typeof dependentValue.value === "number" &&
+            dependentValue.value >= enableWhen.answer
           );
         case "less_or_equals":
           return (
-            dependentValue !== undefined && dependentValue <= enableWhen.answer
+            typeof dependentValue.value === "number" &&
+            dependentValue.value <= enableWhen.answer
           );
         default:
           return true;

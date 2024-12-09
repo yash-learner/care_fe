@@ -11,7 +11,6 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 import routes from "@/Utils/request/api";
 import useQuery from "@/Utils/request/useQuery";
-import type { QuestionnaireResponse } from "@/types/questionnaire/form";
 import type { Question } from "@/types/questionnaire/question";
 
 import Loading from "../Common/Loading";
@@ -98,26 +97,6 @@ export function QuestionnaireShow({ id }: QuestionnaireShowProps) {
       </Alert>
     );
   }
-
-  const handleFormSubmit = async (values: QuestionnaireResponse[]) => {
-    try {
-      // await request(routes.questionnaire.submit, {
-      //   pathParams: { id },
-      //   body: {
-      //     encounter: "some-encounter-id",
-      //     responses: values.map((v) => ({
-      //       question_id: v.id,
-      //       value: v.value,
-      //       note: v.note,
-      //       bodysite: v.bodysite,
-      //       method: v.method,
-      //     })),
-      //   },
-      // });
-    } catch (error) {
-      console.error("Failed to submit form:", error);
-    }
-  };
 
   return (
     <div className="container mx-auto px-4 py-6">
@@ -213,8 +192,8 @@ export function QuestionnaireShow({ id }: QuestionnaireShowProps) {
             <CardContent>
               <QuestionnaireForm
                 questionnaireSlug={id}
-                resourceId={"af7564f2-682c-43fc-81e4-d1583e5f31cf"}
-                encounterId={"d8ee0842-d213-469c-9e63-4549c2aa4610"}
+                resourceId={"some_patient_id"}
+                encounterId={"some_encounter_id"}
               />
             </CardContent>
           </Card>

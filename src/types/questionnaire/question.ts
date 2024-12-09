@@ -19,18 +19,24 @@ export type StructuredQuestionType =
   | "allergy_intolerance"
   | "medication_request";
 
-export interface EnableWhen {
+type EnableWhenNumeric = {
+  operator: "greater" | "less" | "greater_or_equals" | "less_or_equals";
+  answer: number;
+};
+
+type EnableWhenBoolean = {
+  operator: "exists" | "equals" | "not_equals";
+  answer: boolean;
+};
+
+type EnableWhenString = {
+  operator: "equals" | "not_equals";
+  answer: string;
+};
+
+export type EnableWhen = {
   question: string;
-  operator:
-    | "exists"
-    | "equals"
-    | "not_equals"
-    | "greater"
-    | "less"
-    | "greater_or_equals"
-    | "less_or_equals";
-  answer: string | number | boolean;
-}
+} & (EnableWhenNumeric | EnableWhenBoolean | EnableWhenString);
 
 export interface AnswerOption {
   value: string;
