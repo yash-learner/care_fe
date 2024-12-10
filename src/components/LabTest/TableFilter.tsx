@@ -68,154 +68,159 @@ const TableFilter: React.FC<TableFilterProps> = ({ keys, onFiltersChange }) => {
     <div className="flex items-center gap-2">
       {/* Display Applied Filters */}
       <div className="flex flex-wrap items-center gap-x-2 border rounded-md">
-        {filters.map((filter, index) => (
-          <div
-            key={index}
-            className="flex items-center gap-x-2 px-3 bg-gray-50 border rounded-lg shadow-sm"
-          >
-            <img
-              src="/images/filter.svg"
-              alt="filter"
-              className="w-4 h-4 text-gray-600"
-            />
-            {/* Column Label */}
-            <span className="font-medium text-sm text-gray-700">
-              {keys.find((key) => key.key === filter.column)?.label}
-            </span>
+        {filters.map((filter, index) => {
+          const commonInputProps = {
+            value: filter.value,
+            onChange: (e: React.ChangeEvent<HTMLInputElement>) =>
+              updateFilter(index, "value", e.target.value),
+          };
 
-            {/* Separator */}
-            <Separator orientation="vertical" className="h-9 bg-gray-300" />
+          return (
+            <div
+              key={index}
+              className="flex items-center gap-x-2 px-3 bg-gray-50 border rounded-lg shadow-sm"
+            >
+              <img
+                src="/images/filter.svg"
+                alt="filter"
+                className="w-4 h-4 text-gray-600"
+              />
+              {/* Column Label */}
+              <span className="font-medium text-sm text-gray-700">
+                {keys.find((key) => key.key === filter.column)?.label}
+              </span>
 
-            {/* Operator */}
-            <Popover>
-              <PopoverTrigger asChild>
-                <Button
-                  variant="ghost"
-                  className="px-2 py-0 text-sm text-gray-700 hover:bg-gray-100"
-                >
-                  {filter.operator}
-                </Button>
-              </PopoverTrigger>
-              <PopoverContent className="w-auto">
-                <ul className="list-none">
-                  {keys
-                    .find((key) => key.key === filter.column)
-                    ?.operators.map((op) => (
-                      <li key={op}>
-                        <Button
-                          key={op}
-                          variant="ghost"
-                          size="sm"
-                          className="text-gray-700 hover:bg-gray-200 w-full"
-                          onClick={() => updateFilter(index, "operator", op)}
-                        >
-                          {op}
-                        </Button>
-                      </li>
-                    ))}
-                </ul>
-              </PopoverContent>
-            </Popover>
+              {/* Separator */}
+              <Separator orientation="vertical" className="h-9 bg-gray-300" />
 
-            {/* Separator */}
-            <Separator orientation="vertical" className="h-9 bg-gray-300" />
-
-            {/* Value */}
-            <Popover>
-              <PopoverTrigger asChild>
-                <Button
-                  variant="ghost"
-                  className="px-2 py-0 text-sm text-gray-700 hover:bg-gray-100"
-                >
-                  {Array.isArray(filter.value)
-                    ? filter.value.length > 1
-                      ? `${filter.value.length} selected`
-                      : filter.value[0]
-                    : filter.value}
-                </Button>
-              </PopoverTrigger>
-              <PopoverContent className="p-2 space-y-1">
-                {keys.find((key) => key.key === filter.column)?.type ===
-                "checkbox" ? (
-                  <div className="flex flex-col space-y-2">
+              {/* Operator */}
+              <Popover>
+                <PopoverTrigger asChild>
+                  <Button
+                    variant="ghost"
+                    className="px-2 py-0 text-sm text-gray-700 hover:bg-gray-100"
+                  >
+                    {filter.operator}
+                  </Button>
+                </PopoverTrigger>
+                <PopoverContent className="w-auto">
+                  <ul className="list-none">
                     {keys
                       .find((key) => key.key === filter.column)
-                      ?.options?.map((option) => (
-                        <div
-                          key={option}
-                          className="flex items-center space-x-2"
-                        >
-                          <Checkbox
-                            checked={
-                              Array.isArray(filter.value) &&
-                              filter.value.includes(option)
-                            }
-                            onCheckedChange={(checked) => {
-                              let newValues = Array.isArray(filter.value)
-                                ? [...filter.value]
-                                : [];
-                              if (checked) {
-                                newValues.push(option);
-                              } else {
-                                newValues = newValues.filter(
-                                  (val) => val !== option,
-                                );
-                              }
-                              updateFilter(index, "value", newValues);
-                            }}
-                          />
-                          <Label>{option}</Label>
-                        </div>
+                      ?.operators.map((op) => (
+                        <li key={op}>
+                          <Button
+                            key={op}
+                            variant="ghost"
+                            size="sm"
+                            className="text-gray-700 hover:bg-gray-200 w-full"
+                            onClick={() => updateFilter(index, "operator", op)}
+                          >
+                            {op}
+                          </Button>
+                        </li>
                       ))}
-                  </div>
-                ) : keys.find((key) => key.key === filter.column)?.type ===
-                  "radio" ? (
-                  <RadioGroup
-                    value={filter.value as string}
-                    onValueChange={(val) => updateFilter(index, "value", val)}
+                  </ul>
+                </PopoverContent>
+              </Popover>
+
+              {/* Separator */}
+              <Separator orientation="vertical" className="h-9 bg-gray-300" />
+
+              {/* Value */}
+              <Popover>
+                <PopoverTrigger asChild>
+                  <Button
+                    variant="ghost"
+                    className="px-2 py-0 text-sm text-gray-700 hover:bg-gray-100"
                   >
+                    {Array.isArray(filter.value)
+                      ? filter.value.length > 1
+                        ? `${filter.value.length} selected`
+                        : filter.value[0]
+                      : filter.value}
+                  </Button>
+                </PopoverTrigger>
+                <PopoverContent className="p-2 space-y-1">
+                  {keys.find((key) => key.key === filter.column)?.type ===
+                  "checkbox" ? (
                     <div className="flex flex-col space-y-2">
                       {keys
                         .find((key) => key.key === filter.column)
-                        ?.options?.map((option, idx) => {
-                          const optionId = `${filter.column}-${idx}`;
-                          return (
-                            <div
-                              key={option}
-                              className="flex items-center space-x-2"
-                            >
-                              <RadioGroupItem value={option} id={optionId} />
-                              <Label htmlFor={optionId}>{option}</Label>
-                            </div>
-                          );
-                        })}
+                        ?.options?.map((option) => (
+                          <div
+                            key={option}
+                            className="flex items-center space-x-2"
+                          >
+                            <Checkbox
+                              checked={
+                                Array.isArray(filter.value) &&
+                                filter.value.includes(option)
+                              }
+                              onCheckedChange={(checked) => {
+                                let newValues = Array.isArray(filter.value)
+                                  ? [...filter.value]
+                                  : [];
+                                if (checked) {
+                                  newValues.push(option);
+                                } else {
+                                  newValues = newValues.filter(
+                                    (val) => val !== option,
+                                  );
+                                }
+                                updateFilter(index, "value", newValues);
+                              }}
+                            />
+                            <Label>{option}</Label>
+                          </div>
+                        ))}
                     </div>
-                  </RadioGroup>
-                ) : (
-                  <Input
-                    value={filter.value}
-                    onChange={(e) =>
-                      updateFilter(index, "value", e.target.value)
-                    }
-                    placeholder="Enter value"
-                    className="text-sm"
-                  />
-                )}
-              </PopoverContent>
-            </Popover>
+                  ) : keys.find((key) => key.key === filter.column)?.type ===
+                    "radio" ? (
+                    <RadioGroup
+                      value={filter.value as string}
+                      onValueChange={(val) => updateFilter(index, "value", val)}
+                    >
+                      <div className="flex flex-col space-y-2">
+                        {keys
+                          .find((key) => key.key === filter.column)
+                          ?.options?.map((option, idx) => {
+                            const optionId = `${filter.column}-${idx}`;
+                            return (
+                              <div
+                                key={option}
+                                className="flex items-center space-x-2"
+                              >
+                                <RadioGroupItem value={option} id={optionId} />
+                                <Label htmlFor={optionId}>{option}</Label>
+                              </div>
+                            );
+                          })}
+                      </div>
+                    </RadioGroup>
+                  ) : (
+                    <Input
+                      {...commonInputProps}
+                      placeholder="Enter value"
+                      className="text-sm"
+                    />
+                  )}
+                </PopoverContent>
+              </Popover>
 
-            <Separator orientation="vertical" className="h-9 bg-gray-300" />
+              <Separator orientation="vertical" className="h-9 bg-gray-300" />
 
-            {/* Remove Button */}
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={() => removeFilter(index)}
-            >
-              X
-            </Button>
-          </div>
-        ))}
+              {/* Remove Button */}
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => removeFilter(index)}
+              >
+                X
+              </Button>
+            </div>
+          );
+        })}
       </div>
       {/* Add Filter Button */}
       <Popover>
