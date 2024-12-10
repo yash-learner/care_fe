@@ -13,6 +13,7 @@ export type QuestionType =
   | "text"
   | "url"
   | "choice"
+  | "quantity"
   | "structured";
 
 export type StructuredQuestionType =
@@ -67,6 +68,7 @@ export interface Question {
   answer_value_set?: string;
   answer_unit?: Code;
   is_observation?: boolean;
+  unit?: Code;
   questions?: Question[];
   formula?: string;
 }
