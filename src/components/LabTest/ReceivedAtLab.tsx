@@ -160,7 +160,7 @@ export const ReceivedAtLab: React.FC = () => {
         <TableFilter keys={keys} onFiltersChange={handleFiltersChange} />
 
         <Button
-          onClick={() => navigate(`/lab_tests/receive_at_lab`)}
+          onClick={() => navigate(`/lab_tests/process_specimen`)}
           variant={"primary"}
         >
           Start Processing
