@@ -36,6 +36,7 @@ export const ConsultationInvestigationsTab = (props: ConsultationTabProps) => {
         facilityId={props.facilityId}
         patientId={props.patientId}
         patientData={props.patientData}
+        consultationData={props.consultationData}
       />
     </div>
   );

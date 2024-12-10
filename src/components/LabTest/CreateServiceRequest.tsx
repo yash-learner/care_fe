@@ -1,0 +1,143 @@
+import { useState } from "react";
+import { useTranslation } from "react-i18next";
+
+import CareIcon from "@/CAREUI/icons/CareIcon";
+
+import * as Notification from "@/Utils/Notifications";
+import routes from "@/Utils/request/api";
+import request from "@/Utils/request/request";
+
+import { ConsultationModel } from "../Facility/models";
+import { Button } from "../ui/button";
+import { Card, CardFooter, CardHeader } from "../ui/card";
+import { Label } from "../ui/label";
+import { RadioGroup, RadioGroupItem } from "../ui/radio-group";
+import { Textarea } from "../ui/textarea";
+import LabOrderCodeSelect from "./LabOrderCodeSelect";
+import { Coding, ServiceRequest } from "./types";
+
+type CreateServiceRequestProps = {
+  encounter: ConsultationModel;
+};
+
+export default function CreateServiceRequest({
+  encounter,
+}: CreateServiceRequestProps) {
+  const { t } = useTranslation();
+
+  const [code, setCode] = useState<Coding>();
+  const [note, setNote] = useState<string>();
+  const [priority, setPriority] = useState<ServiceRequest["priority"]>();
+  const [recurrence, setRecurrence] = useState<unknown>();
+
+  console.log("encounter", encounter);
+
+  return (
+    <Card className="bg-inherit shadow-none rounded-md">
+      <CardHeader className="grid gap-3">
+        <LabOrderCodeSelect value={code} onSelect={setCode} />
+
+        {note !== undefined && (
+          <div className="grid gap-1.5">
+            <Label htmlFor="note">Note</Label>
+            <Textarea
+              placeholder="Type your note here."
+              id="note"
+              className="bg-white"
+            />
+          </div>
+        )}
+
+        {priority !== undefined && (
+          <div className="grid gap-1.5">
+            <Label htmlFor="priority">Priority</Label>
+
+            <RadioGroup
+              defaultValue={priority}
+              className="flex items-center gap-3"
+            >
+              {["routine", "urgent", "asap", "stat"].map((value) => (
+                <div className="flex items-center space-x-1.5">
+                  <RadioGroupItem
+                    value={value}
+                    id={value}
+                    className="bg-white"
+                  />
+                  <Label htmlFor={value}>{t(value)}</Label>
+                </div>
+              ))}
+            </RadioGroup>
+          </div>
+        )}
+      </CardHeader>
+      <CardFooter>
+        <div className="flex items-center gap-2 w-full">
+          {note === undefined && (
+            <Button
+              onClick={() => setNote("")}
+              variant="ghost"
+              className="flex items-center gap-1.5"
+            >
+              <CareIcon icon="l-plus" className="size-4" />
+              Add Note
+            </Button>
+          )}
+          {priority === undefined && (
+            <Button
+              onClick={() => setPriority("routine")}
+              variant="ghost"
+              className="flex items-center gap-1.5"
+            >
+              <CareIcon icon="l-signal-alt-3" className="size-4" />
+              Set Priority
+            </Button>
+          )}
+          {recurrence === undefined && (
+            <Button
+              onClick={() => setRecurrence({})}
+              variant="ghost"
+              className="flex items-center gap-1.5"
+              disabled
+            >
+              <CareIcon icon="l-repeat" className="size-4" />
+              Set Recurrence
+            </Button>
+          )}
+
+          <div className="flex-1 flex items-center gap-2 justify-end">
+            <Button variant="outline">Cancel</Button>
+            <Button
+              variant="primary"
+              onClick={async () => {
+                if (!code) {
+                  return;
+                }
+
+                const { res } = await request(
+                  routes.labs.service_request.create,
+                  {
+                    body: {
+                      code,
+                      subject: encounter.patient,
+                      encounter: encounter.id,
+                    },
+                  },
+                );
+
+                if (!res?.ok) {
+                  Notification.Error({ msg: "Failed to order test" });
+                  return;
+                }
+
+                Notification.Success({ msg: "Test ordered successfully" });
+                setCode(undefined);
+              }}
+            >
+              Order test
+            </Button>
+          </div>
+        </div>
+      </CardFooter>
+    </Card>
+  );
+}

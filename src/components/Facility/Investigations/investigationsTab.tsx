@@ -1,9 +1,12 @@
 import ViewInvestigationSuggestions from "@/components/Facility/Investigations/InvestigationSuggestions";
 import ViewInvestigations from "@/components/Facility/Investigations/ViewInvestigations";
+import CreateServiceRequest from "@/components/LabTest/CreateServiceRequest";
 import { PatientModel } from "@/components/Patient/models";
 
 import routes from "@/Utils/request/api";
 import useQuery from "@/Utils/request/useQuery";
+
+import { ConsultationModel } from "../models";
 
 export interface InvestigationSessionType {
   session_external_id: string;
@@ -15,8 +18,15 @@ export default function InvestigationTab(props: {
   patientId: string;
   facilityId: string;
   patientData: PatientModel;
+  consultationData: ConsultationModel;
 }) {
-  const { consultationId, patientId, facilityId, patientData } = props;
+  const {
+    consultationId,
+    patientId,
+    facilityId,
+    patientData,
+    consultationData,
+  } = props;
   const { data: investigations, loading: investigationLoading } = useQuery(
     routes.getInvestigation,
     {
@@ -35,6 +45,10 @@ export default function InvestigationTab(props: {
 
   return (
     <>
+      <div className="my-4">
+        <CreateServiceRequest encounter={consultationData} />
+      </div>
+
       <ViewInvestigations
         isLoading={investigationLoading || investigationSessionLoading}
         investigations={investigations?.results || []}

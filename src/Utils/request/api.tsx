@@ -65,6 +65,7 @@ import {
 } from "@/components/Facility/models";
 import { InsurerOptionModel } from "@/components/HCX/InsurerAutocomplete";
 import { HCXPolicyModel } from "@/components/HCX/models";
+import { Annotation, Coding, ServiceRequest } from "@/components/LabTest/types";
 import { MedibaseMedicine, Prescription } from "@/components/Medicine/models";
 import {
   NotificationData,
@@ -107,6 +108,19 @@ export interface JwtTokenObtainPair {
 export interface LoginCredentials {
   username: string;
   password: string;
+}
+
+export interface ValuesetExpandBody {
+  search?: string;
+  count?: number;
+}
+
+export interface ValuesetExpandResponse {
+  results: {
+    code: string;
+    display: string;
+    system: string;
+  }[];
 }
 
 const routes = {
@@ -1396,6 +1410,30 @@ const routes = {
         method: "POST",
         TBody: Type<{ policy: string }>(),
         TRes: Type<HCXPolicyModel>(),
+      },
+    },
+  },
+
+  labs: {
+    labOrderCodes: {
+      method: "POST",
+      path: "/api/v1/valueset/system-lab-order-code/expand/",
+      TBody: Type<ValuesetExpandBody>(),
+      TRes: Type<ValuesetExpandResponse>(),
+    },
+
+    service_request: {
+      create: {
+        method: "POST",
+        path: "/api/v1/service_request/",
+        TBody: Type<{
+          code: Coding;
+          subject: string;
+          encounter: string;
+          priority?: ServiceRequest["priority"];
+          note?: Annotation[];
+        }>(),
+        TRes: Type<ServiceRequest>(),
       },
     },
   },
