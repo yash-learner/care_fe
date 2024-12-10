@@ -2,6 +2,7 @@ import { PlusIcon, TrashIcon } from "@radix-ui/react-icons";
 import { useState } from "react";
 
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import {
   Select,
@@ -117,11 +118,17 @@ export function MedicationQuestion({
             <TableHeader>
               <TableRow>
                 <TableHead className="w-[200px]">Medication</TableHead>
+                <TableHead className="w-[150px]">Route</TableHead>
+                <TableHead className="w-[150px]">Site</TableHead>
+                <TableHead className="w-[150px]">Method</TableHead>
                 <TableHead className="w-[150px]">Dosage</TableHead>
                 <TableHead className="w-[150px]">Intent</TableHead>
                 <TableHead className="w-[150px]">Category</TableHead>
                 <TableHead className="w-[150px]">Priority</TableHead>
                 <TableHead className="w-[150px]">Status</TableHead>
+                <TableHead className="w-[150px]">
+                  Additional Instructions
+                </TableHead>
                 <TableHead className="w-[200px]">Note</TableHead>
                 <TableHead className="w-[50px]" />
               </TableRow>
@@ -140,9 +147,53 @@ export function MedicationQuestion({
                     />
                   </TableCell>
                   <TableCell className="min-w-[150px]">
-                    <input
+                    <ValueSetSelect
+                      system="system-route"
+                      value={medication.dosage_instruction[0]?.route}
+                      onSelect={(route) =>
+                        handleUpdateMedication(index, {
+                          dosage_instruction: [
+                            { ...medication.dosage_instruction[0], route },
+                          ],
+                        })
+                      }
+                      disabled={disabled}
+                    />
+                  </TableCell>
+                  <TableCell className="min-w-[150px]">
+                    <ValueSetSelect
+                      system="system-body-site"
+                      value={medication.dosage_instruction[0]?.site}
+                      onSelect={(site) =>
+                        handleUpdateMedication(index, {
+                          dosage_instruction: [
+                            { ...medication.dosage_instruction[0], site },
+                          ],
+                        })
+                      }
+                      disabled={disabled}
+                    />
+                  </TableCell>
+                  <TableCell className="min-w-[150px]">
+                    <ValueSetSelect
+                      system="system-administration-method"
+                      value={medication.dosage_instruction[0]?.method}
+                      onSelect={(method) =>
+                        handleUpdateMedication(index, {
+                          dosage_instruction: [
+                            {
+                              ...medication.dosage_instruction[0],
+                              method,
+                            },
+                          ],
+                        })
+                      }
+                      disabled={disabled}
+                    />
+                  </TableCell>
+                  <TableCell className="min-w-[150px]">
+                    <Input
                       type="number"
-                      className="w-full rounded-md border p-2"
                       placeholder="Dosage"
                       value={
                         medication.dosage_instruction[0]?.dose_and_rate?.[0]
@@ -255,10 +306,29 @@ export function MedicationQuestion({
                       </SelectContent>
                     </Select>
                   </TableCell>
+                  <TableCell className="min-w-[300px]">
+                    <ValueSetSelect
+                      system="system-additional-instruction"
+                      value={
+                        medication.dosage_instruction[0]
+                          ?.additional_instruction?.[0]
+                      }
+                      onSelect={(additionalInstruction) =>
+                        handleUpdateMedication(index, {
+                          dosage_instruction: [
+                            {
+                              ...medication.dosage_instruction[0],
+                              additional_instruction: [additionalInstruction],
+                            },
+                          ],
+                        })
+                      }
+                      disabled={disabled}
+                    />
+                  </TableCell>
                   <TableCell className="min-w-[200px]">
-                    <input
+                    <Input
                       type="text"
-                      className="w-full rounded-md border p-2"
                       placeholder="Note"
                       value={medication.note || ""}
                       onChange={(e) =>
