@@ -1435,6 +1435,11 @@ const routes = {
         }>(),
         TRes: Type<ServiceRequest>(),
       },
+      list: {
+        method: "GET",
+        path: "/api/v1/service_request/",
+        TRes: Type<PaginatedResponse<ServiceRequest>>(),
+      },
     },
   },
 } as const;

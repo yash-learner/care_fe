@@ -1,6 +1,7 @@
 import ViewInvestigationSuggestions from "@/components/Facility/Investigations/InvestigationSuggestions";
 import ViewInvestigations from "@/components/Facility/Investigations/ViewInvestigations";
 import CreateServiceRequest from "@/components/LabTest/CreateServiceRequest";
+import ListEncounterServiceRequests from "@/components/LabTest/ListEncounterServiceRequests";
 import { PatientModel } from "@/components/Patient/models";
 
 import routes from "@/Utils/request/api";
@@ -45,7 +46,8 @@ export default function InvestigationTab(props: {
 
   return (
     <>
-      <div className="my-4">
+      <div className="grid gap-4">
+        <ListEncounterServiceRequests encounterId={consultationId} />
         <CreateServiceRequest encounter={consultationData} />
       </div>
 
