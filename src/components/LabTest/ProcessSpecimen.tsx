@@ -1,4 +1,4 @@
-import { CrossCircledIcon } from "@radix-ui/react-icons";
+import { CheckCircledIcon, CrossCircledIcon } from "@radix-ui/react-icons";
 import React from "react";
 
 import { Badge } from "@/components/ui/badge";
@@ -12,12 +12,21 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
 import { Textarea } from "@/components/ui/textarea";
 
 export const ProcessSpecimen: React.FC = () => {
   const [isBarcodeScanned, setIsBarcodeScanned] = React.useState(false);
 
   const [results, setResults] = React.useState<number[]>([0]);
+  const [isSubmitted, setIsSubmitted] = React.useState(false);
 
   const addResult = () => {
     setResults([...results, results.length]);
@@ -27,6 +36,59 @@ export const ProcessSpecimen: React.FC = () => {
     // Simulate barcode scanning success
     setIsBarcodeScanned(true);
   };
+
+  // Mock Test data
+  const testResults = [
+    {
+      parameter: "Total Bilirubin",
+      result: "1.2",
+      unit: "mg/dL",
+      referenceRange: "0.1 - 1.2",
+      remark: "",
+    },
+    {
+      parameter: "Direct Bilirubin",
+      result: "0.3",
+      unit: "mg/dL",
+      referenceRange: "0.0 - 0.4",
+      remark: "",
+    },
+    {
+      parameter: "ALT",
+      result: "42",
+      unit: "U/L",
+      referenceRange: "7 - 56",
+      remark: "",
+    },
+    {
+      parameter: "AST",
+      result: "37",
+      unit: "U/L",
+      referenceRange: "5 - 40",
+      remark: "",
+    },
+    {
+      parameter: "ALP",
+      result: "112",
+      unit: "U/L",
+      referenceRange: "40 - 129",
+      remark: "",
+    },
+    {
+      parameter: "Albumin",
+      result: "4.4",
+      unit: "g/dL",
+      referenceRange: "3.5 - 5.0",
+      remark: "",
+    },
+    {
+      parameter: "Total Protein",
+      result: "7.2",
+      unit: "g/dL",
+      referenceRange: "6.4 - 8.3",
+      remark: "",
+    },
+  ];
 
   return (
     <div className="mx-auto max-w-5xl flex flex-col gap-5 py-1">
@@ -173,7 +235,7 @@ export const ProcessSpecimen: React.FC = () => {
         )}
       </div>
 
-      {isBarcodeScanned && (
+      {isBarcodeScanned && !isSubmitted && (
         <>
           {results.map((_, index) => (
             <div
@@ -270,17 +332,75 @@ export const ProcessSpecimen: React.FC = () => {
           >
             + Add Another Result
           </Button>
+
+          {/* Footer Buttons */}
+          <div className="flex items-center justify-end gap-4">
+            <Button variant="outline" size="lg">
+              Cancel
+            </Button>
+            <Button
+              variant="primary"
+              size="lg"
+              onClick={() => {
+                setIsSubmitted(true);
+              }}
+            >
+              Submit
+            </Button>
+          </div>
         </>
       )}
-      {/* Footer Buttons */}
-      <div className="flex items-center justify-end gap-4">
-        <Button variant="outline" size="lg">
-          Cancel
-        </Button>
-        <Button variant="primary" size="lg">
-          Submit
-        </Button>
-      </div>
+      {isSubmitted && (
+        <div className="bg-gray-50 border border-gray-300 rounded-sm shadow-sm p-2 space-y-2">
+          <h2 className="text-base font-semibold text-gray-900">
+            Test Results:
+          </h2>
+          <Table className="w-full border  border-gray-300 bg-whit shadow-sm rounded-sm">
+            <TableHeader className="bg-gray-50">
+              <TableRow>
+                <TableHead className="border-r border-gray-300">
+                  Parameter
+                </TableHead>
+                <TableHead className="border-r border-gray-300">
+                  Result
+                </TableHead>
+                <TableHead className="border-r border-gray-300">Unit</TableHead>
+                <TableHead className="border-r border-gray-300">
+                  Reference Range
+                </TableHead>
+                <TableHead>Remark</TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody className="bg-white">
+              {testResults.map((test, index) => (
+                <TableRow key={index} className="divide-x divide-gray-300">
+                  <TableCell>{test.parameter}</TableCell>
+                  <TableCell>{test.result}</TableCell>
+                  <TableCell>{test.unit}</TableCell>
+                  <TableCell>{test.referenceRange}</TableCell>
+                  <TableCell>
+                    <Input type="text" placeholder="" className="w-full" />
+                  </TableCell>
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
+          <div className="flex gap-2 justify-end">
+            <Button
+              variant="outline"
+              size="sm"
+              className="border-gray-300 font-medium gap-2"
+            >
+              <CrossCircledIcon className="h-4 w-4 text-red-500" />
+              <span>Reject Specimen</span>
+            </Button>
+            <Button variant="primary" size="sm" className="gap-2">
+              <CheckCircledIcon className="h-4 w-4 text-white" />
+              Accept Specimen
+            </Button>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
