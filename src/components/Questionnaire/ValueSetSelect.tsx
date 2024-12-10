@@ -1,3 +1,5 @@
+import { useState } from "react";
+
 import { Button } from "@/components/ui/button";
 import {
   Command,
@@ -19,7 +21,7 @@ import { Code, ValueSetSystem } from "@/types/questionnaire/code";
 
 interface Props {
   system: ValueSetSystem;
-  value?: Code;
+  value?: Code | null;
   onSelect: (value: Code) => void;
   placeholder?: string;
   noResultsMessage?: string;
@@ -34,6 +36,8 @@ export default function ValueSetSelect({
   noResultsMessage = "No results found",
   disabled,
 }: Props) {
+  const [open, setOpen] = useState(false);
+
   const searchQuery = useQuery(routes.valueset.expand, {
     pathParams: { system },
     body: { count: 10 },
@@ -41,12 +45,12 @@ export default function ValueSetSelect({
   });
 
   return (
-    <Popover>
+    <Popover open={open} onOpenChange={setOpen}>
       <PopoverTrigger asChild disabled={disabled}>
         <Button
           variant="outline"
           role="combobox"
-          className="w-[300px] justify-between truncate"
+          className="w-full justify-between truncate"
         >
           {value?.display || placeholder}
         </Button>
@@ -55,7 +59,7 @@ export default function ValueSetSelect({
         <Command filter={() => 1}>
           <CommandInput
             placeholder={placeholder}
-            className="my-1"
+            className="outline-none border-none ring-0 shadow-none"
             onValueChange={(search) =>
               searchQuery.refetch({ body: { search } })
             }
@@ -75,6 +79,7 @@ export default function ValueSetSelect({
                       display: option.display || "",
                       system: option.system || "",
                     });
+                    setOpen(false);
                   }}
                 >
                   <span>{option.display}</span>
