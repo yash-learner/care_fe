@@ -61,7 +61,7 @@ const StatelessSidebar = ({
     {
       text: t("lab_tests"),
       to: "/lab_tests/order_placed",
-      icon: "l-heart-rate",
+      icon: "d-microscope",
     },
     { text: t("assets"), to: "/assets", icon: "d-folder" },
     { text: t("sample_test"), to: "/sample", icon: "d-microscope" },
