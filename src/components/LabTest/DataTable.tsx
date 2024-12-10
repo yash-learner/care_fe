@@ -24,6 +24,7 @@ const badgeStyles: Record<string, string> = {
   cancelled: "bg-red-100 text-red-800",
   default: "bg-gray-100 text-gray-800",
   transit: "bg-yellow-100 text-yellow-800",
+  received: "bg-pink-100 text-pink-800",
 };
 
 export const DataTable: React.FC<DataTableProps> = ({
