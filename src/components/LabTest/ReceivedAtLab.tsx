@@ -72,7 +72,7 @@ export const ReceivedAtLab: React.FC = () => {
       specimen: "Blood",
       tests: "Complete Blood Count (CBC)",
       collector: "John Doe",
-      status: "Transit",
+      status: "Received",
       priority: "High",
     },
     {
@@ -82,7 +82,7 @@ export const ReceivedAtLab: React.FC = () => {
       specimen: "Swab",
       tests: "COVID-19 PCR, Influenza Test",
       collector: "Jane Doe",
-      status: "Transit",
+      status: "Received",
       priority: "Medium",
     },
     {
@@ -92,7 +92,7 @@ export const ReceivedAtLab: React.FC = () => {
       specimen: "Tissue",
       tests: "Biopsy of tissue",
       collector: "Dr. Rajmohan",
-      status: "Transit",
+      status: "Received",
       priority: "Low",
     },
     {
@@ -102,7 +102,7 @@ export const ReceivedAtLab: React.FC = () => {
       specimen: "Swab",
       tests: "COVID-19 PCR",
       collector: "Jeena Mathew",
-      status: "Transit",
+      status: "Received",
       priority: "High",
     },
     {
@@ -112,7 +112,7 @@ export const ReceivedAtLab: React.FC = () => {
       specimen: "Blood",
       tests: "Lipid Profile",
       collector: "John Doe",
-      status: "Transit",
+      status: "Received",
       priority: "Medium",
     },
   ];
@@ -163,7 +163,7 @@ export const ReceivedAtLab: React.FC = () => {
           onClick={() => navigate(`/lab_tests/receive_at_lab`)}
           variant={"primary"}
         >
-          Receive at Lab
+          Start Processing
         </Button>
       </div>
       {/* Data Table */}
