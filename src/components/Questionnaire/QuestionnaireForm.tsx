@@ -22,11 +22,18 @@ import { QuestionnaireDetail } from "@/types/questionnaire/questionnaire";
 
 import { QuestionRenderer } from "./QuestionRenderer";
 import { QuestionnaireSearch } from "./QuestionnaireSearch";
+import { getStructuredRequests } from "./structured/handlers";
 
 interface QuestionnaireFormState {
   questionnaire: QuestionnaireDetail;
   responses: QuestionnaireResponse[];
   errors: QuestionValidationError[];
+}
+
+interface BatchRequest {
+  url: string;
+  method: string;
+  body: Record<string, any>;
 }
 
 export interface QuestionnaireFormProps {
@@ -107,6 +114,7 @@ export function QuestionnaireForm({
           question_id: q.id,
           link_id: q.link_id,
           values: [],
+          structured_type: q.structured_type ?? null,
         });
       }
     };
@@ -155,16 +163,47 @@ export function QuestionnaireForm({
   const handleSubmit = async () => {
     if (hasErrors) return;
 
-    const response = await submitBatch({
-      body: {
-        requests: questionnaireForms.map((form) => ({
+    const requests: BatchRequest[] = [];
+    const context = { resourceId, encounterId };
+
+    // First, collect all structured data requests
+    questionnaireForms.forEach((form) => {
+      form.responses.forEach((response) => {
+        if (response.structured_type) {
+          const structuredData = response.values?.[0]?.value;
+          if (Array.isArray(structuredData) && structuredData.length > 0) {
+            const structuredRequests = getStructuredRequests(
+              response.structured_type,
+              structuredData,
+              context,
+            );
+            requests.push(...structuredRequests);
+          }
+        }
+      });
+    });
+
+    // Then, add questionnaire submission requests
+    questionnaireForms.forEach((form) => {
+      const nonStructuredResponses = form.responses.filter((response) => {
+        const question = form.questionnaire.questions.find(
+          (q) => q.id === response.question_id,
+        );
+        return !question?.structured_type;
+      });
+
+      if (nonStructuredResponses.length > 0) {
+        requests.push({
           url: `/api/v1/questionnaire/${form.questionnaire.slug}/submit/`,
           method: "POST",
           body: {
             resource_id: resourceId,
             encounter: encounterId,
-            results: form.responses
-              .filter((response) => response.values.length > 0)
+            results: nonStructuredResponses
+              .filter(
+                (response) =>
+                  response.values.length > 0 && !response.structured_type,
+              )
               .map((response) => ({
                 question_id: response.question_id,
                 values: response.values.map((value) => ({
@@ -177,8 +216,12 @@ export function QuestionnaireForm({
                 method: response.method,
               })),
           },
-        })),
-      },
+        });
+      }
+    });
+
+    const response = await submitBatch({
+      body: { requests },
     });
 
     if (!response.data) {

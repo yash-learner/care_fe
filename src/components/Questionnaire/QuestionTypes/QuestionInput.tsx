@@ -38,11 +38,11 @@ export function QuestionInput({
 }: QuestionInputProps) {
   const questionnaireResponse = questionnaireResponses.find(
     (v) => v.question_id === question.id,
-  ) || {
-    question_id: question.id,
-    link_id: question.link_id,
-    values: [],
-  };
+  );
+
+  if (!questionnaireResponse) {
+    return null;
+  }
 
   const isQuestionEnabled = () => {
     if (!question.enable_when?.length) return true;
@@ -100,10 +100,9 @@ export function QuestionInput({
   const handleNumberChange = (newValue: string, index: number) => {
     const updatedValues = [...questionnaireResponse.values];
     updatedValues[index] = {
+      type: "number",
       value:
-        question.type === "decimal"
-          ? parseFloat(newValue)
-          : parseInt(newValue, 10),
+        question.type === "decimal" ? parseFloat(newValue) : parseInt(newValue),
     };
 
     handleValueChange({
@@ -112,11 +111,10 @@ export function QuestionInput({
     });
   };
 
-  const addValue = (e: React.MouseEvent<HTMLButtonElement>) => {
-    e.preventDefault();
+  const handleAddValue = () => {
     updateQuestionnaireResponseCB({
       ...questionnaireResponse,
-      values: [...questionnaireResponse.values, { value: "" }],
+      values: [...questionnaireResponse.values, { type: "string", value: "" }],
     });
   };
 
@@ -196,7 +194,10 @@ export function QuestionInput({
               value={responseValue.value?.toString() || ""}
               onChange={(e) => {
                 const updatedValues = [...questionnaireResponse.values];
-                updatedValues[index] = { value: e.target.value };
+                updatedValues[index] = {
+                  type: "string",
+                  value: e.target.value,
+                };
                 handleValueChange({
                   ...questionnaireResponse,
                   values: updatedValues,
@@ -240,7 +241,10 @@ export function QuestionInput({
               value={responseValue.value?.toString() || ""}
               onChange={(e) => {
                 const updatedValues = [...questionnaireResponse.values];
-                updatedValues[index] = { value: e.target.value };
+                updatedValues[index] = {
+                  type: "string",
+                  value: e.target.value,
+                };
                 handleValueChange({
                   ...questionnaireResponse,
                   values: updatedValues,
@@ -256,7 +260,7 @@ export function QuestionInput({
 
   const renderInput = () => {
     const values = !questionnaireResponse.values.length
-      ? [{ value: "" }]
+      ? [{ value: "", type: "string" } as ResponseValue]
       : questionnaireResponse.values;
 
     return (
@@ -268,7 +272,7 @@ export function QuestionInput({
           <Button
             variant="outline"
             size="sm"
-            onClick={addValue}
+            onClick={handleAddValue}
             className="mt-2"
             disabled={!isQuestionEnabled() || disabled}
           >

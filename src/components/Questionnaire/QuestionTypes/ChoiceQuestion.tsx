@@ -32,7 +32,12 @@ export const ChoiceQuestion = memo(function ChoiceQuestion({
   const handleValueChange = (newValue: string) => {
     updateQuestionnaireResponseCB({
       ...questionnaireResponse,
-      values: [{ value: newValue }],
+      values: [
+        {
+          type: "string",
+          value: newValue,
+        },
+      ],
     });
   };
 

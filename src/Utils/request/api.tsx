@@ -1487,6 +1487,15 @@ const routes = {
     }>(),
     TBody: Type<BatchRequestBody>(),
   },
+
+  patient: {
+    allergyIntolerance: {
+      create: {
+        method: "POST",
+        path: "/api/v1/patient/:patientId/allergy_intolerance/",
+      },
+    },
+  },
 } as const;
 
 export default routes;
