@@ -36,7 +36,9 @@ export default async function request<TData, TBody>(
   }
 
   const signal = controller?.signal ?? controllerRef?.current?.signal;
+  console.log("careConfig", careConfig);
   const url = `${careConfig.apiUrl}${makeUrl(path, query, pathParams)}`;
+  console.log("request url", url);
 
   const options: RequestInit = { method, signal };
 

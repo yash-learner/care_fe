@@ -1,4 +1,5 @@
 import careConfig from "@careConfig";
+import _ from "lodash";
 import { startCase, toLower } from "lodash-es";
 import { debounce } from "lodash-es";
 import { navigate } from "raviger";
@@ -15,10 +16,6 @@ import DialogModal from "@/components/Common/Dialog";
 import Loading from "@/components/Common/Loading";
 import PageTitle from "@/components/Common/PageTitle";
 import Spinner from "@/components/Common/Spinner";
-import Error404 from "@/components/ErrorPages/404";
-import { ILocalBodies } from "@/components/ExternalResult/models";
-import DuplicatePatientDialog from "@/components/Facility/DuplicatePatientDialog";
-import TransferPatientDialog from "@/components/Facility/TransferPatientDialog";
 import {
   DistrictModel,
   DupPatientModel,
@@ -86,6 +83,11 @@ import {
   parsePhoneNumber,
   scrollTo,
 } from "@/Utils/utils";
+
+import ErrorPage from "../ErrorPages/DefaultErrorPage";
+import { ILocalBodies } from "../ExternalResult/models";
+import DuplicatePatientDialog from "../Facility/DuplicatePatientDialog";
+import TransferPatientDialog from "../Facility/TransferPatientDialog";
 
 export type PatientForm = PatientModel &
   PatientMeta & { age?: number; is_postpartum?: boolean };
@@ -849,7 +851,7 @@ export const PatientRegister = (props: PatientRegisterProps) => {
     facilityObject &&
     !patientRegisterAuth(authUser, facilityObject, facilityId)
   ) {
-    return <Error404 />;
+    return <ErrorPage />;
   }
 
   return (

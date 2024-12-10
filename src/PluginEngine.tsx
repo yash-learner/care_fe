@@ -8,6 +8,7 @@ import { CareAppsContext, useCareApps } from "@/hooks/useCareApps";
 
 import { SupportedPluginComponents, pluginMap } from "@/pluginTypes";
 
+// Import the remote component synchronously
 export default function PluginEngine({
   children,
 }: {
@@ -23,6 +24,7 @@ export default function PluginEngine({
         }
       >
         <CareAppsContext.Provider value={pluginMap}>
+          <Suspense fallback={<Loading />}></Suspense>
           {children}
         </CareAppsContext.Provider>
       </ErrorBoundary>

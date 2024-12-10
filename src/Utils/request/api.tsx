@@ -90,6 +90,7 @@ import {
 } from "@/components/Users/models";
 
 import { PaginatedResponse } from "@/Utils/request/types";
+import { PlugConfig } from "@/types/plugConfig";
 import {
   BatchRequestBody,
   BatchSubmissionResult,
@@ -1494,6 +1495,35 @@ const routes = {
         method: "POST",
         path: "/api/v1/patient/:patientId/allergy_intolerance/",
       },
+    },
+  },
+  plugConfig: {
+    listPlugConfigs: {
+      path: "/api/v1/plug_config/",
+      method: "GET",
+      TRes: Type<{ configs: PlugConfig[] }>(),
+    },
+    getPlugConfig: {
+      path: "/api/v1/plug_config/{slug}/",
+      method: "GET",
+      TRes: Type<PlugConfig>(),
+    },
+    createPlugConfig: {
+      path: "/api/v1/plug_config/",
+      method: "POST",
+      TReq: Type<PlugConfig>(),
+      TRes: Type<PlugConfig>(),
+    },
+    updatePlugConfig: {
+      path: "/api/v1/plug_config/{slug}/",
+      method: "PATCH",
+      TReq: Type<PlugConfig>(),
+      TRes: Type<PlugConfig>(),
+    },
+    deletePlugConfig: {
+      path: "/api/v1/plug_config/{slug}/",
+      method: "DELETE",
+      TRes: Type<Record<string, never>>(),
     },
   },
 } as const;

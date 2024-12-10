@@ -1,4 +1,5 @@
 import { ValidateEnv } from "@julr/vite-plugin-validate-env";
+import federation from "@originjs/vite-plugin-federation";
 import react from "@vitejs/plugin-react-swc";
 import DOMPurify from "dompurify";
 import fs from "fs";
@@ -83,6 +84,52 @@ function getPluginDependencies(): string[] {
   return Array.from(dependencies);
 }
 
+// Recursive function to check if the module is statically imported by an entry point
+function isStaticallyImportedByEntry(
+  getModuleInfo: (moduleId: string) => any,
+  moduleId: string,
+  visited = new Set(),
+) {
+  if (visited.has(moduleId)) return false;
+  visited.add(moduleId);
+
+  const modInfo = getModuleInfo(moduleId);
+  if (!modInfo) return false;
+
+  // Check if the module is an entry point
+  if (modInfo.isEntry) {
+    return true;
+  }
+
+  // Check all static importers
+  for (const importerId of modInfo.importers) {
+    if (isStaticallyImportedByEntry(getModuleInfo, importerId, visited)) {
+      return true;
+    }
+  }
+
+  return false;
+}
+
+function getRemotes(enabledApps: string) {
+  if (!enabledApps) return {};
+
+  return enabledApps.split(",").reduce((acc, app) => {
+    const [package_, branch = "main"] = app.split("@");
+    const [org, repo] = package_.split("/");
+    const remoteUrl = `"https://${org}.github.io/${repo}/assets/remoteEntry.js"`;
+    console.log("Using Remote Module:", remoteUrl);
+    return {
+      ...acc,
+      [repo]: {
+        external: `Promise.resolve(${remoteUrl})`,
+        from: "vite",
+        externalType: "promise",
+      },
+    };
+  }, {});
+}
+
 /** @type {import('vite').UserConfig} */
 export default defineConfig(({ mode }) => {
   const env = loadEnv(mode, process.cwd(), "");
@@ -103,6 +150,17 @@ export default defineConfig(({ mode }) => {
       ),
     },
     plugins: [
+      federation({
+        name: "core",
+        remotes: {
+          care_livekit_fe: {
+            external: `Promise.resolve("http://localhost:5173/assets/remoteEntry.js")`,
+            externalType: "promise",
+            from: "vite",
+          },
+        },
+        shared: ["react", "react-dom"],
+      }),
       ValidateEnv({
         validator: "zod",
         schema: {
@@ -192,68 +250,16 @@ export default defineConfig(({ mode }) => {
         "@core": path.resolve(__dirname, "src/"),
       },
     },
-    optimizeDeps: {
-      include: getPluginDependencies(),
-    },
+    // optimizeDeps: {
+    //   include: getPluginDependencies(),
+    // },
     build: {
+      target: "es2022",
       outDir: "build",
-      assetsDir: "bundle",
       sourcemap: true,
-      rollupOptions: {
-        output: {
-          manualChunks(id, { getModuleInfo }) {
-            if (id.includes("node_modules")) {
-              const moduleInfo = getModuleInfo(id);
-
-              // Recursive function to check if the module is statically imported by an entry point
-              function isStaticallyImportedByEntry(
-                moduleId,
-                visited = new Set(),
-              ) {
-                if (visited.has(moduleId)) return false;
-                visited.add(moduleId);
-
-                const modInfo = getModuleInfo(moduleId);
-                if (!modInfo) return false;
-
-                // Check if the module is an entry point
-                if (modInfo.isEntry) {
-                  return true;
-                }
-
-                // Check all static importers
-                for (const importerId of modInfo.importers) {
-                  if (isStaticallyImportedByEntry(importerId, visited)) {
-                    return true;
-                  }
-                }
-
-                return false;
-              }
-
-              // Determine if the module should be in the 'vendor' chunk
-              const manualVendorChunks = /tiny-invariant/;
-              if (
-                manualVendorChunks.test(id) ||
-                isStaticallyImportedByEntry(id)
-              ) {
-                return "vendor";
-              } else {
-                // group lazy-loaded dependencies by their dynamic importer
-                const dynamicImporters = moduleInfo?.dynamicImporters || [];
-                if (dynamicImporters && dynamicImporters.length > 0) {
-                  // Use the first dynamic importer to name the chunk
-                  const importerChunkName = dynamicImporters[0]
-                    ? dynamicImporters[0].split("/").pop()
-                    : "vendor".split(".")[0];
-                  return `chunk-${importerChunkName}`;
-                }
-                // If no dynamic importers are found, let Rollup handle it automatically
-              }
-            }
-          },
-        },
-      },
+    },
+    esbuild: {
+      target: "es2022",
     },
     server: {
       port: 4000,
@@ -261,11 +267,11 @@ export default defineConfig(({ mode }) => {
     preview: {
       headers: {
         "Content-Security-Policy-Report-Only": `default-src 'self';\
-        script-src 'self' blob: 'nonce-f51b9742' https://plausible.10bedicu.in;\
-        style-src 'self' 'unsafe-inline';\
-        connect-src 'self' https://plausible.10bedicu.in;\
-        img-src 'self' https://cdn.ohc.network ${cdnUrls};\
-        object-src 'self' ${cdnUrls};`,
+          script-src 'self' blob: 'nonce-f51b9742' https://plausible.10bedicu.in;\
+          style-src 'self' 'unsafe-inline';\
+          connect-src 'self' https://plausible.10bedicu.in;\
+          img-src 'self' https://cdn.ohc.network ${cdnUrls};\
+          object-src 'self' ${cdnUrls};`,
       },
       port: 4000,
     },
