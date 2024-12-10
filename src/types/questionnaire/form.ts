@@ -1,10 +1,21 @@
-import type { AllergyIntolerance } from "./allergyIntolerance";
-import type { Code } from "./code";
-import { StructuredQuestionType } from "./question";
+import { MedicationRequest } from "@/types/emr/medicationRequest";
+import { AllergyIntolerance } from "@/types/questionnaire/allergyIntolerance";
+import { Code } from "@/types/questionnaire/code";
+import { StructuredQuestionType } from "@/types/questionnaire/question";
 
 export type ResponseValue = {
-  type: "string" | "number" | "boolean" | "allergy_intolerance";
-  value?: string | number | boolean | AllergyIntolerance[];
+  type:
+    | "string"
+    | "number"
+    | "boolean"
+    | "allergy_intolerance"
+    | "medication_request";
+  value?:
+    | string
+    | number
+    | boolean
+    | AllergyIntolerance[]
+    | MedicationRequest[];
   code?: Code;
 };
 

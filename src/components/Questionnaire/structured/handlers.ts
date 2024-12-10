@@ -1,6 +1,9 @@
-import { StructuredQuestionType } from "@/types/questionnaire/question";
+import {
+  DataTypeFor,
+  RequestTypeFor,
+} from "@/components/Questionnaire/structured/types";
 
-import { DataTypeFor, RequestTypeFor } from "./types";
+import { StructuredQuestionType } from "@/types/questionnaire/question";
 
 interface StructuredHandlerContext {
   resourceId: string;

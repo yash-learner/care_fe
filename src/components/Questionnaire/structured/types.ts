@@ -1,13 +1,9 @@
+import { MedicationRequest } from "@/types/emr/medicationRequest";
 import {
   AllergyIntolerance,
   AllergyIntoleranceRequest,
 } from "@/types/questionnaire/allergyIntolerance";
 import { StructuredQuestionType } from "@/types/questionnaire/question";
-
-// Add other structured request types here
-export interface MedicationRequest {
-  // ... medication request fields
-}
 
 // Map structured types to their data types
 export interface StructuredDataMap {
