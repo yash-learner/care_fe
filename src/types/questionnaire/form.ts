@@ -1,7 +1,8 @@
+import { AllergyIntolerance } from "@/types/emr/allergyIntolerance";
 import { MedicationRequest } from "@/types/emr/medicationRequest";
-import { AllergyIntolerance } from "@/types/questionnaire/allergyIntolerance";
 import { Code } from "@/types/questionnaire/code";
 import { Condition } from "@/types/questionnaire/condition";
+import { Quantity } from "@/types/questionnaire/quantity";
 import { StructuredQuestionType } from "@/types/questionnaire/question";
 
 export type ResponseValue = {
@@ -20,6 +21,7 @@ export type ResponseValue = {
     | MedicationRequest[]
     | Condition[];
   code?: Code;
+  quantity?: Quantity;
 };
 
 export interface QuestionnaireResponse {

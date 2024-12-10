@@ -122,7 +122,7 @@ export interface MedicationRequest {
   category?: MedicationRequestCategory;
   priority?: MedicationRequestPriority;
   do_not_perform: boolean;
-  medication: Code;
+  medication?: Code;
   patient?: string | null; // UUID
   encounter?: string | null; // UUID
   authored_on: string;

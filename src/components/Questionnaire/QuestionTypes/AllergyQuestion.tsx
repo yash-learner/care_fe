@@ -4,20 +4,7 @@ import { PlusIcon, TrashIcon } from "@radix-ui/react-icons";
 import { useState } from "react";
 
 import { Button } from "@/components/ui/button";
-import {
-  Command,
-  CommandEmpty,
-  CommandGroup,
-  CommandInput,
-  CommandItem,
-  CommandList,
-} from "@/components/ui/command";
 import { Label } from "@/components/ui/label";
-import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from "@/components/ui/popover";
 import {
   Select,
   SelectContent,
@@ -34,9 +21,9 @@ import {
   TableRow,
 } from "@/components/ui/table";
 
-import routes from "@/Utils/request/api";
-import useQuery from "@/Utils/request/useQuery";
-import { AllergyIntolerance } from "@/types/questionnaire/allergyIntolerance";
+import ValueSetSelect from "@/components/Questionnaire/ValueSetSelect";
+
+import { AllergyIntolerance } from "@/types/emr/allergyIntolerance";
 import { QuestionnaireResponse } from "@/types/questionnaire/form";
 import { Question } from "@/types/questionnaire/question";
 
@@ -57,12 +44,6 @@ export function AllergyQuestion({
     return (
       (questionnaireResponse.values?.[0]?.value as AllergyIntolerance[]) || []
     );
-  });
-
-  const allergySearch = useQuery(routes.valueset.expand, {
-    pathParams: { system: "system-allergy-code" },
-    body: { count: 10 },
-    prefetch: false,
   });
 
   const handleAddAllergy = () => {
@@ -139,54 +120,14 @@ export function AllergyQuestion({
               {allergies.map((allergy, index) => (
                 <TableRow key={index}>
                   <TableCell className="min-w-[200px]">
-                    <Popover>
-                      <PopoverTrigger asChild disabled={disabled}>
-                        <Button
-                          variant="outline"
-                          role="combobox"
-                          className="w-full justify-between truncate"
-                        >
-                          {allergy.code.display || "Search allergies..."}
-                        </Button>
-                      </PopoverTrigger>
-                      <PopoverContent className="w-[300px] p-0" align="start">
-                        <Command filter={() => 1}>
-                          <CommandInput
-                            placeholder="Search allergies..."
-                            className="my-1"
-                            onValueChange={(search) =>
-                              allergySearch.refetch({ body: { search } })
-                            }
-                          />
-                          <CommandList>
-                            <CommandEmpty>
-                              {allergySearch.loading
-                                ? "Loading..."
-                                : "No allergies found"}
-                            </CommandEmpty>
-                            <CommandGroup>
-                              {allergySearch.data?.results.map((option) => (
-                                <CommandItem
-                                  key={option.code}
-                                  value={option.code}
-                                  onSelect={() => {
-                                    updateAllergy(index, {
-                                      code: {
-                                        code: option.code,
-                                        display: option.display || "",
-                                        system: option.system || "",
-                                      },
-                                    });
-                                  }}
-                                >
-                                  <span>{option.display}</span>
-                                </CommandItem>
-                              ))}
-                            </CommandGroup>
-                          </CommandList>
-                        </Command>
-                      </PopoverContent>
-                    </Popover>
+                    <ValueSetSelect
+                      system="system-allergy-code"
+                      value={allergy.code}
+                      onSelect={(allergy) =>
+                        updateAllergy(index, { code: allergy })
+                      }
+                      disabled={disabled}
+                    />
                   </TableCell>
                   <TableCell className="min-w-[150px]">
                     <Select

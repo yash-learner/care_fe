@@ -1,8 +1,8 @@
-import { MedicationRequest } from "@/types/emr/medicationRequest";
 import {
   AllergyIntolerance,
   AllergyIntoleranceRequest,
-} from "@/types/questionnaire/allergyIntolerance";
+} from "@/types/emr/allergyIntolerance";
+import { MedicationRequest } from "@/types/emr/medicationRequest";
 import { Condition, ConditionRequest } from "@/types/questionnaire/condition";
 import { StructuredQuestionType } from "@/types/questionnaire/question";
 
