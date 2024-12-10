@@ -259,16 +259,6 @@ export const ProcessSpecimen: React.FC = () => {
                   className="mt-1 text-gray-600"
                 />
               </div>
-
-              {/* Footer Buttons */}
-              <div className="flex items-center justify-end gap-4">
-                <Button variant="outline" size="lg">
-                  Cancel
-                </Button>
-                <Button variant="primary" size="lg">
-                  Save
-                </Button>
-              </div>
             </div>
           ))}
           {/* Add another result button */}
@@ -282,6 +272,15 @@ export const ProcessSpecimen: React.FC = () => {
           </Button>
         </>
       )}
+      {/* Footer Buttons */}
+      <div className="flex items-center justify-end gap-4">
+        <Button variant="outline" size="lg">
+          Cancel
+        </Button>
+        <Button variant="primary" size="lg">
+          Submit
+        </Button>
+      </div>
     </div>
   );
 };
