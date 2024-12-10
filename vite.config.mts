@@ -111,14 +111,48 @@ function isStaticallyImportedByEntry(
   return false;
 }
 
+/**
+ * Generates remote module configurations for Module Federation
+ *
+ * Supports two formats for REACT_ENABLED_APPS:
+ * 1. GitHub Pages: "organization/repository[@branch]"
+ *    Example: "coronasafe/care_fe@main"
+ *
+ * 2. Local Development: "localhost:port/organization/repository[@branch]"
+ *    Example: "localhost:5173/coronasafe/care_fe@main"
+ *
+ * @param enabledApps - Comma-separated list of enabled apps
+ * @returns Remote module configuration object for Module Federation
+ */
 function getRemotes(enabledApps: string) {
   if (!enabledApps) return {};
 
   return enabledApps.split(",").reduce((acc, app) => {
     const [package_, branch = "main"] = app.split("@");
+
+    // Handle localhost development URLs
+    if (package_.startsWith("localhost")) {
+      const [host, ...pathParts] = package_.split("/");
+      const [org, repo] = pathParts.join("/").split("/");
+      const remoteUrl = `"http://${host}/assets/remoteEntry.js"`;
+      console.log(`Using Local Remote Module for ${org}/${repo}:`, remoteUrl);
+      return {
+        ...acc,
+        [repo]: {
+          external: `Promise.resolve(${remoteUrl})`,
+          from: "vite",
+          externalType: "promise",
+        },
+      };
+    }
+
+    // Handle GitHub Pages URLs
     const [org, repo] = package_.split("/");
     const remoteUrl = `"https://${org}.github.io/${repo}/assets/remoteEntry.js"`;
-    console.log("Using Remote Module:", remoteUrl);
+    console.log(
+      `Using GitHub Pages Remote Module for ${org}/${repo}:`,
+      remoteUrl,
+    );
     return {
       ...acc,
       [repo]: {
@@ -152,13 +186,14 @@ export default defineConfig(({ mode }) => {
     plugins: [
       federation({
         name: "core",
-        remotes: {
-          care_livekit_fe: {
-            external: `Promise.resolve("http://localhost:5173/assets/remoteEntry.js")`,
-            externalType: "promise",
-            from: "vite",
-          },
-        },
+        remotes: getRemotes(env.REACT_ENABLED_APPS),
+        // {
+        // care_livekit_fe: {
+        //   external: `Promise.resolve("http://localhost:5173/assets/remoteEntry.js")`,
+        //   externalType: "promise",
+        //   from: "vite",
+        // },
+        // },
         shared: ["react", "react-dom"],
       }),
       ValidateEnv({
