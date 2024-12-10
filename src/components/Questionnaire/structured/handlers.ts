@@ -55,6 +55,26 @@ const handlers: {
       }));
     },
   },
+  condition: {
+    getRequests: (conditions, { resourceId, encounterId }) =>
+      conditions.map((condition) => {
+        const body: RequestTypeFor<"condition"> = {
+          clinical_status: condition.clinicalStatus,
+          verification_status: condition.verificationStatus,
+          code: condition.code,
+          onset_date_time: condition.onsetDateTime,
+          recorded_date: condition.recordedDate,
+          note: condition.note,
+          encounter: encounterId,
+        };
+
+        return {
+          url: `/api/v1/patient/${resourceId}/condition/`,
+          method: "POST",
+          body,
+        };
+      }),
+  },
 };
 
 export function getStructuredRequests<T extends StructuredQuestionType>(

@@ -17,7 +17,8 @@ export type QuestionType =
 
 export type StructuredQuestionType =
   | "allergy_intolerance"
-  | "medication_request";
+  | "medication_request"
+  | "condition";
 
 type EnableWhenNumeric = {
   operator: "greater" | "less" | "greater_or_equals" | "less_or_equals";

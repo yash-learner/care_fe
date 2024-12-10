@@ -1,6 +1,7 @@
 import { MedicationRequest } from "@/types/emr/medicationRequest";
 import { AllergyIntolerance } from "@/types/questionnaire/allergyIntolerance";
 import { Code } from "@/types/questionnaire/code";
+import { Condition } from "@/types/questionnaire/condition";
 import { StructuredQuestionType } from "@/types/questionnaire/question";
 
 export type ResponseValue = {
@@ -9,13 +10,15 @@ export type ResponseValue = {
     | "number"
     | "boolean"
     | "allergy_intolerance"
-    | "medication_request";
+    | "medication_request"
+    | "condition";
   value?:
     | string
     | number
     | boolean
     | AllergyIntolerance[]
-    | MedicationRequest[];
+    | MedicationRequest[]
+    | Condition[];
   code?: Code;
 };
 

@@ -316,9 +316,17 @@ export function QuestionnaireForm({
               className="border rounded-lg p-6 space-y-6"
             >
               <div className="flex justify-between items-center">
-                <h2 className="text-xl font-semibold">
-                  {form.questionnaire.title}
-                </h2>
+                <div className="space-y-1">
+                  <h2 className="text-xl font-semibold">
+                    {form.questionnaire.title}
+                  </h2>
+                  {form.questionnaire.description && (
+                    <p className="text-sm text-muted-foreground">
+                      {form.questionnaire.description}
+                    </p>
+                  )}
+                </div>
+
                 {form.questionnaire.id !== questionnaireData?.id && (
                   <Button
                     type="button"

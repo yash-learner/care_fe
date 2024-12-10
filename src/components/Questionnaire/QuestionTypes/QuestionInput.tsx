@@ -14,6 +14,7 @@ import type { EnableWhen, Question } from "@/types/questionnaire/question";
 
 import { AllergyQuestion } from "./AllergyQuestion";
 import { ChoiceQuestion } from "./ChoiceQuestion";
+import { ConditionQuestion } from "./ConditionQuestion";
 import { MedicationQuestion } from "./MedicationQuestion";
 import { NotesInput } from "./NotesInput";
 
@@ -225,6 +226,15 @@ export function QuestionInput({
           case "allergy_intolerance":
             return (
               <AllergyQuestion
+                question={question}
+                questionnaireResponse={questionnaireResponse}
+                updateQuestionnaireResponseCB={updateQuestionnaireResponseCB}
+                disabled={!isEnabled}
+              />
+            );
+          case "condition":
+            return (
+              <ConditionQuestion
                 question={question}
                 questionnaireResponse={questionnaireResponse}
                 updateQuestionnaireResponseCB={updateQuestionnaireResponseCB}
