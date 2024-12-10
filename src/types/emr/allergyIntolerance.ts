@@ -1,4 +1,4 @@
-import { Code } from "./code";
+import { Code } from "../questionnaire/code";
 
 // Base type for allergy data
 export interface AllergyIntolerance {

@@ -1,5 +1,5 @@
+import { AllergyIntolerance } from "@/types/emr/allergyIntolerance";
 import { MedicationRequest } from "@/types/emr/medicationRequest";
-import { AllergyIntolerance } from "@/types/questionnaire/allergyIntolerance";
 import { Code } from "@/types/questionnaire/code";
 import { Quantity } from "@/types/questionnaire/quantity";
 import { StructuredQuestionType } from "@/types/questionnaire/question";

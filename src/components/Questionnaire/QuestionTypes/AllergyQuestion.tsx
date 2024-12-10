@@ -23,7 +23,7 @@ import {
 
 import ValueSetSelect from "@/components/Questionnaire/ValueSetSelect";
 
-import { AllergyIntolerance } from "@/types/questionnaire/allergyIntolerance";
+import { AllergyIntolerance } from "@/types/emr/allergyIntolerance";
 import { QuestionnaireResponse } from "@/types/questionnaire/form";
 import { Question } from "@/types/questionnaire/question";
 

@@ -1,8 +1,8 @@
-import { MedicationRequest } from "@/types/emr/medicationRequest";
 import {
   AllergyIntolerance,
   AllergyIntoleranceRequest,
-} from "@/types/questionnaire/allergyIntolerance";
+} from "@/types/emr/allergyIntolerance";
+import { MedicationRequest } from "@/types/emr/medicationRequest";
 import { StructuredQuestionType } from "@/types/questionnaire/question";
 
 // Map structured types to their data types
