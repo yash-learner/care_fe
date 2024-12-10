@@ -2,20 +2,7 @@ import { PlusIcon, TrashIcon } from "@radix-ui/react-icons";
 import { useState } from "react";
 
 import { Button } from "@/components/ui/button";
-import {
-  Command,
-  CommandEmpty,
-  CommandGroup,
-  CommandInput,
-  CommandItem,
-  CommandList,
-} from "@/components/ui/command";
 import { Label } from "@/components/ui/label";
-import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from "@/components/ui/popover";
 import {
   Select,
   SelectContent,
@@ -32,8 +19,8 @@ import {
   TableRow,
 } from "@/components/ui/table";
 
-import routes from "@/Utils/request/api";
-import useQuery from "@/Utils/request/useQuery";
+import ValueSetSelect from "@/components/Questionnaire/ValueSetSelect";
+
 import {
   MEDICATION_REQUEST_CATEGORY,
   MEDICATION_REQUEST_INTENT,
@@ -65,12 +52,6 @@ export function MedicationQuestion({
     return (
       (questionnaireResponse.values?.[0]?.value as MedicationRequest[]) || []
     );
-  });
-
-  const medicationSearch = useQuery(routes.valueset.expand, {
-    pathParams: { system: "system-medication" },
-    body: { count: 10 },
-    prefetch: false,
   });
 
   const handleAddMedication = () => {
@@ -149,55 +130,14 @@ export function MedicationQuestion({
               {medications.map((medication, index) => (
                 <TableRow key={index}>
                   <TableCell className="min-w-[200px]">
-                    <Popover>
-                      <PopoverTrigger asChild disabled={disabled}>
-                        <Button
-                          variant="outline"
-                          role="combobox"
-                          className="w-full justify-between truncate"
-                        >
-                          {medication.medication?.display ||
-                            "Search medications..."}
-                        </Button>
-                      </PopoverTrigger>
-                      <PopoverContent className="w-[300px] p-0" align="start">
-                        <Command filter={() => 1}>
-                          <CommandInput
-                            placeholder="Search allergies..."
-                            className="my-1"
-                            onValueChange={(search) =>
-                              medicationSearch.refetch({ body: { search } })
-                            }
-                          />
-                          <CommandList>
-                            <CommandEmpty>
-                              {medicationSearch.loading
-                                ? "Loading..."
-                                : "No medications found"}
-                            </CommandEmpty>
-                            <CommandGroup>
-                              {medicationSearch.data?.results.map((option) => (
-                                <CommandItem
-                                  key={option.code}
-                                  value={option.code}
-                                  onSelect={() => {
-                                    handleUpdateMedication(index, {
-                                      medication: {
-                                        code: option.code,
-                                        display: option.display || "",
-                                        system: option.system || "",
-                                      },
-                                    });
-                                  }}
-                                >
-                                  <span>{option.display}</span>
-                                </CommandItem>
-                              ))}
-                            </CommandGroup>
-                          </CommandList>
-                        </Command>
-                      </PopoverContent>
-                    </Popover>
+                    <ValueSetSelect
+                      system="system-medication"
+                      value={medication.medication}
+                      onSelect={(medication) =>
+                        handleUpdateMedication(index, { medication })
+                      }
+                      disabled={disabled}
+                    />
                   </TableCell>
                   <TableCell className="min-w-[150px]">
                     <input
