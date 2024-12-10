@@ -82,11 +82,7 @@ export function MedicationQuestion({
         category: "inpatient",
         priority: "urgent",
         do_not_perform: false,
-        medication: {
-          display: "Paracetamol-containing product",
-          system: "http://snomed.info/sct",
-          code: "90332006",
-        },
+        medication: undefined,
         authored_on: new Date().toISOString(),
         dosage_instruction: [],
       },
@@ -160,7 +156,7 @@ export function MedicationQuestion({
                           role="combobox"
                           className="w-full justify-between truncate"
                         >
-                          {medication.medication.display ||
+                          {medication.medication?.display ||
                             "Search medications..."}
                         </Button>
                       </PopoverTrigger>
