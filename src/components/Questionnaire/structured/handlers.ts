@@ -47,9 +47,12 @@ const handlers: {
       }),
   },
   medication_request: {
-    getRequests: (_medications, _context) => {
-      // Implement medication request handling
-      return [];
+    getRequests: (medications, { encounterId }) => {
+      return medications.map((medication) => ({
+        url: `/api/v1/consultation/${encounterId}/medication/request/`,
+        method: "POST",
+        body: medication,
+      }));
     },
   },
 };

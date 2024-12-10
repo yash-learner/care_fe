@@ -1,81 +1,105 @@
 import { Code } from "@/types/questionnaire/code";
 
-type MedicationRequestStatus =
-  | "active"
-  | "on-hold"
-  | "ended"
-  | "stopped"
-  | "completed"
-  | "cancelled"
-  | "entered-in-error"
-  | "draft"
-  | "unknown";
+export const MEDICATION_REQUEST_STATUS = [
+  "active",
+  "on-hold",
+  "ended",
+  "stopped",
+  "completed",
+  "cancelled",
+  "entered-in-error",
+  "draft",
+  "unknown",
+] as const;
 
-type MedicationRequestStatusReason =
-  | "altchoice"
-  | "clarif"
-  | "drughigh"
-  | "hospadm"
-  | "labint"
-  | "non_avail"
-  | "preg"
-  | "salg"
-  | "sddi"
-  | "sdupther"
-  | "sintol"
-  | "surg"
-  | "washout";
+export type MedicationRequestStatus =
+  (typeof MEDICATION_REQUEST_STATUS)[number];
 
-type MedicationRequestIntent =
-  | "proposal"
-  | "plan"
-  | "order"
-  | "original_order"
-  | "reflex_order"
-  | "filler_order"
-  | "instance_order";
+export const MEDICATION_REQUEST_STATUS_REASON = [
+  "altchoice",
+  "clarif",
+  "drughigh",
+  "hospadm",
+  "labint",
+  "non_avail",
+  "preg",
+  "salg",
+  "sddi",
+  "sdupther",
+  "sintol",
+  "surg",
+  "washout",
+] as const;
 
-type MedicationRequestPriority = "routine" | "urgent" | "asap" | "stat";
+export type MedicationRequestStatusReason =
+  (typeof MEDICATION_REQUEST_STATUS_REASON)[number];
 
-type MedicationRequestCategory =
-  | "inpatient"
-  | "outpatient"
-  | "community"
-  | "discharge";
+export const MEDICATION_REQUEST_INTENT = [
+  "proposal",
+  "plan",
+  "order",
+  "original_order",
+  "reflex_order",
+  "filler_order",
+  "instance_order",
+] as const;
 
-type TimingUnit = "s" | "min" | "h" | "d" | "wk" | "mo" | "a";
+export type MedicationRequestIntent =
+  (typeof MEDICATION_REQUEST_INTENT)[number];
 
-type DoseType = "ordered" | "calculated";
+export const MEDICATION_REQUEST_PRIORITY = [
+  "routine",
+  "urgent",
+  "asap",
+  "stat",
+] as const;
 
-interface DosageQuantity {
+export type MedicationRequestPriority =
+  (typeof MEDICATION_REQUEST_PRIORITY)[number];
+
+export const MEDICATION_REQUEST_CATEGORY = [
+  "inpatient",
+  "outpatient",
+  "community",
+  "discharge",
+] as const;
+
+export type MedicationRequestCategory =
+  (typeof MEDICATION_REQUEST_CATEGORY)[number];
+
+export type TimingUnit = "s" | "min" | "h" | "d" | "wk" | "mo" | "a";
+
+export type DoseType = "ordered" | "calculated";
+
+export interface DosageQuantity {
   value: number;
   unit: string;
 }
 
-interface DoseRange {
+export interface DoseRange {
   low: DosageQuantity;
   high: DosageQuantity;
 }
 
-interface DoseAndRate {
+export interface DoseAndRate {
   type?: DoseType | null;
   dose_range?: DoseRange | null;
   dose_quantity?: DosageQuantity | null;
 }
 
-interface TimingRepeat {
+export interface TimingRepeat {
   frequency?: number | null;
   period: number;
   period_unit: TimingUnit;
   bounds_duration?: DosageQuantity | null;
 }
 
-interface Timing {
+export interface Timing {
   repeat?: TimingRepeat | null;
   code?: Code | null;
 }
 
-interface DosageInstruction {
+export interface DosageInstruction {
   sequence?: number | null;
   text?: string | null;
   additional_instruction?: Code[] | null;
@@ -91,7 +115,6 @@ interface DosageInstruction {
 }
 
 export interface MedicationRequest {
-  readonly id: string;
   status?: MedicationRequestStatus;
   status_reason?: MedicationRequestStatusReason;
   status_changed?: string | null; // DateTime
