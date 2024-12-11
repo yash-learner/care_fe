@@ -1,9 +1,9 @@
 import {
   CheckCircledIcon,
   ChevronDownIcon,
-  ChevronUpIcon,
   CrossCircledIcon,
 } from "@radix-ui/react-icons";
+import dayjs from "dayjs";
 import React from "react";
 
 import CareIcon from "@/CAREUI/icons/CareIcon";
@@ -26,13 +26,18 @@ import {
   TableRow,
 } from "@/components/ui/table";
 
-export const ReceiveSpecimen: React.FC = () => {
-  const [isBarcodeScanned, setIsBarcodeScanned] = React.useState(false);
+import routes from "@/Utils/request/api";
+import request from "@/Utils/request/request";
 
-  const handleScan = () => {
-    // Simulate barcode scanning success
-    setIsBarcodeScanned(true);
-  };
+import { Textarea } from "../ui/textarea";
+import { Specimen } from "./types";
+
+export const ReceiveSpecimen: React.FC = () => {
+  const [scannedSpecimen, setScannedSpecimen] = React.useState<Specimen>();
+  const [note, setNote] = React.useState<string>();
+  const [approvedSpecimens, setApprovedSpecimens] = React.useState<Specimen[]>(
+    [],
+  );
 
   const specimenIntegrityChecks = [
     { parameter: "Clotting", options: ["No Clotting", "Clotted"] },
@@ -55,7 +60,7 @@ export const ReceiveSpecimen: React.FC = () => {
       </Button>
       <h2 className="text-2xl leading-tight">Receive Specimen at Lab</h2>
       <div className="flex flex-col bg-white shadow-sm rounded-sm p-4 gap-5">
-        {isBarcodeScanned ? (
+        {scannedSpecimen ? (
           <div className="space-y-4">
             {/* Barcode Success Message */}
             <div className="flex items-center justify-between p-4 bg-green-50 rounded-md">
@@ -76,7 +81,7 @@ export const ReceiveSpecimen: React.FC = () => {
                   Specimen id
                 </h3>
                 <p className="text-base font-semibold text-gray-900">
-                  SPC122532
+                  {scannedSpecimen.identifier ?? scannedSpecimen.id}
                 </p>
               </div>
 
@@ -85,7 +90,9 @@ export const ReceiveSpecimen: React.FC = () => {
                 <h3 className="text-sm font-medium text-gray-600">
                   Specimen type
                 </h3>
-                <p className="text-base font-semibold text-gray-900">Blood</p>
+                <p className="text-base font-semibold text-gray-900">
+                  {scannedSpecimen.type.display ?? scannedSpecimen.type.code}
+                </p>
               </div>
 
               {/* Date of Collection */}
@@ -94,7 +101,7 @@ export const ReceiveSpecimen: React.FC = () => {
                   Date of collection
                 </h3>
                 <p className="text-base font-semibold text-gray-900">
-                  24 Nov 2024
+                  {scannedSpecimen.collected_at}
                 </p>
               </div>
 
@@ -104,16 +111,16 @@ export const ReceiveSpecimen: React.FC = () => {
                   Patient Name, ID
                 </h3>
                 <p className="text-base font-semibold text-gray-900">
-                  John Honai
+                  {scannedSpecimen.subject.name}
                 </p>
-                <p className="text-sm text-gray-600">T105690908240017</p>
+                <p className="text-sm text-gray-600">"T105690908240017"</p>
               </div>
 
               {/* Order ID */}
               <div>
                 <h3 className="text-sm font-medium text-gray-600">Order ID</h3>
                 <p className="text-base font-semibold text-gray-900">
-                  CARE_LAB-001
+                  {scannedSpecimen.request.id}
                 </p>
               </div>
             </div>
@@ -130,7 +137,8 @@ export const ReceiveSpecimen: React.FC = () => {
                         Test
                       </h3>
                       <p className="text-base font-medium text-gray-900">
-                        Complete Blood Count (CBC)
+                        {scannedSpecimen.type.display ??
+                          scannedSpecimen.type.code}
                       </p>
                     </div>
                     <div>
@@ -138,7 +146,7 @@ export const ReceiveSpecimen: React.FC = () => {
                         Tube Type
                       </h3>
                       <p className="text-base font-medium text-gray-900">
-                        EDTA
+                        Not Specified
                       </p>
                     </div>
                   </div>
@@ -152,9 +160,9 @@ export const ReceiveSpecimen: React.FC = () => {
                       />
                     </div>
                     <p className="ml-4 text-sm font-medium text-blue-800">
-                      Verify specimen integrity, including hemolysis, sufficient
-                      volume, correct labeling, and proper container use, before
-                      accepting or rejecting.
+                      {scannedSpecimen.request.note
+                        .map((note) => note.text)
+                        .join("\n") || "No note provided"}
                     </p>
                   </div>
                 </div>
@@ -203,21 +211,72 @@ export const ReceiveSpecimen: React.FC = () => {
                   </TableBody>
                 </Table>
 
+                {note !== undefined && (
+                  <div className="grid gap-1.5">
+                    <Label htmlFor="note">Note</Label>
+                    <Textarea
+                      onChange={(e) => setNote(e.currentTarget.value)}
+                      value={note}
+                      placeholder="Type your note here."
+                      id="note"
+                      className="bg-white"
+                    />
+                  </div>
+                )}
+
                 {/* Action Buttons */}
                 <div className="flex justify-between mt-4">
-                  <Button variant="link" size="sm">
-                    + Add Notes
-                  </Button>
+                  {note === undefined ? (
+                    <Button
+                      onClick={() => setNote("")}
+                      variant="link"
+                      size="sm"
+                    >
+                      + Add Notes
+                    </Button>
+                  ) : (
+                    <div />
+                  )}
                   <div className="flex gap-2">
                     <Button
                       variant="outline"
                       size="sm"
                       className="border-gray-300 font-medium gap-2"
+                      disabled
                     >
                       <CrossCircledIcon className="h-4 w-4 text-red-500" />
                       <span>Reject Specimen</span>
                     </Button>
-                    <Button variant="primary" size="sm" className="gap-2">
+                    <Button
+                      onClick={async () => {
+                        const { res, data } = await request(
+                          routes.labs.specimen.ReceiveAtLab,
+                          {
+                            pathParams: {
+                              id: scannedSpecimen.id,
+                            },
+                            body: {
+                              note: note
+                                ? {
+                                    text: note,
+                                  }
+                                : undefined,
+                            },
+                          },
+                        );
+
+                        if (!res?.ok || !data) {
+                          return;
+                        }
+
+                        setApprovedSpecimens((prev) => [...prev, data]);
+                        setScannedSpecimen(undefined);
+                        setNote(undefined);
+                      }}
+                      variant="primary"
+                      size="sm"
+                      className="gap-2"
+                    >
                       <CheckCircledIcon className="h-4 w-4 text-white" />
                       Accept Specimen
                     </Button>
@@ -233,8 +292,25 @@ export const ReceiveSpecimen: React.FC = () => {
               type="text"
               placeholder="Scan Barcode/Enter number"
               className="text-center"
-              onKeyDown={(e) => {
-                if (e.key === "Enter") handleScan();
+              onKeyDown={async (e) => {
+                if (e.key === "Enter") {
+                  const barcode = e.currentTarget.value;
+
+                  const { res, data } = await request(
+                    routes.labs.specimen.get,
+                    {
+                      pathParams: {
+                        id: barcode,
+                      },
+                    },
+                  );
+
+                  if (!res?.ok || !data) {
+                    return;
+                  }
+
+                  setScannedSpecimen(data);
+                }
               }}
             />
           </div>
@@ -244,114 +320,124 @@ export const ReceiveSpecimen: React.FC = () => {
         <Label className="text-xl font-medium text-gray-900">
           Received at Lab
         </Label>
-        <Collapsible>
-          <div className="relative before:content-[''] before:absolute before:top-0 before:left-0 before:h-7 before:w-1 before:bg-gray-400 before:mt-3.5 before:rounded-r-sm">
-            <div
-              className={`items-center px-4 py-3 border rounded-lg shadow-sm max-w-5xl mx-auto space-y-4`}
-            >
-              <div className="flex items-center gap-4 justify-between">
-                <div>
-                  <span className="text-sm font-medium text-gray-600">
-                    Specimen id
-                  </span>
-                  <div className="flex items-center gap-2">
-                    <span className="text-lg font-semibold text-gray-900">
-                      SPEC009213
-                    </span>
-                    <span className="px-2 py-1 text-xs font-medium bg-pink-100 text-pink-900 rounded">
-                      Received at Lab
-                    </span>
-                  </div>
-                </div>
-                <div className="flex items-center">
-                  <div className="flex items-center gap-4">
-                    <CollapsibleTrigger asChild>
-                      <Button variant="ghost" size="sm">
-                        <div className="">
-                          {/* {openOrders[order.orderId] ? (
+
+        <div className="flex flex-col gap-4 mt-6">
+          {approvedSpecimens.map((specimen) => (
+            <Collapsible>
+              <div className="relative before:content-[''] before:absolute before:top-0 before:left-0 before:h-7 before:w-1 before:bg-gray-400 before:mt-3.5 before:rounded-r-sm">
+                <div
+                  className={`items-center px-4 py-3 border rounded-lg shadow-sm max-w-5xl mx-auto space-y-4`}
+                >
+                  <div className="flex items-center gap-4 justify-between">
+                    <div>
+                      <span className="text-sm font-medium text-gray-600">
+                        Specimen id
+                      </span>
+                      <div className="flex items-center gap-2">
+                        <span className="text-lg font-semibold text-gray-900">
+                          {specimen.identifier ?? specimen.id}
+                        </span>
+                        <span className="px-2 py-1 text-xs font-medium bg-pink-100 text-pink-900 rounded">
+                          Received at Lab
+                        </span>
+                      </div>
+                    </div>
+                    <div className="flex items-center">
+                      <div className="flex items-center gap-4">
+                        <CollapsibleTrigger asChild>
+                          <Button variant="ghost" size="sm">
+                            <div className="">
+                              {/* {openOrders[order.orderId] ? (
                             <ChevronUpIcon className="h-6 w-8" />
                           ) : ( */}
-                          <ChevronDownIcon className="h-6 w-8" />
-                          {/* )} */}
-                        </div>
-                      </Button>
-                    </CollapsibleTrigger>
+                              <ChevronDownIcon className="h-6 w-8" />
+                              {/* )} */}
+                            </div>
+                          </Button>
+                        </CollapsibleTrigger>
+                      </div>
+                    </div>
                   </div>
+
+                  {/* Expanded Content */}
+                  <CollapsibleContent>
+                    <div className="max-w-5xl bg-white shadow rounded-lg p-6 space-y-4">
+                      <div className="grid grid-cols-5 gap-4 bg-white">
+                        {/* Patient Name & ID */}
+                        <div>
+                          <h3 className="text-sm font-medium text-gray-600">
+                            Patient Name, ID
+                          </h3>
+                          <p className="text-base font-semibold text-gray-900">
+                            {specimen.subject.name}
+                          </p>
+                          <p className="text-sm text-gray-600">
+                            T105690908240017
+                          </p>
+                        </div>
+
+                        {/* Order ID */}
+                        <div>
+                          <h3 className="text-sm font-medium text-gray-600">
+                            Order ID
+                          </h3>
+                          <p className="text-base font-semibold text-gray-900">
+                            {specimen.request.id}
+                          </p>
+                        </div>
+                        {/* Specimen Type */}
+                        <div>
+                          <h3 className="text-sm font-medium text-gray-600">
+                            Specimen type
+                          </h3>
+                          <p className="text-base font-semibold text-gray-900">
+                            {specimen.type.display ?? specimen.type.code}
+                          </p>
+                        </div>
+
+                        {/* Date of Collection */}
+                        <div>
+                          <h3 className="text-sm font-medium text-gray-600">
+                            Date of collection
+                          </h3>
+                          <p className="text-base font-semibold text-gray-900">
+                            {specimen.collected_at}
+                          </p>
+                        </div>
+
+                        <div>
+                          <h3 className="text-sm font-medium text-gray-600">
+                            Days since collection
+                          </h3>
+                          <p className="text-base font-semibold text-gray-900">
+                            {dayjs().diff(dayjs(specimen.collected_at), "day")}
+                          </p>
+                        </div>
+                      </div>
+                      {/* Note Section */}
+                      <div className="max-w-4xl">
+                        <h3 className="text-sm font-semibold text-gray-600">
+                          Note:
+                        </h3>
+                        <p className="text-gray-700">
+                          {specimen.request.note
+                            .map((note) => note.text)
+                            .join("\n") || "No note provided for the lab order"}
+
+                          <br />
+                          <br />
+
+                          {specimen.note.map((note) => note.text).join("\n") ||
+                            "No note provided"}
+                        </p>
+                      </div>
+                    </div>
+                  </CollapsibleContent>
                 </div>
               </div>
-
-              {/* Expanded Content */}
-              <CollapsibleContent>
-                <div className="max-w-5xl bg-white shadow rounded-lg p-6 space-y-4">
-                  <div className="grid grid-cols-5 gap-4 bg-white">
-                    {/* Patient Name & ID */}
-                    <div>
-                      <h3 className="text-sm font-medium text-gray-600">
-                        Patient Name, ID
-                      </h3>
-                      <p className="text-base font-semibold text-gray-900">
-                        John Honai
-                      </p>
-                      <p className="text-sm text-gray-600">T105690908240017</p>
-                    </div>
-
-                    {/* Order ID */}
-                    <div>
-                      <h3 className="text-sm font-medium text-gray-600">
-                        Order ID
-                      </h3>
-                      <p className="text-base font-semibold text-gray-900">
-                        CARE_LAB-001
-                      </p>
-                    </div>
-                    {/* Specimen Type */}
-                    <div>
-                      <h3 className="text-sm font-medium text-gray-600">
-                        Specimen type
-                      </h3>
-                      <p className="text-base font-semibold text-gray-900">
-                        Blood
-                      </p>
-                    </div>
-
-                    {/* Date of Collection */}
-                    <div>
-                      <h3 className="text-sm font-medium text-gray-600">
-                        Date of collection
-                      </h3>
-                      <p className="text-base font-semibold text-gray-900">
-                        24 Nov 2024
-                      </p>
-                    </div>
-
-                    <div>
-                      <h3 className="text-sm font-medium text-gray-600">
-                        Days since collection
-                      </h3>
-                      <p className="text-base font-semibold text-gray-900">3</p>
-                    </div>
-                  </div>
-                  {/* Note Section */}
-                  <div className="max-w-4xl">
-                    <h3 className="text-sm font-semibold text-gray-600">
-                      Note:
-                    </h3>
-                    <p className="text-gray-700">
-                      Prescribed CBC to check for anemia or infection and LFT to
-                      evaluate liver health due to complaints of fatigue and
-                      mild abdominal discomfort. The package containing the
-                      specimen was received intact, with no signs of damage or
-                      tampering. The temperature monitoring device indicated the
-                      specimen was maintained at the proper frozen temperature
-                      during transport. No unusual odors or leakage were
-                      observed upon opening the package.
-                    </p>
-                  </div>
-                </div>
-              </CollapsibleContent>
-            </div>
-          </div>
-        </Collapsible>
+            </Collapsible>
+          ))}
+        </div>
       </div>
     </div>
   );

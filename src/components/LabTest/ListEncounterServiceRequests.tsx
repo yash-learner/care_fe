@@ -19,7 +19,7 @@ type ListEncounterServiceRequestsProps = {
 export default function ListEncounterServiceRequests({
   encounterId,
 }: ListEncounterServiceRequestsProps) {
-  const { data } = useQuery(routes.labs.service_request.list, {
+  const { data } = useQuery(routes.labs.serviceRequest.list, {
     query: {
       encounter: encounterId,
     },

@@ -67,7 +67,7 @@ export const DataTable: React.FC<DataTableProps> = ({
                 >
                   {col.render_as === "badge" ? (
                     <Badge
-                      className={`bg-muted transition-none hover:bg-muted  ${badgeStyles[row[col.key].toString().toLowerCase()]}`}
+                      className={`transition-none hover:bg-muted  ${badgeStyles[row[col.key].toString().toLowerCase()]}`}
                     >
                       {row[col.key]}
                     </Badge>

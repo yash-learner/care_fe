@@ -30,8 +30,6 @@ export default function CreateServiceRequest({
   const [priority, setPriority] = useState<ServiceRequest["priority"]>();
   const [recurrence, setRecurrence] = useState<unknown>();
 
-  console.log("encounter", encounter);
-
   return (
     <Card className="bg-inherit shadow-none rounded-md">
       <CardHeader className="grid gap-3">
@@ -114,7 +112,7 @@ export default function CreateServiceRequest({
                 }
 
                 const { res } = await request(
-                  routes.labs.service_request.create,
+                  routes.labs.serviceRequest.create,
                   {
                     body: {
                       code,

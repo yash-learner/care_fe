@@ -14,7 +14,9 @@ const LabTestRoutes: AppRoutes = {
   "/lab_tests/send_to_lab": () => <SendSpecimen />,
   "/lab_tests/receive_at_lab": () => <ReceiveSpecimen />,
   "/lab_tests/received_at_lab": () => <LabTest />,
-  "/lab_tests/:patientId/orders": ({ patientId }) => <CollectSpecimen />,
+  "/lab_tests/:specimenId/collect": ({ specimenId }) => (
+    <CollectSpecimen specimenId={specimenId} />
+  ),
 };
 
 export default LabTestRoutes;

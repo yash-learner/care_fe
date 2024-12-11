@@ -20,10 +20,10 @@ export const LabTest = () => {
     switch (currentPath) {
       case "/lab_tests/order_placed":
         return <OrderPlaced />;
-      case "/lab_tests/sent_to_lab":
-        return <SentToLab />;
       case "/lab_tests/specimen_collected":
         return <SpecimenCollected />;
+      case "/lab_tests/sent_to_lab":
+        return <SentToLab />;
       case "/lab_tests/received_at_lab":
         return <ReceivedAtLab />;
       default:

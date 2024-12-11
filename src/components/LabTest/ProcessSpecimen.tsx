@@ -1,5 +1,6 @@
 import { CheckCircledIcon, CrossCircledIcon } from "@radix-ui/react-icons";
-import React from "react";
+import { FC, useState } from "react";
+import { v4 as uuid } from "uuid";
 
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -22,73 +23,28 @@ import {
 } from "@/components/ui/table";
 import { Textarea } from "@/components/ui/textarea";
 
-export const ProcessSpecimen: React.FC = () => {
-  const [isBarcodeScanned, setIsBarcodeScanned] = React.useState(false);
+import useAuthUser from "@/hooks/useAuthUser";
 
-  const [results, setResults] = React.useState<number[]>([0]);
-  const [isSubmitted, setIsSubmitted] = React.useState(false);
+import routes from "@/Utils/request/api";
+import request from "@/Utils/request/request";
 
-  const addResult = () => {
-    setResults([...results, results.length]);
-  };
+import LabObservationCodeSelect from "./LabObservationCodeSelect";
+import { Coding, DiagnosticReport, Specimen } from "./types";
 
-  const handleScan = () => {
-    // Simulate barcode scanning success
-    setIsBarcodeScanned(true);
-  };
+export const ProcessSpecimen: FC = () => {
+  const { id: currentUserId } = useAuthUser();
 
-  // Mock Test data
-  const testResults = [
+  const [specimen, setSpecimen] = useState<Specimen>();
+  const [diagnosticReport, setDiagnosticReport] = useState<DiagnosticReport>();
+
+  const [observations, setObservations] = useState<
     {
-      parameter: "Total Bilirubin",
-      result: "1.2",
-      unit: "mg/dL",
-      referenceRange: "0.1 - 1.2",
-      remark: "",
-    },
-    {
-      parameter: "Direct Bilirubin",
-      result: "0.3",
-      unit: "mg/dL",
-      referenceRange: "0.0 - 0.4",
-      remark: "",
-    },
-    {
-      parameter: "ALT",
-      result: "42",
-      unit: "U/L",
-      referenceRange: "7 - 56",
-      remark: "",
-    },
-    {
-      parameter: "AST",
-      result: "37",
-      unit: "U/L",
-      referenceRange: "5 - 40",
-      remark: "",
-    },
-    {
-      parameter: "ALP",
-      result: "112",
-      unit: "U/L",
-      referenceRange: "40 - 129",
-      remark: "",
-    },
-    {
-      parameter: "Albumin",
-      result: "4.4",
-      unit: "g/dL",
-      referenceRange: "3.5 - 5.0",
-      remark: "",
-    },
-    {
-      parameter: "Total Protein",
-      result: "7.2",
-      unit: "g/dL",
-      referenceRange: "6.4 - 8.3",
-      remark: "",
-    },
-  ];
+      code?: Coding;
+      result: string;
+      unit: string;
+      note: string;
+    }[]
+  >([]);
 
   return (
     <div className="mx-auto max-w-5xl flex flex-col gap-5 py-1">
@@ -101,9 +57,9 @@ export const ProcessSpecimen: React.FC = () => {
       >
         Back
       </Button>
-      <h2 className="text-2xl leading-tight">Receive Specimen at Lab</h2>
+      <h2 className="text-2xl leading-tight">Start Processing</h2>
       <div className="flex flex-col">
-        {isBarcodeScanned ? (
+        {specimen ? (
           <div className="space-y-4 bg-white shadow-sm rounded-sm p-4 gap-5">
             {/* Barcode Success Message */}
             <div className="flex items-center justify-between bg-gray-50 p-2">
@@ -113,7 +69,9 @@ export const ProcessSpecimen: React.FC = () => {
                 </Label>
                 <div className="flex items-center gap-2">
                   <span className="text-base font-semibold leading-tight text-gray-900">
-                    SPC122532
+                    {specimen.accession_identifier ??
+                      specimen.identifier ??
+                      specimen.id.slice(0, 8)}
                   </span>
                   <Badge
                     variant="outline"
@@ -154,7 +112,7 @@ export const ProcessSpecimen: React.FC = () => {
                   Specimen type
                 </Label>
                 <span className="block text-gray-900 font-semibold mt-1">
-                  Whole blood (EDTA)
+                  {specimen.type.display ?? specimen.type.code}
                 </span>
               </div>
               <div>
@@ -162,7 +120,7 @@ export const ProcessSpecimen: React.FC = () => {
                   Date of collection
                 </Label>
                 <span className="block text-gray-900 font-semibold mt-1">
-                  24 Nov 2024
+                  {specimen.collected_at}
                 </span>
               </div>
               <div>
@@ -170,7 +128,7 @@ export const ProcessSpecimen: React.FC = () => {
                   Patient Name, ID
                 </Label>
                 <span className="block text-gray-900 font-semibold mt-1">
-                  John Honai
+                  {specimen.subject.name}
                 </span>
                 <span className="block text-gray-500 text-sm">
                   T105690908240017
@@ -181,7 +139,7 @@ export const ProcessSpecimen: React.FC = () => {
                   Order ID
                 </Label>
                 <span className="block text-gray-900 font-semibold mt-1">
-                  CARE_LAB-001
+                  {specimen.request.id}
                 </span>
               </div>
               <div>
@@ -189,7 +147,7 @@ export const ProcessSpecimen: React.FC = () => {
                   Tube Type
                 </Label>
                 <span className="block text-gray-900 font-semibold mt-1">
-                  EDTA
+                  Not Specified
                 </span>
               </div>
               <div>
@@ -197,7 +155,7 @@ export const ProcessSpecimen: React.FC = () => {
                   Test
                 </Label>
                 <span className="block text-gray-900 font-semibold mt-1">
-                  Complete Blood Count (CBC)
+                  {specimen.request.code.display ?? specimen.request.code.code}
                 </span>
               </div>
               <div>
@@ -205,20 +163,58 @@ export const ProcessSpecimen: React.FC = () => {
                   Priority
                 </Label>
                 <Badge className="bg-red-100 text-red-600 px-2 py-1 text-xs font-medium mt-1">
-                  Stat
+                  {specimen.request.priority ?? "Routine"}
                 </Badge>
               </div>
             </div>
 
             {/* Footer Buttons */}
-            <div className="flex items-center justify-end gap-4">
-              <Button variant="outline" size="sm" className="px-8 py-2">
-                Cancel
-              </Button>
-              <Button variant="primary" size="sm">
-                Verify Specimen
-              </Button>
-            </div>
+            {!specimen?.processing.length && (
+              <div className="flex items-center justify-end gap-4">
+                <Button
+                  disabled
+                  variant="outline"
+                  size="sm"
+                  className="px-8 py-2"
+                >
+                  Cancel
+                </Button>
+                <Button
+                  onClick={async () => {
+                    const { res, data } = await request(
+                      routes.labs.specimen.process,
+                      {
+                        pathParams: {
+                          id: specimen.id,
+                        },
+                        body: {
+                          process: [
+                            {
+                              description:
+                                "This step is an internal indication of status change from received to processing",
+                              method: {
+                                system: "http://snomed.info/sct",
+                                code: "56245008",
+                              },
+                            },
+                          ],
+                        },
+                      },
+                    );
+
+                    if (!res?.ok || !data) {
+                      return;
+                    }
+
+                    setSpecimen(data);
+                  }}
+                  variant="primary"
+                  size="sm"
+                >
+                  Start Processing
+                </Button>
+              </div>
+            )}
           </div>
         ) : (
           <div className="space-y-2">
@@ -227,46 +223,59 @@ export const ProcessSpecimen: React.FC = () => {
               type="text"
               placeholder="Scan Barcode/Enter number"
               className="text-center"
-              onKeyDown={(e) => {
-                if (e.key === "Enter") handleScan();
+              onKeyDown={async (e) => {
+                if (e.key === "Enter") {
+                  const barcode = e.currentTarget.value;
+
+                  const { res, data } = await request(
+                    routes.labs.specimen.get,
+                    {
+                      pathParams: {
+                        id: barcode,
+                      },
+                    },
+                  );
+
+                  if (!res?.ok || !data) {
+                    return;
+                  }
+
+                  setSpecimen(data);
+                }
               }}
             />
           </div>
         )}
       </div>
 
-      {isBarcodeScanned && !isSubmitted && (
+      {!!specimen?.processing.length && !diagnosticReport && (
         <>
-          {results.map((_, index) => (
+          {observations.map((observation, i) => (
             <div
-              key={index}
+              key={observation.code?.code}
               className="bg-white shadow-sm rounded-sm border border-gray-300 p-6 space-y-6"
             >
               {/* Header Section */}
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-2">
-                  <Label className="text-lg font-semibold text-gray-900">
-                    Result:
-                  </Label>
-                  <Select defaultValue="WBC">
-                    <SelectTrigger className="w-[250px]">
-                      <SelectValue placeholder="Select Test" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="RBC">Red Blood Cell (RBC)</SelectItem>
-                      <SelectItem value="Hb">Hemoglobin (Hb)</SelectItem>
-                      <SelectItem value="RDW">
-                        Red Cell Distribution Width (RDW)
-                      </SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
+              <div className="flex items-center justify-between w-full">
+                <LabObservationCodeSelect
+                  value={observation.code}
+                  onSelect={(observation) => {
+                    setObservations((observations) =>
+                      observations.map((obs, index) =>
+                        index === i ? { ...obs, code: observation } : obs,
+                      ),
+                    );
+                  }}
+                />
+
                 <Button
                   variant="ghost"
                   size="sm"
                   className="text-gray-600"
                   onClick={() => {
-                    setResults(results.filter((_, i) => i !== index));
+                    setObservations((observations) =>
+                      observations.filter((_, index) => index !== i),
+                    );
                   }}
                 >
                   <CrossCircledIcon className="h-4 w-4 me-2" />
@@ -281,7 +290,16 @@ export const ProcessSpecimen: React.FC = () => {
                   <Label className="text-sm font-medium text-gray-600">
                     Unit
                   </Label>
-                  <Select>
+                  <Select
+                    value={observation.unit}
+                    onValueChange={(unit) =>
+                      setObservations(
+                        observations.map((obs, index) =>
+                          index === i ? { ...obs, unit } : obs,
+                        ),
+                      )
+                    }
+                  >
                     <SelectTrigger className="mt-1">
                       <SelectValue placeholder="x10⁶/μL" />
                     </SelectTrigger>
@@ -297,7 +315,20 @@ export const ProcessSpecimen: React.FC = () => {
                   <Label className="text-sm font-medium text-gray-600">
                     Result (Ref. Interval: 4.0 - 11.0 x10³/μL)
                   </Label>
-                  <Input type="text" className="mt-1" />
+                  <Input
+                    type="text"
+                    className="mt-1"
+                    value={observation.result}
+                    onChangeCapture={(e) => {
+                      setObservations((observations) =>
+                        observations.map((obs, index) =>
+                          index === i
+                            ? { ...obs, result: e.currentTarget.value }
+                            : obs,
+                        ),
+                      );
+                    }}
+                  />
                 </div>
 
                 {/* Badge */}
@@ -317,6 +348,14 @@ export const ProcessSpecimen: React.FC = () => {
                   Note
                 </Label>
                 <Textarea
+                  value={observation.note}
+                  onChange={(e) =>
+                    setObservations((observations) =>
+                      observations.map((obs, index) =>
+                        index === i ? { ...obs, note: e.target.value } : obs,
+                      ),
+                    )
+                  }
                   placeholder="Type your notes"
                   className="mt-1 text-gray-600"
                 />
@@ -328,7 +367,17 @@ export const ProcessSpecimen: React.FC = () => {
             variant="primary"
             size="sm"
             className="w-full"
-            onClick={addResult}
+            onClick={() => {
+              setObservations((observations) => [
+                ...observations,
+                {
+                  code: undefined,
+                  result: "",
+                  unit: "x10³/μL",
+                  note: "",
+                },
+              ]);
+            }}
           >
             + Add Another Result
           </Button>
@@ -341,8 +390,47 @@ export const ProcessSpecimen: React.FC = () => {
             <Button
               variant="primary"
               size="lg"
-              onClick={() => {
-                setIsSubmitted(true);
+              disabled={!observations.length}
+              onClick={async () => {
+                const { res: reportRes, data: reportData } = await request(
+                  routes.labs.diagnosticReport.create,
+                  {
+                    body: {
+                      based_on: (specimen.request as any).external_id,
+                      specimen: [specimen.id],
+                    },
+                  },
+                );
+
+                if (!reportRes?.ok || !reportData) {
+                  return;
+                }
+
+                const { res, data } = await request(
+                  routes.labs.diagnosticReport.observations,
+                  {
+                    pathParams: {
+                      id: reportData.id,
+                    },
+                    body: {
+                      observations: observations.map((observation) => ({
+                        id: uuid().toString(),
+                        main_code: observation.code!,
+                        value: observation.result,
+                        status: "final",
+                        effective_datetime: new Date().toISOString(),
+                        data_entered_by_id: currentUserId,
+                        subject_type: "patient",
+                      })),
+                    },
+                  },
+                );
+
+                if (!res?.ok || !data) {
+                  return;
+                }
+
+                setDiagnosticReport(data);
               }}
             >
               Submit
@@ -350,7 +438,8 @@ export const ProcessSpecimen: React.FC = () => {
           </div>
         </>
       )}
-      {isSubmitted && (
+
+      {diagnosticReport && (
         <div className="bg-gray-50 border border-gray-300 rounded-sm shadow-sm p-2 space-y-2">
           <h2 className="text-base font-semibold text-gray-900">
             Test Results:
@@ -372,12 +461,18 @@ export const ProcessSpecimen: React.FC = () => {
               </TableRow>
             </TableHeader>
             <TableBody className="bg-white">
-              {testResults.map((test, index) => (
-                <TableRow key={index} className="divide-x divide-gray-300">
-                  <TableCell>{test.parameter}</TableCell>
-                  <TableCell>{test.result}</TableCell>
-                  <TableCell>{test.unit}</TableCell>
-                  <TableCell>{test.referenceRange}</TableCell>
+              {diagnosticReport.result.map((observation) => (
+                <TableRow
+                  key={observation.id}
+                  className="divide-x divide-gray-300"
+                >
+                  <TableCell>
+                    {observation.main_code?.display ??
+                      observation.main_code?.code}
+                  </TableCell>
+                  <TableCell>{observation.value}</TableCell>
+                  <TableCell>{observation.reference_range?.unit}</TableCell>
+                  <TableCell>Dummy Ref range</TableCell>
                   <TableCell>
                     <Input type="text" placeholder="" className="w-full" />
                   </TableCell>
@@ -390,13 +485,14 @@ export const ProcessSpecimen: React.FC = () => {
               variant="outline"
               size="sm"
               className="border-gray-300 font-medium gap-2"
+              disabled
             >
               <CrossCircledIcon className="h-4 w-4 text-red-500" />
-              <span>Reject Specimen</span>
+              <span>Reject Result</span>
             </Button>
-            <Button variant="primary" size="sm" className="gap-2">
+            <Button disabled variant="primary" size="sm" className="gap-2">
               <CheckCircledIcon className="h-4 w-4 text-white" />
-              Accept Specimen
+              Approve Result
             </Button>
           </div>
         </div>
