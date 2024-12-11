@@ -1,5 +1,6 @@
 import { CheckCircledIcon, CrossCircledIcon } from "@radix-ui/react-icons";
 import { FC, useState } from "react";
+import { FaDroplet } from "react-icons/fa6";
 import { v4 as uuid } from "uuid";
 
 import { Badge } from "@/components/ui/badge";
@@ -250,6 +251,153 @@ export const ProcessSpecimen: FC = () => {
 
       {!!specimen?.processing.length && !diagnosticReport && (
         <>
+          <div className="flex-col justify-between items-center p-4 mb-4 space-y-2 bg-white shadow-sm rounded-sm border border-gray-300">
+            <div className="space-y-1 w-full flex justify-between items-center">
+              <h3 className="text-sm font-semibold text-gray-600">
+                Specimen Type:
+              </h3>
+              <h3 className="text-sm font-semibold text-gray-600">
+                Number of samples
+              </h3>
+            </div>
+            <div className="flex justify-between items-center gap-8">
+              <div className="flex items-center gap-2 px-2 py-2 bg-gray-50 rounded-md shadow-sm border w-full">
+                <span className="">
+                  <FaDroplet />
+                </span>
+                <span className="text-gray-900 font-semibold">Serum</span>
+              </div>
+              <div className="flex items-center gap-2">
+                <Button variant="outline" size="sm" disabled>
+                  -
+                </Button>
+                <span className="px-4 py-2 bg-gray-50 rounded-md shadow-sm border text-center">
+                  1
+                </span>
+                <Button variant="outline" size="sm" disabled>
+                  +
+                </Button>
+              </div>
+            </div>
+            <div className="bg-gray-100 pt-1">
+              <div
+                className={`items-center px-4 py-3 border rounded-lg shadow-sm bg-white relative before:content-[''] before:absolute before:top-3 before:left-0 before:h-6 before:w-1 ${
+                  false ? "before:bg-blue-600" : "before:bg-gray-400"
+                } before:rounded-r-sm`}
+              >
+                <div className="flex items-center justify-between ">
+                  <h3 className="text-sm font-semibold text-gray-600">
+                    Aliquot 1:
+                  </h3>
+                  <span
+                    className={`ml-2 px-2 py-1 text-xs font-medium  ${
+                      2 / 2 != 1
+                        ? "bg-blue-100 text-blue-600"
+                        : "text-orange-900 bg-orange-100"
+                    } rounded`}
+                  >
+                    {2 / 2 != 1 ? "Collected" : "Not Collected"}
+                  </span>
+                </div>
+              </div>
+              <div className="mt-4 px-4 py-3 bg-gray-100 space-y-4">
+                <div className="flex justify-between items-center">
+                  <h3 className="text-sm font-semibold text-gray-900">
+                    Barcode
+                  </h3>
+
+                  {false && (
+                    <Button
+                      className="flex items-center justify-between gap-2 bg-white px-2 py-2 rounded-md shadow-sm"
+                      variant={"outline"}
+                      disabled
+                    >
+                      <CrossCircledIcon className="h-4 w-4 text-red-600" />
+                      <span className="font-semibold text-gray-900">
+                        Remove
+                      </span>
+                    </Button>
+                  )}
+                </div>
+                {false ? (
+                  <div className="space-y-4">
+                    <div className="flex items-center justify-between bg-green-50 border rounded-lg p-3">
+                      {/* Success Badge */}
+                      <div className="flex items-center gap-2">
+                        <span className="px-3 py-1 text-sm font-medium text-green-900 border border-green-300 rounded-full bg-white">
+                          Success
+                        </span>
+                        {/* Success Message */}
+                        <span className="text-green-900 font-semibold">
+                          Barcode scanned successfully
+                        </span>
+                      </div>
+
+                      {/* Barcode */}
+                      <div className="flex items-center gap-2">
+                        <img
+                          src="/images/barcode.svg"
+                          alt="filter"
+                          className="w-5 h-5 text-gray-600"
+                        />
+                        <span className="text-gray-700 font-semibold">
+                          123456700
+                        </span>
+                      </div>
+                    </div>
+                    <div className="flex items-center justify-between">
+                      <div className="items-center justify-between ">
+                        <h3 className="text-sm font-normal">Tube Type</h3>
+                        <span className="text-gray-900 font-semibold">
+                          Not Available
+                        </span>
+                      </div>
+                      <div className="items-center justify-between">
+                        <h3 className="text-sm font-normal">Test</h3>
+                        <span className="text-gray-900 font-semibold">
+                          Not Available
+                        </span>
+                      </div>
+                      <div className="items-center justify-between">
+                        <h3 className="text-sm font-normal">
+                          Collection Date/Time
+                        </h3>
+                        <span className="text-gray-900 font-semibold">
+                          11-Dec-2021 12:00 PM
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+                ) : (
+                  <div className="flex items-center justify-between space-x-4 bg-gray-100">
+                    <div className="bg-white w-full">
+                      <Input
+                        type="text"
+                        placeholder="Scan Barcode/Enter number"
+                        className="text-center"
+                      />
+                    </div>
+                    <div className="text-gray-600 text-sm">OR</div>
+                    <div className="w-full">
+                      <Button
+                        variant="outline"
+                        size="lg"
+                        className="w-full"
+                        disabled
+                      >
+                        Generate Barcode
+                      </Button>
+                    </div>
+                  </div>
+                )}
+              </div>
+            </div>
+            <div className="flex justify-end">
+              <Button variant="outline" size="lg" className="mt-2">
+                Skip this step
+              </Button>
+            </div>
+          </div>
           {observations.map((observation, i) => (
             <div
               key={observation.code?.code}
