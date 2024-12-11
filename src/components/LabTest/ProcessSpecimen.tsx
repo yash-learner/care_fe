@@ -1,10 +1,18 @@
 import { CheckCircledIcon, CrossCircledIcon } from "@radix-ui/react-icons";
-import { FC, useState } from "react";
+import { FC, useRef, useState } from "react";
 import { FaDroplet } from "react-icons/fa6";
 import { v4 as uuid } from "uuid";
 
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import {
+  Command,
+  CommandEmpty,
+  CommandGroup,
+  CommandInput,
+  CommandItem,
+  CommandList,
+} from "@/components/ui/command";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import {
@@ -25,6 +33,7 @@ import {
 import { Textarea } from "@/components/ui/textarea";
 
 import useAuthUser from "@/hooks/useAuthUser";
+import useOnClickOutside from "@/hooks/useOnClickOutside";
 
 import routes from "@/Utils/request/api";
 import request from "@/Utils/request/request";
@@ -37,6 +46,8 @@ export const ProcessSpecimen: FC = () => {
 
   const [specimen, setSpecimen] = useState<Specimen>();
   const [diagnosticReport, setDiagnosticReport] = useState<DiagnosticReport>();
+  const [query, setQuery] = useState("");
+  const [selectedAnalyzer, setSelectedAnalyzer] = useState<string | null>(null);
 
   const [observations, setObservations] = useState<
     {
@@ -46,6 +57,20 @@ export const ProcessSpecimen: FC = () => {
       note: string;
     }[]
   >([]);
+
+  const commandRef = useRef<HTMLDivElement>(null);
+
+  const [showOptions, setShowOptions] = useState(false);
+
+  useOnClickOutside(commandRef, () => {
+    setShowOptions(false);
+  });
+
+  const analyzers = [
+    { id: "1", name: "Analyzer 1", description: "Description for Analyzer 1" },
+    { id: "2", name: "Analyzer 2", description: "Description for Analyzer 2" },
+    { id: "3", name: "Analyzer 3", description: "Description for Analyzer 3" },
+  ];
 
   return (
     <div className="mx-auto max-w-5xl flex flex-col gap-5 py-1">
@@ -248,9 +273,71 @@ export const ProcessSpecimen: FC = () => {
           </div>
         )}
       </div>
-
       {!!specimen?.processing.length && !diagnosticReport && (
         <>
+          {/* Todo: Extra this into a separate component if not done already at some where else*/}
+
+          <div className="bg-white shadow-sm rounded-sm border border-gray-300 p-4 space-y-4">
+            {/* Label */}
+            <div className="grid gap-1.5">
+              <Label htmlFor="analyzer-select">Select Analyzer</Label>
+              <div>
+                <Command
+                  ref={commandRef}
+                  onFocus={() => setShowOptions(true)}
+                  className={`border ${!showOptions && "divide-y-0"}`}
+                >
+                  <CommandInput
+                    id="analyzer-select"
+                    className="shadow-none border-none focus:ring-0"
+                    placeholder="Search analyzer"
+                    value={query}
+                    onValueChange={setQuery}
+                  />
+                  {showOptions && (
+                    <CommandList className="max-h-36">
+                      <CommandEmpty>No results found.</CommandEmpty>
+                      <CommandGroup>
+                        {analyzers.map((analyzer) => (
+                          <CommandItem
+                            key={analyzer.id}
+                            onSelect={() => {
+                              setSelectedAnalyzer(analyzer.name);
+                              setQuery(analyzer.name);
+                              setShowOptions(false);
+                            }}
+                            className="cursor-pointer"
+                          >
+                            <div className="flex justify-between gap-2 w-full">
+                              <p>
+                                <span className="font-semibold text-gray-900">
+                                  {analyzer.name}
+                                </span>
+                                <br />
+                                <span className="text-xs font-semibold text-gray-500">
+                                  {analyzer.description}
+                                </span>
+                              </p>
+                            </div>
+                          </CommandItem>
+                        ))}
+                      </CommandGroup>
+                    </CommandList>
+                  )}
+                </Command>
+              </div>
+            </div>
+
+            {/* Buttons */}
+            <div className="flex justify-end gap-4 pt-4 border-t border-gray-200">
+              <Button variant="outline" size="lg">
+                Skip this step
+              </Button>
+              <Button variant="primary" className="">
+                Assign Analyzer
+              </Button>
+            </div>
+          </div>
           <div className="flex-col justify-between items-center p-4 mb-4 space-y-2 bg-white shadow-sm rounded-sm border border-gray-300">
             <div className="space-y-1 w-full flex justify-between items-center">
               <h3 className="text-sm font-semibold text-gray-600">
@@ -586,7 +673,6 @@ export const ProcessSpecimen: FC = () => {
           </div>
         </>
       )}
-
       {diagnosticReport && (
         <div className="bg-gray-50 border border-gray-300 rounded-sm shadow-sm p-2 space-y-2">
           <h2 className="text-base font-semibold text-gray-900">
