@@ -207,8 +207,8 @@ export function QuestionnaireForm({
               .map((response) => ({
                 question_id: response.question_id,
                 values: response.values.map((value) => ({
-                  ...(value.code
-                    ? { code: value.code }
+                  ...(value.value_code
+                    ? { value_code: value.value_code }
                     : { value: String(value.value || "") }),
                 })),
                 note: response.note,
