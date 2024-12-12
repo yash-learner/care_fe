@@ -1,7 +1,4 @@
 import careConfig from "@careConfig";
-import _ from "lodash";
-import { startCase, toLower } from "lodash-es";
-import { debounce } from "lodash-es";
 import { navigate } from "raviger";
 import { useCallback, useEffect, useReducer, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
@@ -53,6 +50,7 @@ import { UserModel } from "@/components/Users/models";
 
 import useAppHistory from "@/hooks/useAppHistory";
 import useAuthUser from "@/hooks/useAuthUser";
+import useDebounce from "@/hooks/useDebounce";
 
 import {
   BLOOD_GROUPS,
@@ -658,7 +656,7 @@ export const PatientRegister = (props: PatientRegisterProps) => {
             ? formData.last_vaccinated_date
             : null
           : null,
-      name: startCase(toLower(formData.name)),
+      name: formData.name,
       pincode: formData.pincode ? formData.pincode : undefined,
       gender: Number(formData.gender),
       nationality: formData.nationality,
@@ -778,7 +776,7 @@ export const PatientRegister = (props: PatientRegisterProps) => {
     });
   };
 
-  const duplicateCheck = debounce(async (phoneNo: string) => {
+  const duplicateCheck = useDebounce(async (phoneNo: string) => {
     if (
       phoneNo &&
       PhoneNumberValidator()(parsePhoneNumber(phoneNo) ?? "") === undefined
@@ -802,6 +800,11 @@ export const PatientRegister = (props: PatientRegisterProps) => {
           });
         }
       }
+    } else {
+      setStatusDialog({
+        show: false,
+        patientList: [],
+      });
     }
   }, 300);
 
@@ -1024,6 +1027,7 @@ export const PatientRegister = (props: PatientRegisterProps) => {
                       {...field("name")}
                       type="text"
                       label={"Name"}
+                      autoCapitalize="words"
                     />
                   </div>
                   <div>
