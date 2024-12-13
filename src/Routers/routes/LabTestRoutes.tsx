@@ -2,6 +2,7 @@ import { CollectSpecimen } from "@/components/LabTest/CollectSpecimen";
 import { LabTest } from "@/components/LabTest/Index";
 import { ProcessSpecimen } from "@/components/LabTest/ProcessSpecimen";
 import { ReceiveSpecimen } from "@/components/LabTest/ReceiveSpecimen";
+import { ReviewResult } from "@/components/LabTest/ReviewResult";
 import { SendSpecimen } from "@/components/LabTest/SendSpecimen";
 
 import { AppRoutes } from "@/Routers/AppRouter";
@@ -16,6 +17,9 @@ const LabTestRoutes: AppRoutes = {
   "/lab_tests/received_at_lab": () => <LabTest />,
   "/lab_tests/:specimenId/collect": ({ specimenId }) => (
     <CollectSpecimen specimenId={specimenId} />
+  ),
+  "/lab_tests/:specimenId/review_result": ({ specimenId }) => (
+    <ReviewResult specimenId={specimenId} />
   ),
 };
 
