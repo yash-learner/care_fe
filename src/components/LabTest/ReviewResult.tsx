@@ -378,10 +378,7 @@ export const ReviewResult: React.FC<{
                           </div>
                         </div>
 
-                        <div
-                          className="sticky flex w-full ms-8"
-                          id="sample-actions"
-                        >
+                        <div className="flex w-full ms-8" id="sample-actions">
                           <div className="flex flex-col">
                             <div className="flex space-x-4">
                               <div className="border-l-[2.5px] border-b-[2.5px] border-gray-300 p-4 w-5 h-16"></div>
@@ -467,10 +464,10 @@ export const ReviewResult: React.FC<{
                           </div>
                         </div>
                         <div
-                          className="bg-gray-100 border border-solid rounded-sm shadow-sm space-y-2 sticky"
+                          className="bg-gray-100 border border-solid rounded-sm shadow-md space-y-2"
                           id="test-results"
                         >
-                          <h2 className="text-base font-semibold text-gray-900 p-2">
+                          <h2 className="text-base font-semibold text-gray-900 px-4 py-2">
                             Test Results:
                           </h2>
                           <Table className="w-full border  border-gray-300 bg-white shadow-sm rounded-sm">
@@ -507,41 +504,83 @@ export const ReviewResult: React.FC<{
                             </TableBody>
                           </Table>
 
-                          <div className="flex flex-col gap-2 p-4 bg-gray-50 rounded-md shadow-inner">
+                          <div className="flex flex-col gap-2 p-4 bg-gray-60">
                             <h3 className="text-sm font-medium text-gray-600">
                               Note
                             </h3>
-                            <Textarea
-                              placeholder="Type your notes"
-                              className="bg-white border border-gray-300 rounded-sm"
-                            />
+                            {true ? (
+                              <p className="text-sm text-gray-800">
+                                Total Bilirubin (1.2 mg/dL): Borderline high.
+                                Correlate clinically for signs of hepatobiliary
+                                dysfunction or hemolysis. Further testing (e.g.,
+                                indirect bilirubin or imaging) may be considered
+                                if clinically indicated.
+                              </p>
+                            ) : (
+                              <Textarea
+                                placeholder="Type your notes"
+                                className="bg-white border border-gray-300 rounded-sm"
+                              />
+                            )}
                           </div>
+                          {true && (
+                            <div className="bg-white p-2">
+                              <div className="flex items-center justify-between bg-green-50 rounded-lg px-4 py-2 shadow-sm">
+                                <p className="text-sm font-medium text-green-900">
+                                  Results Verified by Dr. Rohan Sharma, MBBS, MD
+                                  (Pathology), FICP
+                                </p>
+                                <span className="px-3 py-1 text-sm font-semibold text-green-700 bg-white rounded-full border border-green-300">
+                                  Verified
+                                </span>
+                              </div>
+                            </div>
+                          )}
+                          {false && (
+                            <div className="flex gap-2 justify-end p-4">
+                              <Button
+                                variant="link"
+                                size="sm"
+                                className="border-gray-300 font-medium gap-2"
+                              >
+                                <CareIcon icon="l-sync" className="size-4" />
+                                <span>Re-run Tests</span>
+                              </Button>
+                              <Button
+                                variant="link"
+                                size="sm"
+                                className="border-gray-300 font-medium gap-2"
+                              >
+                                <CareIcon icon="l-pen" className="size-4" />
+                                <span>Re-run Tests</span>
+                              </Button>
+                              <Button
+                                variant="primary"
+                                size="sm"
+                                className="gap-2"
+                              >
+                                <CheckCircledIcon className="h-4 w-4 text-white" />
+                                Approve Results
+                              </Button>
+                            </div>
+                          )}
+                        </div>
 
-                          <div className="flex gap-2 justify-end">
-                            <Button
-                              variant="link"
-                              size="sm"
-                              className="border-gray-300 font-medium gap-2"
-                            >
-                              <CareIcon icon="l-sync" className="size-4" />
-                              <span>Re-run Tests</span>
-                            </Button>
-                            <Button
-                              variant="link"
-                              size="sm"
-                              className="border-gray-300 font-medium gap-2"
-                            >
-                              <CareIcon icon="l-pen" className="size-4" />
-                              <span>Re-run Tests</span>
-                            </Button>
-                            <Button
-                              variant="primary"
-                              size="sm"
-                              className="gap-2"
-                            >
-                              <CheckCircledIcon className="h-4 w-4 text-white" />
-                              Approve Results
-                            </Button>
+                        <div className="flex gap-4 pb-4">
+                          <div className="border-l-[2.5px] border-b-[2.5px] border-gray-300 p-4 w-5 h-8 ms-8"></div>
+                          <div className="flex justify-center items-end gap-2">
+                            <CheckIcon className="h-4 w-4 text-white bg-green-500 rounded-full " />
+                            <div className="relative flex flex-col top-5 leading-tight">
+                              <div>
+                                <span className="text-sm">
+                                  Result verified by:
+                                </span>
+                                <span className="text-sm font-semibold ps-1">
+                                  Dr. Rohan Sharma, MBBS, MD (Pathology), FICP
+                                </span>
+                              </div>
+                              <span className="text-sm">on 29 Nov 3:33 PM</span>
+                            </div>
                           </div>
                         </div>
                       </div>
