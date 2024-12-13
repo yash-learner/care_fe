@@ -350,11 +350,11 @@ export function QuestionnaireForm({
                 questions={form.questionnaire.questions}
                 responses={form.responses}
                 onResponseChange={(responses) => {
-                  setQuestionnaireForms((prevForms) =>
-                    prevForms.map((f) =>
-                      f.questionnaire.id === form.questionnaire.id
-                        ? { ...f, responses }
-                        : f,
+                  setQuestionnaireForms((existingForms) =>
+                    existingForms.map((formItem) =>
+                      formItem.questionnaire.id === form.questionnaire.id
+                        ? { ...formItem, responses }
+                        : formItem,
                     ),
                   );
                 }}
@@ -409,6 +409,13 @@ export function QuestionnaireForm({
               </Button>
             </div>
           )}
+        </div>
+        {/* Add a Preview of the QuestionnaireForm */}
+        <div className="p-4 space-y-6">
+          <h2 className="text-xl font-semibold">QuestionnaireForm</h2>
+          <pre className="text-sm text-muted-foreground">
+            {JSON.stringify(questionnaireForms, null, 2)}
+          </pre>
         </div>
       </div>
     </div>
