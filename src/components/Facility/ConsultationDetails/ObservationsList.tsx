@@ -19,7 +19,7 @@ export default function ObservationsList() {
     <PaginatedList
       route={routes.listObservations}
       pathParams={{ patientId }}
-      query={{ encounter: consultationId }}
+      query={{ encounter: consultationId, ignore_group: true }}
     >
       {() => (
         <div className="mt-4 flex w-full flex-col gap-4">
