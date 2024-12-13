@@ -50,12 +50,14 @@ const handlers: {
   },
   medication_request: {
     getRequests: (medications, { encounterId }) => {
-      return medications.map((medication) => ({
-        url: `/api/v1/consultation/${encounterId}/medication/request/`,
-        method: "POST",
-        body: medication,
-        reference_id: "medication_request",
-      }));
+      return [
+        {
+          url: `/api/v1/consultation/${encounterId}/medication/request/upsert/`,
+          method: "POST",
+          body: { datapoints: medications },
+          reference_id: "medication_request",
+        },
+      ];
     },
   },
   condition: {
