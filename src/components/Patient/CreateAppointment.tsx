@@ -16,7 +16,9 @@ import {
 import { Textarea } from "@/components/ui/textarea";
 
 import Page from "@/components/Common/Page";
+import { ScheduleAPIs } from "@/components/Schedule/api";
 
+import useQuery from "@/Utils/request/useQuery";
 import { Time } from "@/Utils/types";
 
 interface Props {
@@ -49,10 +51,39 @@ const afternoonSlots: TimeSlot[] = [
   { time: "04:00", isAvailable: true },
 ];
 
-export default function CreateAppointment(_props: Props) {
+export default function CreateAppointment(props: Props) {
   const [selectedMonth, setSelectedMonth] = useState(new Date());
   const [selectedDate, setSelectedDate] = useState(new Date());
   const [selectedTime, setSelectedTime] = useState<Time>();
+
+  // TODO: wire this, hardcoded for now just for testing.
+  const _availableDoctorsQuery = useQuery(
+    ScheduleAPIs.appointments.availableDoctors,
+    {
+      pathParams: {
+        facility_id: props.facilityId,
+      },
+      query: {
+        valid_from: "2024-12-01",
+        valid_to: "2024-12-31",
+      },
+    },
+  );
+
+  // TODO: wire this, hardcoded for now just for testing.
+  const _availableSlotsQuery = useQuery(
+    ScheduleAPIs.appointments.availableSlots,
+    {
+      pathParams: {
+        facility_id: props.facilityId,
+      },
+      query: {
+        doctor_username: "doctordev",
+        valid_from: "2024-12-01",
+        valid_to: "2024-12-31",
+      },
+    },
+  );
 
   const renderDay = (date: Date) => {
     const isSelected = date.toDateString() === selectedDate?.toDateString();
