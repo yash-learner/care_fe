@@ -12,6 +12,8 @@ import routes from "@/Utils/request/api";
 import request from "@/Utils/request/request";
 import { RequestResult } from "@/Utils/request/types";
 
+import { FACILITY_FEATURES, FeatureBadge } from "./Utils";
+
 interface Props {
   id: string;
 }
@@ -54,29 +56,48 @@ export function FacilityDetailsPage({ id }: Props) {
 
   return (
     <div className="container mx-auto px-4 py-8">
-      <Card className="p-6">
-        <div className="flex justify-between items-start mb-6">
-          <div>
-            <h1 className="text-2xl font-bold">{facility.name}</h1>
+      <div className="flex px-2 pb-4 justify-start">
+        <Button variant="ghost" onClick={() => navigate("/facilities")}>
+          <CareIcon icon="l-square-shape" className="h-4 w-4 mr-1" />
+          <span className="text-sm underline">Back</span>
+        </Button>
+      </div>
+      <Card className="overflow-hidden bg-white">
+        <div className="flex flex-row m-6">
+          <div className="h-64 w-64 shrink-0 overflow-hidden rounded-lg">
+            <img
+              src={
+                facility.read_cover_image_url || "/images/default-facility.png"
+              }
+              alt={facility.name}
+              className="h-full w-full object-cover"
+            />
           </div>
-          <Button variant="outline" onClick={() => navigate("/facilities")}>
-            Back to List
-          </Button>
-        </div>
 
-        <div className="space-y-4">
-          {/* Add more facility details here */}
-          <div>
-            <h3 className="font-semibold mb-2">Location</h3>
-            <p className="text-gray-600">
-              {[
-                facility.address,
-                facility.local_body_object?.name,
-                facility.district_object?.name,
-              ]
-                .filter(Boolean)
-                .join(", ")}
-            </p>
+          <div className="px-4 space-y-6">
+            <div className="space-y-2">
+              <h1 className="text-3xl font-bold">{facility.name}</h1>
+              <p className="text-lg text-muted-foreground">
+                {[
+                  facility.address,
+                  facility.local_body_object?.name,
+                  facility.district_object?.name,
+                ]
+                  .filter(Boolean)
+                  .join(", ")}
+              </p>
+            </div>
+
+            <div className="flex flex-wrap gap-2">
+              {facility.features?.map((featureId) => (
+                <FeatureBadge
+                  key={featureId}
+                  featureId={featureId as keyof typeof FACILITY_FEATURES}
+                />
+              ))}
+            </div>
+
+            {/* Add Staff Information */}
           </div>
         </div>
       </Card>

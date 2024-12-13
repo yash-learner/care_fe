@@ -70,7 +70,7 @@ export function FacilitiesPage() {
                 </Card>
               </PaginatedList.WhenEmpty>
 
-              <PaginatedList.Items<FacilityModel> className="space-y-4">
+              <PaginatedList.Items<FacilityModel> className="grid gap-4 grid-cols-1 md:grid-cols-2 3xl:grid-cols-3">
                 {(facility) => (
                   <FacilityCard key={facility.id} facility={facility} />
                 )}
