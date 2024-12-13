@@ -64,7 +64,7 @@
     "@radix-ui/react-popover": "^1.1.2",
     "@radix-ui/react-scroll-area": "^1.2.0",
     "@radix-ui/react-select": "^2.1.2",
-    "@radix-ui/react-separator": "^1.1.0",
+    "@radix-ui/react-separator": "^1.1.1",
     "@radix-ui/react-slot": "^1.1.0",
     "@radix-ui/react-tabs": "^1.1.1",
     "@radix-ui/react-toast": "^1.2.2",
@@ -160,7 +160,9 @@
   },
   "optionalDependencies": {
     "@rollup/rollup-linux-arm64-gnu": "4.13.0",
-    "@rollup/rollup-linux-x64-gnu": "4.13.0"
+    "@rollup/rollup-linux-x64-gnu": "4.13.0",
+    "@esbuild/linux-arm64": "latest",
+    "@esbuild/linux-x64": "latest"
   },
   "browserslist": {
     "production": [
