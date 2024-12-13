@@ -34,6 +34,7 @@ interface BatchRequest {
   url: string;
   method: string;
   body: Record<string, any>;
+  reference_id: string;
 }
 
 export interface QuestionnaireFormProps {
@@ -196,6 +197,7 @@ export function QuestionnaireForm({
         requests.push({
           url: `/api/v1/questionnaire/${form.questionnaire.slug}/submit/`,
           method: "POST",
+          reference_id: form.questionnaire.id,
           body: {
             resource_id: resourceId,
             encounter: encounterId,
