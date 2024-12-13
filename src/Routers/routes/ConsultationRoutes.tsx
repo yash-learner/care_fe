@@ -1,4 +1,5 @@
 import { ConsultationDetails } from "@/components/Facility/ConsultationDetails";
+import QuestionnaireResponseView from "@/components/Facility/ConsultationDetails/QuestionnaireResponseView";
 import ConsultationDoctorNotes from "@/components/Facility/ConsultationDoctorNotes";
 import { ConsultationForm } from "@/components/Facility/ConsultationForm";
 import Investigation from "@/components/Facility/Investigations";
@@ -163,6 +164,15 @@ const consultationRoutes: AppRoutes = {
   "/facility/:facilityId/patient/:patientId/consultation/:consultationId/questionnaire":
     ({ facilityId, patientId, consultationId }) => (
       <EncounterQuestionnaire
+        facilityId={facilityId}
+        patientId={patientId}
+        consultationId={consultationId}
+      />
+    ),
+  "/facility/:facilityId/patient/:patientId/consultation/:consultationId/questionnaire_response/:id":
+    ({ facilityId, patientId, consultationId, id }) => (
+      <QuestionnaireResponseView
+        responseId={id}
         facilityId={facilityId}
         patientId={patientId}
         consultationId={consultationId}
