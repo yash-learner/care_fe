@@ -12,7 +12,7 @@ import { Button } from "@/components/ui/button";
 import Loading from "@/components/Common/Loading";
 import ScheduleExceptionForm from "@/components/Schedule/ScheduleExceptionForm";
 import { ScheduleAPIs } from "@/components/Schedule/api";
-import { ScheduleException } from "@/components/Schedule/schemas";
+import { ScheduleException } from "@/components/Schedule/types";
 
 import useAuthUser from "@/hooks/useAuthUser";
 

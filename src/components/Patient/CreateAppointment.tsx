@@ -1,11 +1,15 @@
+import { format, isSameDay, parseISO } from "date-fns";
 import { useState } from "react";
+import { toast } from "sonner";
 
 import { cn } from "@/lib/utils";
 
 import Calendar from "@/CAREUI/interactive/Calendar";
 
 import { Button } from "@/components/ui/button";
-import { Checkbox } from "@/components/ui/checkbox";
+import { DatePicker } from "@/components/ui/date-picker";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 import {
   Select,
   SelectContent,
@@ -15,72 +19,67 @@ import {
 } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
 
+import { Avatar } from "@/components/Common/Avatar";
 import Page from "@/components/Common/Page";
 import { ScheduleAPIs } from "@/components/Schedule/api";
+import { AvailabilitySlot } from "@/components/Schedule/types";
 
+import useMutation from "@/Utils/request/useMutation";
 import useQuery from "@/Utils/request/useQuery";
-import { Time } from "@/Utils/types";
+import {
+  dateQueryString,
+  formatDisplayName,
+  getMonthStartAndEnd,
+} from "@/Utils/utils";
 
 interface Props {
   facilityId: string;
-  id: string;
+  patientId: string;
 }
-
-interface TimeSlot {
-  time: Time;
-  isAvailable: boolean;
-}
-
-const morningSlots: TimeSlot[] = [
-  { time: "09:00", isAvailable: true },
-  { time: "09:30", isAvailable: false },
-  { time: "10:00", isAvailable: true },
-  { time: "10:30", isAvailable: true },
-  { time: "11:00", isAvailable: true },
-  { time: "11:30", isAvailable: true },
-  { time: "12:00", isAvailable: true },
-];
-
-const afternoonSlots: TimeSlot[] = [
-  { time: "01:00", isAvailable: false },
-  { time: "01:30", isAvailable: true },
-  { time: "02:00", isAvailable: true },
-  { time: "02:30", isAvailable: true },
-  { time: "03:00", isAvailable: true },
-  { time: "03:30", isAvailable: true },
-  { time: "04:00", isAvailable: true },
-];
 
 export default function CreateAppointment(props: Props) {
+  const [selectedDoctor, setSelectedDoctor] = useState<string>();
   const [selectedMonth, setSelectedMonth] = useState(new Date());
   const [selectedDate, setSelectedDate] = useState(new Date());
-  const [selectedTime, setSelectedTime] = useState<Time>();
 
-  // TODO: wire this, hardcoded for now just for testing.
-  const _availableDoctorsQuery = useQuery(
+  const [reason, setReason] = useState("");
+  const [selectedSlot, setSelectedSlot] = useState<AvailabilitySlot>();
+
+  const { start, end } = getMonthStartAndEnd(selectedMonth);
+
+  const availableDoctorsQuery = useQuery(
     ScheduleAPIs.appointments.availableDoctors,
     {
       pathParams: {
         facility_id: props.facilityId,
       },
       query: {
-        valid_from: "2024-12-01",
-        valid_to: "2024-12-31",
+        valid_from: dateQueryString(start),
+        valid_to: dateQueryString(end),
       },
     },
   );
 
-  // TODO: wire this, hardcoded for now just for testing.
-  const _availableSlotsQuery = useQuery(
-    ScheduleAPIs.appointments.availableSlots,
+  const slotsQuery = useQuery(ScheduleAPIs.appointments.slots, {
+    pathParams: {
+      facility_id: props.facilityId,
+    },
+    query: {
+      doctor_username: selectedDoctor,
+      valid_from: dateQueryString(start),
+      valid_to: dateQueryString(end),
+    },
+    prefetch: !!selectedDoctor,
+  });
+
+  const createAppointmentMutation = useMutation(
+    ScheduleAPIs.appointments.create,
     {
-      pathParams: {
-        facility_id: props.facilityId,
-      },
-      query: {
-        doctor_username: "doctordev",
-        valid_from: "2024-12-01",
-        valid_to: "2024-12-31",
+      pathParams: { facility_id: props.facilityId },
+      onResponse: ({ res }) => {
+        if (res?.ok) {
+          toast.success("Appointment created successfully");
+        }
       },
     },
   );
@@ -101,49 +100,70 @@ export default function CreateAppointment(props: Props) {
     );
   };
 
+  const slotsOfDate = filterSlotsByDate(slotsQuery.data ?? [], selectedDate);
+
+  const handleSubmit = () => {
+    if (!selectedDoctor) {
+      toast.error("Please select a preferred doctor");
+      return;
+    }
+    if (!selectedSlot) {
+      toast.error("Please select a slot");
+      return;
+    }
+
+    createAppointmentMutation.mutate({
+      body: {
+        patient: props.patientId,
+        doctor_username: selectedDoctor,
+        slot_start: selectedSlot.start_datetime,
+        reason_for_visit: reason,
+      },
+    });
+  };
+
   return (
     <Page title="Doctor Consultation">
       <hr className="mt-6 mb-8" />
       <div className="container mx-auto p-4 max-w-5xl">
         <div className="mb-8">
           <h1 className="text-lg font-bold mb-2">Doctor Consultation</h1>
-          <p className="text-gray-600 max-w-xl">
-            Provide the patient's personal details, including name, date of
-            birth, gender, and contact information for accurate identification
-            and communication.
-          </p>
         </div>
 
-        <div className="space-y-6">
+        <div className="space-y-8">
           <div>
-            <label className="block mb-2">Reason for visit</label>
-            <Textarea placeholder="Type the reason for visit" />
+            <Label className="mb-2">Reason for visit</Label>
+            <Textarea
+              placeholder="Type the reason for visit"
+              value={reason}
+              onChange={(e) => setReason(e.target.value)}
+            />
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div>
-              <label className="block mb-2">Department</label>
-              <Select>
-                <SelectTrigger>
-                  <SelectValue placeholder="Select" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="cardiology">Cardiology</SelectItem>
-                  <SelectItem value="neurology">Neurology</SelectItem>
-                  <SelectItem value="orthopedics">Orthopedics</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
+          <div className="grid grid-cols-1 md:grid-cols-2">
             <div>
               <label className="block mb-2">Preferred doctor</label>
-              <Select>
+              <Select
+                disabled={availableDoctorsQuery.loading}
+                value={selectedDoctor}
+                onValueChange={(value) => setSelectedDoctor(value)}
+              >
                 <SelectTrigger>
                   <SelectValue placeholder="Select" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="dr-smith">Dr. Smith</SelectItem>
-                  <SelectItem value="dr-jones">Dr. Jones</SelectItem>
-                  <SelectItem value="dr-wilson">Dr. Wilson</SelectItem>
+                  {availableDoctorsQuery.data?.results.map((doctor) => (
+                    <SelectItem key={doctor.username} value={doctor.username}>
+                      <div className="flex items-center gap-2">
+                        <Avatar
+                          imageUrl={doctor.read_profile_picture_url}
+                          name={formatDisplayName(doctor)}
+                          className="w-6 h-6 rounded-full"
+                        />
+                        <span>{formatDisplayName(doctor)}</span>
+                      </div>
+                    </SelectItem>
+                  ))}
                 </SelectContent>
               </Select>
             </div>
@@ -163,58 +183,94 @@ export default function CreateAppointment(props: Props) {
             <div>
               <div className="flex items-center justify-between mb-4">
                 <h3 className="font-medium">Available Time Slots</h3>
-                <div className="flex items-center gap-2">
+                {/* <div className="flex items-center gap-2">
                   <Checkbox id="priority" />
                   <label htmlFor="priority">Show Priority Slots</label>
-                </div>
+                </div> */}
               </div>
 
               <div className="space-y-6">
-                <div>
-                  <h4 className="mb-3">Morning Slots</h4>
-                  <div className="flex flex-wrap gap-2">
-                    {morningSlots.map((slot) => (
-                      <Button
-                        key={slot.time}
-                        variant={
-                          selectedTime === slot.time ? "primary" : "outline"
-                        }
-                        onClick={() => setSelectedTime(slot.time)}
-                        disabled={!slot.isAvailable}
-                      >
-                        {slot.time}
-                      </Button>
-                    ))}
+                {slotsQuery.data ? (
+                  <div>
+                    <h4 className="mb-3">(Session Name)</h4>
+                    <div className="flex flex-wrap gap-2">
+                      {slotsOfDate.map((slot) => (
+                        <Button
+                          key={slot.id}
+                          variant={
+                            selectedSlot?.id === slot.id
+                              ? "outline_primary"
+                              : "outline"
+                          }
+                          onClick={() => {
+                            if (selectedSlot?.id === slot.id) {
+                              setSelectedSlot(undefined);
+                            } else {
+                              setSelectedSlot(slot);
+                            }
+                          }}
+                          disabled={!slot.tokens_remaining}
+                        >
+                          {format(slot.start_datetime, "HH:mm")}
+                        </Button>
+                      ))}
+                    </div>
                   </div>
-                </div>
-
-                <div>
-                  <h4 className="mb-3">Afternoon Slots</h4>
-                  <div className="flex flex-wrap gap-2">
-                    {afternoonSlots.map((slot) => (
-                      <Button
-                        key={slot.time}
-                        variant={
-                          selectedTime === slot.time ? "default" : "outline"
-                        }
-                        onClick={() => setSelectedTime(slot.time)}
-                        disabled={!slot.isAvailable}
-                      >
-                        {slot.time}
-                      </Button>
-                    ))}
+                ) : (
+                  <div className="flex items-center justify-center py-32 border-2 border-gray-200 border-dashed rounded-lg">
+                    <p className="text-gray-400">
+                      To view available slots, select a preferred doctor.
+                    </p>
                   </div>
-                </div>
+                )}
               </div>
             </div>
           </div>
 
-          <div className="flex justify-end gap-4 mt-8">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-12 pointer-events-none">
+            <div>
+              <Label className="mb-2">Preferred date</Label>
+              <DatePicker
+                date={
+                  selectedSlot?.start_datetime
+                    ? new Date(selectedSlot.start_datetime)
+                    : undefined
+                }
+              />
+            </div>
+            <div>
+              <Label className="mb-2">Selected Time Slot</Label>
+              <Input
+                type="time"
+                value={
+                  selectedSlot
+                    ? format(selectedSlot.start_datetime, "HH:mm")
+                    : undefined
+                }
+              />
+            </div>
+          </div>
+
+          <div className="flex justify-end gap-4">
             <Button variant="outline">Cancel</Button>
-            <Button variant="primary">Schedule Appointment</Button>
+            <Button
+              variant="primary"
+              type="submit"
+              disabled={!selectedSlot}
+              onClick={handleSubmit}
+            >
+              Schedule Appointment
+            </Button>
           </div>
         </div>
       </div>
     </Page>
   );
 }
+
+const filterSlotsByDate = (slots: AvailabilitySlot[], date: Date) => {
+  return slots.filter((slot) => {
+    const slotDate = parseISO(slot.start_datetime);
+    return isSameDay(slotDate, date);
+  });
+};

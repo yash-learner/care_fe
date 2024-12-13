@@ -1,9 +1,11 @@
 import {
+  AppointmentCreate,
+  AvailabilitySlot,
   ScheduleException,
   ScheduleExceptionCreate,
   ScheduleTemplate,
   ScheduleTemplateCreate,
-} from "@/components/Schedule/schemas";
+} from "@/components/Schedule/types";
 import { UserBareMinimum } from "@/components/Users/models";
 
 import { Type } from "@/Utils/request/api";
@@ -49,10 +51,16 @@ export const ScheduleAPIs = {
       method: "GET",
       TRes: Type<PaginatedResponse<UserBareMinimum>>(),
     },
-    availableSlots: {
+    slots: {
       path: "/api/v1/facility/{facility_id}/appointments/slots/",
       method: "GET",
-      TRes: Type<PaginatedResponse<unknown>>(),
+      TRes: Type<AvailabilitySlot[]>(),
+    },
+    create: {
+      path: "/api/v1/facility/{facility_id}/appointments/",
+      method: "POST",
+      TRes: Type<AppointmentCreate>(),
+      TBody: Type<AppointmentCreate>(),
     },
   },
 } as const;

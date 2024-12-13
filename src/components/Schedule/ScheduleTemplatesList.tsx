@@ -5,7 +5,11 @@ import CareIcon from "@/CAREUI/icons/CareIcon";
 
 import Loading from "@/components/Common/Loading";
 import ScheduleTemplateForm from "@/components/Schedule/ScheduleTemplateForm";
-import { ScheduleTemplate } from "@/components/Schedule/schemas";
+import { getSlotsPerSession } from "@/components/Schedule/helpers";
+import {
+  ScheduleSlotTypes,
+  ScheduleTemplate,
+} from "@/components/Schedule/types";
 
 interface Props {
   items?: ScheduleTemplate[];
@@ -64,11 +68,22 @@ const ScheduleTemplateItem = (props: ScheduleTemplate) => {
                   <div className="flex flex-col">
                     <span>{slot.name}</span>
                     <p className="text-gray-600">
-                      <span className="text-sm">{slot.slot_type}</span>
+                      <span className="text-sm">
+                        {/* Temp. hack since backend is giving slot_type as number in Response */}
+                        {
+                          ScheduleSlotTypes[
+                            (slot.slot_type as unknown as number) - 1
+                          ]
+                        }
+                      </span>
                       <span className="px-2 text-gray-300">|</span>
                       <span className="text-sm">
-                        {slot.tokens_per_slot} slots (
-                        {slot.slot_size_in_minutes} mins.)
+                        {getSlotsPerSession(
+                          slot.start_time,
+                          slot.end_time,
+                          slot.slot_size_in_minutes,
+                        )}{" "}
+                        slots of {slot.slot_size_in_minutes} mins.
                       </span>
                     </p>
                   </div>

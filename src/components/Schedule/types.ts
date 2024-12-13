@@ -54,3 +54,19 @@ export interface ScheduleExceptionCreate
   extends WritableOnly<ScheduleException> {
   doctor_username: string;
 }
+
+export interface AvailabilitySlot {
+  readonly id: string;
+  readonly start_datetime: string;
+  readonly end_datetime: string;
+  readonly resource: ScheduleResourceUser;
+  readonly tokens_count: number;
+  readonly tokens_remaining: number;
+}
+
+export interface AppointmentCreate {
+  patient: string;
+  doctor_username: string;
+  slot_start: string;
+  reason_for_visit: string;
+}

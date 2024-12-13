@@ -38,7 +38,7 @@ import {
   getSlotsPerSession,
   getTokenDuration,
 } from "@/components/Schedule/helpers";
-import { ScheduleSlotTypes } from "@/components/Schedule/schemas";
+import { ScheduleSlotTypes } from "@/components/Schedule/types";
 
 import useAuthUser from "@/hooks/useAuthUser";
 

@@ -40,7 +40,7 @@ import {
 import { Textarea } from "@/components/ui/textarea";
 
 import { ScheduleAPIs } from "@/components/Schedule/api";
-import { ScheduleSlotTypes } from "@/components/Schedule/schemas";
+import { ScheduleSlotTypes } from "@/components/Schedule/types";
 
 import useAuthUser from "@/hooks/useAuthUser";
 
@@ -50,7 +50,7 @@ import { Time } from "@/Utils/types";
 const formSchema = z.object({
   name: z.string().min(1, "Name is required"),
   is_available: z.boolean(),
-  appointment_type: z.enum(ScheduleSlotTypes).optional(),
+  slot_type: z.enum(ScheduleSlotTypes).optional(),
   from_date: z.date({ required_error: "From date is required" }),
   to_date: z.date({ required_error: "To date is required" }),
   unavailable_all_day: z.boolean(),
@@ -121,7 +121,7 @@ export default function ScheduleExceptionForm(props: Props) {
           start_time: data.unavailable_all_day ? "00:00" : data.start_time,
           end_time: data.unavailable_all_day ? "23:59" : data.end_time,
           reason: data.reason ?? "",
-          slot_type: data.appointment_type,
+          slot_type: data.slot_type,
           tokens_per_slot: data.tokens_allowed,
         },
       }),
@@ -233,7 +233,7 @@ export default function ScheduleExceptionForm(props: Props) {
                 {isAvailable && (
                   <FormField
                     control={form.control}
-                    name="appointment_type"
+                    name="slot_type"
                     render={({ field }) => (
                       <FormItem>
                         <FormLabel required>Appointment Type</FormLabel>

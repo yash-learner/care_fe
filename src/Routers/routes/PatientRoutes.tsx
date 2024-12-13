@@ -34,7 +34,7 @@ const PatientRoutes: AppRoutes = {
   "/facility/:facilityId/patient/:id/appointments/create": ({
     facilityId,
     id,
-  }) => <CreateAppointment facilityId={facilityId} id={id} />,
+  }) => <CreateAppointment facilityId={facilityId} patientId={id} />,
   "/facility/:facilityId/patient/:id/appointments/:appointmentId/token": ({
     facilityId,
     id,
