@@ -34,7 +34,10 @@ import {
 import { Textarea } from "@/components/ui/textarea";
 
 import { ScheduleAPIs } from "@/components/Schedule/api";
-import { calculateTokenDuration } from "@/components/Schedule/helpers";
+import {
+  getSlotsPerSession,
+  getTokenDuration,
+} from "@/components/Schedule/helpers";
 import { ScheduleSlotTypes } from "@/components/Schedule/schemas";
 
 import useAuthUser from "@/hooks/useAuthUser";
@@ -62,7 +65,8 @@ const formSchema = z.object({
       end_time: z
         .string()
         .min(1, "End time is required") as unknown as z.ZodType<Time>,
-      tokens_allowed: z.number().min(1, "Tokens must be greater than 0"),
+      slot_size_in_minutes: z.number().min(1, "Must be greater than 0"),
+      tokens_per_slot: z.number().min(1, "Must be greater than 0"),
     }),
   ),
 });
@@ -90,7 +94,8 @@ export default function ScheduleTemplateForm(props: Props) {
           reason: "",
           start_time: undefined,
           end_time: undefined,
-          tokens_allowed: 0,
+          tokens_per_slot: 0,
+          slot_size_in_minutes: 0,
         },
       ],
     },
@@ -112,8 +117,6 @@ export default function ScheduleTemplateForm(props: Props) {
           name: values.name,
           availability: values.availability.map((availability) => ({
             ...availability,
-            slot_size_in_minutes: 0,
-            tokens_per_slot: 0,
             days_of_week: values.weekdays,
           })),
         },
@@ -134,23 +137,34 @@ export default function ScheduleTemplateForm(props: Props) {
     );
   }
 
-  const renderTimeAllocationCallout = (index: number) => {
+  const timeAllocationCallout = (index: number) => {
     const startTime = form.watch(`availability.${index}.start_time`);
     const endTime = form.watch(`availability.${index}.end_time`);
-    const tokensAllowed = form.watch(`availability.${index}.tokens_allowed`);
+    const slotSizeInMinutes = form.watch(
+      `availability.${index}.slot_size_in_minutes`,
+    );
+    const tokensPerSlot = form.watch(`availability.${index}.tokens_per_slot`);
 
-    const timePerPatient = calculateTokenDuration(
+    if (!startTime || !endTime || !slotSizeInMinutes || !tokensPerSlot) {
+      return null;
+    }
+
+    const slotsPerSession = getSlotsPerSession(
       startTime,
       endTime,
-      tokensAllowed,
+      slotSizeInMinutes,
     );
+    const tokenDuration = getTokenDuration(slotSizeInMinutes, tokensPerSlot);
 
-    if (!timePerPatient) return null;
+    if (!slotsPerSession || !tokenDuration) return null;
 
     return (
-      <Callout variant="alert" badge="Info" className="mt-3">
-        Allocating {tokensAllowed} tokens in this schedule provides
-        approximately {timePerPatient} minutes for each patient
+      <Callout variant="alert" badge="Info">
+        Allocating approx.{" "}
+        <strong>{slotsPerSession.toFixed(1).replace(".0", "")} slots</strong> in
+        this session provides approximately{" "}
+        <strong>{tokenDuration.toFixed(1).replace(".0", "")} mins.</strong> for
+        each patient.
       </Callout>
     );
   };
@@ -282,7 +296,7 @@ export default function ScheduleTemplateForm(props: Props) {
                         control={form.control}
                         name={`availability.${index}.name`}
                         render={({ field }) => (
-                          <FormItem>
+                          <FormItem className="col-span-2 md:col-span-1">
                             <FormLabel required>Session Title</FormLabel>
                             <FormControl>
                               <Input placeholder="IP Rounds" {...field} />
@@ -296,7 +310,7 @@ export default function ScheduleTemplateForm(props: Props) {
                         control={form.control}
                         name={`availability.${index}.slot_type`}
                         render={({ field }) => (
-                          <FormItem className="space-y-3">
+                          <FormItem className="space-y-3 col-span-2 md:col-span-1">
                             <FormLabel required>Appointment Type</FormLabel>
                             <FormControl>
                               <RadioGroup
@@ -355,32 +369,53 @@ export default function ScheduleTemplateForm(props: Props) {
                           </FormItem>
                         )}
                       />
-                    </div>
 
-                    <div className="mt-4 flex items-start gap-4">
-                      <FormField
-                        control={form.control}
-                        name={`availability.${index}.tokens_allowed`}
-                        render={({ field }) => (
-                          <FormItem className="w-[180px]">
-                            <FormLabel required>Tokens Allowed</FormLabel>
-                            <FormControl>
-                              <Input
-                                type="number"
-                                min={0}
-                                placeholder="10"
-                                {...field}
-                                onChange={(e) =>
-                                  field.onChange(parseInt(e.target.value))
-                                }
-                              />
-                            </FormControl>
-                            <FormMessage />
-                          </FormItem>
-                        )}
-                      />
+                      <div className="flex items-center gap-4 col-span-2 md:col-span-1">
+                        <FormField
+                          control={form.control}
+                          name={`availability.${index}.slot_size_in_minutes`}
+                          render={({ field }) => (
+                            <FormItem className="flex-1">
+                              <FormLabel required>Slot size (mins.)</FormLabel>
+                              <FormControl>
+                                <Input
+                                  type="number"
+                                  min={0}
+                                  placeholder="10"
+                                  {...field}
+                                  onChange={(e) =>
+                                    field.onChange(e.target.valueAsNumber)
+                                  }
+                                />
+                              </FormControl>
+                              <FormMessage />
+                            </FormItem>
+                          )}
+                        />
 
-                      {renderTimeAllocationCallout(index)}
+                        <FormField
+                          control={form.control}
+                          name={`availability.${index}.tokens_per_slot`}
+                          render={({ field }) => (
+                            <FormItem className="flex-1">
+                              <FormLabel required>Tokens per Slot</FormLabel>
+                              <FormControl>
+                                <Input
+                                  type="number"
+                                  min={0}
+                                  placeholder="10"
+                                  {...field}
+                                  onChange={(e) =>
+                                    field.onChange(e.target.valueAsNumber)
+                                  }
+                                />
+                              </FormControl>
+                              <FormMessage />
+                            </FormItem>
+                          )}
+                        />
+                      </div>
+                      {timeAllocationCallout(index)}
                     </div>
 
                     <div className="mt-4">
@@ -419,7 +454,8 @@ export default function ScheduleTemplateForm(props: Props) {
                       reason: "",
                       start_time: "00:00",
                       end_time: "00:00",
-                      tokens_allowed: 0,
+                      tokens_per_slot: 0,
+                      slot_size_in_minutes: 0,
                     },
                   ]);
                 }}

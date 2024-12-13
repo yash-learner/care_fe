@@ -1,5 +1,7 @@
 import { isSameDay, isWithinInterval } from "date-fns";
 
+import { Time } from "@/Utils/types";
+
 export const isDateInRange = (
   date: Date,
   startDate: string,
@@ -15,19 +17,33 @@ export const isDateInRange = (
   );
 };
 
-export function calculateTokenDuration(
-  startTime: string,
-  endTime: string,
-  tokensAllowed: number,
-): number | null {
-  if (!startTime || !endTime || !tokensAllowed) return null;
-
+export function getDurationInMinutes(startTime: Time, endTime: Time) {
   const start = new Date(`1970-01-01T${startTime}`);
   const end = new Date(`1970-01-01T${endTime}`);
 
-  const diffInMinutes = (end.getTime() - start.getTime()) / (1000 * 60);
+  if (
+    start.toString() === "Invalid Date" ||
+    end.toString() === "Invalid Date"
+  ) {
+    return null;
+  }
 
-  if (diffInMinutes <= 0 || tokensAllowed <= 0) return null;
+  return (end.getTime() - start.getTime()) / (1000 * 60);
+}
 
-  return Math.round(diffInMinutes / tokensAllowed);
+export function getSlotsPerSession(
+  startTime: Time,
+  endTime: Time,
+  slotSizeInMinutes: number,
+) {
+  const duration = getDurationInMinutes(startTime, endTime);
+  if (!duration) return null;
+  return duration / slotSizeInMinutes;
+}
+
+export function getTokenDuration(
+  slotSizeInMinutes: number,
+  tokensPerSlot: number,
+) {
+  return slotSizeInMinutes / tokensPerSlot;
 }
