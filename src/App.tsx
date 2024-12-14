@@ -18,8 +18,15 @@ import HistoryAPIProvider from "@/Providers/HistoryAPIProvider";
 import Routers from "@/Routers";
 import { FeatureFlagsProvider } from "@/Utils/featureFlags";
 import { handleQueryError } from "@/Utils/request/errorHandler";
+import { QueryError } from "@/Utils/request/queryError";
 
 import { PubSubProvider } from "./Utils/pubsubContext";
+
+declare module "@tanstack/react-query" {
+  interface Register {
+    defaultError: QueryError;
+  }
+}
 
 const queryClient = new QueryClient({
   defaultOptions: {
