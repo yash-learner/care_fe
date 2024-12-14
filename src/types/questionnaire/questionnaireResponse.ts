@@ -1,8 +1,9 @@
 import { QuestionnaireResponse as Response } from "./form";
+import { StructuredQuestionType } from "./question";
 import { QuestionnaireDetail } from "./questionnaire";
 
 export type StructuredResponseValue = {
-  id: "symptom" | "medication" | "diagnosis" | "procedure" | "note";
+  id: string;
   submit_type: "CREATE" | "UPDATE";
 };
 
@@ -15,7 +16,10 @@ export interface QuestionnaireResponse {
   responses: Response[];
   encounter: string;
   patient: string;
-  structured_responses?: Record<string, StructuredResponseValue>;
+  structured_responses?: Record<
+    StructuredQuestionType,
+    StructuredResponseValue
+  >;
   created_by: {
     first_name: string;
     last_name: string;
