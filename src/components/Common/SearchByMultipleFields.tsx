@@ -49,11 +49,6 @@ interface SearchByMultipleFieldsProps {
   clearSearch?: { value: boolean; params?: string[] };
 }
 
-type EventType = {
-  value: string;
-  target?: { value: string };
-};
-
 const SearchByMultipleFields: React.FC<SearchByMultipleFieldsProps> = ({
   id,
   options,
@@ -172,7 +167,7 @@ const SearchByMultipleFields: React.FC<SearchByMultipleFieldsProps> = ({
     const commonProps = {
       ref: inputRef,
       value: searchValue,
-      onChange: (e: EventType) =>
+      onChange: (e: any) =>
         handleSearchChange(e.target ? e.target.value : e.value),
       className: cn(
         "flex-grow border-none shadow-none focus-visible:ring-0 h-10",
