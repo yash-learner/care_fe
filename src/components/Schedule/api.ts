@@ -60,13 +60,18 @@ export const ScheduleAPIs = {
     create: {
       path: "/api/v1/facility/{facility_id}/appointments/",
       method: "POST",
-      TRes: Type<AppointmentCreate>(),
       TBody: Type<AppointmentCreate>(),
+      TRes: Type<Appointment>(),
     },
     list: {
       path: "/api/v1/facility/{facility_id}/appointments/",
       method: "GET",
       TRes: Type<PaginatedResponse<Appointment>>(),
+    },
+    retrieve: {
+      path: "/api/v1/facility/{facility_id}/appointments/{id}/",
+      method: "GET",
+      TRes: Type<Appointment>(),
     },
   },
 } as const;

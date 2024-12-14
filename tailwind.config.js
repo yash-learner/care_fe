@@ -22,6 +22,7 @@ module.exports = {
     extend: {
       fontFamily: {
         sans: ["Figtree", "sans-serif"],
+        barcode: ["'Libre Barcode 39'", "cursive"],
       },
       colors: {
         green: colors.emerald,
@@ -80,6 +81,15 @@ module.exports = {
         lg: "var(--radius)",
         md: "calc(var(--radius) - 2px)",
         sm: "calc(var(--radius) - 4px)",
+      },
+      fontSize: {
+        "7xl": "5rem",
+      },
+      width: {
+        "[80mm]": "80mm",
+      },
+      height: {
+        "[170mm]": "170mm",
       },
     },
   },

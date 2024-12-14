@@ -1,4 +1,5 @@
 import { format, isSameDay, parseISO } from "date-fns";
+import { navigate } from "raviger";
 import { useState } from "react";
 import { toast } from "sonner";
 
@@ -76,9 +77,12 @@ export default function AppointmentCreatePage(props: Props) {
     ScheduleAPIs.appointments.create,
     {
       pathParams: { facility_id: props.facilityId },
-      onResponse: ({ res }) => {
+      onResponse: ({ res, data }) => {
         if (res?.ok) {
           toast.success("Appointment created successfully");
+          navigate(
+            `/facility/${props.facilityId}/appointments/${data?.id}/token`,
+          );
         }
       },
     },

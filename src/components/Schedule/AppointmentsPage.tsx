@@ -172,7 +172,7 @@ export default function AppointmentsPage({ facilityId }: Props) {
 }
 
 function AppointmentColumn(props: { category: string; facilityId: string }) {
-  const { data, isLoading } = useQuery({
+  const { data } = useQuery({
     queryKey: ["appointments", props.facilityId, props.category],
     queryFn: query(ScheduleAPIs.appointments.list, {
       pathParams: { facility_id: props.facilityId },
@@ -184,24 +184,25 @@ function AppointmentColumn(props: { category: string; facilityId: string }) {
     }),
   });
 
-  if (isLoading) {
-    return "Loading";
-  }
-
   const appointments = data?.results ?? [];
 
   return (
-    <div className="bg-gray-100 py-4 px-3 rounded-lg w-[20rem] h-[calc(100vh-17rem)]">
+    <div
+      className={cn(
+        "bg-gray-100 py-4 px-3 rounded-lg w-[20rem] h-[calc(100vh-17rem)]",
+        !data && "animate-pulse",
+      )}
+    >
       <div className="flex items-center gap-3 mb-4">
         <h2 className="font-semibold capitalize text-base px-1">
           {props.category.replace("-", " ")}
         </h2>
         <span className="bg-gray-200 px-2 py-1 rounded-md text-sm">
-          {data?.count}
+          {data?.count ?? "..."}
         </span>
       </div>
       <ScrollArea>
-        <ul className="space-y-3 px-0.5 pb-4">
+        <ul className="space-y-3 px-0.5 pb-4 pt-1">
           {appointments.map((appointment) => (
             <li>
               <Link
@@ -216,20 +217,25 @@ function AppointmentColumn(props: { category: string; facilityId: string }) {
             </li>
           ))}
         </ul>
+        {appointments.length === 0 && (
+          <div className="flex justify-center items-center h-full">
+            <p className="text-gray-500">No appointments</p>
+          </div>
+        )}
       </ScrollArea>
     </div>
   );
 }
 
 function AppointmentCard({ appointment }: { appointment: Appointment }) {
-  const { patient, token_slot } = appointment;
+  const { patient } = appointment;
   const { t } = useTranslation();
 
   return (
-    <div className="bg-white p-3 rounded shadow group cursor-grab">
+    <div className="bg-white p-3 rounded shadow group hover:ring-1 hover:ring-primary-700 hover:ring-offset-1 hover:ring-offset-white hover:shadow-md transition-all duration-100 ease-in-out">
       <div className="flex justify-between items-start mb-2">
         <div>
-          <h3 className="font-semibold text-base group-hover:underline group-hover:underline-offset-1 group-hover:text-primary-500 transition-all duration-200 ease-in-out">
+          <h3 className="font-semibold text-base group-hover:underline underline-offset-2 group-hover:text-primary-700 transition-all duration-200 ease-in-out">
             {patient.name}
           </h3>
           <p className="text-sm text-gray-700">
@@ -238,7 +244,10 @@ function AppointmentCard({ appointment }: { appointment: Appointment }) {
         </div>
         <div className="bg-gray-100 px-2 py-1 rounded text-center">
           <p className="text-[10px]">TOKEN</p>
-          <p className="font-bold text-2xl">{token_slot.id.slice(-2)}</p>
+          {/* TODO: replace this with token number once that's ready... */}
+          <p className="font-bold text-2xl uppercase">
+            {Math.floor(Math.random() * 100)}
+          </p>
         </div>
       </div>
     </div>

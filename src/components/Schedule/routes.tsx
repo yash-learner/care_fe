@@ -20,14 +20,12 @@ const ScheduleRoutes: AppRoutes = {
     id,
   }) => <AppointmentCreatePage facilityId={facilityId} patientId={id} />,
 
-  "/facility/:facilityId/patient/:id/appointments/:appointmentId/token": ({
+  "/facility/:facilityId/appointments/:appointmentId/token": ({
     facilityId,
-    id,
     appointmentId,
   }) => (
     <AppointmentTokenPage
       facilityId={facilityId}
-      patientId={id}
       appointmentId={appointmentId}
     />
   ),
