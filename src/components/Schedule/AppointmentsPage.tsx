@@ -226,7 +226,7 @@ function AppointmentCard({ appointment }: { appointment: Appointment }) {
   const { t } = useTranslation();
 
   return (
-    <div className="bg-white p-3 rounded-md shadow-md group">
+    <div className="bg-white p-3 rounded shadow group cursor-grab">
       <div className="flex justify-between items-start mb-2">
         <div>
           <h3 className="font-semibold text-base group-hover:underline group-hover:underline-offset-1 group-hover:text-primary-500 transition-all duration-200 ease-in-out">
