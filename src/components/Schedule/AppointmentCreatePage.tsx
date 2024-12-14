@@ -37,7 +37,7 @@ interface Props {
   patientId: string;
 }
 
-export default function CreateAppointment(props: Props) {
+export default function AppointmentCreatePage(props: Props) {
   const [selectedDoctor, setSelectedDoctor] = useState<string>();
   const [selectedMonth, setSelectedMonth] = useState(new Date());
   const [selectedDate, setSelectedDate] = useState(new Date());
@@ -217,7 +217,7 @@ export default function CreateAppointment(props: Props) {
                     </div>
                   </div>
                 ) : (
-                  <div className="flex items-center justify-center py-32 border-2 border-gray-200 border-dashed rounded-lg">
+                  <div className="flex items-center justify-center py-32 border-2 border-gray-200 border-dashed rounded-lg text-center">
                     <p className="text-gray-400">
                       To view available slots, select a preferred doctor.
                     </p>
