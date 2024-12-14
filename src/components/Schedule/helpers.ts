@@ -1,4 +1,8 @@
-import { isSameDay, isWithinInterval } from "date-fns";
+import { getDay, isSameDay, isWithinInterval } from "date-fns";
+
+import { DayOfWeekValue } from "@/CAREUI/interactive/WeekdayCheckbox";
+
+import { ScheduleAvailability } from "@/components/Schedule/types";
 
 import { Time } from "@/Utils/types";
 
@@ -47,3 +51,14 @@ export function getTokenDuration(
 ) {
   return slotSizeInMinutes / tokensPerSlot;
 }
+
+export const filterAvailabilitiesByDayOfWeek = (
+  availabilities: ScheduleAvailability[],
+  date?: Date,
+) => {
+  const dayOfWeek = (getDay(date ?? new Date()) - 1) as DayOfWeekValue; // -1 because backend follows python's 0-6
+
+  return availabilities.filter((availability) => {
+    return availability.days_of_week.includes(dayOfWeek);
+  });
+};

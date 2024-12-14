@@ -25,7 +25,7 @@ import useAuthUser from "@/hooks/useAuthUser";
 import useQuery from "@/Utils/request/useQuery";
 import { getMonthStartAndEnd } from "@/Utils/utils";
 
-import { isDateInRange } from "./helpers";
+import { filterAvailabilitiesByDayOfWeek, isDateInRange } from "./helpers";
 
 interface Props {
   view: "schedule" | "exceptions";
@@ -106,8 +106,11 @@ export default function SchedulingHomePage(props: Props) {
           renderDay={(date: Date) => {
             const isToday = date.toDateString() === new Date().toDateString();
 
-            const templates = templatesQuery.data?.results.filter((template) =>
-              isDateInRange(date, template.valid_from, template.valid_to),
+            const templates = templatesQuery.data?.results.filter(
+              (template) =>
+                isDateInRange(date, template.valid_from, template.valid_to) &&
+                filterAvailabilitiesByDayOfWeek(template.availability, date)
+                  .length > 0,
             );
 
             const unavailableExceptions =

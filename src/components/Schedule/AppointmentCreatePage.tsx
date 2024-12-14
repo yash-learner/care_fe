@@ -22,7 +22,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Avatar } from "@/components/Common/Avatar";
 import Page from "@/components/Common/Page";
 import { ScheduleAPIs } from "@/components/Schedule/api";
-import { AvailabilitySlot } from "@/components/Schedule/types";
+import { TokenSlot } from "@/components/Schedule/types";
 
 import useMutation from "@/Utils/request/useMutation";
 import useQuery from "@/Utils/request/useQuery";
@@ -43,7 +43,7 @@ export default function AppointmentCreatePage(props: Props) {
   const [selectedDate, setSelectedDate] = useState(new Date());
 
   const [reason, setReason] = useState("");
-  const [selectedSlot, setSelectedSlot] = useState<AvailabilitySlot>();
+  const [selectedSlot, setSelectedSlot] = useState<TokenSlot>();
 
   const { start, end } = getMonthStartAndEnd(selectedMonth);
 
@@ -158,7 +158,7 @@ export default function AppointmentCreatePage(props: Props) {
                         <Avatar
                           imageUrl={doctor.read_profile_picture_url}
                           name={formatDisplayName(doctor)}
-                          className="w-6 h-6 rounded-full"
+                          className="size-6 rounded-full"
                         />
                         <span>{formatDisplayName(doctor)}</span>
                       </div>
@@ -183,10 +183,6 @@ export default function AppointmentCreatePage(props: Props) {
             <div>
               <div className="flex items-center justify-between mb-4">
                 <h3 className="font-medium">Available Time Slots</h3>
-                {/* <div className="flex items-center gap-2">
-                  <Checkbox id="priority" />
-                  <label htmlFor="priority">Show Priority Slots</label>
-                </div> */}
               </div>
 
               <div className="space-y-6">
@@ -268,7 +264,7 @@ export default function AppointmentCreatePage(props: Props) {
   );
 }
 
-const filterSlotsByDate = (slots: AvailabilitySlot[], date: Date) => {
+const filterSlotsByDate = (slots: TokenSlot[], date: Date) => {
   return slots.filter((slot) => {
     const slotDate = parseISO(slot.start_datetime);
     return isSameDay(slotDate, date);

@@ -1,5 +1,7 @@
 import { DayOfWeekValue } from "@/CAREUI/interactive/WeekdayCheckbox";
 
+import { PatientModel } from "@/components/Patient/models";
+
 import { Time, WritableOnly } from "@/Utils/types";
 
 interface ScheduleResourceUser {
@@ -55,7 +57,7 @@ export interface ScheduleExceptionCreate
   doctor_username: string;
 }
 
-export interface AvailabilitySlot {
+export interface TokenSlot {
   readonly id: string;
   readonly start_datetime: string;
   readonly end_datetime: string;
@@ -67,6 +69,14 @@ export interface AvailabilitySlot {
 export interface AppointmentCreate {
   patient: string;
   doctor_username: string;
-  slot_start: string;
+  slot_start: TokenSlot["start_datetime"];
   reason_for_visit: string;
+}
+
+export interface Appointment {
+  readonly id: string;
+  readonly patient: PatientModel;
+  readonly reason_for_visit: string;
+  readonly resource: ScheduleResourceUser;
+  readonly token_slot: TokenSlot;
 }

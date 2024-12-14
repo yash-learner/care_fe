@@ -1,9 +1,12 @@
+import { format } from "date-fns";
+
 import { PatientModel } from "@/components/Patient/models";
 
 import { AREACODES, IN_LANDLINE_AREA_CODES } from "@/common/constants";
 import phoneCodesJson from "@/common/static/countryPhoneAndFlags.json";
 
 import dayjs from "@/Utils/dayjs";
+import { Time } from "@/Utils/types";
 
 interface ApacheParams {
   age: number;
@@ -93,6 +96,10 @@ export const formatDateTime = (date: DateLike, format?: string) => {
 
 export const formatDate = (date: DateLike, format = DATE_FORMAT) =>
   formatDateTime(date, format);
+
+export const formatTimeShort = (time: Time) => {
+  return format(new Date(`1970-01-01T${time}`), "h:mm a").replace(":00", "");
+};
 
 export const formatTime = (date: DateLike, format = TIME_FORMAT) =>
   formatDateTime(date, format);
@@ -360,7 +367,7 @@ const getRelativeDateSuffix = (abbreviated: boolean) => {
   return {
     day: abbreviated ? "d" : "days",
     month: abbreviated ? "mo" : "months",
-    year: abbreviated ? "yr" : "years",
+    year: abbreviated ? "Y" : "years",
   };
 };
 
@@ -393,7 +400,7 @@ export const formatPatientAge = (obj: PatientModel, abbreviated = false) => {
 
   const years = end.diff(start, "years");
   if (years) {
-    return `${years}${suffixes.year}`;
+    return `${years} ${suffixes.year}`;
   }
 
   // Skip representing as no. of months/days if we don't know the date of birth
