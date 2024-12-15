@@ -8,8 +8,6 @@ import { cn } from "@/lib/utils";
 import Calendar from "@/CAREUI/interactive/Calendar";
 
 import { Button } from "@/components/ui/button";
-import { DatePicker } from "@/components/ui/date-picker";
-import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import {
   Select,
@@ -224,30 +222,6 @@ export default function AppointmentCreatePage(props: Props) {
                   </div>
                 )}
               </div>
-            </div>
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-12 pointer-events-none">
-            <div>
-              <Label className="mb-2">Preferred date</Label>
-              <DatePicker
-                date={
-                  selectedSlot?.start_datetime
-                    ? new Date(selectedSlot.start_datetime)
-                    : undefined
-                }
-              />
-            </div>
-            <div>
-              <Label className="mb-2">Selected Time Slot</Label>
-              <Input
-                type="time"
-                value={
-                  selectedSlot
-                    ? format(selectedSlot.start_datetime, "HH:mm")
-                    : undefined
-                }
-              />
             </div>
           </div>
 

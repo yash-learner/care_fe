@@ -19,7 +19,6 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import {
   Select,
   SelectContent,
@@ -190,7 +189,7 @@ export default function ScheduleExceptionForm({ user, onRefresh }: Props) {
                   )}
                 />
 
-                <FormField
+                {/* <FormField
                   control={form.control}
                   name="is_available"
                   render={({ field }) => (
@@ -227,7 +226,7 @@ export default function ScheduleExceptionForm({ user, onRefresh }: Props) {
                       <FormMessage />
                     </FormItem>
                   )}
-                />
+                /> */}
 
                 {isAvailable && (
                   <FormField
