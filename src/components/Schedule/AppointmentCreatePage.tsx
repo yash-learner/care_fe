@@ -81,7 +81,7 @@ export default function AppointmentCreatePage(props: Props) {
         if (res?.ok) {
           toast.success("Appointment created successfully");
           navigate(
-            `/facility/${props.facilityId}/appointments/${data?.id}/token`,
+            `/facility/${props.facilityId}/patient/${props.patientId}/appointment/${data?.id}/token`,
           );
         }
       },

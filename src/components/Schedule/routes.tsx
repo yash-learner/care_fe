@@ -11,24 +11,20 @@ const ScheduleRoutes: AppRoutes = {
   "/exceptions": () => <SchedulingHomePage view="exceptions" />,
 
   // Appointments
-  "/facility/:facilityId/appointments": ({ facilityId }) => (
-    <AppointmentsPage facilityId={facilityId} />
-  ),
+  "/appointments": () => <AppointmentsPage />,
 
   "/facility/:facilityId/patient/:id/appointments/create": ({
     facilityId,
     id,
   }) => <AppointmentCreatePage facilityId={facilityId} patientId={id} />,
 
-  "/facility/:facilityId/appointments/:appointmentId/token": ({
-    facilityId,
-    appointmentId,
-  }) => (
-    <AppointmentTokenPage
-      facilityId={facilityId}
-      appointmentId={appointmentId}
-    />
-  ),
+  "/facility/:facilityId/patient/:patientId/appointment/:appointmentId/token":
+    ({ facilityId, appointmentId }) => (
+      <AppointmentTokenPage
+        facilityId={facilityId}
+        appointmentId={appointmentId}
+      />
+    ),
 };
 
 export default ScheduleRoutes;

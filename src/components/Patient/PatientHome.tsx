@@ -267,7 +267,7 @@ export const PatientHome = (props: {
                 <div className="h-full space-y-2">
                   <div className="space-y-3 border-b border-dashed text-left text-lg font-semibold text-secondary-900">
                     <div>
-                      {patientData?.is_active &&
+                      {/* {patientData?.is_active &&
                         (!patientData?.last_consultation ||
                           patientData?.last_consultation?.discharge_date) && (
                           <div>
@@ -290,7 +290,7 @@ export const PatientHome = (props: {
                               </span>
                             </ButtonV2>
                           </div>
-                        )}
+                        )} */}
                     </div>
                   </div>
                 </div>

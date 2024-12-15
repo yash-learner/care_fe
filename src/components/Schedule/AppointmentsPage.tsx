@@ -31,12 +31,9 @@ import routes from "@/Utils/request/api";
 import query from "@/Utils/request/query";
 import { formatName, formatPatientAge, formatTimeShort } from "@/Utils/utils";
 
-interface Props {
-  facilityId: string;
-}
-
-export default function AppointmentsPage({ facilityId }: Props) {
+export default function AppointmentsPage() {
   const authUser = useAuthUser();
+  const facilityId = authUser.home_facility!;
 
   const [viewMode, setViewMode] = useState<"board" | "list">("board");
 
