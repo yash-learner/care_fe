@@ -60,6 +60,20 @@ export interface ScheduleExceptionCreate
   doctor_username: string;
 }
 
+export interface SlotAvailability {
+  readonly id: string;
+  readonly availability: {
+    readonly name: string;
+    readonly tokens_per_slot: number;
+  };
+  readonly start_datetime: string;
+  readonly end_datetime: string;
+  readonly allocated: number;
+}
+
+/**
+ * @deprecated Use SlotAvailability instead. TODO: Remove once references are removed.
+ */
 export interface TokenSlot {
   readonly id: string;
   readonly start_datetime: string;

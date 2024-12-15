@@ -4,6 +4,7 @@ import {
   ScheduleException,
   ScheduleExceptionCreate,
   ScheduleTemplate,
+  SlotAvailability,
   TokenSlot,
 } from "@/components/Schedule/types";
 import { UserBareMinimum } from "@/components/Users/models";
@@ -48,6 +49,15 @@ export const ScheduleAPIs = {
       path: "/api/v1/facility/{facility_id}/schedule_exceptions/{id}/",
       method: "DELETE",
       TRes: Type<void>(),
+    },
+  },
+
+  slots: {
+    getAvailableSlotsForADay: {
+      path: "/api/v1/facility/{facility_id}/slots/get_slots_for_day/",
+      method: "POST",
+      TRes: Type<{ results: SlotAvailability[] }>(),
+      TBody: Type<{ resource: string; day: string }>(),
     },
   },
 

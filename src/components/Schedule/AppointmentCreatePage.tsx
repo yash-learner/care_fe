@@ -1,4 +1,5 @@
-import { format, isSameDay, parseISO } from "date-fns";
+import { useQuery } from "@tanstack/react-query";
+import { format } from "date-fns";
 import { navigate } from "raviger";
 import { useState } from "react";
 import { toast } from "sonner";
@@ -21,10 +22,11 @@ import { Textarea } from "@/components/ui/textarea";
 import { Avatar } from "@/components/Common/Avatar";
 import Page from "@/components/Common/Page";
 import { ScheduleAPIs } from "@/components/Schedule/api";
-import { TokenSlot } from "@/components/Schedule/types";
+import { SlotAvailability } from "@/components/Schedule/types";
 
+import query from "@/Utils/request/query";
 import useMutation from "@/Utils/request/useMutation";
-import useQuery from "@/Utils/request/useQuery";
+import useTanStackQueryInstead from "@/Utils/request/useQuery";
 import {
   dateQueryString,
   formatDisplayName,
@@ -37,16 +39,16 @@ interface Props {
 }
 
 export default function AppointmentCreatePage(props: Props) {
-  const [selectedDoctor, setSelectedDoctor] = useState<string>();
+  const [selectedResource, setSelectedResource] = useState<string>();
   const [selectedMonth, setSelectedMonth] = useState(new Date());
   const [selectedDate, setSelectedDate] = useState(new Date());
 
   const [reason, setReason] = useState("");
-  const [selectedSlot, setSelectedSlot] = useState<TokenSlot>();
+  const [selectedSlot, setSelectedSlot] = useState<SlotAvailability>();
 
   const { start, end } = getMonthStartAndEnd(selectedMonth);
 
-  const availableDoctorsQuery = useQuery(
+  const availableDoctorsQuery = useTanStackQueryInstead(
     ScheduleAPIs.appointments.availableDoctors,
     {
       pathParams: {
@@ -59,16 +61,18 @@ export default function AppointmentCreatePage(props: Props) {
     },
   );
 
-  const slotsQuery = useQuery(ScheduleAPIs.appointments.slots, {
-    pathParams: {
-      facility_id: props.facilityId,
-    },
-    query: {
-      doctor_username: selectedDoctor,
-      valid_from: dateQueryString(start),
-      valid_to: dateQueryString(end),
-    },
-    prefetch: !!selectedDoctor,
+  const slotsQuery = useQuery({
+    queryKey: [selectedResource, dateQueryString(selectedDate)],
+    queryFn: query(ScheduleAPIs.slots.getAvailableSlotsForADay, {
+      pathParams: {
+        facility_id: props.facilityId,
+      },
+      body: {
+        resource: "191ceb2f-e2e8-4cec-983b-68d2fcdfbb08",
+        day: dateQueryString(selectedDate),
+      },
+    }),
+    // enabled: !!(selectedResource && selectedDate),
   });
 
   const createAppointmentMutation = useMutation(
@@ -91,7 +95,10 @@ export default function AppointmentCreatePage(props: Props) {
 
     return (
       <button
-        onClick={() => setSelectedDate(date)}
+        onClick={() => {
+          setSelectedDate(date);
+          setSelectedSlot(undefined);
+        }}
         className={cn(
           "h-full w-full hover:bg-gray-50 rounded-lg",
           isSelected ? "bg-white ring-2 ring-primary-500" : "bg-gray-100",
@@ -102,10 +109,8 @@ export default function AppointmentCreatePage(props: Props) {
     );
   };
 
-  const slotsOfDate = filterSlotsByDate(slotsQuery.data ?? [], selectedDate);
-
   const handleSubmit = () => {
-    if (!selectedDoctor) {
+    if (!selectedResource) {
       toast.error("Please select a preferred doctor");
       return;
     }
@@ -117,7 +122,7 @@ export default function AppointmentCreatePage(props: Props) {
     createAppointmentMutation.mutate({
       body: {
         patient: props.patientId,
-        doctor_username: selectedDoctor,
+        doctor_username: selectedResource,
         slot_start: selectedSlot.start_datetime,
         reason_for_visit: reason,
       },
@@ -147,8 +152,8 @@ export default function AppointmentCreatePage(props: Props) {
               <label className="block mb-2">Preferred doctor</label>
               <Select
                 disabled={availableDoctorsQuery.loading}
-                value={selectedDoctor}
-                onValueChange={(value) => setSelectedDoctor(value)}
+                value={selectedResource}
+                onValueChange={(value) => setSelectedResource(value)}
               >
                 <SelectTrigger>
                   <SelectValue placeholder="Select" />
@@ -175,7 +180,10 @@ export default function AppointmentCreatePage(props: Props) {
             <div>
               <Calendar
                 month={selectedMonth}
-                onMonthChange={setSelectedMonth}
+                onMonthChange={(month) => {
+                  setSelectedMonth(month);
+                  setSelectedSlot(undefined);
+                }}
                 renderDay={renderDay}
                 className="mb-6"
                 highlightToday={false}
@@ -192,7 +200,7 @@ export default function AppointmentCreatePage(props: Props) {
                   <div>
                     <h4 className="mb-3">(Session Name)</h4>
                     <div className="flex flex-wrap gap-2">
-                      {slotsOfDate.map((slot) => (
+                      {slotsQuery.data.results.map((slot) => (
                         <Button
                           key={slot.id}
                           variant={
@@ -207,7 +215,9 @@ export default function AppointmentCreatePage(props: Props) {
                               setSelectedSlot(slot);
                             }
                           }}
-                          disabled={!slot.tokens_remaining}
+                          disabled={
+                            slot.allocated === slot.availability.tokens_per_slot
+                          }
                         >
                           {format(slot.start_datetime, "HH:mm")}
                         </Button>
@@ -241,10 +251,3 @@ export default function AppointmentCreatePage(props: Props) {
     </Page>
   );
 }
-
-const filterSlotsByDate = (slots: TokenSlot[], date: Date) => {
-  return slots.filter((slot) => {
-    const slotDate = parseISO(slot.start_datetime);
-    return isSameDay(slotDate, date);
-  });
-};
