@@ -11,10 +11,6 @@ import {
 } from "@/components/Assets/AssetTypes";
 import { ICD11DiagnosisModel } from "@/components/Diagnosis/types";
 import {
-  ILocalBodies,
-  ILocalBodyByDistrict,
-} from "@/components/ExternalResult/models";
-import {
   EventGeneric,
   type Type,
 } from "@/components/Facility/ConsultationDetails/Events/types";
@@ -729,12 +725,12 @@ const routes = {
   getAllLocalBodyByDistrict: {
     path: "/api/v1/district/{id}/get_all_local_body/",
     method: "GET",
-    TRes: Type<ILocalBodyByDistrict[]>(),
+    TRes: Type<LocalBodyModel[]>(),
   },
   getLocalbodyByDistrict: {
     path: "/api/v1/district/{id}/local_bodies/",
     method: "GET",
-    TRes: Type<ILocalBodies[]>(),
+    TRes: Type<LocalBodyModel[]>(),
   },
 
   // Local Body
