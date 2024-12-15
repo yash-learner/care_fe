@@ -14,11 +14,15 @@ import {
 } from "@/components/ui/dropdown-menu";
 
 import Loading from "@/components/Common/Loading";
-import { getSlotsPerSession } from "@/components/Schedule/helpers";
+import {
+  getDaysOfWeekFromAvailabilities,
+  getSlotsPerSession,
+} from "@/components/Schedule/helpers";
 import {
   ScheduleSlotTypes,
   ScheduleTemplate,
 } from "@/components/Schedule/types";
+import { formatAvailabilityTime } from "@/components/Users/UserAvailabilityTab";
 
 interface Props {
   items?: ScheduleTemplate[];
@@ -64,8 +68,8 @@ const ScheduleTemplateItem = (props: ScheduleTemplate) => {
             <span className="text-sm text-gray-700">
               Scheduled for{" "}
               <strong className="font-medium">
-                {props.availability[0].days_of_week
-                  .map((day) => t(`DAYS_OF_WEEK__${day}`))
+                {getDaysOfWeekFromAvailabilities(props.availabilities)
+                  .map((day) => t(`DAYS_OF_WEEK_SHORT__${day}`))
                   .join(", ")}
               </strong>
             </span>
@@ -84,7 +88,7 @@ const ScheduleTemplateItem = (props: ScheduleTemplate) => {
       </div>
       <div className="flex flex-col gap-2 px-4 py-2">
         <ul className="flex flex-col gap-2">
-          {props.availability.map((slot) => (
+          {props.availabilities.map((slot) => (
             <li key={slot.id} className="w-full">
               <div className="rounded-lg bg-gray-50 px-3 py-2">
                 <div className="flex w-full items-center justify-between">
@@ -103,8 +107,8 @@ const ScheduleTemplateItem = (props: ScheduleTemplate) => {
                       <span className="text-sm">
                         {Math.floor(
                           getSlotsPerSession(
-                            slot.start_time,
-                            slot.end_time,
+                            slot.availability[0].start_time,
+                            slot.availability[0].end_time,
                             slot.slot_size_in_minutes,
                           ) ?? 0,
                         )}{" "}
@@ -113,7 +117,7 @@ const ScheduleTemplateItem = (props: ScheduleTemplate) => {
                     </p>
                   </div>
                   <span className="text-sm">
-                    {slot.start_time} - {slot.end_time}
+                    {formatAvailabilityTime(slot.availability)}
                   </span>
                 </div>
               </div>

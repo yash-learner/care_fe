@@ -1,5 +1,6 @@
 import { useQuery } from "@tanstack/react-query";
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import { toast } from "sonner";
 
 import { cn } from "@/lib/utils";
 
@@ -25,7 +26,7 @@ import {
   getSlotsPerSession,
   isDateInRange,
 } from "@/components/Schedule/helpers";
-import { ScheduleSlotTypes } from "@/components/Schedule/types";
+import { ScheduleAvailability } from "@/components/Schedule/types";
 import { UserModel } from "@/components/Users/models";
 
 import query from "@/Utils/request/query";
@@ -39,6 +40,14 @@ export default function UserAvailabilityTab({ userData: user }: Props) {
   const [view, setView] = useState<"schedule" | "exceptions">("schedule");
   const [month, setMonth] = useState(new Date());
 
+  const facilityId = user.home_facility_object?.id;
+
+  useEffect(() => {
+    if (!facilityId) {
+      toast.error("User needs to be linked to a home facility");
+    }
+  }, [facilityId]);
+
   const monthRange = getMonthStartAndEnd(month);
 
   const templatesQuery = useQuery({
@@ -50,7 +59,7 @@ export default function UserAvailabilityTab({ userData: user }: Props) {
     ],
     queryFn: query(ScheduleAPIs.templates.list, {
       pathParams: {
-        facility_id: user.home_facility_object!.id!,
+        facility_id: facilityId!,
       },
       queryParams: {
         doctor_username: user.username,
@@ -58,6 +67,7 @@ export default function UserAvailabilityTab({ userData: user }: Props) {
         date_to: monthRange.end.toISOString().split("T")[0],
       },
     }),
+    enabled: !!facilityId,
   });
 
   const exceptionsQuery = useQuery({
@@ -69,7 +79,7 @@ export default function UserAvailabilityTab({ userData: user }: Props) {
     ],
     queryFn: query(ScheduleAPIs.exceptions.list, {
       pathParams: {
-        facility_id: user.home_facility_object!.id!,
+        facility_id: facilityId!,
       },
       queryParams: {
         doctor_username: user.username,
@@ -77,32 +87,13 @@ export default function UserAvailabilityTab({ userData: user }: Props) {
         date_to: monthRange.end.toISOString().split("T")[0],
       },
     }),
+    enabled: false, // TODO: enable this once we have exceptions
   });
 
-  if (!templatesQuery.data || !exceptionsQuery.data) {
+  if (!templatesQuery.data) {
+    // TODO: also check exceptionsQuery.data
     return <Loading />;
   }
-
-  //   <nav className="mt-6 flex gap-2 border-b border-gray-200">
-  //         {(["schedule", "exceptions"] as const).map((view1) => (
-  //           <Link
-  //             key={view1}
-  //             className={cn(
-  //               "relative px-3 py-2 font-medium",
-  //               view === view1 ? "text-primary-600" : "text-gray-500",
-  //             )}
-  //             href={`/${view1}`}
-  //           >
-  //             {t(view1)}
-  //             <span
-  //               className={cn(
-  //                 view === view1 ? "opacity-100" : "opacity-0",
-  //                 "absolute inset-x-0 -bottom-[.1rem] h-[.2rem] bg-primary-600 transition-opacity duration-200 ease-in-out",
-  //               )}
-  //             />
-  //           </Link>
-  //         ))}
-  //       </nav>
 
   return (
     <div className="grid grid-cols-1 gap-8 py-4 md:grid-cols-2">
@@ -117,7 +108,7 @@ export default function UserAvailabilityTab({ userData: user }: Props) {
           const templates = templatesQuery.data?.results.filter(
             (template) =>
               isDateInRange(date, template.valid_from, template.valid_to) &&
-              filterAvailabilitiesByDayOfWeek(template.availability, date)
+              filterAvailabilitiesByDayOfWeek(template.availabilities, date)
                 .length > 0,
           );
 
@@ -213,39 +204,36 @@ export default function UserAvailabilityTab({ userData: user }: Props) {
                       </div>
 
                       <div className="pl-5 py-2 space-y-4">
-                        {template.availability.map((availability) => (
-                          <div>
-                            <h4 className="font-medium text-base">
-                              {availability.name}
-                            </h4>
-                            <p className="text-sm text-gray-600">
-                              <span>
-                                {/* TODO: Temp. hack since backend is giving slot_type as number in Response */}
-                                {
-                                  ScheduleSlotTypes[
-                                    (availability.slot_type as unknown as number) -
-                                      1
-                                  ]
-                                }
-                              </span>
-                              <span className="px-2 text-gray-300">|</span>
-                              <span className="text-sm">
-                                {formatTimeShort(availability.start_time)} -{" "}
-                                {formatTimeShort(availability.end_time)}
-                              </span>
-                            </p>
-                            <p className="text-sm text-gray-600">
-                              {Math.floor(
-                                getSlotsPerSession(
-                                  availability.start_time,
-                                  availability.end_time,
-                                  availability.slot_size_in_minutes,
-                                ) ?? 0,
-                              )}{" "}
-                              slots of {availability.slot_size_in_minutes} mins.
-                            </p>
-                          </div>
-                        ))}
+                        {template.availabilities.map(
+                          ({
+                            name,
+                            slot_type,
+                            availability,
+                            slot_size_in_minutes,
+                          }) => (
+                            <div>
+                              <h4 className="font-medium text-base">{name}</h4>
+                              <p className="text-sm text-gray-600">
+                                <span>{slot_type}</span>
+                                <span className="px-2 text-gray-300">|</span>
+                                <span className="text-sm">
+                                  {/* TODO: handle multiple days of week */}
+                                  {formatAvailabilityTime(availability)}
+                                </span>
+                              </p>
+                              <p className="text-sm text-gray-600">
+                                {Math.floor(
+                                  getSlotsPerSession(
+                                    availability[0].start_time,
+                                    availability[0].end_time,
+                                    slot_size_in_minutes,
+                                  ) ?? 0,
+                                )}{" "}
+                                slots of {slot_size_in_minutes} mins.
+                              </p>
+                            </div>
+                          ),
+                        )}
                       </div>
                     </div>
                   ))}
@@ -308,7 +296,7 @@ export default function UserAvailabilityTab({ userData: user }: Props) {
                 items={
                   exceptionsQuery.isLoading
                     ? undefined
-                    : exceptionsQuery.data.results
+                    : exceptionsQuery.data?.results
                 }
                 onRefresh={exceptionsQuery.refetch}
               />
@@ -330,4 +318,13 @@ const diagonalStripes = {
       rgb(229 231 235) 4px, /* gray-200 */
       rgb(229 231 235) 8px
     )`,
+};
+
+// TODO: remove this in favour of supporting flexible day of week availability
+export const formatAvailabilityTime = (
+  availability: ScheduleAvailability["availability"],
+) => {
+  const startTime = availability[0].start_time;
+  const endTime = availability[0].end_time;
+  return `${formatTimeShort(startTime)} - ${formatTimeShort(endTime)}`;
 };

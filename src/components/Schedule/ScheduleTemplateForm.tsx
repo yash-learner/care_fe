@@ -1,4 +1,5 @@
 import { zodResolver } from "@hookform/resolvers/zod";
+import { useMutation } from "@tanstack/react-query";
 import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { useTranslation } from "react-i18next";
@@ -38,11 +39,14 @@ import {
   getSlotsPerSession,
   getTokenDuration,
 } from "@/components/Schedule/helpers";
-import { ScheduleSlotTypes } from "@/components/Schedule/types";
+import {
+  ScheduleSlotTypes,
+  ScheduleTemplate,
+} from "@/components/Schedule/types";
 import { UserModel } from "@/components/Users/models";
 
-import useMutation from "@/Utils/request/useMutation";
-import { Time } from "@/Utils/types";
+import request from "@/Utils/request/request";
+import { Time, WritableOnly } from "@/Utils/types";
 
 const formSchema = z.object({
   name: z.string().min(1, "Template name is required"),
@@ -53,7 +57,7 @@ const formSchema = z.object({
     required_error: "Valid to date is required",
   }),
   weekdays: z.array(z.number() as unknown as z.ZodType<DayOfWeekValue>),
-  availability: z.array(
+  availabilities: z.array(
     z.object({
       name: z.string().min(1, "Session name is required"),
       slot_type: z.enum(ScheduleSlotTypes),
@@ -86,7 +90,7 @@ export default function ScheduleTemplateForm({ user, onRefresh }: Props) {
       valid_from: undefined,
       valid_to: undefined,
       weekdays: [],
-      availability: [
+      availabilities: [
         {
           name: "",
           slot_type: undefined,
@@ -100,49 +104,51 @@ export default function ScheduleTemplateForm({ user, onRefresh }: Props) {
     },
   });
 
-  const { mutate, isProcessing } = useMutation(ScheduleAPIs.templates.create, {
-    pathParams: {
-      facility_id: user.home_facility_object!.id!,
-    },
-  });
-
-  async function onSubmit(values: z.infer<typeof formSchema>) {
-    toast.promise(
-      mutate({
-        body: {
-          doctor_username: user.username,
-          valid_from: values.valid_from.toISOString().split("T")[0],
-          valid_to: values.valid_to.toISOString().split("T")[0],
-          name: values.name,
-          availability: values.availability.map((availability) => ({
-            ...availability,
-            days_of_week: values.weekdays,
-          })),
-        },
-      }),
-      {
-        loading: "Creating...",
-        success: ({ res }) => {
+  const { mutate, isPending } = useMutation({
+    mutationFn: (body: WritableOnly<ScheduleTemplate>) =>
+      request(ScheduleAPIs.templates.create, {
+        pathParams: { facility_id: user.home_facility_object!.id! },
+        body,
+        onResponse: ({ res }) => {
           if (res?.ok) {
             toast.success("Schedule template created successfully");
             setOpen(false);
             form.reset();
             onRefresh?.();
-            return "Schedule template created successfully";
           }
         },
-        error: "Error",
-      },
-    );
+      }),
+  });
+
+  async function onSubmit(values: z.infer<typeof formSchema>) {
+    mutate({
+      valid_from: values.valid_from.toISOString().split("T")[0],
+      valid_to: values.valid_to.toISOString().split("T")[0],
+      name: values.name,
+      resource_type: "user",
+      resource: user.external_id,
+      availabilities: values.availabilities.map((availability) => ({
+        name: availability.name,
+        slot_type: availability.slot_type,
+        slot_size_in_minutes: availability.slot_size_in_minutes,
+        tokens_per_slot: availability.tokens_per_slot,
+        reason: availability.reason,
+        availability: values.weekdays.map((day) => ({
+          day_of_week: day,
+          start_time: availability.start_time,
+          end_time: availability.end_time,
+        })),
+      })),
+    });
   }
 
   const timeAllocationCallout = (index: number) => {
-    const startTime = form.watch(`availability.${index}.start_time`);
-    const endTime = form.watch(`availability.${index}.end_time`);
+    const startTime = form.watch(`availabilities.${index}.start_time`);
+    const endTime = form.watch(`availabilities.${index}.end_time`);
     const slotSizeInMinutes = form.watch(
-      `availability.${index}.slot_size_in_minutes`,
+      `availabilities.${index}.slot_size_in_minutes`,
     );
-    const tokensPerSlot = form.watch(`availability.${index}.tokens_per_slot`);
+    const tokensPerSlot = form.watch(`availabilities.${index}.tokens_per_slot`);
 
     if (!startTime || !endTime || !slotSizeInMinutes || !tokensPerSlot) {
       return null;
@@ -170,7 +176,7 @@ export default function ScheduleTemplateForm({ user, onRefresh }: Props) {
   return (
     <Sheet open={open} onOpenChange={setOpen}>
       <SheetTrigger asChild>
-        <Button variant="primary" disabled={isProcessing}>
+        <Button variant="primary" disabled={isPending}>
           Create Template
         </Button>
       </SheetTrigger>
@@ -257,7 +263,7 @@ export default function ScheduleTemplateForm({ user, onRefresh }: Props) {
               </div>
 
               <div className="space-y-4">
-                {form.watch("availability")?.map((_, index) => (
+                {form.watch("availabilities")?.map((_, index) => (
                   <div
                     key={index}
                     className="flex flex-col rounded-lg bg-white p-4 shadow"
@@ -269,7 +275,7 @@ export default function ScheduleTemplateForm({ user, onRefresh }: Props) {
                           className="text-lg text-blue-600"
                         />
                         <span className="font-semibold">
-                          {form.watch(`availability.${index}.name`) ||
+                          {form.watch(`availabilities.${index}.name`) ||
                             "Untitled Session"}
                         </span>
                       </div>
@@ -279,9 +285,10 @@ export default function ScheduleTemplateForm({ user, onRefresh }: Props) {
                         size="sm"
                         className="text-gray-600 hover:text-gray-900"
                         onClick={() => {
-                          const availability = form.getValues("availability");
-                          availability.splice(index, 1);
-                          form.setValue("availability", availability);
+                          const availabilities =
+                            form.getValues("availabilities");
+                          availabilities.splice(index, 1);
+                          form.setValue("availabilities", availabilities);
                         }}
                       >
                         <CareIcon icon="l-trash" className="text-base" />
@@ -292,7 +299,7 @@ export default function ScheduleTemplateForm({ user, onRefresh }: Props) {
                     <div className="grid grid-cols-2 gap-x-6 gap-y-4">
                       <FormField
                         control={form.control}
-                        name={`availability.${index}.name`}
+                        name={`availabilities.${index}.name`}
                         render={({ field }) => (
                           <FormItem className="col-span-2 md:col-span-1">
                             <FormLabel required>Session Title</FormLabel>
@@ -306,7 +313,7 @@ export default function ScheduleTemplateForm({ user, onRefresh }: Props) {
 
                       <FormField
                         control={form.control}
-                        name={`availability.${index}.slot_type`}
+                        name={`availabilities.${index}.slot_type`}
                         render={({ field }) => (
                           <FormItem className="space-y-3 col-span-2 md:col-span-1">
                             <FormLabel required>Appointment Type</FormLabel>
@@ -342,7 +349,7 @@ export default function ScheduleTemplateForm({ user, onRefresh }: Props) {
 
                       <FormField
                         control={form.control}
-                        name={`availability.${index}.start_time`}
+                        name={`availabilities.${index}.start_time`}
                         render={({ field }) => (
                           <FormItem>
                             <FormLabel required>Start Time</FormLabel>
@@ -356,7 +363,7 @@ export default function ScheduleTemplateForm({ user, onRefresh }: Props) {
 
                       <FormField
                         control={form.control}
-                        name={`availability.${index}.end_time`}
+                        name={`availabilities.${index}.end_time`}
                         render={({ field }) => (
                           <FormItem>
                             <FormLabel required>End Time</FormLabel>
@@ -371,7 +378,7 @@ export default function ScheduleTemplateForm({ user, onRefresh }: Props) {
                       <div className="flex items-center gap-4 col-span-2 md:col-span-1">
                         <FormField
                           control={form.control}
-                          name={`availability.${index}.slot_size_in_minutes`}
+                          name={`availabilities.${index}.slot_size_in_minutes`}
                           render={({ field }) => (
                             <FormItem className="flex-1">
                               <FormLabel required>Slot size (mins.)</FormLabel>
@@ -393,7 +400,7 @@ export default function ScheduleTemplateForm({ user, onRefresh }: Props) {
 
                         <FormField
                           control={form.control}
-                          name={`availability.${index}.tokens_per_slot`}
+                          name={`availabilities.${index}.tokens_per_slot`}
                           render={({ field }) => (
                             <FormItem className="flex-1">
                               <FormLabel required>Tokens per Slot</FormLabel>
@@ -419,7 +426,7 @@ export default function ScheduleTemplateForm({ user, onRefresh }: Props) {
                     <div className="mt-4">
                       <FormField
                         control={form.control}
-                        name={`availability.${index}.reason`}
+                        name={`availabilities.${index}.reason`}
                         render={({ field }) => (
                           <FormItem>
                             <FormLabel>Remarks</FormLabel>
@@ -443,12 +450,12 @@ export default function ScheduleTemplateForm({ user, onRefresh }: Props) {
                 type="button"
                 variant="outline_primary"
                 onClick={() => {
-                  const availability = form.getValues("availability");
-                  form.setValue("availability", [
-                    ...availability,
+                  const availabilities = form.getValues("availabilities");
+                  form.setValue("availabilities", [
+                    ...availabilities,
                     {
                       name: "",
-                      slot_type: "Open",
+                      slot_type: "open",
                       reason: "",
                       start_time: "00:00",
                       end_time: "00:00",
@@ -464,17 +471,13 @@ export default function ScheduleTemplateForm({ user, onRefresh }: Props) {
 
               <SheetFooter className="absolute inset-x-0 bottom-0 border-t bg-white p-6">
                 <SheetClose asChild>
-                  <Button
-                    variant="outline"
-                    type="button"
-                    disabled={isProcessing}
-                  >
+                  <Button variant="outline" type="button" disabled={isPending}>
                     Cancel
                   </Button>
                 </SheetClose>
 
-                <Button variant="primary" type="submit" disabled={isProcessing}>
-                  {isProcessing ? "Saving..." : "Save & Generate Slots"}
+                <Button variant="primary" type="submit" disabled={isPending}>
+                  {isPending ? "Saving..." : "Save & Generate Slots"}
                 </Button>
               </SheetFooter>
             </form>

@@ -1,8 +1,6 @@
 import { isSameDay, isWithinInterval } from "date-fns";
 
-import { DayOfWeekValue } from "@/CAREUI/interactive/WeekdayCheckbox";
-
-import { ScheduleAvailability } from "@/components/Schedule/types";
+import { ScheduleTemplate } from "@/components/Schedule/types";
 
 import { Time } from "@/Utils/types";
 
@@ -52,14 +50,27 @@ export function getTokenDuration(
   return slotSizeInMinutes / tokensPerSlot;
 }
 
+export const getDaysOfWeekFromAvailabilities = (
+  availabilities: ScheduleTemplate["availabilities"],
+) => {
+  return [
+    ...new Set(
+      availabilities.flatMap(({ availability }) => {
+        return availability.map(({ day_of_week }) => day_of_week);
+      }),
+    ),
+  ];
+};
+
 export const filterAvailabilitiesByDayOfWeek = (
-  availabilities: ScheduleAvailability[],
+  availabilities: ScheduleTemplate["availabilities"],
   date?: Date,
 ) => {
   // Doing this weird things because backend uses python's 0-6.
   // TODO: change to strings at seriazlier level...? or bitwise operations?
   const dayOfWeek = ((date ?? new Date()).getDay() + 6) % 7;
-  return availabilities.filter(({ days_of_week }) =>
-    days_of_week.includes(dayOfWeek as DayOfWeekValue),
+
+  return availabilities.filter(({ availability }) =>
+    availability.some((a) => a.day_of_week === dayOfWeek),
   );
 };

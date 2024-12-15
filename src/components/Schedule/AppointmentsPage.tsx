@@ -23,13 +23,14 @@ import Page from "@/components/Common/Page";
 import { ScheduleAPIs } from "@/components/Schedule/api";
 import { filterAvailabilitiesByDayOfWeek } from "@/components/Schedule/helpers";
 import { Appointment, ScheduleAvailability } from "@/components/Schedule/types";
+import { formatAvailabilityTime } from "@/components/Users/UserAvailabilityTab";
 import { UserModel } from "@/components/Users/models";
 
 import useAuthUser from "@/hooks/useAuthUser";
 
 import routes from "@/Utils/request/api";
 import query from "@/Utils/request/query";
-import { formatName, formatPatientAge, formatTimeShort } from "@/Utils/utils";
+import { formatName, formatPatientAge } from "@/Utils/utils";
 
 export default function AppointmentsPage() {
   const authUser = useAuthUser();
@@ -112,8 +113,7 @@ export default function AppointmentsPage() {
                     "hover:bg-white",
                   )}
                 >
-                  {formatTimeShort(slot.start_time)} -{" "}
-                  {formatTimeShort(slot.end_time)}
+                  {formatAvailabilityTime(slot.availability)}
                 </Button>
               ))}
             </div>
@@ -268,6 +268,6 @@ const useSlots = (facilityId: string, username?: string) => {
   return (
     templatesQuery.data.results
       // .filter((t) => isDateInRange(today, t.valid_from, t.valid_to)) // TODO: uncomment this, temp hack.
-      .flatMap((t) => filterAvailabilitiesByDayOfWeek(t.availability, today))
+      .flatMap((t) => filterAvailabilitiesByDayOfWeek(t.availabilities, today))
   );
 };

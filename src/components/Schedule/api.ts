@@ -4,13 +4,13 @@ import {
   ScheduleException,
   ScheduleExceptionCreate,
   ScheduleTemplate,
-  ScheduleTemplateCreate,
   TokenSlot,
 } from "@/components/Schedule/types";
 import { UserBareMinimum } from "@/components/Users/models";
 
 import { Type } from "@/Utils/request/api";
 import { PaginatedResponse } from "@/Utils/request/types";
+import { WritableOnly } from "@/Utils/types";
 
 export const ScheduleAPIs = {
   templates: {
@@ -18,7 +18,7 @@ export const ScheduleAPIs = {
       path: "/api/v1/facility/{facility_id}/schedule/",
       method: "POST",
       TRes: Type<ScheduleTemplate>(),
-      TBody: Type<ScheduleTemplateCreate>(),
+      TBody: Type<WritableOnly<ScheduleTemplate>>(),
     },
     delete: {
       path: "/api/v1/facility/{facility_id}/schedule/{id}/",
