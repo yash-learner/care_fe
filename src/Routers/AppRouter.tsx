@@ -25,7 +25,6 @@ import ConsultationRoutes from "@/Routers/routes/ConsultationRoutes";
 import FacilityRoutes from "@/Routers/routes/FacilityRoutes";
 import PatientRoutes from "@/Routers/routes/PatientRoutes";
 import ResourceRoutes from "@/Routers/routes/ResourceRoutes";
-import SampleRoutes from "@/Routers/routes/SampleRoutes";
 import ShiftingRoutes from "@/Routers/routes/ShiftingRoutes";
 import UserRoutes from "@/Routers/routes/UserRoutes";
 
@@ -52,7 +51,6 @@ const Routes: AppRoutes = {
   ...FacilityRoutes,
   ...PatientRoutes,
   ...ResourceRoutes,
-  ...SampleRoutes,
   ...ShiftingRoutes,
   ...ScheduleRoutes,
   ...UserRoutes,

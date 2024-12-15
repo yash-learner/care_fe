@@ -61,7 +61,6 @@ const StatelessSidebar = ({
     { text: t("appointments"), to: "/appointments", icon: "d-calendar" },
     { text: t("patients"), to: "/patients", icon: "d-patient" },
     { text: t("assets"), to: "/assets", icon: "d-folder" },
-    { text: t("sample_test"), to: "/sample", icon: "d-microscope" },
     { text: t("shifting"), to: "/shifting", icon: "d-ambulance" },
     { text: t("resource"), to: "/resource", icon: "d-book-open" },
     { text: t("users"), to: "/users", icon: "d-people" },
