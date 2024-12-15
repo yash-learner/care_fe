@@ -9,9 +9,11 @@ import CareIcon from "@/CAREUI/icons/CareIcon";
 import { Button } from "@/components/ui/button";
 
 import Spinner from "@/components/Common/Spinner";
-import { ILocalBodies } from "@/components/ExternalResult/models";
-import { WardModel } from "@/components/Facility/models";
-import { DistrictModel } from "@/components/Facility/models";
+import {
+  DistrictModel,
+  LocalBodyModel,
+  WardModel,
+} from "@/components/Facility/models";
 import {
   FieldError,
   RequiredFieldValidator,
@@ -177,7 +179,7 @@ export function PatientRegistration(props: PatientRegistrationProps) {
   const [isLocalbodyLoading, setIsLocalbodyLoading] = useState(false);
   const [isWardLoading, setIsWardLoading] = useState(false);
   const [districts, setDistricts] = useState<DistrictModel[]>([]);
-  const [localBody, setLocalBody] = useState<ILocalBodies[]>([]);
+  const [localBody, setLocalBody] = useState<LocalBodyModel[]>([]);
   const [ward, setWard] = useState<WardModel[]>([]);
   const [showAutoFilledPincode, setShowAutoFilledPincode] = useState(false);
 
