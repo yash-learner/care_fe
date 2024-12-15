@@ -5,7 +5,7 @@ import ListEncounterServiceRequests from "@/components/LabTest/ListEncounterServ
 import { PatientModel } from "@/components/Patient/models";
 
 import routes from "@/Utils/request/api";
-import useQuery from "@/Utils/request/useQuery";
+import useTanStackQueryInstead from "@/Utils/request/useQuery";
 
 import { ConsultationModel } from "../models";
 
@@ -28,17 +28,15 @@ export default function InvestigationTab(props: {
     patientData,
     consultationData,
   } = props;
-  const { data: investigations, loading: investigationLoading } = useQuery(
-    routes.getInvestigation,
-    {
+  const { data: investigations, loading: investigationLoading } =
+    useTanStackQueryInstead(routes.getInvestigation, {
       pathParams: {
         consultation_external_id: consultationId,
       },
-    },
-  );
+    });
 
   const { data: investigationSessions, loading: investigationSessionLoading } =
-    useQuery(routes.getInvestigationSessions, {
+    useTanStackQueryInstead(routes.getInvestigationSessions, {
       pathParams: {
         consultation_external_id: consultationId,
       },
