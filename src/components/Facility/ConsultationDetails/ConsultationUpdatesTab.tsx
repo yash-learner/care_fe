@@ -5,7 +5,6 @@ import {
   Transition,
 } from "@headlessui/react";
 import { useState } from "react";
-import { useTranslation } from "react-i18next";
 
 import Chip from "@/CAREUI/display/Chip";
 import CareIcon from "@/CAREUI/icons/CareIcon";
@@ -19,20 +18,17 @@ import ButtonV2 from "@/components/Common/ButtonV2";
 import PageTitle from "@/components/Common/PageTitle";
 import ReadMore from "@/components/Common/Readmore";
 import Tabs from "@/components/Common/Tabs";
-import EventsList from "@/components/Facility/ConsultationDetails/Events/EventsList";
+import { DiagnosisList } from "@/components/Diagnosis/list";
 import { ConsultationTabProps } from "@/components/Facility/ConsultationDetails/index";
-import LogUpdatesFilter from "@/components/Facility/Consultations/LogUpdatesFilter";
-import LogUpdatesList from "@/components/Facility/Consultations/LogUpdatesList";
 import { BedModel } from "@/components/Facility/models";
 import PrescriptionsTable from "@/components/Medicine/PrescriptionsTable";
-import EncounterSymptomsCard from "@/components/Symptoms/SymptomsCard";
+import { SymptomsList } from "@/components/Symptoms/list";
 import HL7PatientVitalsMonitor from "@/components/VitalsMonitor/HL7PatientVitalsMonitor";
 import VentilatorPatientVitalsMonitor from "@/components/VitalsMonitor/VentilatorPatientVitalsMonitor";
 import useVitalsAspectRatioConfig from "@/components/VitalsMonitor/useVitalsAspectRatioConfig";
 import { getVitalsMonitorSocketUrl } from "@/components/VitalsMonitor/utils";
 
 import { DISCHARGE_REASONS } from "@/common/constants";
-import { EVENTS_SORT_OPTIONS } from "@/common/constants";
 
 import routes from "@/Utils/request/api";
 import { QueryParams } from "@/Utils/request/types";
@@ -46,15 +42,16 @@ import {
 } from "@/Utils/utils";
 import { classNames } from "@/Utils/utils";
 
+import ObservationsList from "./ObservationsList";
+import QuestionnaireResponsesList from "./QuestionnaireResponsesList";
+
 export const ConsultationUpdatesTab = (props: ConsultationTabProps) => {
   const [hl7SocketUrl, setHL7SocketUrl] = useState<string>();
   const [ventilatorSocketUrl, setVentilatorSocketUrl] = useState<string>();
   const [monitorBedData, setMonitorBedData] = useState<AssetBedModel>();
   const [ventilatorBedData, setVentilatorBedData] = useState<AssetBedModel>();
-  const [showEvents, setShowEvents] = useState(true);
-  const [eventsQuery, setEventsQuery] = useState<QueryParams>();
-  const [dailyRoundsQuery, setDailyRoundsQuery] = useState<QueryParams>();
-  const { t } = useTranslation();
+  const [showObservations, setShowObservations] = useState(true);
+  const [observationsQuery, setObservationsQuery] = useState<QueryParams>();
 
   const vitals = useVitalsAspectRatioConfig({
     default: undefined,
@@ -334,8 +331,18 @@ export const ConsultationUpdatesTab = (props: ConsultationTabProps) => {
               </div>
             )}
 
-            <div className="rounded-lg bg-white px-4 py-5 shadow sm:p-6 md:col-span-2">
-              <EncounterSymptomsCard />
+            <div className="md:col-span-2">
+              <SymptomsList
+                patientId={props.patientId}
+                encounterId={props.consultationId}
+              />
+            </div>
+
+            <div className="md:col-span-2">
+              <DiagnosisList
+                patientId={props.patientId}
+                encounterId={props.consultationId}
+              />
             </div>
 
             {props.consultationData.history_of_present_illness && (
@@ -678,27 +685,22 @@ export const ConsultationUpdatesTab = (props: ConsultationTabProps) => {
               className="mr-2 mt-3 w-full lg:w-full"
               tabs={[
                 {
-                  text: (
-                    <div className="flex items-center justify-center gap-1 text-sm">
-                      {t("events")}
-                      <span className="rounded-lg bg-warning-400 p-px px-1 text-xs text-white">
-                        {t("beta")}
-                      </span>
-                    </div>
-                  ),
+                  text: "Observations",
                   value: 1,
                 },
-                { text: t("log_updates"), value: 0 },
+                { text: "Questionnaire Responses", value: 0 },
               ]}
-              onTabChange={(v) => setShowEvents(!!v)}
-              currentTab={showEvents ? 1 : 0}
+              onTabChange={(v) => setShowObservations(!!v)}
+              currentTab={showObservations ? 1 : 0}
             />
-            {showEvents ? (
+            {showObservations ? (
               <Popover className="relative mt-3">
                 <PopoverButton>
                   <ButtonV2
                     className="border p-3"
-                    variant={eventsQuery?.ordering ? "primary" : "secondary"}
+                    variant={
+                      observationsQuery?.ordering ? "primary" : "secondary"
+                    }
                   >
                     <CareIcon icon="l-filter" />
                   </ButtonV2>
@@ -714,69 +716,56 @@ export const ConsultationUpdatesTab = (props: ConsultationTabProps) => {
                   <PopoverPanel className="absolute right-0 z-30">
                     <div className="rounded-lg shadow-lg ring-1 ring-secondary-400">
                       <div className="relative flex flex-col rounded-b-lg bg-white">
-                        {EVENTS_SORT_OPTIONS.map(({ isAscending, value }) => {
-                          return (
-                            <div
-                              className={classNames(
-                                "dropdown-item-primary pointer-events-auto m-2 flex w-56 cursor-pointer items-center justify-start gap-3 rounded border-0 px-4 py-2 text-sm font-normal transition-all duration-200 ease-in-out",
-                                eventsQuery?.ordering?.toString() === value
-                                  ? "bg-primary-100 !font-medium text-primary-500"
-                                  : "",
-                              )}
-                              onClick={() => {
-                                setEventsQuery({
-                                  ordering: value,
-                                });
-                              }}
-                            >
-                              <CareIcon
-                                className="text-primary-600"
-                                icon={
-                                  isAscending
-                                    ? "l-sort-amount-up"
-                                    : "l-sort-amount-down"
-                                }
-                              />
-                              <span>{t("SORT_OPTIONS__" + value)}</span>
-                            </div>
-                          );
-                        })}
+                        {[
+                          {
+                            value: "-effective_datetime",
+                            label: "Newest First",
+                          },
+                          {
+                            value: "effective_datetime",
+                            label: "Oldest First",
+                          },
+                        ].map(({ value, label }) => (
+                          <div
+                            key={value}
+                            className={classNames(
+                              "dropdown-item-primary pointer-events-auto m-2 flex w-56 cursor-pointer items-center justify-start gap-3 rounded border-0 px-4 py-2 text-sm font-normal transition-all duration-200 ease-in-out",
+                              observationsQuery?.ordering === value
+                                ? "bg-primary-100 !font-medium text-primary-500"
+                                : "",
+                            )}
+                            onClick={() => {
+                              setObservationsQuery({
+                                ordering: value,
+                              });
+                            }}
+                          >
+                            <CareIcon
+                              className="text-primary-600"
+                              icon={
+                                value.startsWith("-")
+                                  ? "l-sort-amount-down"
+                                  : "l-sort-amount-up"
+                              }
+                            />
+                            <span>{label}</span>
+                          </div>
+                        ))}
                       </div>
                     </div>
                   </PopoverPanel>
                 </Transition>
               </Popover>
-            ) : (
-              <DailyRoundsSortDropdown
-                setDailyRoundsQuery={setDailyRoundsQuery}
-              />
-            )}
+            ) : null}
           </div>
 
-          {showEvents ? (
-            <EventsList query={eventsQuery!} />
+          {showObservations ? (
+            <ObservationsList />
           ) : (
-            <LogUpdatesList
-              consultation={props.consultationData}
-              query={dailyRoundsQuery!}
-            />
+            <QuestionnaireResponsesList />
           )}
         </div>
       </div>
     </div>
   );
 };
-
-function DailyRoundsSortDropdown({
-  setDailyRoundsQuery,
-}: {
-  setDailyRoundsQuery: (query: QueryParams) => void;
-}) {
-  return (
-    <LogUpdatesFilter
-      onApply={(query) => {
-        setDailyRoundsQuery(query);
-      }}
-    />
-  );
-}

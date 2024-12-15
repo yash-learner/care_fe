@@ -1,4 +1,5 @@
 import { ConsultationDetails } from "@/components/Facility/ConsultationDetails";
+import QuestionnaireResponseView from "@/components/Facility/ConsultationDetails/QuestionnaireResponseView";
 import ConsultationDoctorNotes from "@/components/Facility/ConsultationDoctorNotes";
 import { ConsultationForm } from "@/components/Facility/ConsultationForm";
 import Investigation from "@/components/Facility/Investigations";
@@ -11,6 +12,7 @@ import ManagePrescriptions from "@/components/Medicine/ManagePrescriptions";
 import PrescriptionsPrintPreview from "@/components/Medicine/PrintPreview";
 import { DailyRoundListDetails } from "@/components/Patient/DailyRoundListDetails";
 import { DailyRounds } from "@/components/Patient/DailyRounds";
+import EncounterQuestionnaire from "@/components/Patient/EncounterQuestionnaire";
 import FileUploadPage from "@/components/Patient/FileUploadPage";
 import PatientConsentRecords from "@/components/Patient/PatientConsentRecords";
 
@@ -157,6 +159,27 @@ const consultationRoutes: AppRoutes = {
         facilityId={facilityId}
         patientId={patientId}
         consultationId={consultationId}
+      />
+    ),
+  "/facility/:facilityId/patient/:patientId/consultation/:consultationId/questionnaire":
+    ({ facilityId, patientId, consultationId }) => (
+      <EncounterQuestionnaire
+        facilityId={facilityId}
+        patientId={patientId}
+        consultationId={consultationId}
+      />
+    ),
+  "/facility/:facilityId/patient/:patientId/consultation/:consultationId/questionnaire_response/:id":
+    ({ patientId, id }) => (
+      <QuestionnaireResponseView responseId={id} patientId={patientId} />
+    ),
+  "/facility/:facilityId/patient/:patientId/consultation/:consultationId/questionnaire/:slug":
+    ({ facilityId, patientId, consultationId, slug }) => (
+      <EncounterQuestionnaire
+        facilityId={facilityId}
+        patientId={patientId}
+        consultationId={consultationId}
+        questionnaireSlug={slug}
       />
     ),
   "/facility/:facilityId/patient/:patientId/consultation/:consultationId/:tab":

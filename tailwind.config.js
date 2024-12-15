@@ -22,7 +22,6 @@ module.exports = {
     extend: {
       fontFamily: {
         sans: ["Figtree", "sans-serif"],
-        barcode: ["'Libre Barcode 39'", "cursive"],
       },
       colors: {
         green: colors.emerald,

@@ -5,7 +5,7 @@ import { useTranslation } from "react-i18next";
 import Loading from "@/components/Common/Loading";
 import Page from "@/components/Common/Page";
 import { userChildProps } from "@/components/Common/UserColumns";
-import Error404 from "@/components/ErrorPages/404";
+import ErrorPage from "@/components/ErrorPages/DefaultErrorPage";
 import LinkedFacilitiesTab from "@/components/Users/LinkedFacilitiesTab";
 import LinkedSkillsTab from "@/components/Users/LinkedSkillsTab";
 import UserAvailabilityTab from "@/components/Users/UserAvailabilityTab";
@@ -91,7 +91,7 @@ export default function UserHome(props: UserHomeProps) {
   const currentTab = isValidTab(normalizedTab) ? normalizedTab : undefined;
 
   if (!currentTab) {
-    return <Error404 />;
+    return <ErrorPage />;
   }
 
   const SelectedTab = TABS[currentTab].body;

@@ -5,8 +5,7 @@ import { useTranslation } from "react-i18next";
 import Loading from "@/components/Common/Loading";
 import PageTitle from "@/components/Common/PageTitle";
 import RelativeDateUserMention from "@/components/Common/RelativeDateUserMention";
-import DiagnosesListAccordion from "@/components/Diagnosis/DiagnosesListAccordion";
-import Error404 from "@/components/ErrorPages/404";
+import ErrorPage from "@/components/ErrorPages/DefaultErrorPage";
 import { ConsultationABGTab } from "@/components/Facility/ConsultationDetails/ConsultationABGTab";
 import { ConsultationDialysisTab } from "@/components/Facility/ConsultationDetails/ConsultationDialysisTab";
 import { ConsultationFeedTab } from "@/components/Facility/ConsultationDetails/ConsultationFeedTab";
@@ -186,7 +185,7 @@ export const ConsultationDetails = (props: any) => {
   };
 
   if (!tab) {
-    return <Error404 />;
+    return <ErrorPage />;
   }
 
   const SelectedTab = tabs[tab];
@@ -356,15 +355,6 @@ export const ConsultationDetails = (props: any) => {
               </div>
             </div>
           </div>
-          {!!consultationData.diagnoses?.length && (
-            <div className="col-span-1 mt-2 overflow-hidden rounded-lg bg-white shadow">
-              <div className="px-4 py-2">
-                <DiagnosesListAccordion
-                  diagnoses={consultationData.diagnoses ?? []}
-                />
-              </div>
-            </div>
-          )}
           <div className="mt-4 w-full border-b-2 border-secondary-200">
             <div className="overflow-x-auto sm:flex sm:items-baseline">
               <div className="mt-4 sm:mt-0">

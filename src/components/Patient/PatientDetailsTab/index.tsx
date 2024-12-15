@@ -4,6 +4,7 @@ import EncounterHistory from "./EncounterHistory";
 import { HealthProfileSummary } from "./HealthProfileSummary";
 import { ImmunisationRecords } from "./ImmunisationRecords";
 import PatientNotes from "./Notes";
+import { ResourceRequests } from "./ResourceRequests";
 import ShiftingHistory from "./ShiftingHistory";
 
 export interface PatientProps {
@@ -32,6 +33,10 @@ export const patientTabs = [
   {
     route: "shift",
     component: ShiftingHistory,
+  },
+  {
+    route: "resource-requests",
+    component: ResourceRequests,
   },
   {
     route: "patient-notes",

@@ -4,13 +4,14 @@ import { useEffect, useState } from "react";
 
 import IconIndex from "@/CAREUI/icons/Index";
 
+import ErrorBoundary from "@/components/Common/ErrorBoundary";
 import {
   DesktopSidebar,
   MobileSidebar,
   SIDEBAR_SHRINK_PREFERENCE_KEY,
   SidebarShrinkContext,
 } from "@/components/Common/Sidebar/Sidebar";
-import Error404 from "@/components/ErrorPages/404";
+import ErrorPage from "@/components/ErrorPages/DefaultErrorPage";
 import SessionExpired from "@/components/ErrorPages/SessionExpired";
 import { NoticeBoard } from "@/components/Notifications/NoticeBoard";
 import ShowPushNotification from "@/components/Notifications/ShowPushNotification";
@@ -27,6 +28,11 @@ import PatientRoutes from "@/Routers/routes/PatientRoutes";
 import ResourceRoutes from "@/Routers/routes/ResourceRoutes";
 import ShiftingRoutes from "@/Routers/routes/ShiftingRoutes";
 import UserRoutes from "@/Routers/routes/UserRoutes";
+import { PlugConfigEdit } from "@/pages/Apps/PlugConfigEdit";
+import { PlugConfigList } from "@/pages/Apps/PlugConfigList";
+
+import { QuestionnaireList } from "../components/Questionnaire";
+import { QuestionnaireShow } from "../components/Questionnaire/show";
 
 export type RouteParams<T extends string> =
   T extends `${string}:${infer Param}/${infer Rest}`
@@ -59,11 +65,17 @@ const Routes: AppRoutes = {
   "/notice_board": () => <NoticeBoard />,
 
   "/session-expired": () => <SessionExpired />,
-  "/not-found": () => <Error404 />,
+  "/not-found": () => <ErrorPage />,
   "/icons": () => <IconIndex />,
 
   // Only include the icon route in development environment
   ...(import.meta.env.PROD ? { "/icons": () => <IconIndex /> } : {}),
+
+  // Questionnaire Routes
+  "/questionnaire": () => <QuestionnaireList />,
+  "/questionnaire/:id": ({ id }) => <QuestionnaireShow id={id} />,
+  "/apps": () => <PlugConfigList />,
+  "/apps/plug-configs/:slug": ({ slug }) => <PlugConfigEdit slug={slug} />,
 };
 
 export default function AppRouter() {
@@ -79,7 +91,7 @@ export default function AppRouter() {
     ...routes,
   };
 
-  const pages = useRoutes(routes) || <Error404 />;
+  const pages = useRoutes(routes) || <ErrorPage />;
 
   const path = usePath();
   const [sidebarOpen, setSidebarOpen] = useState(false);
@@ -162,7 +174,11 @@ export default function AppRouter() {
               className="max-w-8xl mx-auto mt-4 min-h-[96vh] rounded-lg border bg-gray-50 p-3 shadow"
               data-cui-page
             >
-              {pages}
+              <ErrorBoundary
+                fallback={<ErrorPage forError="PAGE_LOAD_ERROR" />}
+              >
+                {pages}
+              </ErrorBoundary>
             </div>
           </main>
         </div>

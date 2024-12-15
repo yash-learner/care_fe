@@ -139,8 +139,14 @@ const NursingPlot = ({ consultationId }: ConsultationTabProps) => {
     {},
   );
 
-  fieldsToDisplay = fieldsToDisplay.intersection(
-    new Set(NURSING_CARE_PROCEDURES),
+  // First, let's get the type from NURSING_CARE_PROCEDURES
+  type NursingCareProcedure = (typeof NURSING_CARE_PROCEDURES)[number];
+
+  // Then update the fieldsToDisplay filtering with type assertion
+  fieldsToDisplay = new Set(
+    Array.from(fieldsToDisplay).filter((field): field is NursingCareProcedure =>
+      NURSING_CARE_PROCEDURES.includes(field as NursingCareProcedure),
+    ),
   );
 
   const rows = Array.from(fieldsToDisplay).map((procedure) => ({

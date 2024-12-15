@@ -49,6 +49,8 @@ interface SearchByMultipleFieldsProps {
   clearSearch?: { value: boolean; params?: string[] };
 }
 
+type EventType = React.ChangeEvent<HTMLInputElement> | { value: string };
+
 const SearchByMultipleFields: React.FC<SearchByMultipleFieldsProps> = ({
   id,
   options,
@@ -156,24 +158,21 @@ const SearchByMultipleFields: React.FC<SearchByMultipleFieldsProps> = ({
     return () => clearTimeout(timeout);
   }, [searchValue]);
 
-  const handleSearchChange = useCallback(
-    (value: string) => {
-      setSearchValue(value);
-    },
-    [selectedOption, onSearch],
-  );
+  const handleSearchChange = useCallback((event: EventType) => {
+    const value = "target" in event ? event.target.value : event.value;
+    setSearchValue(value);
+  }, []);
 
   const renderSearchInput = useMemo(() => {
     const commonProps = {
       ref: inputRef,
       value: searchValue,
-      onChange: (e: any) =>
-        handleSearchChange(e.target ? e.target.value : e.value),
+      onChange: handleSearchChange,
       className: cn(
         "flex-grow border-none shadow-none focus-visible:ring-0 h-10",
         inputClassName,
       ),
-    };
+    } as const;
 
     switch (selectedOption.type) {
       case "phone":

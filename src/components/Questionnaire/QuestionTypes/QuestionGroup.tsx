@@ -1,0 +1,84 @@
+import { memo } from "react";
+
+import { cn } from "@/lib/utils";
+
+import { Label } from "@/components/ui/label";
+
+import { QuestionValidationError } from "@/types/questionnaire/batch";
+import type { QuestionnaireResponse } from "@/types/questionnaire/form";
+import type { Question } from "@/types/questionnaire/question";
+
+import { QuestionInput } from "./QuestionInput";
+
+interface QuestionGroupProps {
+  question: Question;
+  questionnaireResponses: QuestionnaireResponse[];
+  updateQuestionnaireResponseCB: (response: QuestionnaireResponse) => void;
+  errors: QuestionValidationError[];
+  clearError: (questionId: string) => void;
+  disabled?: boolean;
+  activeGroupId?: string;
+}
+
+export const QuestionGroup = memo(function QuestionGroup({
+  question,
+  questionnaireResponses,
+  updateQuestionnaireResponseCB,
+  errors,
+  clearError,
+  disabled,
+  activeGroupId,
+}: QuestionGroupProps) {
+  if (question.type !== "group") {
+    return (
+      <QuestionInput
+        question={question}
+        questionnaireResponses={questionnaireResponses}
+        updateQuestionnaireResponseCB={updateQuestionnaireResponseCB}
+        errors={errors}
+        clearError={() => clearError(question.id)}
+        disabled={disabled}
+      />
+    );
+  }
+
+  const isActive = activeGroupId === question.id;
+
+  return (
+    <div className="pt-4">
+      <div
+        className={cn(
+          "space-y-4 rounded-lg border p-4",
+          isActive && "ring-2 ring-primary",
+        )}
+      >
+        {question.text && (
+          <div className="space-y-1">
+            <Label className="text-lg font-semibold text-green-600">
+              {question.link_id} - {question.text}
+            </Label>
+            {question.description && (
+              <p className="text-sm text-muted-foreground">
+                {question.description}
+              </p>
+            )}
+          </div>
+        )}
+        <div className="space-y-2">
+          {question.questions?.map((subQuestion) => (
+            <QuestionGroup
+              key={subQuestion.id}
+              question={subQuestion}
+              questionnaireResponses={questionnaireResponses}
+              updateQuestionnaireResponseCB={updateQuestionnaireResponseCB}
+              errors={errors}
+              clearError={clearError}
+              disabled={disabled}
+              activeGroupId={activeGroupId}
+            />
+          ))}
+        </div>
+      </div>
+    </div>
+  );
+});

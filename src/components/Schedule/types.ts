@@ -4,12 +4,12 @@ import { PatientModel } from "@/components/Patient/models";
 
 import { Time, WritableOnly } from "@/Utils/types";
 
-interface ScheduleResourceUser {
+export interface ScheduleResourceUser {
   readonly id: string;
   readonly name: string;
 }
 
-type ScheduleResource = ScheduleResourceUser;
+export type ScheduleResource = ScheduleResourceUser;
 
 export interface ScheduleTemplate {
   readonly id: string;

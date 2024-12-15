@@ -13,14 +13,13 @@ import DialogModal from "@/components/Common/Dialog";
 import Loading from "@/components/Common/Loading";
 import PageTitle from "@/components/Common/PageTitle";
 import Spinner from "@/components/Common/Spinner";
-import Error404 from "@/components/ErrorPages/404";
-import { ILocalBodies } from "@/components/ExternalResult/models";
 import DuplicatePatientDialog from "@/components/Facility/DuplicatePatientDialog";
 import TransferPatientDialog from "@/components/Facility/TransferPatientDialog";
 import {
   DistrictModel,
   DupPatientModel,
   FacilityModel,
+  LocalBodyModel,
   WardModel,
 } from "@/components/Facility/models";
 import {
@@ -85,6 +84,8 @@ import {
   parsePhoneNumber,
   scrollTo,
 } from "@/Utils/utils";
+
+import ErrorPage from "../ErrorPages/DefaultErrorPage";
 
 export type PatientForm = PatientModel &
   PatientMeta & { age?: number; is_postpartum?: boolean };
@@ -205,7 +206,7 @@ export const PatientRegister = (props: PatientRegisterProps) => {
   const [isLocalbodyLoading, setIsLocalbodyLoading] = useState(false);
   const [isWardLoading, setIsWardLoading] = useState(false);
   const [districts, setDistricts] = useState<DistrictModel[]>([]);
-  const [localBody, setLocalBody] = useState<ILocalBodies[]>([]);
+  const [localBody, setLocalBody] = useState<LocalBodyModel[]>([]);
   const [ward, setWard] = useState<WardModel[]>([]);
   const [ageInputType, setAgeInputType] = useState<
     "date_of_birth" | "age" | "alert_for_age"
@@ -853,7 +854,7 @@ export const PatientRegister = (props: PatientRegisterProps) => {
     facilityObject &&
     !patientRegisterAuth(authUser, facilityObject, facilityId)
   ) {
-    return <Error404 />;
+    return <ErrorPage />;
   }
 
   return (

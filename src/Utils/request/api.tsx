@@ -11,11 +11,6 @@ import {
 } from "@/components/Assets/AssetTypes";
 import { ICD11DiagnosisModel } from "@/components/Diagnosis/types";
 import {
-  IDeleteBedCapacity,
-  ILocalBodies,
-  ILocalBodyByDistrict,
-} from "@/components/ExternalResult/models";
-import {
   EventGeneric,
   type Type,
 } from "@/components/Facility/ConsultationDetails/Events/types";
@@ -27,7 +22,6 @@ import { Investigation } from "@/components/Facility/Investigations/Reports/type
 import { InvestigationSessionType } from "@/components/Facility/Investigations/investigationsTab";
 import {
   BedModel,
-  CapacityModal,
   CommentModel,
   ConsultationModel,
   CreateBedBody,
@@ -35,7 +29,6 @@ import {
   DailyRoundsBody,
   DailyRoundsRes,
   DistrictModel,
-  DoctorModal,
   FacilityModel,
   FacilityRequest,
   FacilitySpokeModel,
@@ -51,7 +44,6 @@ import {
   MinimumQuantityItemResponse,
   PatientNotesEditModel,
   PatientNotesModel,
-  PatientStatsModel,
   PatientTransferResponse,
   ResourceModel,
   ShiftingModel,
@@ -85,6 +77,17 @@ import {
 } from "@/components/Users/models";
 
 import { PaginatedResponse } from "@/Utils/request/types";
+import { Observation } from "@/types/emr/observation";
+import { PlugConfig } from "@/types/plugConfig";
+import {
+  BatchRequestBody,
+  BatchSubmissionResult,
+} from "@/types/questionnaire/batch";
+import { Code } from "@/types/questionnaire/code";
+import { Diagnosis } from "@/types/questionnaire/diagnosis";
+import type { QuestionnaireDetail } from "@/types/questionnaire/questionnaire";
+import type { QuestionnaireResponse } from "@/types/questionnaire/questionnaireResponse";
+import { Symptom } from "@/types/questionnaire/symptom";
 
 /**
  * A fake function that returns an empty object casted to type T
@@ -665,86 +668,6 @@ const routes = {
     TRes: Type<PaginatedResponse<Type>>(),
   },
 
-  // Hospital Beds
-  createCapacity: {
-    path: "/api/v1/facility/{facilityId}/capacity/",
-    method: "POST",
-    TRes: Type<CapacityModal>(),
-  },
-
-  createDoctor: {
-    path: "/api/v1/facility/{facilityId}/hospital_doctor/",
-    method: "POST",
-    TRes: Type<DoctorModal>(),
-    TBody: Type<DoctorModal>(),
-  },
-
-  getCapacity: {
-    path: "/api/v1/facility/{facilityId}/capacity/",
-    TRes: Type<PaginatedResponse<CapacityModal>>(),
-  },
-
-  getCapacityBed: {
-    path: "/api/v1/facility/{facilityId}/capacity/{bed_id}/",
-    TRes: Type<CapacityModal>(),
-  },
-
-  deleteCapacityBed: {
-    path: "/api/v1/facility/{facilityId}/capacity/{bed_id}/",
-    method: "DELETE",
-    TRes: Type<IDeleteBedCapacity>(),
-  },
-
-  listDoctor: {
-    path: "/api/v1/facility/{facilityId}/hospital_doctor/",
-    TRes: Type<PaginatedResponse<DoctorModal>>(),
-  },
-  getDoctor: {
-    path: "/api/v1/facility/{facilityId}/hospital_doctor/{id}/",
-    TRes: Type<DoctorModal>(),
-  },
-
-  updateCapacity: {
-    path: "/api/v1/facility/{facilityId}/capacity/{bed_id}/",
-    method: "PUT",
-    TRes: Type<CapacityModal>(),
-  },
-
-  updateDoctor: {
-    path: "/api/v1/facility/{facilityId}/hospital_doctor/{id}/",
-    method: "PUT",
-    TRes: Type<DoctorModal>(),
-  },
-
-  deleteDoctor: {
-    path: "/api/v1/facility/{facilityId}/hospital_doctor/{area}/",
-    method: "DELETE",
-    TRes: Type<Record<string, never>>(),
-  },
-
-  //Triage
-  createTriage: {
-    path: "/api/v1/facility/{facilityId}/patient_stats/",
-    method: "POST",
-    TBody: Type<PatientStatsModel>(),
-    TRes: Type<PatientStatsModel>(),
-  },
-  getTriage: {
-    path: "/api/v1/facility/{facilityId}/patient_stats/",
-    TRes: Type<PaginatedResponse<PatientStatsModel>>(),
-  },
-
-  getTriageDetails: {
-    path: "/api/v1/facility/{facilityId}/patient_stats/{id}/",
-    TRes: Type<PatientStatsModel>(),
-  },
-
-  // //Care Center
-  // createCenter: {
-  //     path: "/api/v1/carecenter/",
-  //     method: 'POST'
-  // }
-
   // Patient
 
   searchPatient: {
@@ -844,12 +767,12 @@ const routes = {
   getAllLocalBodyByDistrict: {
     path: "/api/v1/district/{id}/get_all_local_body/",
     method: "GET",
-    TRes: Type<ILocalBodyByDistrict[]>(),
+    TRes: Type<LocalBodyModel[]>(),
   },
   getLocalbodyByDistrict: {
     path: "/api/v1/district/{id}/local_bodies/",
     method: "GET",
-    TRes: Type<ILocalBodies[]>(),
+    TRes: Type<LocalBodyModel[]>(),
   },
 
   // Local Body
@@ -1388,6 +1311,190 @@ const routes = {
         method: "POST",
         TBody: Type<{ policy: string }>(),
         TRes: Type<HCXPolicyModel>(),
+      },
+    },
+  },
+
+  valueset: {
+    // list: {
+    //   path: "/api/v1/valueset/",
+    //   method: "GET",
+    //   TRes: Type<PaginatedResponse<ValueSet>>(),
+    // },
+    expand: {
+      path: "/api/v1/valueset/{system}/expand/",
+      method: "POST",
+      TBody: Type<{ search: string; count: number }>(),
+      TRes: Type<{ results: Code[] }>(),
+    },
+  },
+
+  // Questionnaire Routes
+  questionnaire: {
+    list: {
+      path: "/api/v1/questionnaire/",
+      method: "GET",
+      TRes: Type<PaginatedResponse<QuestionnaireDetail>>(),
+    },
+
+    detail: {
+      path: "/api/v1/questionnaire/{id}/",
+      method: "GET",
+      TRes: Type<QuestionnaireDetail>(),
+    },
+
+    create: {
+      path: "/api/v1/questionnaire/",
+      method: "POST",
+      TRes: Type<QuestionnaireDetail>(),
+      TBody: Type<Partial<QuestionnaireDetail>>(),
+    },
+
+    update: {
+      path: "/api/v1/questionnaire/{id}/",
+      method: "PUT",
+      TRes: Type<QuestionnaireDetail>(),
+      TBody: Type<QuestionnaireDetail>(),
+    },
+
+    partialUpdate: {
+      path: "/api/v1/questionnaire/{id}/",
+      method: "PATCH",
+      TRes: Type<QuestionnaireDetail>(),
+      TBody: Type<Partial<QuestionnaireDetail>>(),
+    },
+
+    delete: {
+      path: "/api/v1/questionnaire/{id}/",
+      method: "DELETE",
+      TRes: Type<Record<string, never>>(),
+    },
+
+    submit: {
+      path: "/api/v1/questionnaire/{id}/submit/",
+      method: "POST",
+      TRes: Type<Record<string, never>>(),
+      TBody: Type<{
+        resource_id: string;
+        encounter: string;
+        responses: Array<{
+          question_id: string;
+          value: string | number | boolean;
+          note?: string;
+          bodysite?: string;
+          method?: string;
+        }>;
+      }>(),
+    },
+  },
+
+  batchRequest: {
+    path: "/api/v1/batch_requests/",
+    method: "POST",
+    TRes: Type<{
+      results: BatchSubmissionResult[];
+    }>(),
+    TBody: Type<BatchRequestBody>(),
+  },
+
+  patient: {
+    allergyIntolerance: {
+      create: {
+        method: "POST",
+        path: "/api/v1/patient/:patientId/allergy_intolerance/",
+      },
+    },
+  },
+  plugConfig: {
+    listPlugConfigs: {
+      path: "/api/v1/plug_config/",
+      method: "GET",
+      TRes: Type<{ configs: PlugConfig[] }>(),
+    },
+    getPlugConfig: {
+      path: "/api/v1/plug_config/{slug}/",
+      method: "GET",
+      TRes: Type<PlugConfig>(),
+    },
+    createPlugConfig: {
+      path: "/api/v1/plug_config/",
+      method: "POST",
+      TReq: Type<PlugConfig>(),
+      TRes: Type<PlugConfig>(),
+    },
+    updatePlugConfig: {
+      path: "/api/v1/plug_config/{slug}/",
+      method: "PATCH",
+      TReq: Type<PlugConfig>(),
+      TRes: Type<PlugConfig>(),
+    },
+    deletePlugConfig: {
+      path: "/api/v1/plug_config/{slug}/",
+      method: "DELETE",
+      TRes: Type<Record<string, never>>(),
+    },
+  },
+  getQuestionnaireResponses: {
+    path: "/api/v1/patient/{patientId}/questionnaire_response/",
+    method: "GET",
+    TRes: Type<PaginatedResponse<QuestionnaireResponse>>(),
+  },
+  getQuestionnaireResponse: {
+    path: "/api/v1/patient/{patientId}/questionnaire_response/{responseId}/",
+    method: "GET",
+    TRes: Type<QuestionnaireResponse>(),
+  },
+  listObservations: {
+    path: "/api/v1/patient/{patientId}/observation/",
+    method: "GET",
+    TRes: Type<PaginatedResponse<Observation>>(),
+  },
+
+  // Diagnosis Routes
+  getDiagnosis: {
+    path: "/api/v1/patient/{patientId}/diagnosis/",
+    method: "GET",
+    TRes: Type<PaginatedResponse<Diagnosis>>(),
+  },
+  // Get Symptom
+  getSymptom: {
+    path: "/api/v1/patient/{patientId}/symptom/",
+    method: "GET",
+    TRes: Type<PaginatedResponse<Symptom>>(),
+  },
+
+  // OTP Routes
+  otp: {
+    sendOtp: {
+      path: "/api/v1/otp/send/",
+      method: "POST",
+      TBody: Type<{ phone_number: string }>(),
+      TRes: Type<Record<string, never>>(),
+      auth: {
+        key: "Authorization",
+        value: "{OTP_API_KEY}",
+        type: "header",
+      },
+    },
+    loginByOtp: {
+      path: "/api/v1/otp/login/",
+      method: "POST",
+      TBody: Type<{ phone_number: string; otp: string }>(),
+      TRes: Type<Record<string, never>>(),
+      auth: {
+        key: "Authorization",
+        value: "{OTP_API_KEY}",
+        type: "header",
+      },
+    },
+    getPatient: {
+      path: "/api/v1/otp/patient/",
+      method: "GET",
+      TRes: Type<PaginatedResponse<PatientModel>>(),
+      auth: {
+        key: "Authorization",
+        value: "Bearer {token}",
+        type: "header",
       },
     },
   },
