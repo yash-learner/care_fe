@@ -6,7 +6,6 @@ import {
   ScheduleTemplate,
   SlotAvailability,
 } from "@/components/Schedule/types";
-import { UserBareMinimum } from "@/components/Users/models";
 
 import { Type } from "@/Utils/request/api";
 import { PaginatedResponse } from "@/Utils/request/types";
@@ -15,6 +14,7 @@ import {
   AppointmentPatient,
   AppointmentPatientRegister,
 } from "@/pages/Patient/Utils";
+import { UserBase } from "@/types/user/base";
 
 export const ScheduleAPIs = {
   templates: {
@@ -62,24 +62,19 @@ export const ScheduleAPIs = {
       TRes: Type<{ results: SlotAvailability[] }>(),
       TBody: Type<{ resource: string; day: string }>(),
     },
+    createAppointment: {
+      path: "/api/v1/facility/{facility_id}/slots/{slot_id}/create_appointment/",
+      method: "POST",
+      TBody: Type<AppointmentCreate>(),
+      TRes: Type<Appointment>(),
+    },
   },
 
   appointments: {
     availableDoctors: {
       path: "/api/v1/facility/{facility_id}/appointments/available_doctors/",
       method: "GET",
-      TRes: Type<PaginatedResponse<UserBareMinimum>>(),
-    },
-    slots: {
-      path: "/api/v1/facility/{facility_id}/appointments/slots/",
-      method: "GET",
-      TRes: Type<SlotAvailability[]>(),
-    },
-    create: {
-      path: "/api/v1/facility/{facility_id}/appointments/",
-      method: "POST",
-      TBody: Type<AppointmentCreate>(),
-      TRes: Type<Appointment>(),
+      TRes: Type<{ users: UserBase[] }>(),
     },
     list: {
       path: "/api/v1/facility/{facility_id}/appointments/",

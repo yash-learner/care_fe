@@ -1,4 +1,4 @@
-import { useQuery } from "@tanstack/react-query";
+import { useMutation, useQuery } from "@tanstack/react-query";
 import { format } from "date-fns";
 import { navigate } from "raviger";
 import { useState } from "react";
@@ -19,19 +19,16 @@ import {
 } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
 
-import { Avatar } from "@/components/Common/Avatar";
 import Page from "@/components/Common/Page";
 import { ScheduleAPIs } from "@/components/Schedule/api";
-import { SlotAvailability } from "@/components/Schedule/types";
+import {
+  AppointmentCreate,
+  SlotAvailability,
+} from "@/components/Schedule/types";
 
 import query from "@/Utils/request/query";
-import useMutation from "@/Utils/request/useMutation";
-import useTanStackQueryInstead from "@/Utils/request/useQuery";
-import {
-  dateQueryString,
-  formatDisplayName,
-  getMonthStartAndEnd,
-} from "@/Utils/utils";
+import request from "@/Utils/request/request";
+import { dateQueryString, formatDisplayName } from "@/Utils/utils";
 
 interface Props {
   facilityId: string;
@@ -46,20 +43,14 @@ export default function AppointmentCreatePage(props: Props) {
   const [reason, setReason] = useState("");
   const [selectedSlot, setSelectedSlot] = useState<SlotAvailability>();
 
-  const { start, end } = getMonthStartAndEnd(selectedMonth);
-
-  const availableDoctorsQuery = useTanStackQueryInstead(
-    ScheduleAPIs.appointments.availableDoctors,
-    {
+  const availableDoctorsQuery = useQuery({
+    queryKey: ["availableDoctors", props.facilityId],
+    queryFn: query(ScheduleAPIs.appointments.availableDoctors, {
       pathParams: {
         facility_id: props.facilityId,
       },
-      query: {
-        valid_from: dateQueryString(start),
-        valid_to: dateQueryString(end),
-      },
-    },
-  );
+    }),
+  });
 
   const slotsQuery = useQuery({
     queryKey: [selectedResource, dateQueryString(selectedDate)],
@@ -68,27 +59,31 @@ export default function AppointmentCreatePage(props: Props) {
         facility_id: props.facilityId,
       },
       body: {
-        resource: "191ceb2f-e2e8-4cec-983b-68d2fcdfbb08",
+        resource: selectedResource,
         day: dateQueryString(selectedDate),
       },
     }),
-    // enabled: !!(selectedResource && selectedDate),
+    enabled: !!selectedResource && !!selectedDate,
   });
 
-  const createAppointmentMutation = useMutation(
-    ScheduleAPIs.appointments.create,
-    {
-      pathParams: { facility_id: props.facilityId },
-      onResponse: ({ res, data }) => {
-        if (res?.ok) {
-          toast.success("Appointment created successfully");
-          navigate(
-            `/facility/${props.facilityId}/patient/${props.patientId}/appointment/${data?.id}/token`,
-          );
-        }
-      },
-    },
-  );
+  const { mutate: createAppointment } = useMutation({
+    mutationFn: (body: AppointmentCreate) =>
+      request(ScheduleAPIs.slots.createAppointment, {
+        pathParams: {
+          facility_id: props.facilityId,
+          slot_id: selectedSlot?.id ?? "",
+        },
+        body,
+        onResponse: ({ res, data }) => {
+          if (res?.ok) {
+            toast.success("Appointment created successfully");
+            navigate(
+              `/facility/${props.facilityId}/patient/${props.patientId}/appointment/${data?.id}/token`,
+            );
+          }
+        },
+      }),
+  });
 
   const renderDay = (date: Date) => {
     const isSelected = date.toDateString() === selectedDate?.toDateString();
@@ -119,13 +114,9 @@ export default function AppointmentCreatePage(props: Props) {
       return;
     }
 
-    createAppointmentMutation.mutate({
-      body: {
-        patient: props.patientId,
-        doctor_username: selectedResource,
-        slot_start: selectedSlot.start_datetime,
-        reason_for_visit: reason,
-      },
+    createAppointment({
+      patient: props.patientId,
+      reason_for_visit: reason,
     });
   };
 
@@ -151,7 +142,7 @@ export default function AppointmentCreatePage(props: Props) {
             <div>
               <label className="block mb-2">Preferred doctor</label>
               <Select
-                disabled={availableDoctorsQuery.loading}
+                disabled={availableDoctorsQuery.isLoading}
                 value={selectedResource}
                 onValueChange={(value) => setSelectedResource(value)}
               >
@@ -159,15 +150,15 @@ export default function AppointmentCreatePage(props: Props) {
                   <SelectValue placeholder="Select" />
                 </SelectTrigger>
                 <SelectContent>
-                  {availableDoctorsQuery.data?.results.map((doctor) => (
-                    <SelectItem key={doctor.username} value={doctor.username}>
+                  {availableDoctorsQuery.data?.users.map((user) => (
+                    <SelectItem key={user.username} value={user.id}>
                       <div className="flex items-center gap-2">
-                        <Avatar
-                          imageUrl={doctor.read_profile_picture_url}
-                          name={formatDisplayName(doctor)}
+                        {/* <Avatar
+                          imageUrl={user.read_profile_picture_url}
+                          name={formatDisplayName(user)}
                           className="size-6 rounded-full"
-                        />
-                        <span>{formatDisplayName(doctor)}</span>
+                        /> */}
+                        <span>{formatDisplayName(user)}</span>
                       </div>
                     </SelectItem>
                   ))}
