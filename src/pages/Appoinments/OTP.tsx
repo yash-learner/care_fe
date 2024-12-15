@@ -115,7 +115,7 @@ export default function OTP({
             type="submit"
             className="w-full h-12 text-lg"
           >
-            <span className="absolute inset-0 bg-gradient-to-b from-white/15 to-transparent"></span>
+            <span className="bg-gradient-to-b from-white/15 to-transparent"></span>
             Send OTP
           </Button>
         </form>

@@ -160,7 +160,7 @@ export function LandingPage() {
               onClick={handleSearch}
               disabled={!selectedDistrict}
             >
-              <span className="absolute inset-0 bg-gradient-to-b from-white/15 to-transparent"></span>
+              <span className="bg-gradient-to-b from-white/15 to-transparent"></span>
               Search Facilities
             </Button>
           </div>

@@ -57,11 +57,16 @@ export default function PatientSelect({
         slot_start: selectedSlot,
         reason_for_visit: reason,
       },
+      pathParams: {
+        facility_id: facilityId,
+      },
     });
     if (res?.status === 200) {
       Notification.Success({ msg: "Appointment created successfully" });
       navigate(`/facility/${facilityId}/appointments/${data?.id}/success`);
     }
+    //To do: mock appointment creation, remove this
+    navigate(`/facility/${facilityId}/appointments/123/success`);
   };
 
   const mockPatientData = [
@@ -210,7 +215,7 @@ export default function PatientSelect({
             )
           }
         >
-          <span className="absolute inset-0 bg-gradient-to-b from-white/15 to-transparent"></span>
+          <span className="bg-gradient-to-b from-white/15 to-transparent"></span>
           Add New Patient
         </Button>
       </div>

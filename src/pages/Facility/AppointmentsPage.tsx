@@ -412,7 +412,7 @@ export function AppointmentsPage(props: AppointmentsProps) {
                 );
               }}
             >
-              <span className="absolute inset-0 bg-gradient-to-b from-white/15 to-transparent"></span>
+              <span className="bg-gradient-to-b from-white/15 to-transparent"></span>
               Continue
               <CareIcon icon="l-arrow-right" className="h-4 w-4" />
             </Button>

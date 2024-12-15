@@ -9,6 +9,7 @@ import { Button } from "@/components/ui/button";
 import { ScheduleAPIs } from "@/components/Schedule/api";
 import { Appointment } from "@/components/Schedule/types";
 
+import * as Notification from "@/Utils/Notifications";
 import query from "@/Utils/request/query";
 
 interface AppointmentSuccessProps {
@@ -17,14 +18,21 @@ interface AppointmentSuccessProps {
 }
 
 export function AppointmentSuccess(props: AppointmentSuccessProps) {
-  const { appointmentId } = props;
+  const { appointmentId, facilityId } = props;
 
-  const { data } = useQuery<Appointment>({
+  const { data, error } = useQuery<Appointment>({
     queryKey: ["appointment", appointmentId],
     queryFn: query(ScheduleAPIs.appointments.retrieve, {
-      queryParams: { appointment_id: appointmentId },
+      pathParams: { id: appointmentId, facility_id: facilityId },
+      silent: true,
     }),
   });
+
+  if (error) {
+    Notification.Error({ msg: "Appointment not found" });
+    //To do: disabled for mock appointment, remove this
+    //navigate(`/facility/${facilityId}/`);
+  }
 
   const mockAppointment: Appointment = {
     id: "123",
@@ -66,7 +74,7 @@ export function AppointmentSuccess(props: AppointmentSuccessProps) {
           <span className="text-sm underline">Back to Home</span>
         </Button>
       </div>
-      <div className="bg-white rounded-lg shadow-sm p-12 border border-secondary-300 text-center mb-12">
+      <div className="bg-secondary-100/50 rounded-lg shadow-sm p-12 border border-secondary-400 text-center mb-12">
         <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-green-100 mb-6">
           <CareIcon icon="l-check" className="w-8 h-8 text-green-600" />
         </div>
@@ -110,7 +118,7 @@ export function AppointmentSuccess(props: AppointmentSuccessProps) {
         </div>
       </div>
 
-      <div className="mt-12 text-center space-y-2">
+      <div className="mt-12 text-left space-y-2">
         <p className="text-gray-900">
           Nurse {appointmentData?.resource.name} will visit the patient at the
           scheduled time.

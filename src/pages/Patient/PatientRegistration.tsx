@@ -264,138 +264,176 @@ export function PatientRegistration(props: PatientRegistrationProps) {
 
   return (
     <>
-      <div className="">
-        <div className="container mx-auto p-4 max-w-4xl flex justify-start">
-          <Button
-            variant="outline"
-            className="border border-secondary-400"
-            onClick={() =>
-              navigate(
-                `/facility/${props.facilityId}/appointments/${staffUsername}/patient-select`,
-              )
-            }
-          >
-            <CareIcon icon="l-square-shape" className="h-4 w-4 mr-1" />
-            <span className="text-sm underline">Back</span>
-          </Button>
-        </div>
-        <Form
-          defaults={initialForm}
-          validate={validateForm}
-          onSubmit={handleSubmit}
-          className="mx-auto space-y-6"
-          submitLabel="Register Patient"
-          hideRestoreDraft
-          noPadding
-          hideSubmitButton
-          hideCancelButton
-          disableMarginOnChildren
+      <div className="container mx-auto p-4 max-w-4xl flex justify-start">
+        <Button
+          variant="outline"
+          className="border border-secondary-400"
+          type="button"
+          onClick={() =>
+            navigate(
+              `/facility/${props.facilityId}/appointments/${staffUsername}/patient-select`,
+            )
+          }
         >
-          {(field) => (
-            <>
-              <div className="container mx-auto p-4 max-w-3xl">
-                <h2 className="text-xl font-semibold">Patient Registration</h2>
+          <CareIcon icon="l-square-shape" className="h-4 w-4 mr-1" />
+          <span className="text-sm underline">Back</span>
+        </Button>
+      </div>
+      <Form
+        defaults={initialForm}
+        validate={validateForm}
+        onSubmit={handleSubmit}
+        className="mx-auto space-y-6"
+        submitLabel="Register Patient"
+        hideRestoreDraft
+        noPadding
+        hideSubmitButton
+        hideCancelButton
+        disableMarginOnChildren
+      >
+        {(field) => (
+          <>
+            <div className="container mx-auto p-4 max-w-3xl">
+              <h2 className="text-xl font-semibold">Patient Registration</h2>
 
-                <div className="mt-4 flex-row bg-white border border-gray-200/50 rounded-md p-8 shadow-md">
-                  <span className="inline-block bg-primary-100 p-4 rounded-md w-full mb-4 text-primary-600 text-sm">
-                    Phone Number Verified:{" "}
-                    <span className="font-bold">{phoneNumber}</span>
-                  </span>
-                  <TextFormField
-                    {...field("name")}
-                    label="Patient Name"
+              <div className="mt-4 flex-row bg-white border border-gray-200/50 rounded-md p-8 shadow-md">
+                <span className="inline-block bg-primary-100 p-4 rounded-md w-full mb-4 text-primary-600 text-sm">
+                  Phone Number Verified:{" "}
+                  <span className="font-bold">{phoneNumber}</span>
+                </span>
+                <TextFormField
+                  {...field("name")}
+                  label="Patient Name"
+                  required
+                />
+
+                <RadioFormField
+                  {...field("gender")}
+                  label="Gender"
+                  options={GENDER_TYPES}
+                  optionLabel={(o: any) => o.text}
+                  optionValue={(o: any) => o.id.toString()}
+                />
+
+                <RadioFormField
+                  name="age_input_type"
+                  label="Date of Birth or Age"
+                  options={[
+                    { id: "date_of_birth", text: "Date of Birth" },
+                    { id: "age", text: "Age" },
+                  ]}
+                  optionLabel={(o: any) => o.text}
+                  optionValue={(o: any) => o.id}
+                  value={ageInputType}
+                  onChange={(e) => {
+                    setAgeInputType(e.value);
+                  }}
+                />
+                {ageInputType === "date_of_birth" && (
+                  <DateFormField
+                    className="w-full"
+                    containerClassName="w-full"
+                    {...field("date_of_birth")}
+                    errorClassName="hidden"
                     required
+                    disableFuture
                   />
+                )}
+                {ageInputType === "age" && (
+                  <TextFormField
+                    {...field("age")}
+                    placeholder="Enter Age"
+                    required
+                    type="number"
+                  />
+                )}
+              </div>
+              <div className="space-y-2 mt-12 flex-row bg-white border border-gray-200/50 rounded-md p-8 shadow-md">
+                <TextAreaFormField
+                  {...field("address")}
+                  label="Current Address"
+                  required
+                />
 
-                  <RadioFormField
-                    {...field("gender")}
-                    label="Gender"
-                    options={GENDER_TYPES}
-                    optionLabel={(o: any) => o.text}
-                    optionValue={(o: any) => o.id.toString()}
-                  />
+                <TextFormField {...field("landmark")} label="Landmark" />
 
-                  <RadioFormField
-                    name="age_input_type"
-                    label="Date of Birth or Age"
-                    options={[
-                      { id: "date_of_birth", text: "Date of Birth" },
-                      { id: "age", text: "Age" },
-                    ]}
-                    optionLabel={(o: any) => o.text}
-                    optionValue={(o: any) => o.id}
-                    value={ageInputType}
-                    onChange={(e) => {
-                      setAgeInputType(e.value);
-                    }}
-                  />
-                  {ageInputType === "date_of_birth" && (
-                    <DateFormField
-                      className="w-full"
-                      containerClassName="w-full"
-                      {...field("date_of_birth")}
-                      errorClassName="hidden"
-                      required
-                      disableFuture
+                <TextFormField
+                  {...field("pincode")}
+                  label="Pin code"
+                  required
+                  onChange={(e) => {
+                    field("pincode").onChange(e);
+                    handlePincodeChange(e, field("pincode").onChange);
+                  }}
+                />
+                {showAutoFilledPincode && (
+                  <div>
+                    <CareIcon
+                      icon="l-check-circle"
+                      className="mr-2 text-sm text-green-500"
                     />
-                  )}
-                  {ageInputType === "age" && (
-                    <TextFormField
-                      {...field("age")}
-                      placeholder="Enter Age"
+                    <span className="text-sm text-primary-500">
+                      State and District auto-filled from Pincode
+                    </span>
+                  </div>
+                )}
+
+                <div data-testid="state" id="state-div">
+                  {isStateLoading ? (
+                    <Spinner />
+                  ) : (
+                    <SelectFormField
+                      {...field("state")}
+                      label="State"
                       required
-                      type="number"
+                      placeholder="Choose State"
+                      options={stateData?.data?.results || []}
+                      optionLabel={(o: any) => o.name}
+                      optionValue={(o: any) => o.id}
+                      onChange={(e: any) => {
+                        field("state").onChange(e);
+                        field("district").onChange({
+                          name: "district",
+                          value: undefined,
+                        });
+                        field("local_body").onChange({
+                          name: "local_body",
+                          value: undefined,
+                        });
+                        field("ward").onChange({
+                          name: "ward",
+                          value: undefined,
+                        });
+                        fetchDistricts(e.value);
+                        fetchLocalBody("0");
+                        fetchWards("0");
+                      }}
                     />
                   )}
                 </div>
-                <div className="space-y-2 mt-12 flex-row bg-white border border-gray-200/50 rounded-md p-8 shadow-md">
-                  <TextAreaFormField
-                    {...field("address")}
-                    label="Current Address"
-                    required
-                  />
 
-                  <TextFormField {...field("landmark")} label="Landmark" />
-
-                  <TextFormField
-                    {...field("pincode")}
-                    label="Pin code"
-                    required
-                    onChange={(e) => {
-                      field("pincode").onChange(e);
-                      handlePincodeChange(e, field("pincode").onChange);
-                    }}
-                  />
-                  {showAutoFilledPincode && (
-                    <div>
-                      <CareIcon
-                        icon="l-check-circle"
-                        className="mr-2 text-sm text-green-500"
-                      />
-                      <span className="text-sm text-primary-500">
-                        State and District auto-filled from Pincode
-                      </span>
-                    </div>
-                  )}
-
-                  <div data-testid="state" id="state-div">
-                    {isStateLoading ? (
-                      <Spinner />
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  <div data-testid="district" id="district-div">
+                    {isDistrictLoading ? (
+                      <div className="flex w-full items-center justify-center">
+                        <Spinner />
+                      </div>
                     ) : (
                       <SelectFormField
-                        {...field("state")}
-                        label="State"
+                        {...field("district")}
+                        label="District"
                         required
-                        placeholder="Choose State"
-                        options={stateData?.data?.results || []}
+                        placeholder={
+                          field("state").value
+                            ? "Choose District"
+                            : "Select State First"
+                        }
+                        disabled={!field("state").value}
+                        options={districts}
                         optionLabel={(o: any) => o.name}
                         optionValue={(o: any) => o.id}
                         onChange={(e: any) => {
-                          field("state").onChange(e);
-                          field("district").onChange({
-                            name: "district",
-                            value: undefined,
-                          });
+                          field("district").onChange(e);
                           field("local_body").onChange({
                             name: "local_body",
                             value: undefined,
@@ -404,145 +442,107 @@ export function PatientRegistration(props: PatientRegistrationProps) {
                             name: "ward",
                             value: undefined,
                           });
-                          fetchDistricts(e.value);
-                          fetchLocalBody("0");
+                          fetchLocalBody(String(e.value));
                           fetchWards("0");
                         }}
                       />
                     )}
                   </div>
-
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                    <div data-testid="district" id="district-div">
-                      {isDistrictLoading ? (
-                        <div className="flex w-full items-center justify-center">
-                          <Spinner />
-                        </div>
-                      ) : (
-                        <SelectFormField
-                          {...field("district")}
-                          label="District"
-                          required
-                          placeholder={
-                            field("state").value
-                              ? "Choose District"
-                              : "Select State First"
-                          }
-                          disabled={!field("state").value}
-                          options={districts}
-                          optionLabel={(o: any) => o.name}
-                          optionValue={(o: any) => o.id}
-                          onChange={(e: any) => {
-                            field("district").onChange(e);
-                            field("local_body").onChange({
-                              name: "local_body",
-                              value: undefined,
-                            });
-                            field("ward").onChange({
-                              name: "ward",
-                              value: undefined,
-                            });
-                            fetchLocalBody(String(e.value));
-                            fetchWards("0");
-                          }}
-                        />
-                      )}
-                    </div>
-                    <div data-testid="localbody" id="local_body-div">
-                      {isLocalbodyLoading ? (
-                        <div className="flex w-full items-center justify-center">
-                          <Spinner />
-                        </div>
-                      ) : (
-                        <SelectFormField
-                          {...field("local_body")}
-                          label="Localbody"
-                          required
-                          placeholder={
-                            field("district").value
-                              ? "Choose Localbody"
-                              : "Select District First"
-                          }
-                          disabled={!field("district").value}
-                          options={localBody}
-                          optionLabel={(o) => o.name}
-                          optionValue={(o) => o.id}
-                          onChange={(e) => {
-                            field("local_body").onChange(e);
-                            field("ward").onChange({
-                              name: "ward",
-                              value: undefined,
-                            });
-                            fetchWards(String(e.value));
-                          }}
-                        />
-                      )}
-                    </div>
-                  </div>
-
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                    <div data-testid="ward-respective-lsgi" id="ward-div">
-                      {isWardLoading ? (
-                        <div className="flex w-full items-center justify-center">
-                          <Spinner />
-                        </div>
-                      ) : (
-                        <SelectFormField
-                          {...field("ward")}
-                          label="Ward"
-                          options={ward.sort(compareBy("number")).map((e) => {
-                            return {
-                              id: e.id,
-                              name: e.number + ": " + e.name,
-                            };
-                          })}
-                          placeholder={
-                            field("local_body").value
-                              ? "Choose Ward"
-                              : "Select Localbody First"
-                          }
-                          disabled={!field("local_body").value}
-                          optionLabel={(o: any) => o.name}
-                          optionValue={(o: any) => o.id}
-                          onChange={(e: any) => {
-                            field("ward").onChange(e);
-                          }}
-                        />
-                      )}
-                    </div>
-                    <TextFormField {...field("village")} label="Village" />
+                  <div data-testid="localbody" id="local_body-div">
+                    {isLocalbodyLoading ? (
+                      <div className="flex w-full items-center justify-center">
+                        <Spinner />
+                      </div>
+                    ) : (
+                      <SelectFormField
+                        {...field("local_body")}
+                        label="Localbody"
+                        required
+                        placeholder={
+                          field("district").value
+                            ? "Choose Localbody"
+                            : "Select District First"
+                        }
+                        disabled={!field("district").value}
+                        options={localBody}
+                        optionLabel={(o) => o.name}
+                        optionValue={(o) => o.id}
+                        onChange={(e) => {
+                          field("local_body").onChange(e);
+                          field("ward").onChange({
+                            name: "ward",
+                            value: undefined,
+                          });
+                          fetchWards(String(e.value));
+                        }}
+                      />
+                    )}
                   </div>
                 </div>
-              </div>
 
-              <div className="bg-secondary-200 pt-3 pb-8">
-                <div className="flex flex-row gap-2 justify-center sm:ml-64 mt-4">
-                  <Button
-                    variant="white"
-                    className="sm:w-1/5"
-                    onClick={() => {
-                      navigate(
-                        `/facility/${props.facilityId}/appointments/${staffUsername}/patient-select`,
-                      );
-                    }}
-                  >
-                    <span className="absolute inset-0 bg-gradient-to-b from-white/15 to-transparent"></span>
-                    Cancel
-                  </Button>
-                  <Button
-                    variant="primary_gradient"
-                    className="sm:w-1/5"
-                    type="submit"
-                  >
-                    <span className="absolute inset-0 bg-gradient-to-b from-white/15 to-transparent"></span>
-                    Register Patient
-                  </Button>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  <div data-testid="ward-respective-lsgi" id="ward-div">
+                    {isWardLoading ? (
+                      <div className="flex w-full items-center justify-center">
+                        <Spinner />
+                      </div>
+                    ) : (
+                      <SelectFormField
+                        {...field("ward")}
+                        label="Ward"
+                        options={ward.sort(compareBy("number")).map((e) => {
+                          return {
+                            id: e.id,
+                            name: e.number + ": " + e.name,
+                          };
+                        })}
+                        placeholder={
+                          field("local_body").value
+                            ? "Choose Ward"
+                            : "Select Localbody First"
+                        }
+                        disabled={!field("local_body").value}
+                        optionLabel={(o: any) => o.name}
+                        optionValue={(o: any) => o.id}
+                        onChange={(e: any) => {
+                          field("ward").onChange(e);
+                        }}
+                      />
+                    )}
+                  </div>
+                  <TextFormField {...field("village")} label="Village" />
                 </div>
               </div>
-            </>
-          )}
-        </Form>
-      </div>
+            </div>
+
+            <div className="bg-secondary-200 pt-3 pb-8">
+              <div className="flex flex-row gap-2 justify-center sm:ml-64 mt-4">
+                <Button
+                  variant="white"
+                  className="sm:w-1/5"
+                  type="button"
+                  onClick={() => {
+                    navigate(
+                      `/facility/${props.facilityId}/appointments/${staffUsername}/patient-select`,
+                    );
+                  }}
+                >
+                  <span className="bg-gradient-to-b from-white/15 to-transparent"></span>
+                  Cancel
+                </Button>
+                <Button
+                  variant="primary_gradient"
+                  className="sm:w-1/5"
+                  type="submit"
+                >
+                  <span className="bg-gradient-to-b from-white/15 to-transparent"></span>
+                  Register Patient
+                </Button>
+              </div>
+            </div>
+          </>
+        )}
+      </Form>
     </>
   );
 }
