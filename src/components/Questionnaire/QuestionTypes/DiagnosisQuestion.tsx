@@ -10,6 +10,7 @@ import {
   CommandItem,
   CommandList,
 } from "@/components/ui/command";
+import { Label } from "@/components/ui/label";
 import {
   Popover,
   PopoverContent,
@@ -41,12 +42,14 @@ import {
 import type { QuestionnaireResponse } from "@/types/questionnaire/form";
 
 interface DiagnosisQuestionProps {
+  question: any;
   questionnaireResponse: QuestionnaireResponse;
   updateQuestionnaireResponseCB: (response: QuestionnaireResponse) => void;
   disabled?: boolean;
 }
 
 export function DiagnosisQuestion({
+  question,
   questionnaireResponse,
   updateQuestionnaireResponseCB,
   disabled,
@@ -110,6 +113,10 @@ export function DiagnosisQuestion({
 
   return (
     <div className="space-y-4">
+      <Label className="text-base font-medium">
+        {question.link_id} - {question.text}
+        {question.required && <span className="ml-1 text-red-500">*</span>}
+      </Label>
       <div className="rounded-lg border p-4">
         <div className="overflow-x-auto">
           <Table>

@@ -10,6 +10,7 @@ import {
   CommandItem,
   CommandList,
 } from "@/components/ui/command";
+import { Label } from "@/components/ui/label";
 import {
   Popover,
   PopoverContent,
@@ -42,12 +43,14 @@ import {
 } from "@/types/questionnaire/symptom";
 
 interface SymptomQuestionProps {
+  question: any;
   questionnaireResponse: QuestionnaireResponse;
   updateQuestionnaireResponseCB: (response: QuestionnaireResponse) => void;
   disabled?: boolean;
 }
 
 export function SymptomQuestion({
+  question,
   questionnaireResponse,
   updateQuestionnaireResponseCB,
   disabled,
@@ -111,6 +114,10 @@ export function SymptomQuestion({
 
   return (
     <div className="space-y-4">
+      <Label className="text-base font-medium">
+        {question.link_id} - {question.text}
+        {question.required && <span className="ml-1 text-red-500">*</span>}
+      </Label>
       <div className="rounded-lg border p-4">
         <div className="overflow-x-auto">
           <Table>

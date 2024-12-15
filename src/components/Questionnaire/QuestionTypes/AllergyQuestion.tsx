@@ -4,6 +4,7 @@ import { PlusIcon, TrashIcon } from "@radix-ui/react-icons";
 import { useState } from "react";
 
 import { Button } from "@/components/ui/button";
+import { Label } from "@/components/ui/label";
 import {
   Select,
   SelectContent,
@@ -26,12 +27,14 @@ import { AllergyIntolerance } from "@/types/emr/allergyIntolerance";
 import { QuestionnaireResponse } from "@/types/questionnaire/form";
 
 interface AllergyQuestionProps {
+  question: any;
   questionnaireResponse: QuestionnaireResponse;
   updateQuestionnaireResponseCB: (response: QuestionnaireResponse) => void;
   disabled?: boolean;
 }
 
 export function AllergyQuestion({
+  question,
   questionnaireResponse,
   updateQuestionnaireResponseCB,
   disabled,
@@ -96,6 +99,10 @@ export function AllergyQuestion({
 
   return (
     <div className="space-y-4">
+      <Label className="text-base font-medium">
+        {question.link_id} - {question.text}
+        {question.required && <span className="ml-1 text-red-500">*</span>}
+      </Label>
       <div className="rounded-lg border p-4">
         <div className="overflow-x-auto">
           <Table>
