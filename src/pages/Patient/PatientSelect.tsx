@@ -1,15 +1,18 @@
 import { useQuery } from "@tanstack/react-query";
 import { navigate } from "raviger";
+import { useState } from "react";
 
 import CareIcon from "@/CAREUI/icons/CareIcon";
 
 import { Button } from "@/components/ui/button";
 
 import { PatientModel } from "@/components/Patient/models";
+import { ScheduleAPIs } from "@/components/Schedule/api";
 
 import * as Notification from "@/Utils/Notifications";
 import routes from "@/Utils/request/api";
 import query from "@/Utils/request/query";
+import request from "@/Utils/request/request";
 import { PaginatedResponse } from "@/Utils/request/types";
 import { formatDate } from "@/Utils/utils";
 
@@ -21,7 +24,9 @@ export default function PatientSelect({
   staffUsername: string;
 }) {
   const phoneNumber = localStorage.getItem("phoneNumber");
-  const selectedSlot = localStorage.getItem("selectedSlot");
+  const selectedSlot = JSON.parse(localStorage.getItem("selectedSlot") ?? "");
+  const reason = localStorage.getItem("reason");
+  const [selectedPatient, setSelectedPatient] = useState<string | null>(null);
 
   if (!staffUsername) {
     Notification.Error({ msg: "Staff Username Not Found" });
@@ -43,6 +48,21 @@ export default function PatientSelect({
     }),
     enabled: !!phoneNumber,
   });
+
+  const createAppointment = async (patientId: string) => {
+    const { res, data } = await request(ScheduleAPIs.appointments.create, {
+      body: {
+        patient: patientId,
+        doctor_username: staffUsername,
+        slot_start: selectedSlot,
+        reason_for_visit: reason,
+      },
+    });
+    if (res?.status === 200) {
+      Notification.Success({ msg: "Appointment created successfully" });
+      navigate(`/facility/${facilityId}/appointments/${data?.id}/success`);
+    }
+  };
 
   const mockPatientData = [
     {
@@ -92,39 +112,70 @@ export default function PatientSelect({
 
   const renderPatientList = () => {
     return (
-      <div>
-        <div className="flex justify-between gap-4 p-2 text-sm bg-secondary-200 font-medium mb-4 rounded-lg bg-card border">
-          <div className="w-2/6">Patient Name/UHID</div>
-          <div className="w-1/6">Primary Ph No.</div>
-          <div className="w-1/6">Date of birth/Age</div>
-          <div className="w-1/6">Sex</div>
-        </div>
-
-        <div className="divide-y rounded-lg border bg-card">
-          {patients?.map((patient) => (
-            <div
-              key={patient.id}
-              className="flex items-center justify-between gap-4 p-4 hover:bg-secondary-100 cursor-pointer"
-            >
-              <div className="w-2/6">
-                <div className="font-medium">{patient.name}</div>
-                <div className="text-sm text-muted-foreground">
-                  {patient.id}
-                </div>
-              </div>
-              <div className="self-center w-1/6">{patient.phone_number}</div>
-              <div className="self-center w-1/6">
-                {formatDate(
-                  new Date(patient.date_of_birth ?? ""),
-                  "dd MMM yyyy",
+      <div className="overflow-auto max-h-[400px]">
+        <table className="w-full">
+          <thead className="text-sm bg-secondary-200 font-medium">
+            <tr>
+              <th className="w-2/6 p-2 text-left">Patient Name/UHID</th>
+              <th className="w-1/6 p-2 text-left">Primary Ph No.</th>
+              <th className="w-1/6 p-2 text-left">Date of birth/Age</th>
+              <th className="w-1/6 p-2 text-left">Sex</th>
+            </tr>
+          </thead>
+          <tbody className="divide-y rounded-lg border bg-card">
+            {patients?.map((patient) => (
+              <tr
+                key={patient.id}
+                onClick={() => setSelectedPatient(patient.id ?? null)}
+                className="hover:bg-secondary-100 cursor-pointer"
+              >
+                {selectedPatient === patient.id ? (
+                  <td colSpan={4} className="w-full p-4">
+                    <div className="flex items-center justify-center gap-4">
+                      <Button
+                        variant="destructive"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          setSelectedPatient(null);
+                        }}
+                      >
+                        Cancel
+                      </Button>
+                      <Button
+                        variant="primary"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          createAppointment(patient.id ?? "");
+                        }}
+                      >
+                        Confirm
+                      </Button>
+                    </div>
+                  </td>
+                ) : (
+                  <>
+                    <td className="p-4">
+                      <div className="font-medium">{patient.name}</div>
+                      <div className="text-sm text-muted-foreground">
+                        {patient.id}
+                      </div>
+                    </td>
+                    <td className="p-4">{patient.phone_number}</td>
+                    <td className="p-4">
+                      {formatDate(
+                        new Date(patient.date_of_birth ?? ""),
+                        "dd MMM yyyy",
+                      )}
+                    </td>
+                    <td className="p-4">
+                      {patient.gender === 1 ? "Male" : "Female"}
+                    </td>
+                  </>
                 )}
-              </div>
-              <div className="self-center w-1/6">
-                {patient.gender === 1 ? "Male" : "Female"}
-              </div>
-            </div>
-          ))}
-        </div>
+              </tr>
+            ))}
+          </tbody>
+        </table>
       </div>
     );
   };
@@ -151,7 +202,7 @@ export default function PatientSelect({
           ? renderPatientList()
           : renderNoPatientFound()}
         <Button
-          variant="outline_primary"
+          variant="primary_gradient"
           className="w-1/2 self-center"
           onClick={() =>
             navigate(
@@ -159,7 +210,8 @@ export default function PatientSelect({
             )
           }
         >
-          <span className="text-sm underline">Add New Patient</span>
+          <span className="absolute inset-0 bg-gradient-to-b from-white/15 to-transparent"></span>
+          Add New Patient
         </Button>
       </div>
     </div>

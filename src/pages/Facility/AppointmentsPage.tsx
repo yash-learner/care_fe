@@ -49,22 +49,36 @@ export function AppointmentsPage(props: AppointmentsProps) {
 
   const { start, end } = getMonthStartAndEnd(selectedMonth);
 
-  const { data: facilityResponse } = useQuery<RequestResult<FacilityModel>>({
+  const { data: facilityResponse, error: facilityError } = useQuery<
+    RequestResult<FacilityModel>
+  >({
     queryKey: ["facility", facilityId],
     queryFn: () =>
       request(routes.getAnyFacility, {
         pathParams: { id: facilityId },
+        silent: true,
       }),
   });
 
-  const { data: doctorResponse } = useQuery<RequestResult<UserBareMinimum>>({
+  if (facilityError) {
+    Notification.Error({ msg: "Error while fetching facility data" });
+  }
+
+  const { data: doctorResponse, error: doctorError } = useQuery<
+    RequestResult<UserBareMinimum>
+  >({
     queryKey: ["doctor", staffUsername],
     queryFn: () =>
       request(routes.getUserDetails, {
         pathParams: { username: staffUsername ?? "" },
+        silent: true,
       }),
     enabled: !!staffUsername,
   });
+
+  if (doctorError) {
+    Notification.Error({ msg: "Error while fetching doctor data" });
+  }
 
   const slotsQuery = useQuery<RequestResult<TokenSlot[]>>({
     queryKey: ["slots", facilityId, staffUsername, start, end],
@@ -78,9 +92,14 @@ export function AppointmentsPage(props: AppointmentsProps) {
           valid_from: dateQueryString(start),
           valid_to: dateQueryString(end),
         },
+        silent: true,
       }),
     enabled: !!staffUsername,
   });
+
+  if (slotsQuery.error) {
+    Notification.Error({ msg: "Error while fetching slots data" });
+  }
 
   useEffect(() => {
     setSelectedSlot(undefined);
@@ -271,8 +290,8 @@ export function AppointmentsPage(props: AppointmentsProps) {
             </Link>
           </Button>
         </div>
-        <div className="flex gap-4">
-          <div className="w-1/3">
+        <div className="flex flex-col sm:flex-row gap-4">
+          <div className="sm:w-1/3">
             <Card className={cn("overflow-hidden bg-white")}>
               <div className="flex flex-col">
                 <div className="flex flex-col gap-4 items-center py-4">
@@ -379,7 +398,7 @@ export function AppointmentsPage(props: AppointmentsProps) {
       </div>
       <div className="bg-secondary-200 h-20">
         {selectedSlot?.id && (
-          <div className="container mx-auto flex flex-row justify-end mt-6 mr-96">
+          <div className="container mx-auto flex flex-row justify-end mt-6">
             <Button
               variant="primary_gradient"
               onClick={() => {
@@ -393,6 +412,7 @@ export function AppointmentsPage(props: AppointmentsProps) {
                 );
               }}
             >
+              <span className="absolute inset-0 bg-gradient-to-b from-white/15 to-transparent"></span>
               Continue
               <CareIcon icon="l-arrow-right" className="h-4 w-4" />
             </Button>

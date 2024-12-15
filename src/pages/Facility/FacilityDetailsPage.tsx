@@ -12,6 +12,7 @@ import { UserBareMinimum } from "@/components/Users/models";
 
 import useFilters from "@/hooks/useFilters";
 
+import * as Notification from "@/Utils/Notifications";
 import routes from "@/Utils/request/api";
 import request from "@/Utils/request/request";
 import { PaginatedResponse, RequestResult } from "@/Utils/request/types";
@@ -51,8 +52,12 @@ export function FacilityDetailsPage({ id }: Props) {
         ScheduleAPIs.appointments.availableDoctors,
         {
           pathParams: { facility_id: id },
+          silent: true,
         },
       );
+      if (response.res?.status !== 200) {
+        Notification.Error({ msg: "Error while fetching doctors data" });
+      }
       return response;
     },
   });
@@ -120,7 +125,7 @@ export function FacilityDetailsPage({ id }: Props) {
         </Button>
       </div>
       <Card className="overflow-hidden bg-white">
-        <div className="flex flex-row m-6">
+        <div className="flex flex-col sm:flex-row  m-6">
           <div className="h-64 w-64 shrink-0 overflow-hidden rounded-lg">
             <img
               src={
