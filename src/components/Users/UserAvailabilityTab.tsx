@@ -62,9 +62,8 @@ export default function UserAvailabilityTab({ userData: user }: Props) {
         facility_id: facilityId!,
       },
       queryParams: {
-        doctor_username: user.username,
-        date_from: monthRange.start.toISOString().split("T")[0],
-        date_to: monthRange.end.toISOString().split("T")[0],
+        resource: user.external_id,
+        resource_type: "user",
       },
     }),
     enabled: !!facilityId,

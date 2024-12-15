@@ -1,16 +1,7 @@
 import { DayOfWeekValue } from "@/CAREUI/interactive/WeekdayCheckbox";
 
-import { PatientModel } from "@/components/Patient/models";
-
 import { Time, WritableOnly } from "@/Utils/types";
 import { UserBase } from "@/types/user/base";
-
-export interface ScheduleResourceUser {
-  readonly id: string;
-  readonly name: string;
-}
-
-export type ScheduleResource = ScheduleResourceUser;
 
 export interface ScheduleTemplate {
   readonly id: string;
@@ -71,27 +62,39 @@ export interface SlotAvailability {
   readonly allocated: number;
 }
 
-/**
- * @deprecated Use SlotAvailability instead. TODO: Remove once references are removed.
- */
-export interface TokenSlot {
-  readonly id: string;
-  readonly start_datetime: string;
-  readonly end_datetime: string;
-  readonly resource: ScheduleResourceUser;
-  readonly tokens_count: number;
-  readonly tokens_remaining: number;
-}
-
 export interface AppointmentCreate {
   patient: string;
   reason_for_visit: string;
 }
 
+interface AppointmentPatient {
+  readonly id: string;
+  readonly name: string;
+  readonly gender: number;
+  readonly date_of_birth: string | null;
+  readonly age: number | null;
+  readonly address: string;
+  readonly pincode: string;
+}
+
 export interface Appointment {
   readonly id: string;
-  readonly patient: PatientModel;
+  readonly token_slot: SlotAvailability;
+  readonly patient: AppointmentPatient;
+  readonly booked_on: string;
+  readonly booked_by: UserBase;
+  status:
+    | "proposed"
+    | "pending"
+    | "booked"
+    | "arrived"
+    | "fulfilled"
+    | "cancelled"
+    | "noshow"
+    | "entered_in_error"
+    | "checked_in"
+    | "waitlist"
+    | "in_consultation";
   readonly reason_for_visit: string;
-  readonly resource: ScheduleResourceUser;
-  readonly token_slot: TokenSlot;
+  readonly resource: UserBase;
 }

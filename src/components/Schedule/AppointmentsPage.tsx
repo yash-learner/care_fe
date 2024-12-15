@@ -1,7 +1,7 @@
 import { useQuery } from "@tanstack/react-query";
 import { formatDate } from "date-fns";
 import { Link } from "raviger";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 
 import { cn } from "@/lib/utils";
@@ -18,17 +18,17 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 
-import { Avatar } from "@/components/Common/Avatar";
 import Page from "@/components/Common/Page";
 import { ScheduleAPIs } from "@/components/Schedule/api";
-import { filterAvailabilitiesByDayOfWeek } from "@/components/Schedule/helpers";
+import {
+  filterAvailabilitiesByDayOfWeek,
+  getFakeTokenNumber,
+} from "@/components/Schedule/helpers";
 import { Appointment, ScheduleAvailability } from "@/components/Schedule/types";
 import { formatAvailabilityTime } from "@/components/Users/UserAvailabilityTab";
-import { UserModel } from "@/components/Users/models";
 
 import useAuthUser from "@/hooks/useAuthUser";
 
-import routes from "@/Utils/request/api";
 import query from "@/Utils/request/query";
 import { formatName, formatPatientAge } from "@/Utils/utils";
 
@@ -38,20 +38,27 @@ export default function AppointmentsPage() {
 
   const [viewMode, setViewMode] = useState<"board" | "list">("board");
 
-  const [selectedDoctor, setSelectedDoctor] = useState<UserModel>(authUser);
+  const [selectedResource, setSelectedResource] = useState<string>();
   const [selectedSlot, setSelectedSlot] = useState<ScheduleAvailability>();
 
-  const doctorsQuery = useQuery({
-    queryKey: ["doctors", facilityId],
-    queryFn: query(routes.userList, {
-      queryParams: {
-        home_facility: facilityId,
-        user_type: "Doctor",
-      },
+  const availableResourcesQuery = useQuery({
+    queryKey: ["availableResources", facilityId],
+    queryFn: query(ScheduleAPIs.appointments.availableDoctors, {
+      pathParams: { facility_id: facilityId },
     }),
   });
 
-  const slots = useSlots(facilityId, selectedDoctor?.username);
+  useEffect(() => {
+    if (availableResourcesQuery.data?.users.length && !selectedResource) {
+      setSelectedResource(availableResourcesQuery.data?.users[0].id);
+    }
+  }, [availableResourcesQuery.data, selectedResource]);
+
+  const selectedResourceObj = availableResourcesQuery.data?.users.find(
+    (r) => r.id === selectedResource,
+  );
+
+  const slots = useSlots(facilityId, selectedResourceObj?.id);
 
   return (
     <Page title="Out Patient (OP) Appointments" collapseSidebar>
@@ -60,26 +67,26 @@ export default function AppointmentsPage() {
           <div>
             <Label className="mb-2 text-black">Select Doctor</Label>
             <Select
-              value={selectedDoctor?.username}
+              value={selectedResourceObj?.id}
               onValueChange={(value) => {
-                const doctor = doctorsQuery.data?.results.find(
-                  (d) => d.username === value,
+                const resource = availableResourcesQuery.data?.users.find(
+                  (r) => r.id === value,
                 );
-                setSelectedDoctor(doctor ?? authUser);
+                setSelectedResource(resource?.id);
               }}
             >
               <SelectTrigger className="w-[240px]">
-                <SelectValue placeholder="Select Doctor" />
+                <SelectValue placeholder="Show all" />
               </SelectTrigger>
               <SelectContent>
-                {doctorsQuery.data?.results.map((doctor) => (
-                  <SelectItem key={doctor.username} value={doctor.username}>
+                {availableResourcesQuery.data?.users.map((doctor) => (
+                  <SelectItem key={doctor.id} value={doctor.id}>
                     <div className="flex items-center gap-2">
-                      <Avatar
+                      {/* <Avatar
                         imageUrl={doctor.read_profile_picture_url}
                         name={formatName(doctor)}
                         className="size-6 rounded-full"
-                      />
+                      /> */}
                       <span>{formatName(doctor)}</span>
                     </div>
                   </SelectItem>
@@ -233,14 +240,15 @@ function AppointmentCard({ appointment }: { appointment: Appointment }) {
             {patient.name}
           </h3>
           <p className="text-sm text-gray-700">
-            {formatPatientAge(patient, true)}, {t(`GENDER__${patient.gender}`)}
+            {formatPatientAge(patient as any, true)},{" "}
+            {t(`GENDER__${patient.gender}`)}
           </p>
         </div>
         <div className="bg-gray-100 px-2 py-1 rounded text-center">
           <p className="text-[10px]">TOKEN</p>
           {/* TODO: replace this with token number once that's ready... */}
           <p className="font-bold text-2xl uppercase">
-            {Math.floor(Math.random() * 100)}
+            {getFakeTokenNumber(appointment)}
           </p>
         </div>
       </div>

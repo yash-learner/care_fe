@@ -43,8 +43,8 @@ export default function AppointmentCreatePage(props: Props) {
   const [reason, setReason] = useState("");
   const [selectedSlot, setSelectedSlot] = useState<SlotAvailability>();
 
-  const availableDoctorsQuery = useQuery({
-    queryKey: ["availableDoctors", props.facilityId],
+  const availableResourcesQuery = useQuery({
+    queryKey: ["availableResources", props.facilityId],
     queryFn: query(ScheduleAPIs.appointments.availableDoctors, {
       pathParams: {
         facility_id: props.facilityId,
@@ -55,9 +55,7 @@ export default function AppointmentCreatePage(props: Props) {
   const slotsQuery = useQuery({
     queryKey: [selectedResource, dateQueryString(selectedDate)],
     queryFn: query(ScheduleAPIs.slots.getAvailableSlotsForADay, {
-      pathParams: {
-        facility_id: props.facilityId,
-      },
+      pathParams: { facility_id: props.facilityId },
       body: {
         resource: selectedResource,
         day: dateQueryString(selectedDate),
@@ -142,7 +140,7 @@ export default function AppointmentCreatePage(props: Props) {
             <div>
               <label className="block mb-2">Preferred doctor</label>
               <Select
-                disabled={availableDoctorsQuery.isLoading}
+                disabled={availableResourcesQuery.isLoading}
                 value={selectedResource}
                 onValueChange={(value) => setSelectedResource(value)}
               >
@@ -150,7 +148,7 @@ export default function AppointmentCreatePage(props: Props) {
                   <SelectValue placeholder="Select" />
                 </SelectTrigger>
                 <SelectContent>
-                  {availableDoctorsQuery.data?.users.map((user) => (
+                  {availableResourcesQuery.data?.users.map((user) => (
                     <SelectItem key={user.username} value={user.id}>
                       <div className="flex items-center gap-2">
                         {/* <Avatar
