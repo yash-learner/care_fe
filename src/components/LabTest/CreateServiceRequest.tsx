@@ -14,7 +14,7 @@ import { Label } from "../ui/label";
 import { RadioGroup, RadioGroupItem } from "../ui/radio-group";
 import { Textarea } from "../ui/textarea";
 import LabOrderCodeSelect from "./LabOrderCodeSelect";
-import { Coding, ServiceRequest } from "./types";
+import { Annotation, Coding, ServiceRequest } from "./types";
 
 type CreateServiceRequestProps = {
   encounter: ConsultationModel;
@@ -26,9 +26,20 @@ export default function CreateServiceRequest({
   const { t } = useTranslation();
 
   const [code, setCode] = useState<Coding>();
-  const [note, setNote] = useState<string>();
+  const [note, setNote] = useState<Annotation[]>([]);
   const [priority, setPriority] = useState<ServiceRequest["priority"]>();
   const [recurrence, setRecurrence] = useState<unknown>();
+
+  const handleNoteChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
+    const updatedNote: Annotation[] = [
+      {
+        text: e.target.value,
+        authorString: "CurrentUser", // Replace with actual user
+        time: new Date().toISOString(),
+      },
+    ];
+    setNote(updatedNote);
+  };
 
   return (
     <Card className="bg-inherit shadow-none rounded-md">
@@ -42,6 +53,7 @@ export default function CreateServiceRequest({
               placeholder="Type your note here."
               id="note"
               className="bg-white"
+              onChange={handleNoteChange}
             />
           </div>
         )}
@@ -53,6 +65,9 @@ export default function CreateServiceRequest({
             <RadioGroup
               defaultValue={priority}
               className="flex items-center gap-3"
+              onValueChange={(value) =>
+                setPriority(value as ServiceRequest["priority"])
+              }
             >
               {["routine", "urgent", "asap", "stat"].map((value) => (
                 <div className="flex items-center space-x-1.5">
@@ -72,7 +87,7 @@ export default function CreateServiceRequest({
         <div className="flex items-center gap-2 w-full">
           {note === undefined && (
             <Button
-              onClick={() => setNote("")}
+              onClick={() => setNote([])}
               variant="ghost"
               className="flex items-center gap-1.5"
             >
@@ -118,6 +133,8 @@ export default function CreateServiceRequest({
                       code,
                       subject: encounter.patient,
                       encounter: encounter.id,
+                      priority,
+                      note,
                     },
                   },
                 );
