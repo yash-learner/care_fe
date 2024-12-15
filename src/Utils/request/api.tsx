@@ -108,6 +108,37 @@ export interface LoginCredentials {
   password: string;
 }
 
+type HttpMethod = "GET" | "POST" | "PUT" | "PATCH" | "DELETE";
+
+export const API = <TResponse = undefined, TBody = undefined>(
+  route: `${HttpMethod} ${string}`,
+) => {
+  const [method, path] = route.split(" ") as [HttpMethod, string];
+  return {
+    path,
+    method,
+    TRes: Type<TResponse>(),
+    TBody: Type<TBody>(),
+  };
+};
+
+export const ModelCrudApis = <
+  TModel extends object,
+  TCreate = TModel,
+  TListResponse = TModel,
+  TUpdate = TModel,
+>(
+  route: string,
+) => {
+  return {
+    list: API<PaginatedResponse<TListResponse>>(`GET ${route}/`),
+    create: API<TModel, TCreate>(`POST ${route}/`),
+    retrieve: API<TModel>(`GET ${route}/{id}/`),
+    update: API<TModel, TUpdate>(`PUT ${route}/{id}/`),
+    delete: API(`DELETE ${route}/{id}/`),
+  };
+};
+
 const routes = {
   // Auth Endpoints
   login: {
