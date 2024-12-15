@@ -1,3 +1,5 @@
+import { cn } from "@/lib/utils";
+
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 
@@ -9,6 +11,7 @@ interface NumberQuestionProps {
   questionnaireResponse: QuestionnaireResponse;
   updateQuestionnaireResponseCB: (response: QuestionnaireResponse) => void;
   disabled?: boolean;
+  classes?: string;
 }
 
 export function NumberQuestion({
@@ -16,6 +19,7 @@ export function NumberQuestion({
   questionnaireResponse,
   updateQuestionnaireResponseCB,
   disabled,
+  classes,
 }: NumberQuestionProps) {
   const handleChange = (value: string) => {
     const numericValue =
@@ -33,7 +37,7 @@ export function NumberQuestion({
   };
 
   return (
-    <div className="space-y-2">
+    <div className={cn(classes)}>
       <Label className="text-base font-medium">
         {question.link_id} - {question.text}
         {question.required && <span className="ml-1 text-red-500">*</span>}

@@ -115,6 +115,7 @@ export function QuestionInput({
     const isEnabled = isQuestionEnabled();
 
     const commonProps = {
+      classes: question.styling_metadata?.classes,
       question,
       questionnaireResponse,
       updateQuestionnaireResponseCB,

@@ -55,6 +55,9 @@ export interface Question {
   description?: string;
   type: QuestionType;
   structured_type?: StructuredQuestionType;
+  styling_metadata?: {
+    classes?: string;
+  };
   required?: boolean;
   collect_time?: boolean;
   collect_performer?: boolean;
