@@ -1,7 +1,9 @@
+import { mapKeyToBadgeVariant } from "@/Utils/badgeUtils";
 import routes from "@/Utils/request/api";
 import useQuery from "@/Utils/request/useQuery";
 
 import { Badge } from "../ui/badge";
+import { BadgeProps } from "../ui/badge";
 import { Separator } from "../ui/separator";
 import {
   Table,
@@ -27,6 +29,13 @@ export default function ListEncounterServiceRequests({
 
   // TODO: Add Loader while fetching data
 
+  const priorityVariantMap: Record<string, BadgeProps["variant"]> = {
+    routine: "default",
+    asap: "warning",
+    urgent: "secondary",
+    stat: "destructive",
+  };
+
   return (
     <div>
       <Table>
@@ -38,7 +47,7 @@ export default function ListEncounterServiceRequests({
             <TableHead>Status</TableHead>
           </TableRow>
         </TableHeader>
-        <TableBody className="">
+        <TableBody>
           {data?.results.map((request) => (
             <TableRow
               key={request.id}
@@ -50,12 +59,20 @@ export default function ListEncounterServiceRequests({
                   <Separator orientation="vertical" className="h-6" />
                 </div>
               </TableCell>
+
               <TableCell className="p-4">
-                <Badge className="bg-blue-600">
+                <Badge
+                  variant={mapKeyToBadgeVariant(
+                    request.priority?.toLowerCase(),
+                    priorityVariantMap,
+                  )}
+                >
                   {request.priority || "Routine"}
                 </Badge>
               </TableCell>
+
               <TableCell className="p-4">One-time</TableCell>
+
               <TableCell className="rounded-r-md p-4">
                 <Badge className="bg-yellow-600">Pending</Badge>
               </TableCell>
