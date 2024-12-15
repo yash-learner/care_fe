@@ -12,23 +12,21 @@ import {
   TableRow,
 } from "@/components/ui/table";
 
+import { Avatar } from "@/components/Common/Avatar";
+
 import routes from "@/Utils/request/api";
 import query from "@/Utils/request/query";
-import { Diagnosis } from "@/types/questionnaire/diagnosis";
+import { AllergyIntolerance } from "@/types/emr/allergyIntolerance";
 
-import { Avatar } from "../Common/Avatar";
-
-interface DiagnosisListProps {
+interface AllergyListProps {
   patientId: string;
-  encounterId?: string;
 }
 
-export function DiagnosisList({ patientId, encounterId }: DiagnosisListProps) {
-  const { data: diagnoses, isLoading } = useQuery({
-    queryKey: ["diagnosis", patientId, encounterId],
-    queryFn: query(routes.getDiagnosis, {
+export function AllergyList({ patientId }: AllergyListProps) {
+  const { data: allergies, isLoading } = useQuery({
+    queryKey: ["allergies", patientId],
+    queryFn: query(routes.getAllergy, {
       pathParams: { patientId },
-      queryParams: encounterId ? { encounter: encounterId } : undefined,
     }),
   });
 
@@ -36,7 +34,7 @@ export function DiagnosisList({ patientId, encounterId }: DiagnosisListProps) {
     return (
       <Card>
         <CardHeader>
-          <CardTitle>Diagnoses</CardTitle>
+          <CardTitle>Allergies</CardTitle>
         </CardHeader>
         <CardContent>
           <Skeleton className="h-[100px] w-full" />
@@ -45,29 +43,38 @@ export function DiagnosisList({ patientId, encounterId }: DiagnosisListProps) {
     );
   }
 
-  if (!diagnoses?.results?.length) {
+  if (!allergies?.results?.length) {
     return (
       <Card>
         <CardHeader>
-          <CardTitle>Diagnoses</CardTitle>
+          <CardTitle>Allergies</CardTitle>
         </CardHeader>
         <CardContent>
-          <p className="text-muted-foreground">No diagnoses recorded</p>
+          <p className="text-muted-foreground">No allergies recorded</p>
         </CardContent>
       </Card>
     );
   }
 
-  const getStatusBadgeStyle = (status: string) => {
+  const getStatusBadgeStyle = (status: string | undefined) => {
     switch (status?.toLowerCase()) {
       case "active":
         return "bg-green-100 text-green-800 border-green-200";
       case "inactive":
         return "bg-gray-100 text-gray-800 border-gray-200";
-      case "resolved":
-        return "bg-blue-100 text-blue-800 border-blue-200";
-      case "recurrence":
+      default:
+        return "bg-gray-100 text-gray-800 border-gray-200";
+    }
+  };
+
+  const getCategoryBadgeStyle = (category: string) => {
+    switch (category?.toLowerCase()) {
+      case "food":
         return "bg-orange-100 text-orange-800 border-orange-200";
+      case "medication":
+        return "bg-blue-100 text-blue-800 border-blue-200";
+      case "environment":
+        return "bg-green-100 text-green-800 border-green-200";
       default:
         return "bg-gray-100 text-gray-800 border-gray-200";
     }
@@ -75,56 +82,57 @@ export function DiagnosisList({ patientId, encounterId }: DiagnosisListProps) {
 
   return (
     <Card className="p-0">
+      <CardHeader className="px-4 py-0 pt-4">
+        <CardTitle>Allergies</CardTitle>
+      </CardHeader>
       <CardContent className="p-2">
         <Table>
           <TableHeader>
             <TableRow>
-              <TableHead>Diagnosis</TableHead>
+              <TableHead>Allergen</TableHead>
+              <TableHead>Category</TableHead>
               <TableHead>Status</TableHead>
-              <TableHead>Verification</TableHead>
-              <TableHead>Onset Date</TableHead>
-              <TableHead>Notes</TableHead>
+              <TableHead>Criticality</TableHead>
               <TableHead>Created By</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
-            {diagnoses.results.map((diagnosis: Diagnosis) => (
-              <TableRow key={diagnosis.code.code}>
+            {allergies.results.map((allergy: AllergyIntolerance) => (
+              <TableRow>
                 <TableCell className="font-medium">
-                  {diagnosis.code.display}
+                  {allergy.code.display}
                 </TableCell>
                 <TableCell>
                   <Badge
                     variant="outline"
-                    className={`whitespace-nowrap ${getStatusBadgeStyle(diagnosis.clinical_status)}`}
+                    className={`whitespace-nowrap ${getCategoryBadgeStyle(
+                      allergy.category ?? "",
+                    )}`}
                   >
-                    {diagnosis.clinical_status}
+                    {allergy.category}
+                  </Badge>
+                </TableCell>
+                <TableCell>
+                  <Badge
+                    variant="outline"
+                    className={`whitespace-nowrap ${getStatusBadgeStyle(
+                      allergy.clinical_status,
+                    )}`}
+                  >
+                    {allergy.clinical_status}
                   </Badge>
                 </TableCell>
                 <TableCell>
                   <Badge variant="secondary" className="whitespace-nowrap">
-                    {diagnosis.verification_status}
+                    {allergy.criticality}
                   </Badge>
-                </TableCell>
-                <TableCell className="whitespace-nowrap">
-                  {diagnosis.onset?.onset_datetime
-                    ? new Date(
-                        diagnosis.onset.onset_datetime,
-                      ).toLocaleDateString()
-                    : "-"}
-                </TableCell>
-                <TableCell className="max-w-[200px] truncate">
-                  {diagnosis.note || "-"}
                 </TableCell>
                 <TableCell className="whitespace-nowrap flex items-center gap-2">
                   <Avatar
-                    name={`${diagnosis.created_by.first_name} ${diagnosis.created_by.last_name}`}
+                    name={allergy.created_by.username}
                     className="w-4 h-4"
                   />
-                  <span className="text-sm">
-                    {diagnosis.created_by.first_name}{" "}
-                    {diagnosis.created_by.last_name}
-                  </span>
+                  <span className="text-sm">{allergy.created_by.username}</span>
                 </TableCell>
               </TableRow>
             ))}

@@ -14,19 +14,19 @@ import {
 
 import routes from "@/Utils/request/api";
 import query from "@/Utils/request/query";
-import { Symptom } from "@/types/questionnaire/symptom";
+import { Diagnosis } from "@/types/questionnaire/diagnosis";
 
-import { Avatar } from "../Common/Avatar";
+import { Avatar } from "../../Common/Avatar";
 
-interface SymptomsListProps {
+interface DiagnosisListProps {
   patientId: string;
   encounterId?: string;
 }
 
-export function SymptomsList({ patientId, encounterId }: SymptomsListProps) {
-  const { data: symptoms, isLoading } = useQuery({
-    queryKey: ["symptoms", patientId, encounterId],
-    queryFn: query(routes.getSymptom, {
+export function DiagnosisList({ patientId, encounterId }: DiagnosisListProps) {
+  const { data: diagnoses, isLoading } = useQuery({
+    queryKey: ["diagnosis", patientId, encounterId],
+    queryFn: query(routes.getDiagnosis, {
       pathParams: { patientId },
       queryParams: encounterId ? { encounter: encounterId } : undefined,
     }),
@@ -36,7 +36,7 @@ export function SymptomsList({ patientId, encounterId }: SymptomsListProps) {
     return (
       <Card>
         <CardHeader>
-          <CardTitle>Symptoms</CardTitle>
+          <CardTitle>Diagnoses</CardTitle>
         </CardHeader>
         <CardContent>
           <Skeleton className="h-[100px] w-full" />
@@ -45,14 +45,14 @@ export function SymptomsList({ patientId, encounterId }: SymptomsListProps) {
     );
   }
 
-  if (!symptoms?.results?.length) {
+  if (!diagnoses?.results?.length) {
     return (
       <Card>
         <CardHeader>
-          <CardTitle>Symptoms</CardTitle>
+          <CardTitle>Diagnoses</CardTitle>
         </CardHeader>
         <CardContent>
-          <p className="text-muted-foreground">No symptoms recorded</p>
+          <p className="text-muted-foreground">No diagnoses recorded</p>
         </CardContent>
       </Card>
     );
@@ -75,55 +75,58 @@ export function SymptomsList({ patientId, encounterId }: SymptomsListProps) {
 
   return (
     <Card className="p-0">
+      <CardHeader className="px-4 py-0 pt-4">
+        <CardTitle>Diagnoses</CardTitle>
+      </CardHeader>
       <CardContent className="p-2">
         <Table>
           <TableHeader>
             <TableRow>
-              <TableHead>Symptom</TableHead>
+              <TableHead>Diagnosis</TableHead>
               <TableHead>Status</TableHead>
-              <TableHead>Severity</TableHead>
+              <TableHead>Verification</TableHead>
               <TableHead>Onset Date</TableHead>
               <TableHead>Notes</TableHead>
               <TableHead>Created By</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
-            {symptoms.results.map((symptom: Symptom) => (
-              <TableRow key={symptom.code.code}>
+            {diagnoses.results.map((diagnosis: Diagnosis) => (
+              <TableRow key={diagnosis.code.code}>
                 <TableCell className="font-medium">
-                  {symptom.code.display}
+                  {diagnosis.code.display}
                 </TableCell>
                 <TableCell>
                   <Badge
                     variant="outline"
-                    className={`whitespace-nowrap ${getStatusBadgeStyle(symptom.clinical_status)}`}
+                    className={`whitespace-nowrap ${getStatusBadgeStyle(diagnosis.clinical_status)}`}
                   >
-                    {symptom.clinical_status}
+                    {diagnosis.clinical_status}
                   </Badge>
                 </TableCell>
                 <TableCell>
                   <Badge variant="secondary" className="whitespace-nowrap">
-                    {symptom.severity}
+                    {diagnosis.verification_status}
                   </Badge>
                 </TableCell>
                 <TableCell className="whitespace-nowrap">
-                  {symptom.onset?.onset_datetime
+                  {diagnosis.onset?.onset_datetime
                     ? new Date(
-                        symptom.onset.onset_datetime,
+                        diagnosis.onset.onset_datetime,
                       ).toLocaleDateString()
                     : "-"}
                 </TableCell>
                 <TableCell className="max-w-[200px] truncate">
-                  {symptom.note || "-"}
+                  {diagnosis.note || "-"}
                 </TableCell>
                 <TableCell className="whitespace-nowrap flex items-center gap-2">
                   <Avatar
-                    name={`${symptom.created_by.first_name} ${symptom.created_by.last_name}`}
+                    name={`${diagnosis.created_by.first_name} ${diagnosis.created_by.last_name}`}
                     className="w-4 h-4"
                   />
                   <span className="text-sm">
-                    {symptom.created_by.first_name}{" "}
-                    {symptom.created_by.last_name}
+                    {diagnosis.created_by.first_name}{" "}
+                    {diagnosis.created_by.last_name}
                   </span>
                 </TableCell>
               </TableRow>

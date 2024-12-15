@@ -30,12 +30,12 @@ const handlers: {
       allergies.map((allergy) => {
         // Ensure all required fields have default values
         const body: RequestTypeFor<"allergy_intolerance"> = {
-          clinical_status: allergy.clinicalStatus ?? "active",
-          verification_status: allergy.verificationStatus ?? "unconfirmed",
+          clinical_status: allergy.clinical_status ?? "active",
+          verification_status: allergy.verification_status ?? "unconfirmed",
           category: allergy.category ?? "medication",
           criticality: allergy.criticality ?? "low",
           code: allergy.code,
-          last_occurrence: allergy.lastOccurrence,
+          last_occurrence: allergy.last_occurrence,
           note: allergy.note,
           encounter: encounterId,
         };

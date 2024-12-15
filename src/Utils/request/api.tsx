@@ -77,6 +77,7 @@ import {
 } from "@/components/Users/models";
 
 import { PaginatedResponse } from "@/Utils/request/types";
+import { AllergyIntolerance } from "@/types/emr/allergyIntolerance";
 import { Observation } from "@/types/emr/observation";
 import { PlugConfig } from "@/types/plugConfig";
 import {
@@ -1430,6 +1431,12 @@ const routes = {
     path: "/api/v1/patient/{patientId}/symptom/",
     method: "GET",
     TRes: Type<PaginatedResponse<Symptom>>(),
+  },
+
+  getAllergy: {
+    path: "/api/v1/patient/{patientId}/allergy_intolerance/",
+    method: "GET",
+    TRes: Type<PaginatedResponse<AllergyIntolerance>>(),
   },
 
   // OTP Routes

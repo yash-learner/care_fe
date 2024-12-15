@@ -50,13 +50,13 @@ export function AllergyQuestion({
       ...allergies,
       { code: { code: "", display: "", system: "" } },
     ];
-    setAllergies(newAllergies);
+    setAllergies(newAllergies as AllergyIntolerance[]);
     updateQuestionnaireResponseCB({
       ...questionnaireResponse,
       values: [
         {
           type: "allergy_intolerance",
-          value: newAllergies,
+          value: newAllergies as AllergyIntolerance[],
         },
       ],
     });
@@ -133,9 +133,9 @@ export function AllergyQuestion({
                   </TableCell>
                   <TableCell className="min-w-[150px]">
                     <Select
-                      value={allergy.clinicalStatus}
+                      value={allergy.clinical_status}
                       onValueChange={(value) =>
-                        updateAllergy(index, { clinicalStatus: value })
+                        updateAllergy(index, { clinical_status: value })
                       }
                       disabled={disabled}
                     >
@@ -190,9 +190,11 @@ export function AllergyQuestion({
                   </TableCell>
                   <TableCell className="min-w-[150px]">
                     <Select
-                      value={allergy.verificationStatus}
+                      value={allergy.verification_status}
                       onValueChange={(value) =>
-                        updateAllergy(index, { verificationStatus: value })
+                        updateAllergy(index, {
+                          verification_status: value,
+                        })
                       }
                       disabled={disabled}
                     >
@@ -214,9 +216,11 @@ export function AllergyQuestion({
                     <input
                       type="date"
                       className="w-full rounded-md border p-2"
-                      value={allergy.lastOccurrence || ""}
+                      value={allergy.last_occurrence || ""}
                       onChange={(e) =>
-                        updateAllergy(index, { lastOccurrence: e.target.value })
+                        updateAllergy(index, {
+                          last_occurrence: e.target.value,
+                        })
                       }
                       disabled={disabled}
                     />
