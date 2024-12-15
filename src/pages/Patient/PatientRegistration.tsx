@@ -24,7 +24,7 @@ import RadioFormField from "@/components/Form/FormFields/RadioFormField";
 import { SelectFormField } from "@/components/Form/FormFields/SelectFormField";
 import TextAreaFormField from "@/components/Form/FormFields/TextAreaFormField";
 import TextFormField from "@/components/Form/FormFields/TextFormField";
-import { PatientForm } from "@/components/Patient/PatientRegister";
+import { ScheduleAPIs } from "@/components/Schedule/api";
 
 import { GENDER_TYPES } from "@/common/constants";
 import { validateName, validatePincode } from "@/common/validation";
@@ -34,26 +34,18 @@ import routes from "@/Utils/request/api";
 import request from "@/Utils/request/request";
 import { compareBy, dateQueryString } from "@/Utils/utils";
 import { getPincodeDetails, includesIgnoreCase } from "@/Utils/utils";
+import { AppointmentPatientRegister } from "@/pages/Patient/Utils";
 
-type PatientRegistrationForm = Partial<PatientForm> & {
-  landmark: string;
-};
-
-const initialForm: PatientRegistrationForm = {
+const initialForm: AppointmentPatientRegister = {
   name: "",
-  age: undefined,
+  gender: "1",
   year_of_birth: undefined,
-  gender: 1,
   date_of_birth: "",
-  nationality: "India",
+  phone_number: "",
   state: undefined,
   district: undefined,
   local_body: undefined,
-  ward: undefined,
   address: "",
-  landmark: "",
-  sameAddress: true,
-  village: "",
   pincode: undefined,
 };
 
@@ -63,7 +55,7 @@ type PatientRegistrationProps = {
 };
 
 export function PatientRegistration(props: PatientRegistrationProps) {
-  const { facilityId, staffUsername } = props;
+  const { staffUsername } = props;
   const phoneNumber = localStorage.getItem("phoneNumber");
   const { t } = useTranslation();
   const [ageInputType, setAgeInputType] = useState<"age" | "date_of_birth">(
@@ -144,32 +136,31 @@ export function PatientRegistration(props: PatientRegistrationProps) {
     return errors;
   };
 
-  const handleSubmit = async (formData: PatientRegistrationForm) => {
+  const handleSubmit = async (formData: AppointmentPatientRegister) => {
     const data = {
       phone_number: phoneNumber ?? "",
       date_of_birth:
         ageInputType === "date_of_birth"
           ? dateQueryString(formData.date_of_birth)
-          : null,
-      year_of_birth: ageInputType === "age" ? formData.year_of_birth : null,
+          : undefined,
+      year_of_birth:
+        ageInputType === "age" ? formData.year_of_birth : undefined,
       name: formData.name,
       pincode: formData.pincode ? formData.pincode : undefined,
-      gender: Number(formData.gender),
-      nationality: formData.nationality,
-      state: formData.nationality === "India" ? formData.state : undefined,
-      district:
-        formData.nationality === "India" ? formData.district : undefined,
-      local_body:
-        formData.nationality === "India" ? formData.local_body : undefined,
-      ward: formData.ward,
-      village: formData.village,
-      address: formData.address ? formData.address : undefined,
+      gender: formData.gender,
+      state: formData.state ? formData.state : undefined,
+      district: formData.district ? formData.district : undefined,
+      local_body: formData.local_body ? formData.local_body : undefined,
+      address: formData.address ? formData.address : "",
       is_active: true,
     };
 
-    const { res, data: requestData } = await request(routes.addPatient, {
-      body: { ...data, facility: facilityId },
-    });
+    const { res, data: requestData } = await request(
+      ScheduleAPIs.appointments.createPatient,
+      {
+        body: { ...data },
+      },
+    );
 
     if (res?.ok && requestData) {
       publish("patient:upsert", requestData);
@@ -354,8 +345,6 @@ export function PatientRegistration(props: PatientRegistrationProps) {
                   label="Current Address"
                   required
                 />
-
-                <TextFormField {...field("landmark")} label="Landmark" />
 
                 <TextFormField
                   {...field("pincode")}

@@ -5,13 +5,16 @@ import {
   ScheduleExceptionCreate,
   ScheduleTemplate,
   SlotAvailability,
-  TokenSlot,
 } from "@/components/Schedule/types";
 import { UserBareMinimum } from "@/components/Users/models";
 
 import { Type } from "@/Utils/request/api";
 import { PaginatedResponse } from "@/Utils/request/types";
 import { WritableOnly } from "@/Utils/types";
+import {
+  AppointmentPatient,
+  AppointmentPatientRegister,
+} from "@/pages/Patient/Utils";
 
 export const ScheduleAPIs = {
   templates: {
@@ -70,7 +73,7 @@ export const ScheduleAPIs = {
     slots: {
       path: "/api/v1/facility/{facility_id}/appointments/slots/",
       method: "GET",
-      TRes: Type<TokenSlot[]>(),
+      TRes: Type<SlotAvailability[]>(),
     },
     create: {
       path: "/api/v1/facility/{facility_id}/appointments/",
@@ -87,6 +90,12 @@ export const ScheduleAPIs = {
       path: "/api/v1/facility/{facility_id}/appointments/{id}/",
       method: "GET",
       TRes: Type<Appointment>(),
+    },
+    createPatient: {
+      path: "/api/v1/otp/patient/",
+      method: "POST",
+      TBody: Type<AppointmentPatientRegister>(),
+      TRes: Type<AppointmentPatient>(),
     },
   },
 } as const;

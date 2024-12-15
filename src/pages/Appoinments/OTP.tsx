@@ -147,7 +147,7 @@ export default function OTP({
               onChange={(e) => setOtp(e.toString())}
               value={otp}
               error={error}
-              length={4}
+              length={5}
             />
           </div>
           <Button

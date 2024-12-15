@@ -86,7 +86,7 @@ export interface TokenSlot {
 export interface AppointmentCreate {
   patient: string;
   doctor_username: string;
-  slot_start: TokenSlot["start_datetime"];
+  slot_start: SlotAvailability["start_datetime"];
   reason_for_visit: string;
 }
 

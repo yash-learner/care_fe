@@ -15,7 +15,10 @@ import { Textarea } from "@/components/ui/textarea";
 
 import { FacilityModel } from "@/components/Facility/models";
 import { ScheduleAPIs } from "@/components/Schedule/api";
-import { ScheduleResourceUser, TokenSlot } from "@/components/Schedule/types";
+import {
+  ScheduleResourceUser,
+  SlotAvailability,
+} from "@/components/Schedule/types";
 import { UserBareMinimum } from "@/components/Users/models";
 
 import * as Notification from "@/Utils/Notifications";
@@ -36,7 +39,7 @@ export function AppointmentsPage(props: AppointmentsProps) {
   const phoneNumber = localStorage.getItem("phoneNumber");
   const [selectedMonth, setSelectedMonth] = useState(new Date());
   const [selectedDate, setSelectedDate] = useState(new Date());
-  const [selectedSlot, setSelectedSlot] = useState<TokenSlot>();
+  const [selectedSlot, setSelectedSlot] = useState<SlotAvailability>();
   const [reason, setReason] = useState("");
 
   if (!staffUsername) {
@@ -80,7 +83,7 @@ export function AppointmentsPage(props: AppointmentsProps) {
     Notification.Error({ msg: "Error while fetching doctor data" });
   }
 
-  const slotsQuery = useQuery<RequestResult<TokenSlot[]>>({
+  const slotsQuery = useQuery<RequestResult<SlotAvailability[]>>({
     queryKey: ["slots", facilityId, staffUsername, start, end],
     queryFn: () =>
       request(ScheduleAPIs.appointments.slots, {
@@ -154,92 +157,112 @@ export function AppointmentsPage(props: AppointmentsProps) {
   };
 
   // To Do: Mock, remove/adjust this
-  const mockTokenSlots: TokenSlot[] = [
+  const mockTokenSlots: SlotAvailability[] = [
     // Dec 20 - Morning slots
     {
       id: "1",
       start_datetime: "2024-12-20T09:00:00+05:30",
       end_datetime: "2024-12-20T09:30:00+05:30",
-      resource: doctorResource,
-      tokens_count: 4,
-      tokens_remaining: 3,
+      availability: {
+        name: doctorResource.name,
+        tokens_per_slot: 4,
+      },
+      allocated: 3,
     },
     {
       id: "2",
       start_datetime: "2024-12-20T09:30:00+05:30",
       end_datetime: "2024-12-20T10:00:00+05:30",
-      resource: doctorResource,
-      tokens_count: 4,
-      tokens_remaining: 4,
+      availability: {
+        name: doctorResource.name,
+        tokens_per_slot: 4,
+      },
+      allocated: 4,
     },
     // Dec 20 - Evening slots
     {
       id: "3",
       start_datetime: "2024-12-20T14:00:00+05:30",
       end_datetime: "2024-12-20T14:30:00+05:30",
-      resource: doctorResource,
-      tokens_count: 4,
-      tokens_remaining: 0,
+      availability: {
+        name: doctorResource.name,
+        tokens_per_slot: 4,
+      },
+      allocated: 0,
     },
     {
       id: "4",
       start_datetime: "2024-12-20T14:30:00+05:30",
       end_datetime: "2024-12-20T15:00:00+05:30",
-      resource: doctorResource,
-      tokens_count: 4,
-      tokens_remaining: 2,
+      availability: {
+        name: doctorResource.name,
+        tokens_per_slot: 4,
+      },
+      allocated: 2,
     },
     // Dec 21 - Morning slots
     {
       id: "5",
       start_datetime: "2024-12-21T09:00:00+05:30",
       end_datetime: "2024-12-21T09:30:00+05:30",
-      resource: doctorResource,
-      tokens_count: 4,
-      tokens_remaining: 4,
+      availability: {
+        name: doctorResource.name,
+        tokens_per_slot: 4,
+      },
+      allocated: 4,
     },
     {
       id: "6",
       start_datetime: "2024-12-21T09:30:00+05:30",
       end_datetime: "2024-12-21T10:00:00+05:30",
-      resource: doctorResource,
-      tokens_count: 4,
-      tokens_remaining: 1,
+      availability: {
+        name: doctorResource.name,
+        tokens_per_slot: 4,
+      },
+      allocated: 1,
     },
     // Dec 21 - Evening slots
     {
       id: "7",
       start_datetime: "2024-12-21T15:00:00+05:30",
       end_datetime: "2024-12-21T15:30:00+05:30",
-      resource: doctorResource,
-      tokens_count: 4,
-      tokens_remaining: 4,
+      availability: {
+        name: doctorResource.name,
+        tokens_per_slot: 4,
+      },
+      allocated: 4,
     },
     // Dec 22 - Morning slots
     {
       id: "8",
       start_datetime: "2024-12-22T10:00:00+05:30",
       end_datetime: "2024-12-22T10:30:00+05:30",
-      resource: doctorResource,
-      tokens_count: 4,
-      tokens_remaining: 2,
+      availability: {
+        name: doctorResource.name,
+        tokens_per_slot: 4,
+      },
+      allocated: 2,
     },
     {
       id: "9",
       start_datetime: "2024-12-22T10:30:00+05:30",
       end_datetime: "2024-12-22T11:00:00+05:30",
-      resource: doctorResource,
-      tokens_count: 4,
-      tokens_remaining: 4,
+      availability: {
+        name: doctorResource.name,
+        tokens_per_slot: 4,
+      },
+      allocated: 4,
     },
     // Dec 22 - Evening slots
     {
       id: "10",
       start_datetime: "2024-12-22T16:00:00+05:30",
       end_datetime: "2024-12-22T16:30:00+05:30",
-      resource: doctorResource,
-      tokens_count: 4,
-      tokens_remaining: 3,
+      availability: {
+        name: doctorResource.name,
+        tokens_per_slot: 4,
+      },
+      allocated: 3,
     },
   ];
 
@@ -256,7 +279,7 @@ export function AppointmentsPage(props: AppointmentsProps) {
     return slotTime.getHours() >= 12;
   });
 
-  const getSlotButtons = (slots: TokenSlot[]) => {
+  const getSlotButtons = (slots: SlotAvailability[]) => {
     return slots.map((slot) => (
       <Button
         key={slot.id}
@@ -268,7 +291,7 @@ export function AppointmentsPage(props: AppointmentsProps) {
             setSelectedSlot(slot);
           }
         }}
-        disabled={!slot.tokens_remaining}
+        disabled={!slot.availability.tokens_per_slot}
       >
         {format(slot.start_datetime, "HH:mm a")}
       </Button>
@@ -423,7 +446,7 @@ export function AppointmentsPage(props: AppointmentsProps) {
   );
 }
 
-const filterSlotsByDate = (slots: TokenSlot[], date: Date) => {
+const filterSlotsByDate = (slots: SlotAvailability[], date: Date) => {
   return slots.filter((slot) => {
     const slotDate = parseISO(slot.start_datetime);
     return isSameDay(slotDate, date);

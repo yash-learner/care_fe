@@ -8,6 +8,7 @@ import { Button } from "@/components/ui/button";
 
 import { PatientModel } from "@/components/Patient/models";
 import { ScheduleAPIs } from "@/components/Schedule/api";
+import { SlotAvailability } from "@/components/Schedule/types";
 
 import * as Notification from "@/Utils/Notifications";
 import routes from "@/Utils/request/api";
@@ -24,7 +25,9 @@ export default function PatientSelect({
   staffUsername: string;
 }) {
   const phoneNumber = localStorage.getItem("phoneNumber");
-  const selectedSlot = JSON.parse(localStorage.getItem("selectedSlot") ?? "");
+  const selectedSlot = JSON.parse(
+    localStorage.getItem("selectedSlot") ?? "",
+  ) as SlotAvailability;
   const reason = localStorage.getItem("reason");
   const [selectedPatient, setSelectedPatient] = useState<string | null>(null);
 
@@ -54,7 +57,7 @@ export default function PatientSelect({
       body: {
         patient: patientId,
         doctor_username: staffUsername,
-        slot_start: selectedSlot,
+        slot_start: selectedSlot?.start_datetime,
         reason_for_visit: reason,
       },
       pathParams: {
