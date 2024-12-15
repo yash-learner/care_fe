@@ -58,7 +58,7 @@ export function DoctorCard({ doctor, className, facilityId }: Props) {
             </div>
             <Button variant="outline" asChild>
               <Link
-                href={`/facility/${facilityId}/appointments/${doctor.username}/`}
+                href={`/facility/${facilityId}/appointments/${doctor.username}/otp/send`}
               >
                 Book Appointment
               </Link>

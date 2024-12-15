@@ -1504,6 +1504,42 @@ const routes = {
     method: "GET",
     TRes: Type<PaginatedResponse<Observation>>(),
   },
+
+  // OTP Routes
+  otp: {
+    sendOtp: {
+      path: "/api/v1/otp/send/",
+      method: "POST",
+      TBody: Type<{ phone_number: string }>(),
+      TRes: Type<Record<string, never>>(),
+      auth: {
+        key: "Authorization",
+        value: "{OTP_API_KEY}",
+        type: "header",
+      },
+    },
+    loginByOtp: {
+      path: "/api/v1/otp/login/",
+      method: "POST",
+      TBody: Type<{ phone_number: string; otp: string }>(),
+      TRes: Type<Record<string, never>>(),
+      auth: {
+        key: "Authorization",
+        value: "{OTP_API_KEY}",
+        type: "header",
+      },
+    },
+    getPatient: {
+      path: "/api/v1/otp/patient/",
+      method: "GET",
+      TRes: Type<PaginatedResponse<PatientModel>>(),
+      auth: {
+        key: "Authorization",
+        value: "Bearer {token}",
+        type: "header",
+      },
+    },
+  },
 } as const;
 
 export default routes;

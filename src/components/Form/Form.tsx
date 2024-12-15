@@ -35,6 +35,7 @@ type Props<T extends FormDetails> = {
   resetFormValsOnCancel?: boolean;
   resetFormValsOnSubmit?: boolean;
   hideCancelButton?: boolean;
+  submitButtonClassName?: string;
 };
 
 const Form = <T extends FormDetails>({
@@ -151,6 +152,7 @@ const Form = <T extends FormDetails>({
               type="submit"
               disabled={disabled}
               label={props.submitLabel ?? "Submit"}
+              className={props?.submitButtonClassName}
             />
           </div>
         </Provider>

@@ -49,6 +49,7 @@
   },
   "dependencies": {
     "@fontsource/figtree": "^5.1.1",
+    "date-fns": "^3.6.0",
     "@googlemaps/react-wrapper": "^1.1.42",
     "@googlemaps/typescript-guards": "^2.0.3",
     "@headlessui/react": "^2.2.0",

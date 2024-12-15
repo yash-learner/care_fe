@@ -57,6 +57,8 @@ export function FacilityDetailsPage({ id }: Props) {
     },
   });
 
+  // To Do: Mock, remove/adjust this
+  // Need to adjust DoctorModel to match the data from the backend
   function extendDoctors(doctors: UserBareMinimum[]): DoctorModel[] {
     const randomDoc =
       mockDoctors[Math.floor(Math.random() * mockDoctors.length)];
@@ -70,6 +72,7 @@ export function FacilityDetailsPage({ id }: Props) {
     }));
   }
 
+  // To Do: Mock, remove/adjust this
   const doctors = extendDoctors(docReponse?.data?.results ?? []);
   doctors.push(...mockDoctors);
 
@@ -90,7 +93,11 @@ export function FacilityDetailsPage({ id }: Props) {
       <div className="container mx-auto px-4 py-8">
         <Card className="p-8 text-center">
           <h2 className="text-xl font-semibold mb-4">Facility Not Found</h2>
-          <Button onClick={() => navigate("/facilities")}>
+          <Button
+            variant="outline"
+            className="border border-secondary-400"
+            onClick={() => navigate("/facilities")}
+          >
             Back to Facilities
           </Button>
         </Card>
@@ -101,7 +108,11 @@ export function FacilityDetailsPage({ id }: Props) {
   return (
     <div className="container mx-auto px-4 py-8">
       <div className="flex px-2 pb-4 justify-start">
-        <Button variant="ghost" asChild>
+        <Button
+          variant="outline"
+          asChild
+          className="border border-secondary-400"
+        >
           <Link href="/facilities">
             <CareIcon icon="l-square-shape" className="h-4 w-4 mr-1" />
             <span className="text-sm underline">Back</span>
