@@ -1,4 +1,5 @@
-import { useQuery } from "@tanstack/react-query";
+import { ArrowRightIcon } from "@radix-ui/react-icons";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { formatDate } from "date-fns";
 import { Link } from "raviger";
 import { useEffect, useState } from "react";
@@ -30,6 +31,7 @@ import { formatAvailabilityTime } from "@/components/Users/UserAvailabilityTab";
 import useAuthUser from "@/hooks/useAuthUser";
 
 import query from "@/Utils/request/query";
+import request from "@/Utils/request/request";
 import { formatName, formatPatientAge } from "@/Utils/utils";
 
 export default function AppointmentsPage() {
@@ -157,14 +159,11 @@ export default function AppointmentsPage() {
 
       <ScrollArea>
         <div className="flex w-max space-x-4">
-          <AppointmentColumn category="scheduled" facilityId={facilityId} />
-          <AppointmentColumn category="checked-in" facilityId={facilityId} />
-          <AppointmentColumn
-            category="in-consultation"
-            facilityId={facilityId}
-          />
-          <AppointmentColumn category="completed" facilityId={facilityId} />
-          <AppointmentColumn category="no-show" facilityId={facilityId} />
+          <AppointmentColumn status="booked" facilityId={facilityId} />
+          <AppointmentColumn status="checked_in" facilityId={facilityId} />
+          <AppointmentColumn status="in_consultation" facilityId={facilityId} />
+          <AppointmentColumn status="fulfilled" facilityId={facilityId} />
+          <AppointmentColumn status="noshow" facilityId={facilityId} />
         </div>
         <ScrollBar orientation="horizontal" />
       </ScrollArea>
@@ -172,16 +171,15 @@ export default function AppointmentsPage() {
   );
 }
 
-function AppointmentColumn(props: { category: string; facilityId: string }) {
+function AppointmentColumn(props: {
+  status: Appointment["status"];
+  facilityId: string;
+}) {
   const { data } = useQuery({
-    queryKey: ["appointments", props.facilityId, props.category],
+    queryKey: ["appointments", props.facilityId, props.status],
     queryFn: query(ScheduleAPIs.appointments.list, {
       pathParams: { facility_id: props.facilityId },
-      // TODO: unlock this once BE is ready
-      //   queryParams: {
-      //     category: _category,
-      //     doctor_username: props.doctorUsername,
-      //   },
+      queryParams: { status: props.status },
     }),
   });
 
@@ -196,7 +194,7 @@ function AppointmentColumn(props: { category: string; facilityId: string }) {
     >
       <div className="flex items-center gap-3 mb-4">
         <h2 className="font-semibold capitalize text-base px-1">
-          {props.category.replace("-", " ")}
+          {props.status.replace("_", " ")}
         </h2>
         <span className="bg-gray-200 px-2 py-1 rounded-md text-sm">
           {data?.count ?? "..."}
@@ -205,14 +203,14 @@ function AppointmentColumn(props: { category: string; facilityId: string }) {
       <ScrollArea>
         <ul className="space-y-3 px-0.5 pb-4 pt-1">
           {appointments.map((appointment) => (
-            <li>
+            <li key={appointment.id}>
               <Link
                 href={`/facility/${props.facilityId}/patient/${appointment.patient.id}/encounters`}
                 className="text-inherit"
               >
                 <AppointmentCard
-                  key={appointment.id}
                   appointment={appointment}
+                  facilityId={props.facilityId}
                 />
               </Link>
             </li>
@@ -228,15 +226,41 @@ function AppointmentColumn(props: { category: string; facilityId: string }) {
   );
 }
 
-function AppointmentCard({ appointment }: { appointment: Appointment }) {
+function AppointmentCard({
+  appointment,
+  facilityId,
+}: {
+  appointment: Appointment;
+  facilityId: string;
+}) {
   const { patient } = appointment;
   const { t } = useTranslation();
+  const queryClient = useQueryClient();
+
+  const { mutate: updateStatus } = useMutation({
+    mutationFn: (status: Appointment["status"]) =>
+      request(ScheduleAPIs.appointments.update, {
+        pathParams: {
+          facility_id: facilityId,
+          id: appointment.id,
+        },
+        body: { status },
+      }),
+    onSuccess: () => {
+      queryClient.invalidateQueries({
+        queryKey: ["appointments", facilityId, appointment.status],
+      });
+      queryClient.invalidateQueries({
+        queryKey: ["appointments", facilityId, "checked_in"],
+      });
+    },
+  });
 
   return (
     <div className="bg-white p-3 rounded shadow group hover:ring-1 hover:ring-primary-700 hover:ring-offset-1 hover:ring-offset-white hover:shadow-md transition-all duration-100 ease-in-out">
       <div className="flex justify-between items-start mb-2">
         <div>
-          <h3 className="font-semibold text-base group-hover:underline underline-offset-2 group-hover:text-primary-700 transition-all duration-200 ease-in-out">
+          <h3 className="font-semibold text-base group-hover:text-primary-700 transition-all duration-200 ease-in-out">
             {patient.name}
           </h3>
           <p className="text-sm text-gray-700">
@@ -244,27 +268,55 @@ function AppointmentCard({ appointment }: { appointment: Appointment }) {
             {t(`GENDER__${patient.gender}`)}
           </p>
         </div>
-        <div className="bg-gray-100 px-2 py-1 rounded text-center">
-          <p className="text-[10px]">TOKEN</p>
-          {/* TODO: replace this with token number once that's ready... */}
-          <p className="font-bold text-2xl uppercase">
-            {getFakeTokenNumber(appointment)}
-          </p>
+        <div className="flex gap-0 group-hover:gap-3 items-end transition-all duration-200 ease-in-out">
+          {appointment.status === "booked" && (
+            <Button
+              variant="outline"
+              size="sm"
+              className="opacity-0 group-hover:opacity-100 transition-all duration-200 ease-in-out"
+              onClick={(e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                updateStatus("checked_in");
+              }}
+            >
+              <span>Check In</span>
+              <ArrowRightIcon className="size-3 ml-1" />
+            </Button>
+          )}
+          {appointment.status === "checked_in" && (
+            <Button
+              variant="outline"
+              size="sm"
+              className="opacity-0 group-hover:opacity-100 transition-all duration-200 ease-in-out"
+            >
+              <span>Consult</span>
+              <ArrowRightIcon className="size-3 ml-1" />
+            </Button>
+          )}
+          <div className="bg-gray-100 px-2 py-1 rounded text-center">
+            <p className="text-[10px]">TOKEN</p>
+            {/* TODO: replace this with token number once that's ready... */}
+            <p className="font-bold text-2xl uppercase">
+              {getFakeTokenNumber(appointment)}
+            </p>
+          </div>
         </div>
       </div>
     </div>
   );
 }
-const useSlots = (facilityId: string, username?: string) => {
+const useSlots = (facilityId: string, resource_id?: string) => {
   const templatesQuery = useQuery({
-    queryKey: ["slots", facilityId, username],
+    queryKey: ["slots", facilityId, resource_id],
     queryFn: query(ScheduleAPIs.templates.list, {
       pathParams: { facility_id: facilityId },
       queryParams: {
-        doctor_username: username!,
+        resource: resource_id ?? "",
+        resource_type: "user",
       },
     }),
-    enabled: !!username,
+    enabled: !!resource_id,
   });
 
   if (!templatesQuery.data) {

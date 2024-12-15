@@ -86,6 +86,12 @@ export const ScheduleAPIs = {
       method: "GET",
       TRes: Type<Appointment>(),
     },
+    update: {
+      path: "/api/v1/facility/{facility_id}/appointments/{id}/",
+      method: "PUT",
+      TBody: Type<Partial<WritableOnly<Appointment>>>(),
+      TRes: Type<Appointment>(),
+    },
     createPatient: {
       path: "/api/v1/otp/patient/",
       method: "POST",
