@@ -332,7 +332,7 @@ export function PatientRegistration(props: PatientRegistrationProps) {
                 )}
                 {ageInputType === "age" && (
                   <TextFormField
-                    {...field("age")}
+                    {...field("year_of_birth")}
                     placeholder="Enter Age"
                     required
                     type="number"
@@ -499,7 +499,6 @@ export function PatientRegistration(props: PatientRegistrationProps) {
                       />
                     )}
                   </div>
-                  <TextFormField {...field("village")} label="Village" />
                 </div>
               </div>
             </div>
