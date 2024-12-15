@@ -10,7 +10,6 @@ import CareIcon from "@/CAREUI/icons/CareIcon";
 import { Button } from "@/components/ui/button";
 
 import Loading from "@/components/Common/Loading";
-import ScheduleExceptionForm from "@/components/Schedule/ScheduleExceptionForm";
 import { ScheduleAPIs } from "@/components/Schedule/api";
 import { ScheduleException } from "@/components/Schedule/types";
 
@@ -24,32 +23,30 @@ interface Props {
 }
 
 export default function ScheduleExceptionsList(props: Props) {
-  return (
-    <div>
-      <div className="flex items-end justify-between">
-        <h4 className="text-lg font-semibold">Schedule Exceptions</h4>
-        <ScheduleExceptionForm onRefresh={props.onRefresh} />
+  if (props.items == null) {
+    return <Loading />;
+  }
+
+  if (props.items.length === 0) {
+    return (
+      <div className="flex flex-col items-center text-center text-gray-500 py-64">
+        <CareIcon icon="l-calendar-slash" className="size-10 mb-3" />
+        <p>No schedule exceptions found for this month.</p>
       </div>
-      {props.items == undefined && <Loading />}
-      {!!props.items?.length && (
-        <ul className="flex flex-col gap-4 py-6">
-          {props.items.map((exception) => (
-            <li key={exception.id}>
-              <ScheduleExceptionItem
-                {...exception}
-                onDelete={() => props.onRefresh?.()}
-              />
-            </li>
-          ))}
-        </ul>
-      )}
-      {props.items?.length === 0 && (
-        <div className="flex flex-col items-center text-center text-gray-500 py-64">
-          <CareIcon icon="l-calendar-slash" className="size-10 mb-3" />
-          <p>No schedule templates found for this month.</p>
-        </div>
-      )}
-    </div>
+    );
+  }
+
+  return (
+    <ul className="flex flex-col gap-4">
+      {props.items.map((exception) => (
+        <li key={exception.id}>
+          <ScheduleExceptionItem
+            {...exception}
+            onDelete={() => props.onRefresh?.()}
+          />
+        </li>
+      ))}
+    </ul>
   );
 }
 

@@ -41,8 +41,7 @@ import { Textarea } from "@/components/ui/textarea";
 
 import { ScheduleAPIs } from "@/components/Schedule/api";
 import { ScheduleSlotTypes } from "@/components/Schedule/types";
-
-import useAuthUser from "@/hooks/useAuthUser";
+import { UserModel } from "@/components/Users/models";
 
 import useMutation from "@/Utils/request/useMutation";
 import { Time } from "@/Utils/types";
@@ -68,11 +67,11 @@ type FormValues = z.infer<typeof formSchema>;
 
 interface Props {
   onRefresh?: () => void;
+  user: UserModel;
 }
 
-export default function ScheduleExceptionForm(props: Props) {
+export default function ScheduleExceptionForm({ user, onRefresh }: Props) {
   const { t } = useTranslation();
-  const authUser = useAuthUser();
   const [open, setOpen] = useState(false);
 
   const form = useForm<FormValues>({
@@ -92,7 +91,7 @@ export default function ScheduleExceptionForm(props: Props) {
 
   const { mutate, isProcessing } = useMutation(ScheduleAPIs.exceptions.create, {
     pathParams: {
-      facility_id: authUser.home_facility_object!.id!,
+      facility_id: user.home_facility_object!.id!,
     },
   });
 
@@ -113,7 +112,7 @@ export default function ScheduleExceptionForm(props: Props) {
     toast.promise(
       mutate({
         body: {
-          doctor_username: authUser.username,
+          doctor_username: user.username,
           name: data.name,
           is_available: data.is_available,
           valid_from: data.from_date.toISOString().split("T")[0],
@@ -131,7 +130,7 @@ export default function ScheduleExceptionForm(props: Props) {
           if (res?.ok) {
             setOpen(false);
             form.reset();
-            props.onRefresh?.();
+            onRefresh?.();
             return `Exception '${data.name}' created successfully`;
           }
         },

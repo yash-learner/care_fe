@@ -39,8 +39,7 @@ import {
   getTokenDuration,
 } from "@/components/Schedule/helpers";
 import { ScheduleSlotTypes } from "@/components/Schedule/types";
-
-import useAuthUser from "@/hooks/useAuthUser";
+import { UserModel } from "@/components/Users/models";
 
 import useMutation from "@/Utils/request/useMutation";
 import { Time } from "@/Utils/types";
@@ -73,11 +72,11 @@ const formSchema = z.object({
 
 interface Props {
   onRefresh?: () => void;
+  user: UserModel;
 }
 
-export default function ScheduleTemplateForm(props: Props) {
+export default function ScheduleTemplateForm({ user, onRefresh }: Props) {
   const { t } = useTranslation();
-  const authUser = useAuthUser();
   const [open, setOpen] = useState(false);
 
   const form = useForm<z.infer<typeof formSchema>>({
@@ -103,7 +102,7 @@ export default function ScheduleTemplateForm(props: Props) {
 
   const { mutate, isProcessing } = useMutation(ScheduleAPIs.templates.create, {
     pathParams: {
-      facility_id: authUser.home_facility_object!.id!,
+      facility_id: user.home_facility_object!.id!,
     },
   });
 
@@ -111,7 +110,7 @@ export default function ScheduleTemplateForm(props: Props) {
     toast.promise(
       mutate({
         body: {
-          doctor_username: authUser.username,
+          doctor_username: user.username,
           valid_from: values.valid_from.toISOString().split("T")[0],
           valid_to: values.valid_to.toISOString().split("T")[0],
           name: values.name,
@@ -128,7 +127,7 @@ export default function ScheduleTemplateForm(props: Props) {
             toast.success("Schedule template created successfully");
             setOpen(false);
             form.reset();
-            props.onRefresh?.();
+            onRefresh?.();
             return "Schedule template created successfully";
           }
         },
@@ -160,9 +159,8 @@ export default function ScheduleTemplateForm(props: Props) {
 
     return (
       <Callout variant="alert" badge="Info">
-        Allocating approx.{" "}
-        <strong>{slotsPerSession.toFixed(1).replace(".0", "")} slots</strong> in
-        this session provides approximately{" "}
+        Allocating <strong>{Math.floor(slotsPerSession)} slots</strong> in this
+        session provides approximately{" "}
         <strong>{tokenDuration.toFixed(1).replace(".0", "")} mins.</strong> for
         each patient.
       </Callout>

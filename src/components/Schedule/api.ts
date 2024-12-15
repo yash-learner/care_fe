@@ -20,6 +20,11 @@ export const ScheduleAPIs = {
       TRes: Type<ScheduleTemplate>(),
       TBody: Type<ScheduleTemplateCreate>(),
     },
+    delete: {
+      path: "/api/v1/facility/{facility_id}/schedule/{id}/",
+      method: "DELETE",
+      TRes: Type<void>(),
+    },
     list: {
       path: "/api/v1/facility/{facility_id}/schedule/",
       method: "GET",

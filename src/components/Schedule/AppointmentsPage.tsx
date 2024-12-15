@@ -98,10 +98,7 @@ export default function AppointmentsPage() {
               <Button
                 variant={selectedSlot ? "ghost" : "outline"}
                 onClick={() => setSelectedSlot(undefined)}
-                className={cn(
-                  !selectedSlot && "shadow",
-                  "hover:bg-gray-50 hover:shadow",
-                )}
+                className={cn(!selectedSlot && "shadow", "hover:bg-white")}
               >
                 ALL
               </Button>
@@ -112,7 +109,7 @@ export default function AppointmentsPage() {
                   onClick={() => setSelectedSlot(slot)}
                   className={cn(
                     selectedSlot?.id === slot.id && "shadow",
-                    "hover:bg-gray-50 hover:shadow",
+                    "hover:bg-white",
                   )}
                 >
                   {formatTimeShort(slot.start_time)} -{" "}
