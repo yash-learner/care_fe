@@ -1,5 +1,6 @@
 import { useQuery } from "@tanstack/react-query";
 import { format } from "date-fns";
+import { QRCodeSVG } from "qrcode.react";
 import { useTranslation } from "react-i18next";
 
 import CareIcon from "@/CAREUI/icons/CareIcon";
@@ -218,72 +219,74 @@ export function TokenCard({
   const { patient } = appointment;
   const { t } = useTranslation();
   return (
-    <Card className="p-6 shadow-none w-[30rem] boorder border-gray-300">
-      <div className="flex items-start justify-between">
-        <div>
-          <h3 className="text-lg font-bold tracking-tight">{facility.name}</h3>
-          <div className="text-sm text-gray-600">
-            <span>
-              {facility.local_body_object?.name} - {facility.pincode},{" "}
-            </span>
-            <span>Ph: {facility.phone_number}</span>
+    <Card className="p-6 shadow-none w-[30rem] border border-gray-300 relative">
+      <div className="absolute inset-0 opacity-[0.1] pointer-events-none bg-[url('/images/care_logo_gray.svg')] bg-center bg-no-repeat bg-[length:60%_auto]" />
+
+      <div className="relative">
+        <div className="flex items-start justify-between">
+          <div>
+            <h3 className="text-lg font-bold tracking-tight">
+              {facility.name}
+            </h3>
+            <div className="text-sm text-gray-600">
+              <span>
+                {facility.local_body_object?.name} - {facility.pincode},{" "}
+              </span>
+              <span>Ph: {facility.phone_number}</span>
+            </div>
+          </div>
+
+          <div>
+            <div className="text-sm whitespace-nowrap text-center bg-gray-100 px-3 pb-2 pt-6 -mt-6 font-medium text-gray-500">
+              <p>GENERAL</p>
+              <p>OP TOKEN</p>
+            </div>
           </div>
         </div>
 
-        <div>
-          <div className="text-sm whitespace-nowrap text-center bg-gray-100 px-3 pb-2 pt-6 -mt-6 font-medium text-gray-500">
-            <p>GENERAL</p>
-            <p>OP TOKEN</p>
+        <div className="mt-4 flex items-start justify-between">
+          <div>
+            <Label>Name</Label>
+            <p className="font-semibold">{patient.name}</p>
+            <p className="text-sm text-gray-600 font-medium">
+              {formatPatientAge(patient as any, true)},{" "}
+              {t(`GENDER__${patient.gender}`)}
+            </p>
+          </div>
+
+          <div className="flex items-center gap-2">
+            <div>
+              <Label className="text-black font-semibold">Token No.</Label>
+              <p className="text-5xl font-bold leading-none">
+                {/* TODO: get token number from backend */}
+                {Math.floor(Math.random() * 100)}
+              </p>
+            </div>
           </div>
         </div>
-      </div>
 
-      <div className="mt-4 flex items-start justify-between">
-        <div>
-          <Label>Name</Label>
-          <p className="font-semibold">{patient.name}</p>
-          <p className="text-sm text-gray-600 font-medium">
-            {formatPatientAge(patient as any, true)},{" "}
-            {t(`GENDER__${patient.gender}`)}
-          </p>
-        </div>
+        <div className="mt-4 flex justify-between">
+          <div className="space-y-2">
+            <div>
+              <Label>Doctor:</Label>
+              <p className="text-sm font-semibold">
+                {appointment.resource.name}
+              </p>
+            </div>
+            <div>
+              <p className="text-sm font-semibold text-gray-600">
+                {format(
+                  appointment.token_slot.start_datetime,
+                  "dd MMM, yyyy, hh:mm a",
+                )}
+              </p>
+            </div>
+          </div>
 
-        <div>
-          <Label className="text-black font-semibold">Token No.</Label>
-          <p className="text-5xl font-bold leading-none">
-            {/* TODO: get token number from backend */}
-            {Math.floor(Math.random() * 100)}
-          </p>
+          <div>
+            <QRCodeSVG size={64} value={patient.id} />
+          </div>
         </div>
-      </div>
-
-      <div className="mt-4 grid grid-cols-2 gap-4">
-        <div>
-          <Label>Doctor:</Label>
-          <p className="text-sm font-semibold">{appointment.resource.name}</p>
-        </div>
-        <div>
-          <Label>UHID:</Label>
-          <p className="text-sm font-semibold">
-            {/* TODO: get UHID from backend */}
-            T10569090824017
-          </p>
-        </div>
-      </div>
-
-      <div className="mt-4 grid grid-cols-2 gap-4">
-        <div>
-          <p className="text-sm font-semibold text-gray-600">
-            {format(
-              appointment.token_slot.start_datetime,
-              "dd MMM, yyyy, hh:mm a",
-            )}
-          </p>
-        </div>
-        <span className="text-3xl font-barcode whitespace-nowrap select-none">
-          {/* TODO: get UHID from backend */}
-          T10569090824017
-        </span>
       </div>
     </Card>
   );
