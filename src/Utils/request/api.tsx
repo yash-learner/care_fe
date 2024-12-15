@@ -84,8 +84,10 @@ import {
   BatchSubmissionResult,
 } from "@/types/questionnaire/batch";
 import { Code } from "@/types/questionnaire/code";
+import { Diagnosis } from "@/types/questionnaire/diagnosis";
 import type { QuestionnaireDetail } from "@/types/questionnaire/questionnaire";
 import type { QuestionnaireResponse } from "@/types/questionnaire/questionnaireResponse";
+import { Symptom } from "@/types/questionnaire/symptom";
 
 /**
  * A fake function that returns an empty object casted to type T
@@ -1415,6 +1417,19 @@ const routes = {
     path: "/api/v1/patient/{patientId}/observation/",
     method: "GET",
     TRes: Type<PaginatedResponse<Observation>>(),
+  },
+
+  // Diagnosis Routes
+  getDiagnosis: {
+    path: "/api/v1/patient/{patientId}/diagnosis/",
+    method: "GET",
+    TRes: Type<PaginatedResponse<Diagnosis>>(),
+  },
+  // Get Symptom
+  getSymptom: {
+    path: "/api/v1/patient/{patientId}/symptom/",
+    method: "GET",
+    TRes: Type<PaginatedResponse<Symptom>>(),
   },
 
   // OTP Routes

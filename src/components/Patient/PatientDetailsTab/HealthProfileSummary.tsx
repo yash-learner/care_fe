@@ -5,6 +5,8 @@ import CareIcon from "@/CAREUI/icons/CareIcon";
 
 import { Button } from "@/components/ui/button";
 
+import { DiagnosisList } from "@/components/Diagnosis/list";
+import { SymptomsList } from "@/components/Symptoms/list";
 import { UserModel } from "@/components/Users/models";
 
 import useAuthUser from "@/hooks/useAuthUser";
@@ -106,16 +108,12 @@ export const HealthProfileSummary = (props: PatientProps) => {
               </div>
             </div>
 
-            <div className="sm:col-span-1">
-              <div className="text-sm font-semibold leading-5 text-zinc-400">
-                {t("allergies")}
-              </div>
-              <div
-                data-testid="patient-allergies"
-                className="mt-1 overflow-x-scroll whitespace-normal break-words text-sm font-medium leading-5"
-              >
-                {patientData.allergies || "-"}
-              </div>
+            <div className="md:col-span-2">
+              <SymptomsList patientId={id} />
+            </div>
+
+            <div className="md:col-span-2">
+              <DiagnosisList patientId={id} />
             </div>
 
             {patientData.gender === 2 && patientData.is_antenatal && (
