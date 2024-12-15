@@ -1,5 +1,5 @@
 import { CheckCircledIcon, CrossCircledIcon } from "@radix-ui/react-icons";
-import { FC, useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { FaDroplet } from "react-icons/fa6";
 import { v4 as uuid } from "uuid";
 
@@ -35,19 +35,62 @@ import { Textarea } from "@/components/ui/textarea";
 import useAuthUser from "@/hooks/useAuthUser";
 import useOnClickOutside from "@/hooks/useOnClickOutside";
 
+import * as Notification from "@/Utils/Notifications";
 import routes from "@/Utils/request/api";
 import request from "@/Utils/request/request";
 
 import LabObservationCodeSelect from "./LabObservationCodeSelect";
 import { Coding, DiagnosticReport, Specimen } from "./types";
 
-export const ProcessSpecimen: FC = () => {
+type ProcessSpecimenProps = {
+  specimenId?: string;
+};
+
+export const ProcessSpecimen = ({ specimenId }: ProcessSpecimenProps) => {
   const { id: currentUserId } = useAuthUser();
 
   const [specimen, setSpecimen] = useState<Specimen>();
   const [diagnosticReport, setDiagnosticReport] = useState<DiagnosticReport>();
   const [query, setQuery] = useState("");
-  const [selectedAnalyzer, setSelectedAnalyzer] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (specimenId) {
+      (async () => {
+        const { res, data } = await request(routes.labs.specimen.get, {
+          pathParams: {
+            id: specimenId,
+          },
+        });
+
+        if (!res?.ok || !data) {
+          return;
+        }
+
+        setSpecimen(data);
+      })();
+    }
+  }, [specimenId]);
+
+  useEffect(() => {
+    if (specimen) {
+      (async () => {
+        const { res, data } = await request(routes.labs.diagnosticReport.list, {
+          query: {
+            specimen: specimen.id,
+            based_on: (specimen.request as any).external_id,
+            status: "partial",
+            ordering: "-created_date",
+          },
+        });
+
+        if (!res?.ok || !data?.results?.length) {
+          return;
+        }
+
+        setDiagnosticReport(data.results[0]);
+      })();
+    }
+  }, [specimen]);
 
   const [observations, setObservations] = useState<
     {
@@ -274,7 +317,7 @@ export const ProcessSpecimen: FC = () => {
         )}
       </div>
       {!!specimen?.processing.length && !diagnosticReport && (
-        <>
+        <div className="hidden">
           {/* Todo: Extra this into a separate component if not done already at some where else*/}
 
           <div className="bg-white shadow-sm rounded-sm border border-gray-300 p-4 space-y-4">
@@ -302,7 +345,6 @@ export const ProcessSpecimen: FC = () => {
                           <CommandItem
                             key={analyzer.id}
                             onSelect={() => {
-                              setSelectedAnalyzer(analyzer.name);
                               setQuery(analyzer.name);
                               setShowOptions(false);
                             }}
@@ -671,7 +713,7 @@ export const ProcessSpecimen: FC = () => {
               Submit
             </Button>
           </div>
-        </>
+        </div>
       )}
       {diagnosticReport && (
         <div className="bg-gray-50 border border-gray-300 rounded-sm shadow-sm p-2 space-y-2">
@@ -708,27 +750,55 @@ export const ProcessSpecimen: FC = () => {
                   <TableCell>{observation.reference_range?.unit}</TableCell>
                   <TableCell>Dummy Ref range</TableCell>
                   <TableCell>
-                    <Input type="text" placeholder="" className="w-full" />
+                    <p></p>
                   </TableCell>
                 </TableRow>
               ))}
             </TableBody>
           </Table>
-          <div className="flex gap-2 justify-end">
-            <Button
-              variant="outline"
-              size="sm"
-              className="border-gray-300 font-medium gap-2"
-              disabled
-            >
-              <CrossCircledIcon className="h-4 w-4 text-red-500" />
-              <span>Reject Result</span>
-            </Button>
-            <Button disabled variant="primary" size="sm" className="gap-2">
-              <CheckCircledIcon className="h-4 w-4 text-white" />
-              Approve Result
-            </Button>
-          </div>
+          {diagnosticReport.status !== "preliminary" && (
+            <div className="flex gap-2 justify-end">
+              <Button
+                variant="outline"
+                size="sm"
+                className="border-gray-300 font-medium gap-2"
+                disabled
+              >
+                <CrossCircledIcon className="h-4 w-4 text-red-500" />
+                <span>Reject Result</span>
+              </Button>
+              <Button
+                onClick={async () => {
+                  const { res, data } = await request(
+                    routes.labs.diagnosticReport.verify,
+                    {
+                      pathParams: {
+                        id: diagnosticReport.id,
+                      },
+                      body: {
+                        is_approved: true,
+                      },
+                    },
+                  );
+
+                  if (!res?.ok || !data) {
+                    return;
+                  }
+
+                  Notification.Success({
+                    msg: "Result approved successfully, and result is under review",
+                  });
+                  setDiagnosticReport(data);
+                }}
+                variant="primary"
+                size="sm"
+                className="gap-2"
+              >
+                <CheckCircledIcon className="h-4 w-4 text-white" />
+                Approve Result
+              </Button>
+            </div>
+          )}
         </div>
       )}
     </div>

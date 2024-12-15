@@ -5,7 +5,8 @@ import {
   ChevronDownIcon,
   ChevronUpIcon,
 } from "@radix-ui/react-icons";
-import React from "react";
+import { Link } from "raviger";
+import React, { useState } from "react";
 
 import CareIcon from "@/CAREUI/icons/CareIcon";
 
@@ -25,122 +26,24 @@ import {
 } from "@/components/ui/table";
 import { Textarea } from "@/components/ui/textarea";
 
-interface Sample {
-  id: string;
-  status: string;
-  barcode?: string;
-  tubeType?: string;
-  collectionDateTime?: string;
-  specimenType: string;
-}
-
-interface Order {
-  orderId: string;
-  status: string;
-  test: string;
-  samples: Sample[];
-}
-
-// Mock Data
-const initialOrders: Order[] = [
-  {
-    orderId: "CARE_LAB-001",
-    status: "Pending",
-    test: "Complete Blood Count (CBC)",
-    samples: [
-      {
-        id: "SPEC009213",
-        specimenType: "Blood",
-        status: "Collection Pending",
-      },
-      {
-        id: "SPEC009213-2",
-        specimenType: "Blood",
-        status: "Collected",
-        barcode: "123456789",
-        tubeType: "EDTA",
-        collectionDateTime: "28-Nov-2024, 2:30PM",
-      },
-    ],
-  },
-  {
-    orderId: "CARE_LAB-002",
-    status: "Pending",
-    test: "Urine Analysis",
-    samples: [
-      {
-        id: "SPEC009412",
-        specimenType: "Urine",
-        status: "Collection Pending",
-      },
-    ],
-  },
-];
-const testResults = [
-  {
-    parameter: "Total Bilirubin",
-    result: "1.2",
-    unit: "mg/dL",
-    referenceRange: "0.1 - 1.2",
-    remark: "Boderline High",
-  },
-  {
-    parameter: "Direct Bilirubin",
-    result: "0.3",
-    unit: "mg/dL",
-    referenceRange: "0.0 - 0.4",
-    remark: "",
-  },
-  {
-    parameter: "ALT",
-    result: "42",
-    unit: "U/L",
-    referenceRange: "7 - 56",
-    remark: "",
-  },
-  {
-    parameter: "AST",
-    result: "37",
-    unit: "U/L",
-    referenceRange: "5 - 40",
-    remark: "",
-  },
-  {
-    parameter: "ALP",
-    result: "112",
-    unit: "U/L",
-    referenceRange: "40 - 129",
-    remark: "",
-  },
-  {
-    parameter: "Albumin",
-    result: "4.4",
-    unit: "g/dL",
-    referenceRange: "3.5 - 5.0",
-    remark: "",
-  },
-  {
-    parameter: "Total Protein",
-    result: "7.2",
-    unit: "g/dL",
-    referenceRange: "6.4 - 8.3",
-    remark: "",
-  },
-];
+import routes from "@/Utils/request/api";
+import request from "@/Utils/request/request";
+import useQuery from "@/Utils/request/useQuery";
 
 export const ReviewResult: React.FC<{
-  specimenId: string;
-}> = ({ specimenId }) => {
-  // Store orders in state so we can modify them
-  const [orderData, setOrderData] = React.useState<Order[]>(initialOrders);
+  diagnosticReportId: string;
+}> = ({ diagnosticReportId }) => {
+  const [open, setOpen] = useState(true);
+  const [conclusion, setConclusion] = useState("");
 
-  const [openOrders, setOpenOrders] = React.useState<Record<string, boolean>>(
-    {},
+  const { data: diagnosticReport, refetch } = useQuery(
+    routes.labs.diagnosticReport.get,
+    {
+      pathParams: {
+        id: diagnosticReportId,
+      },
+    },
   );
-
-  const toggleOrder = (orderId: string) => {
-    setOpenOrders((prev) => ({ ...prev, [orderId]: !prev[orderId] }));
-  };
 
   return (
     <div className="flex flex-col-reverse lg:flex-row min-h-screen">
@@ -255,317 +158,369 @@ export const ReviewResult: React.FC<{
           <div className="flex flex-col md:flex-row gap-8 mb-4">
             <div>
               <p className="text-gray-600">Patient Name</p>
-              <p className="font-semibold ">John Honai</p>
+              <p className="font-semibold ">{diagnosticReport?.subject.name}</p>
             </div>
             <div>
               <p className="">UHID</p>
               <p className="font-semibold">T105690908240017</p>
             </div>
             <div>
-              <p className="">Age/Sex</p>
-              <p className="font-semibold ">58/Male</p>
+              <p className="">
+                {diagnosticReport?.subject.age ? "Age" : "YOB"}/Sex
+              </p>
+              <p className="font-semibold ">
+                {diagnosticReport?.subject.age ??
+                  diagnosticReport?.subject.year_of_birth}
+                /
+                {
+                  { 1: "Male", 2: "Female", 3: "Other", 4: "Not Mentioned" }[
+                    diagnosticReport?.subject.gender ?? 4
+                  ]
+                }
+              </p>
             </div>
           </div>
           <div>
-            <Button variant={"link"} className="text-blue-700">
+            <Link
+              href={`/patients/${diagnosticReport?.subject.id}`}
+              className="text-blue-700"
+            >
               Patient Health Profile
-            </Button>
+            </Link>
           </div>
         </div>
-        {orderData.map((order) => (
-          <div key={order.orderId} className="mb-4">
-            <Collapsible
-              open={!!openOrders[order.orderId]}
-              onOpenChange={() => toggleOrder(order.orderId)}
-            >
-              <div className="relative before:content-[''] before:absolute before:top-0 before:left-0 before:h-7 before:w-1 before:bg-gray-400 before:mt-3.5 before:rounded-r-sm">
-                <div
-                  className={`items-center px-4 py-3 border rounded-lg shadow-sm max-w-5xl mx-auto space-y-4 ${
-                    openOrders[order.orderId] ? "bg-gray-100" : " "
-                  } `}
-                >
-                  <div className="flex items-center gap-4 justify-between">
-                    <div>
-                      <span className="text-sm font-medium text-gray-600">
-                        Order id
+
+        <div className="mb-4">
+          <Collapsible open={open} onOpenChange={setOpen}>
+            <div className="relative before:content-[''] before:absolute before:top-0 before:left-0 before:h-7 before:w-1 before:bg-gray-400 before:mt-3.5 before:rounded-r-sm">
+              <div
+                className={`items-center px-4 py-3 border rounded-lg shadow-sm max-w-5xl mx-auto space-y-4 ${
+                  diagnosticReport?.id ? "bg-gray-100" : " "
+                } `}
+              >
+                <div className="flex items-center gap-4 justify-between">
+                  <div>
+                    <span className="text-sm font-medium text-gray-600">
+                      Order id
+                    </span>
+                    <div className="flex items-center gap-2">
+                      <span className="text-lg font-semibold text-gray-900">
+                        {diagnosticReport?.based_on.id}
                       </span>
-                      <div className="flex items-center gap-2">
-                        <span className="text-lg font-semibold text-gray-900">
-                          {order.orderId}
-                        </span>
-                        <span className="px-2 py-1 text-xs font-medium bg-orange-100 text-orange-900 rounded">
-                          {order.status}
-                        </span>
-                      </div>
-                    </div>
-                    <div className="flex items-center">
-                      <span className="text-sm text-gray-600">
-                        Specimen to be collected:{" "}
-                        <span className="font-semibold text-gray-900">
-                          {order.samples[0]?.specimenType}
-                        </span>
+                      <span className="px-2 py-1 text-xs font-medium bg-orange-100 text-orange-900 rounded">
+                        {diagnosticReport?.conclusion
+                          ? "Under Review"
+                          : "Completed"}
                       </span>
-                      <div className="flex items-center gap-4">
-                        <CollapsibleTrigger asChild>
-                          <Button variant="ghost" size="sm">
-                            <div className="">
-                              {openOrders[order.orderId] ? (
-                                <ChevronUpIcon className="h-6 w-8" />
-                              ) : (
-                                <ChevronDownIcon className="h-6 w-8" />
-                              )}
-                            </div>
-                          </Button>
-                        </CollapsibleTrigger>
-                      </div>
                     </div>
                   </div>
-
-                  {/* Expanded Content */}
-                  <CollapsibleContent>
-                    <div className="space-y-4">
-                      <div className="relative">
-                        <div
-                          className="max-w-5xl bg-white shadow rounded-lg p-6"
-                          id="order-details"
-                        >
-                          <div className="flex flex-col md:flex-row gap-4">
-                            {/* Left Section */}
-                            <div className="w-full md:w-1/2 pl-2">
-                              <h3 className="text-sm font-semibold text-gray-600">
-                                Test
-                              </h3>
-                              <p className="font-semibold">{order.test}</p>
-                            </div>
-
-                            {/* Right Section */}
-                            <div className="w-full md:w-1/2 md:border-l border-gray-300 sm:pl-4 sm:pb-4">
-                              <h3 className="text-sm font-semibold text-gray-600">
-                                Order Placed by
-                              </h3>
-                              <div className="flex gap-2">
-                                <p className="text-lg font-semibold text-gray-900 mb-4">
-                                  Dr. Jahnab Dutta,
-                                </p>
-                                <p className="text-lg font-normal text-gray-900 mb-4">
-                                  Cardiologist
-                                </p>
-                              </div>
-
-                              <h3 className="text-sm font-semibold text-gray-600">
-                                Order Date/Time
-                              </h3>
-                              <p className="text-lg font-semibold text-gray-900 mb-4">
-                                28-Nov-2024, 2:30PM
-                              </p>
-
-                              <h3 className="text-sm font-semibold text-gray-600">
-                                Priority
-                              </h3>
-                              <span className="px-3 py-1 inline-block text-sm font-semibold text-red-600 bg-red-100 rounded-lg">
-                                Stat
-                              </span>
-                            </div>
-                          </div>
-                          {/* Note Section */}
-                          <div className="border-t border-gray-300 px-2 py-4 max-w-4xl">
-                            <h3 className="text-sm font-semibold text-gray-600">
-                              Note:
-                            </h3>
-                            <p className="font-semibold">
-                              Prescribed CBC to check for anemia or infection
-                            </p>
-                          </div>
-                        </div>
-
-                        <div className="flex w-full ms-8" id="sample-actions">
-                          <div className="flex flex-col">
-                            <div className="flex space-x-4">
-                              <div className="border-l-[2.5px] border-b-[2.5px] border-gray-300 p-4 w-5 h-16"></div>
-                              <div className="relative flex justify-center items-end top-[5px] gap-2">
-                                <CheckIcon className="h-4 w-4 text-white bg-green-500 rounded-full " />
-                                <div className="relative flex flex-col top-5 leading-tight">
-                                  <div>
-                                    <span className="text-sm">
-                                      Specimen Collected by:
-                                    </span>
-                                    <span className="text-sm font-semibold ps-1">
-                                      Aisha Mohamed
-                                    </span>
-                                  </div>
-                                  <span className="text-sm">
-                                    on 28 Nov 3:32 PM
-                                  </span>
-                                </div>
-                              </div>
-                            </div>
-                            <div className="flex space-x-4">
-                              <div className="border-l-[2.5px] border-b-[2.5px] border-gray-300 p-4 w-5 h-16"></div>
-                              <div className="relative flex justify-center items-end top-[5px] gap-2">
-                                <CheckIcon className="h-4 w-4 text-white bg-green-500 rounded-full " />
-                                <div className="relative flex flex-col top-5 leading-tight">
-                                  <div>
-                                    <span className="text-sm">
-                                      Specimen Send to lab by:
-                                    </span>
-                                    <span className="text-sm font-semibold ps-1">
-                                      Sanjay Patel
-                                    </span>
-                                  </div>
-                                  <span className="text-sm">
-                                    on 28 Nov 4:56 PM
-                                  </span>
-                                </div>
-                              </div>
-                            </div>
-                            <div className="flex space-x-4">
-                              <div className="border-l-[2.5px] border-b-[2.5px] border-gray-300 p-4 w-5 h-16"></div>
-                              <div className="relative flex justify-center items-end top-[5px] gap-2">
-                                <CheckIcon className="h-4 w-4 text-white bg-green-500 rounded-full " />
-                                <div className="relative flex flex-col top-5 leading-tight">
-                                  <div>
-                                    <span className="text-sm">
-                                      Specimen Recieved at lab{" "}
-                                      <span className="text-sm font-semibold pe-1">
-                                        Medcore Laboratories
-                                      </span>
-                                      by:
-                                    </span>
-                                    <span className="text-sm font-semibold ps-1">
-                                      Amar singh
-                                    </span>
-                                  </div>
-                                  <span className="text-sm">
-                                    on 29 Nov 10:10 AM
-                                  </span>
-                                </div>
-                              </div>
-                            </div>
-                            <div className="flex space-x-4">
-                              <div className="border-l-[2.5px] border-b-[2.5px] border-gray-300 p-4 w-5 h-16"></div>
-                              <div className="relative flex justify-center items-end top-[5px] gap-2">
-                                <CheckIcon className="h-4 w-4 text-white bg-green-500 rounded-full " />
-                                <div className="relative flex flex-col top-5 leading-tight">
-                                  <div>
-                                    <span className="text-sm">
-                                      Test conducted and results entered by:
-                                    </span>
-                                    <span className="text-sm font-semibold ps-1">
-                                      Sam George
-                                    </span>
-                                  </div>
-                                  <span className="text-sm">
-                                    on 29 Nov 2:22 PM
-                                  </span>
-                                </div>
-                              </div>
-                            </div>
-                            <div className="border-l-[2.5px] border-gray-300 p-4 h-10"></div>
-                          </div>
-                        </div>
-                        <div
-                          className="bg-gray-100 border border-solid rounded-sm shadow-md space-y-2"
-                          id="test-results"
-                        >
-                          <h2 className="text-base font-semibold text-gray-900 px-4 py-2">
-                            Test Results:
-                          </h2>
-                          <Table className="w-full border  border-gray-300 bg-white shadow-sm rounded-sm">
-                            <TableHeader className="bg-gray-100">
-                              <TableRow>
-                                <TableHead className="border-r border-slate-300">
-                                  Parameter
-                                </TableHead>
-                                <TableHead className="border-r border-solid">
-                                  Result
-                                </TableHead>
-                                <TableHead className="border-r border-solid">
-                                  Unit
-                                </TableHead>
-                                <TableHead className="border-r border-solid">
-                                  Reference Range
-                                </TableHead>
-                                <TableHead>Remark</TableHead>
-                              </TableRow>
-                            </TableHeader>
-                            <TableBody className="bg-white">
-                              {testResults.map((test, index) => (
-                                <TableRow
-                                  key={index}
-                                  className="divide-x divide-solid"
-                                >
-                                  <TableCell>{test.parameter}</TableCell>
-                                  <TableCell>{test.result}</TableCell>
-                                  <TableCell>{test.unit}</TableCell>
-                                  <TableCell>{test.referenceRange}</TableCell>
-                                  <TableCell>{test.remark}</TableCell>
-                                </TableRow>
-                              ))}
-                            </TableBody>
-                          </Table>
-
-                          <div className="flex flex-col gap-2 p-4 bg-gray-60">
-                            <h3 className="text-sm font-medium text-gray-600">
-                              Note
-                            </h3>
-                            {true ? (
-                              <p className="text-sm text-gray-800">
-                                Total Bilirubin (1.2 mg/dL): Borderline high.
-                                Correlate clinically for signs of hepatobiliary
-                                dysfunction or hemolysis. Further testing (e.g.,
-                                indirect bilirubin or imaging) may be considered
-                                if clinically indicated.
-                              </p>
+                  <div className="flex items-center">
+                    <span className="text-sm text-gray-600">
+                      Specimen to be collected:{" "}
+                      <span className="font-semibold text-gray-900">
+                        {diagnosticReport?.specimen[0]?.type.display ??
+                          diagnosticReport?.specimen[0]?.type.code}
+                      </span>
+                    </span>
+                    <div className="flex items-center gap-4">
+                      <CollapsibleTrigger asChild>
+                        <Button variant="ghost" size="sm">
+                          <div className="">
+                            {open ? (
+                              <ChevronUpIcon className="h-6 w-8" />
                             ) : (
-                              <Textarea
-                                placeholder="Type your notes"
-                                className="bg-white border border-gray-300 rounded-sm"
-                              />
+                              <ChevronDownIcon className="h-6 w-8" />
                             )}
                           </div>
-                          {true && (
-                            <div className="bg-white p-2">
-                              <div className="flex items-center justify-between bg-green-50 rounded-lg px-4 py-2 shadow-sm">
-                                <p className="text-sm font-medium text-green-900">
-                                  Results Verified by Dr. Rohan Sharma, MBBS, MD
-                                  (Pathology), FICP
-                                </p>
-                                <span className="px-3 py-1 text-sm font-semibold text-green-700 bg-white rounded-full border border-green-300">
-                                  Verified
+                        </Button>
+                      </CollapsibleTrigger>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Expanded Content */}
+                <CollapsibleContent>
+                  <div className="space-y-4">
+                    <div className="relative">
+                      <div
+                        className="max-w-5xl bg-white shadow rounded-lg p-6"
+                        id="order-details"
+                      >
+                        <div className="flex flex-col md:flex-row gap-4">
+                          {/* Left Section */}
+                          <div className="w-full md:w-1/2 pl-2">
+                            <h3 className="text-sm font-semibold text-gray-600">
+                              Test
+                            </h3>
+                            <p className="font-semibold">
+                              {diagnosticReport?.based_on.code.display ??
+                                diagnosticReport?.based_on.code.code}
+                            </p>
+                          </div>
+
+                          {/* Right Section */}
+                          <div className="w-full md:w-1/2 md:border-l border-gray-300 sm:pl-4 sm:pb-4">
+                            <h3 className="text-sm font-semibold text-gray-600">
+                              Order Placed by
+                            </h3>
+                            <div className="flex gap-2">
+                              <p className="text-lg font-semibold text-gray-900 mb-4">
+                                {diagnosticReport?.based_on?.requester
+                                  ?.first_name ?? "Dummy Name"}
+                              </p>
+                              <p className="text-lg font-normal text-gray-900 mb-4">
+                                Dummy Designation
+                              </p>
+                            </div>
+
+                            <h3 className="text-sm font-semibold text-gray-600">
+                              Order Date/Time
+                            </h3>
+                            <p className="text-lg font-semibold text-gray-900 mb-4">
+                              {diagnosticReport?.based_on.authored_on ?? "NA"}
+                            </p>
+
+                            <h3 className="text-sm font-semibold text-gray-600">
+                              Priority
+                            </h3>
+                            <span className="px-3 py-1 inline-block text-sm font-semibold text-red-600 bg-red-100 rounded-lg">
+                              {diagnosticReport?.based_on.priority ?? "Routine"}
+                            </span>
+                          </div>
+                        </div>
+                        {/* Note Section */}
+                        <div className="border-t border-gray-300 px-2 py-4 max-w-4xl">
+                          <h3 className="text-sm font-semibold text-gray-600">
+                            Note:
+                          </h3>
+                          <p className="font-semibold">
+                            {diagnosticReport?.based_on.note
+                              .map((note) => note.text)
+                              .join(",") || "NA"}
+                          </p>
+                        </div>
+                      </div>
+
+                      <div className="flex w-full ms-8" id="sample-actions">
+                        <div className="flex flex-col">
+                          <div className="flex space-x-4">
+                            <div className="border-l-[2.5px] border-b-[2.5px] border-gray-300 p-4 w-5 h-16"></div>
+                            <div className="relative flex justify-center items-end top-[5px] gap-2">
+                              <CheckIcon className="h-4 w-4 text-white bg-green-500 rounded-full " />
+                              <div className="relative flex flex-col top-5 leading-tight">
+                                <div>
+                                  <span className="text-sm">
+                                    Specimen Collected by:
+                                  </span>
+                                  <span className="text-sm font-semibold ps-1">
+                                    {diagnosticReport?.specimen[0]?.collected_by
+                                      ?.first_name ?? "NA"}
+                                  </span>
+                                </div>
+                                <span className="text-sm">
+                                  on{" "}
+                                  {diagnosticReport?.specimen[0]?.collected_at}
                                 </span>
                               </div>
                             </div>
-                          )}
-                          {false && (
-                            <div className="flex gap-2 justify-end p-4">
-                              <Button
-                                variant="link"
-                                size="sm"
-                                className="border-gray-300 font-medium gap-2"
-                              >
-                                <CareIcon icon="l-sync" className="size-4" />
-                                <span>Re-run Tests</span>
-                              </Button>
-                              <Button
-                                variant="link"
-                                size="sm"
-                                className="border-gray-300 font-medium gap-2"
-                              >
-                                <CareIcon icon="l-pen" className="size-4" />
-                                <span>Re-run Tests</span>
-                              </Button>
-                              <Button
-                                variant="primary"
-                                size="sm"
-                                className="gap-2"
-                              >
-                                <CheckCircledIcon className="h-4 w-4 text-white" />
-                                Approve Results
-                              </Button>
+                          </div>
+                          <div className="flex space-x-4">
+                            <div className="border-l-[2.5px] border-b-[2.5px] border-gray-300 p-4 w-5 h-16"></div>
+                            <div className="relative flex justify-center items-end top-[5px] gap-2">
+                              <CheckIcon className="h-4 w-4 text-white bg-green-500 rounded-full " />
+                              <div className="relative flex flex-col top-5 leading-tight">
+                                <div>
+                                  <span className="text-sm">
+                                    Specimen Send to lab by:
+                                  </span>
+                                  <span className="text-sm font-semibold ps-1">
+                                    {diagnosticReport?.specimen[0]
+                                      ?.dispatched_by?.first_name ?? "NA"}
+                                  </span>
+                                </div>
+                                <span className="text-sm">
+                                  on{" "}
+                                  {diagnosticReport?.specimen[0]?.dispatched_at}
+                                </span>
+                              </div>
                             </div>
+                          </div>
+                          <div className="flex space-x-4">
+                            <div className="border-l-[2.5px] border-b-[2.5px] border-gray-300 p-4 w-5 h-16"></div>
+                            <div className="relative flex justify-center items-end top-[5px] gap-2">
+                              <CheckIcon className="h-4 w-4 text-white bg-green-500 rounded-full " />
+                              <div className="relative flex flex-col top-5 leading-tight">
+                                <div>
+                                  <span className="text-sm">
+                                    Specimen Recieved at lab{" "}
+                                    <span className="text-sm font-semibold pe-1">
+                                      {diagnosticReport?.based_on.location?.slice(
+                                        0,
+                                        8,
+                                      ) ?? "NA"}
+                                    </span>
+                                    by:
+                                  </span>
+                                  <span className="text-sm font-semibold ps-1">
+                                    {diagnosticReport?.specimen[0]?.received_by
+                                      ?.first_name ?? "NA"}
+                                  </span>
+                                </div>
+                                <span className="text-sm">
+                                  on{" "}
+                                  {diagnosticReport?.specimen[0]?.received_at ??
+                                    "NA"}
+                                </span>
+                              </div>
+                            </div>
+                          </div>
+                          <div className="flex space-x-4">
+                            <div className="border-l-[2.5px] border-b-[2.5px] border-gray-300 p-4 w-5 h-16"></div>
+                            <div className="relative flex justify-center items-end top-[5px] gap-2">
+                              <CheckIcon className="h-4 w-4 text-white bg-green-500 rounded-full " />
+                              <div className="relative flex flex-col top-5 leading-tight">
+                                <div>
+                                  <span className="text-sm">
+                                    Test conducted and results entered by:
+                                  </span>
+                                  <span className="text-sm font-semibold ps-1">
+                                    {diagnosticReport?.performer?.first_name ??
+                                      "NA"}
+                                  </span>
+                                </div>
+                                <span className="text-sm">
+                                  on {diagnosticReport?.issued ?? "NA"}
+                                </span>
+                              </div>
+                            </div>
+                          </div>
+                          <div className="border-l-[2.5px] border-gray-300 p-4 h-10"></div>
+                        </div>
+                      </div>
+                      <div
+                        className="bg-gray-100 border border-solid rounded-sm shadow-md space-y-2"
+                        id="test-results"
+                      >
+                        <h2 className="text-base font-semibold text-gray-900 px-4 py-2">
+                          Test Results:
+                        </h2>
+                        <Table className="w-full border  border-gray-300 bg-white shadow-sm rounded-sm">
+                          <TableHeader className="bg-gray-100">
+                            <TableRow>
+                              <TableHead className="border-r border-slate-300">
+                                Parameter
+                              </TableHead>
+                              <TableHead className="border-r border-solid">
+                                Result
+                              </TableHead>
+                              <TableHead className="border-r border-solid">
+                                Unit
+                              </TableHead>
+                              <TableHead className="border-r border-solid">
+                                Reference Range
+                              </TableHead>
+                              <TableHead>Remark</TableHead>
+                            </TableRow>
+                          </TableHeader>
+                          <TableBody className="bg-white">
+                            {diagnosticReport?.result.map((observation) => (
+                              <TableRow
+                                key={observation.id}
+                                className="divide-x divide-solid"
+                              >
+                                <TableCell>
+                                  {observation.main_code?.display ??
+                                    observation.main_code?.code}
+                                </TableCell>
+                                <TableCell>{observation.value}</TableCell>
+                                <TableCell>Dummy Unit</TableCell>
+                                <TableCell>Dummy Reference</TableCell>
+                                <TableCell>Dummy Note</TableCell>
+                              </TableRow>
+                            ))}
+                          </TableBody>
+                        </Table>
+
+                        <div className="flex flex-col gap-2 p-4 bg-gray-60">
+                          <h3 className="text-sm font-medium text-gray-600">
+                            Note
+                          </h3>
+                          {diagnosticReport?.conclusion ? (
+                            <p className="text-sm text-gray-800">
+                              {diagnosticReport?.conclusion}
+                            </p>
+                          ) : (
+                            <Textarea
+                              value={conclusion}
+                              onChange={(e) =>
+                                setConclusion(e.currentTarget.value)
+                              }
+                              placeholder="Type your notes"
+                              className="bg-white border border-gray-300 rounded-sm"
+                            />
                           )}
                         </div>
+                        {diagnosticReport?.conclusion && (
+                          <div className="bg-white p-2">
+                            <div className="flex items-center justify-between bg-green-50 rounded-lg px-4 py-2 shadow-sm">
+                              <p className="text-sm font-medium text-green-900">
+                                Results Verified by{" "}
+                                {
+                                  diagnosticReport.results_interpreter
+                                    ?.first_name
+                                }
+                                , Dummy Designation
+                              </p>
+                              <span className="px-3 py-1 text-sm font-semibold text-green-700 bg-white rounded-full border border-green-300">
+                                Verified
+                              </span>
+                            </div>
+                          </div>
+                        )}
+                        {!diagnosticReport?.conclusion && (
+                          <div className="flex gap-2 justify-end p-4">
+                            <Button
+                              variant="link"
+                              disabled
+                              size="sm"
+                              className="border-gray-300 font-medium gap-2"
+                            >
+                              <CareIcon icon="l-sync" className="size-4" />
+                              <span>Re-run Tests</span>
+                            </Button>
+                            <Button
+                              variant="primary"
+                              size="sm"
+                              className="gap-2"
+                              onClick={async () => {
+                                const { res, data } = await request(
+                                  routes.labs.diagnosticReport.review,
+                                  {
+                                    pathParams: {
+                                      id: diagnosticReportId,
+                                    },
+                                    body: {
+                                      is_approved: true,
+                                      conclusion,
+                                    },
+                                  },
+                                );
 
+                                if (!res?.ok || !data) {
+                                  return;
+                                }
+
+                                refetch();
+                              }}
+                            >
+                              <CheckCircledIcon className="h-4 w-4 text-white" />
+                              Approve Results
+                            </Button>
+                          </div>
+                        )}
+                      </div>
+
+                      {diagnosticReport?.conclusion && (
                         <div className="flex gap-4 pb-4">
                           <div className="border-l-[2.5px] border-b-[2.5px] border-gray-300 p-4 w-5 h-8 ms-8"></div>
                           <div className="flex justify-center items-end gap-2">
@@ -576,21 +531,23 @@ export const ReviewResult: React.FC<{
                                   Result verified by:
                                 </span>
                                 <span className="text-sm font-semibold ps-1">
-                                  Dr. Rohan Sharma, MBBS, MD (Pathology), FICP
+                                  {diagnosticReport?.results_interpreter
+                                    ?.first_name ?? "NA"}
+                                  , Dummy Designation
                                 </span>
                               </div>
                               <span className="text-sm">on 29 Nov 3:33 PM</span>
                             </div>
                           </div>
                         </div>
-                      </div>
+                      )}
                     </div>
-                  </CollapsibleContent>
-                </div>
+                  </div>
+                </CollapsibleContent>
               </div>
-            </Collapsible>
-          </div>
-        ))}
+            </div>
+          </Collapsible>
+        </div>
       </main>
     </div>
   );

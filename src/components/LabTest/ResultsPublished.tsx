@@ -7,11 +7,11 @@ import { DataTable } from "@/components/LabTest/DataTable";
 import routes from "@/Utils/request/api";
 import useQuery from "@/Utils/request/useQuery";
 
-export const OrderPlaced: React.FC = () => {
+export const ResultsPublished: React.FC = () => {
   const keys = [
     {
-      key: "specimenId",
-      label: "Specimen ID",
+      key: "patientName",
+      label: "Patient Name",
       type: "text",
       operators: ["is", "is_not", "contains", "does_not_contain"],
     },
@@ -22,23 +22,15 @@ export const OrderPlaced: React.FC = () => {
       operators: ["is", "is_not", "contains", "does_not_contain"],
     },
     {
-      key: "patientName",
-      label: "Patient Name",
+      key: "specimen",
+      label: "Specimen",
       type: "text",
       operators: ["is", "is_not", "contains", "does_not_contain"],
     },
     {
-      key: "specimen",
-      label: "Specimen",
-      type: "checkbox",
-      options: ["Blood", "Swab", "Tissue"],
-      operators: ["is", "is_not"],
-    },
-    {
-      key: "tests",
-      label: "Tests",
+      key: "test",
+      label: "Test",
       type: "text",
-      operators: ["is", "contains", "does_not_contain"],
     },
     {
       key: "priority",
@@ -51,9 +43,9 @@ export const OrderPlaced: React.FC = () => {
     },
   ];
 
-  const { data } = useQuery(routes.labs.specimen.list, {
+  const { data } = useQuery(routes.labs.diagnosticReport.list, {
     query: {
-      phase: "ordered",
+      phase: "reviewed",
     },
   });
 
@@ -67,22 +59,23 @@ export const OrderPlaced: React.FC = () => {
           render_as: key.render_as,
         }))}
         data={
-          data?.results?.map((specimen) => ({
-            specimenId: specimen.identifier ?? specimen.id.slice(0, 8),
-            orderId: specimen.request.id,
-            patientName: specimen.subject.name,
-            specimen: specimen.type.display || specimen.type.code,
-            tests: specimen.request.code.display || specimen.request.code.code,
-            priority: specimen.request.priority || "Routine",
-            id: specimen.id,
+          data?.results?.map((report) => ({
+            patientName: report.subject.name,
+            orderId: report.based_on.id,
+            specimen: report.specimen
+              .map((specimen) => specimen.type.display || specimen.type.code)
+              .join(", "),
+            test: report.based_on.code.display || report.based_on.code.code,
+            priority: report.based_on.priority || "Routine",
+            id: report.id,
           })) ?? []
         }
         actions={(row) => (
           <Button
-            onClick={() => navigate(`/lab_tests/${row.id}/collect`)}
+            onClick={() => navigate(`/lab_tests/${row.id}/result`)}
             variant="secondary"
           >
-            Collect Specimen
+            View
           </Button>
         )}
       />

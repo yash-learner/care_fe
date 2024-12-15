@@ -53,7 +53,7 @@ export const SpecimenCollected: React.FC = () => {
 
   const { data } = useQuery(routes.labs.specimen.list, {
     query: {
-      flow_status: "collected",
+      phase: "collected",
     },
   });
 

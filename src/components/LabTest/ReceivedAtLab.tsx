@@ -1,11 +1,18 @@
 import { navigate } from "raviger";
 
+
+
 import { Button } from "@/components/ui/button";
+
+
 
 import { DataTable } from "@/components/LabTest/DataTable";
 
+
+
 import routes from "@/Utils/request/api";
 import useQuery from "@/Utils/request/useQuery";
+
 
 export const ReceivedAtLab: React.FC = () => {
   const keys = [
@@ -53,7 +60,7 @@ export const ReceivedAtLab: React.FC = () => {
 
   const { data } = useQuery(routes.labs.specimen.list, {
     query: {
-      flow_status: "received",
+      phase: "received",
     },
   });
 
@@ -61,7 +68,7 @@ export const ReceivedAtLab: React.FC = () => {
     <div className="p-4 space-y-4">
       <div className="flex justify-end">
         <Button
-          onClick={() => navigate(`/lab_tests/process_specimen`)}
+          onClick={() => navigate(`/lab_tests/process`)}
           variant={"primary"}
         >
           Start Processing

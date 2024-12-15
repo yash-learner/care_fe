@@ -1530,6 +1530,28 @@ const routes = {
         path: "/api/v1/diagnostic_report/{id}/",
         TRes: Type<DiagnosticReport>(),
       },
+      list: {
+        method: "GET",
+        path: "/api/v1/diagnostic_report/",
+        TRes: Type<PaginatedResponse<DiagnosticReport>>(),
+      },
+      verify: {
+        method: "POST",
+        path: "/api/v1/diagnostic_report/{id}/verify/",
+        TBody: Type<{
+          is_approved: boolean;
+        }>(),
+        TRes: Type<DiagnosticReport>(),
+      },
+      review: {
+        method: "POST",
+        path: "/api/v1/diagnostic_report/{id}/review/",
+        TBody: Type<{
+          is_approved: boolean;
+          conclusion?: string;
+        }>(),
+        TRes: Type<DiagnosticReport>(),
+      },
     },
 
     labObservationCodes: {

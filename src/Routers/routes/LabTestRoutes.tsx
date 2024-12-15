@@ -8,18 +8,21 @@ import { SendSpecimen } from "@/components/LabTest/SendSpecimen";
 import { AppRoutes } from "@/Routers/AppRouter";
 
 const LabTestRoutes: AppRoutes = {
-  "/lab_tests/order_placed": () => <LabTest />,
-  "/lab_tests/process_specimen": () => <ProcessSpecimen />,
-  "/lab_tests/specimen_collected": () => <LabTest />,
-  "/lab_tests/sent_to_lab": () => <LabTest />,
+  "/lab_tests/process": () => <ProcessSpecimen />,
+  "/lab_tests/:specimenId/process": ({ specimenId }) => (
+    <ProcessSpecimen specimenId={specimenId} />
+  ),
   "/lab_tests/send_to_lab": () => <SendSpecimen />,
   "/lab_tests/receive_at_lab": () => <ReceiveSpecimen />,
-  "/lab_tests/received_at_lab": () => <LabTest />,
+  "/lab_tests/:tab": () => <LabTest />,
   "/lab_tests/:specimenId/collect": ({ specimenId }) => (
     <CollectSpecimen specimenId={specimenId} />
   ),
-  "/lab_tests/:specimenId/review_result": ({ specimenId }) => (
-    <ReviewResult specimenId={specimenId} />
+  "/lab_tests/:diagnosticReportId/review": ({ diagnosticReportId }) => (
+    <ReviewResult diagnosticReportId={diagnosticReportId} />
+  ),
+  "/lab_tests/:diagnosticReportId/result": ({ diagnosticReportId }) => (
+    <ReviewResult diagnosticReportId={diagnosticReportId} />
   ),
 };
 
