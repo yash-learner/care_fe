@@ -182,7 +182,7 @@ export function QuestionInput({
 
           return (
             <div key={index}>
-              <div className="flex gap-2">
+              <div className=" gap-2">
                 <div className="flex-1">{renderSingleInput()}</div>
               </div>
               {removeButton}
