@@ -1496,7 +1496,7 @@ const routes = {
     getPatient: {
       path: "/api/v1/otp/patient/",
       method: "GET",
-      TRes: Type<PaginatedResponse<PatientModel>>(),
+      TRes: Type<PaginatedResponse<AppointmentPatient>>(),
       auth: {
         key: "Authorization",
         value: "Bearer {token}",

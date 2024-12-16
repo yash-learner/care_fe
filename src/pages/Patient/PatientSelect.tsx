@@ -7,17 +7,16 @@ import CareIcon from "@/CAREUI/icons/CareIcon";
 
 import { Button } from "@/components/ui/button";
 
-import { PatientModel } from "@/components/Patient/models";
-import { ScheduleAPIs } from "@/components/Schedule/api";
 import {
   AppointmentCreate,
   SlotAvailability,
 } from "@/components/Schedule/types";
 
 import * as Notification from "@/Utils/Notifications";
-import request from "@/Utils/request/request";
 import { PaginatedResponse, RequestResult } from "@/Utils/request/types";
 import { formatDate } from "@/Utils/utils";
+
+import { AppointmentPatient } from "./Utils";
 
 export default function PatientSelect({
   facilityId,
@@ -48,7 +47,7 @@ export default function PatientSelect({
   }
 
   const { data: patientData } = useQuery<
-    RequestResult<PaginatedResponse<PatientModel>>
+    RequestResult<PaginatedResponse<AppointmentPatient>>
   >({
     queryKey: ["patient", phoneNumber],
     queryFn: async () => {
@@ -69,23 +68,25 @@ export default function PatientSelect({
 
   const { mutate: createAppointment } = useMutation({
     mutationFn: async (body: AppointmentCreate) => {
-      const { res, data } = await request(
-        ScheduleAPIs.slots.createAppointment,
+      const res = await fetch(
+        `${careConfig.apiUrl}/api/v1/facility/${facilityId}/slots/${selectedSlot?.id}/create_appointment/`,
         {
-          pathParams: {
-            facility_id: facilityId,
-            slot_id: selectedSlot?.id ?? "",
+          method: "POST",
+          headers: {
+            Authorization: `Bearer ${OTPaccessToken}`,
+            "Content-Type": "application/json",
           },
-          body,
+          body: JSON.stringify(body),
         },
       );
-      if (res?.status === 200) {
+      const data = await res.json();
+
+      if (res.ok) {
         Notification.Success({ msg: "Appointment created successfully" });
-        navigate(`/facility/${facilityId}/appointments/${data?.id}/success`);
+        navigate(`/facility/${facilityId}/appointments/${data.id}/success`);
       }
-      //To do: mock appointment creation, remove this
-      navigate(`/facility/${facilityId}/appointments/123/success`);
-      return res;
+
+      return { res, data, error: res.ok ? undefined : data };
     },
   });
 
@@ -95,6 +96,7 @@ export default function PatientSelect({
       name: "Leo Westervelt",
       phone_number: "9876543120",
       date_of_birth: "1996-01-04",
+      year_of_birth: "1996",
       gender: 1,
       blood_group: "O+",
       nationality: "India",
@@ -141,10 +143,10 @@ export default function PatientSelect({
         <table className="w-full">
           <thead className="text-sm bg-secondary-200 font-medium">
             <tr>
-              <th className="w-2/6 p-2 text-left">Patient Name/UHID</th>
-              <th className="w-1/6 p-2 text-left">Primary Ph No.</th>
-              <th className="w-1/6 p-2 text-left">Date of birth/Age</th>
-              <th className="w-1/6 p-2 text-left">Sex</th>
+              <th className="w-2/6 px-4 py-2 text-left">Patient Name/UHID</th>
+              <th className="w-1/6 px-4 py-2 text-left">Primary Ph No.</th>
+              <th className="w-1/6 px-4 py-2 text-left">Date of Birth/Age</th>
+              <th className="w-1/6 px-4 py-2 text-left">Sex</th>
             </tr>
           </thead>
           <tbody className="divide-y rounded-lg border bg-card">
@@ -182,20 +184,24 @@ export default function PatientSelect({
                   </td>
                 ) : (
                   <>
-                    <td className="p-4">
+                    <td className="p-4 align-middle text-left">
                       <div className="font-medium">{patient.name}</div>
-                      <div className="text-sm text-muted-foreground">
+                      <div className="text-xs text-muted-foreground">
                         {patient.id}
                       </div>
                     </td>
-                    <td className="p-4">{patient.phone_number}</td>
-                    <td className="p-4">
-                      {formatDate(
-                        new Date(patient.date_of_birth ?? ""),
-                        "dd MMM yyyy",
-                      )}
+                    <td className="p-4 align-middle text-left">
+                      {patient.phone_number}
                     </td>
-                    <td className="p-4">
+                    <td className="p-4 align-middle text-left">
+                      {patient.date_of_birth
+                        ? formatDate(
+                            new Date(patient.date_of_birth ?? ""),
+                            "dd MMM yyyy",
+                          )
+                        : (patient.year_of_birth ?? "")}
+                    </td>
+                    <td className="p-4 align-middle text-left">
                       {patient.gender === 1 ? "Male" : "Female"}
                     </td>
                   </>

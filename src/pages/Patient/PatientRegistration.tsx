@@ -24,7 +24,6 @@ import RadioFormField from "@/components/Form/FormFields/RadioFormField";
 import { SelectFormField } from "@/components/Form/FormFields/SelectFormField";
 import TextAreaFormField from "@/components/Form/FormFields/TextAreaFormField";
 import TextFormField from "@/components/Form/FormFields/TextFormField";
-import { ScheduleAPIs } from "@/components/Schedule/api";
 import {
   AppointmentCreate,
   SlotAvailability,
@@ -150,29 +149,32 @@ export function PatientRegistration(props: PatientRegistrationProps) {
 
   const { mutate: createAppointment } = useMutation({
     mutationFn: async (body: AppointmentCreate) => {
-      const { res, data } = await request(
-        ScheduleAPIs.slots.createAppointment,
+      const res = await fetch(
+        `${careConfig.apiUrl}/api/v1/facility/${props.facilityId}/slots/${selectedSlot?.id}/create_appointment/`,
         {
-          pathParams: {
-            facility_id: props.facilityId,
-            slot_id: selectedSlot?.id ?? "",
+          method: "POST",
+          headers: {
+            Authorization: `Bearer ${OTPaccessToken}`,
+            "Content-Type": "application/json",
           },
-          body,
+          body: JSON.stringify(body),
         },
       );
-      if (res?.status === 200) {
+      const data = await res.json();
+
+      if (res.ok) {
         Notification.Success({ msg: "Appointment created successfully" });
         navigate(
-          `/facility/${props.facilityId}/appointments/${data?.id}/success`,
+          `/facility/${props.facilityId}/appointments/${data.id}/success`,
         );
       } else {
-        //To do: mock appointment creation, adjust this
         Notification.Error({
           msg: "Appointment creation failed; redirecting to mock success page",
         });
         navigate(`/facility/${props.facilityId}/appointments/123/success`);
       }
-      return res;
+
+      return { res, data, error: res.ok ? undefined : data };
     },
   });
   const handleSubmit = async (formData: AppointmentPatientRegister) => {
