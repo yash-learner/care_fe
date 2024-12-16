@@ -1,5 +1,5 @@
 import { useQuery } from "@tanstack/react-query";
-import { format, isSameDay, parseISO } from "date-fns";
+import { format, parseISO } from "date-fns";
 import { Link, navigate } from "raviger";
 import { useEffect, useState } from "react";
 
@@ -15,17 +15,14 @@ import { Textarea } from "@/components/ui/textarea";
 
 import { FacilityModel } from "@/components/Facility/models";
 import { ScheduleAPIs } from "@/components/Schedule/api";
-import {
-  ScheduleResourceUser,
-  SlotAvailability,
-} from "@/components/Schedule/types";
-import { UserBareMinimum } from "@/components/Users/models";
+import { SlotAvailability } from "@/components/Schedule/types";
+import { SkillModel, UserAssignedModel } from "@/components/Users/models";
 
 import * as Notification from "@/Utils/Notifications";
 import routes from "@/Utils/request/api";
 import request from "@/Utils/request/request";
-import { RequestResult } from "@/Utils/request/types";
-import { dateQueryString, getMonthStartAndEnd } from "@/Utils/utils";
+import { PaginatedResponse, RequestResult } from "@/Utils/request/types";
+import { dateQueryString } from "@/Utils/utils";
 
 import { DoctorModel, getExperience, mockDoctors } from "./Utils";
 
@@ -41,6 +38,9 @@ export function AppointmentsPage(props: AppointmentsProps) {
   const [selectedDate, setSelectedDate] = useState(new Date());
   const [selectedSlot, setSelectedSlot] = useState<SlotAvailability>();
   const [reason, setReason] = useState("");
+  const doctorData: UserAssignedModel = JSON.parse(
+    localStorage.getItem("doctor") ?? "{}",
+  );
 
   if (!staffUsername) {
     Notification.Error({ msg: "Staff username not found" });
@@ -49,8 +49,6 @@ export function AppointmentsPage(props: AppointmentsProps) {
     Notification.Error({ msg: "Phone number not found" });
     navigate(`/facility/${facilityId}/appointments/${staffUsername}/otp/send`);
   }
-
-  const { start, end } = getMonthStartAndEnd(selectedMonth);
 
   const { data: facilityResponse, error: facilityError } = useQuery<
     RequestResult<FacilityModel>
@@ -67,8 +65,9 @@ export function AppointmentsPage(props: AppointmentsProps) {
     Notification.Error({ msg: "Error while fetching facility data" });
   }
 
-  const { data: doctorResponse, error: doctorError } = useQuery<
-    RequestResult<UserBareMinimum>
+  // Long term, should make this route available
+  /* const { data: doctorResponse, error: doctorError } = useQuery<
+    RequestResult<UserModel>
   >({
     queryKey: ["doctor", staffUsername],
     queryFn: () =>
@@ -81,23 +80,38 @@ export function AppointmentsPage(props: AppointmentsProps) {
 
   if (doctorError) {
     Notification.Error({ msg: "Error while fetching doctor data" });
-  }
+  } */
 
-  const slotsQuery = useQuery<RequestResult<SlotAvailability[]>>({
-    queryKey: ["slots", facilityId, staffUsername, start, end],
+  const { data: skills, error: skillsError } = useQuery<
+    RequestResult<PaginatedResponse<SkillModel>>
+  >({
+    queryKey: ["skills", staffUsername],
     queryFn: () =>
-      request(ScheduleAPIs.appointments.slots, {
-        pathParams: {
-          facility_id: facilityId,
-        },
-        query: {
-          doctor_username: staffUsername,
-          valid_from: dateQueryString(start),
-          valid_to: dateQueryString(end),
-        },
+      request(routes.userListSkill, {
+        pathParams: { username: staffUsername },
         silent: true,
       }),
     enabled: !!staffUsername,
+  });
+
+  if (skillsError) {
+    Notification.Error({ msg: "Error while fetching skills data" });
+  }
+
+  const slotsQuery = useQuery<RequestResult<{ results: SlotAvailability[] }>>({
+    queryKey: ["slots", facilityId, staffUsername, selectedDate],
+    queryFn: () =>
+      request(ScheduleAPIs.slots.getAvailableSlotsForADay, {
+        pathParams: {
+          facility_id: facilityId,
+        },
+        body: {
+          resource: doctorData?.id?.toString() ?? "",
+          day: dateQueryString(selectedDate),
+        },
+        silent: true,
+      }),
+    enabled: !!staffUsername && !!doctorData && !!selectedDate,
   });
 
   if (slotsQuery.error) {
@@ -126,35 +140,36 @@ export function AppointmentsPage(props: AppointmentsProps) {
 
   // To Do: Mock, remove/adjust this
   function extendDoctor(
-    doctor: UserBareMinimum | undefined,
+    doctor: UserAssignedModel | undefined,
   ): DoctorModel | undefined {
     if (!doctor) return undefined;
-    const randomDoc =
-      mockDoctors[Math.floor(Math.random() * mockDoctors.length)];
+    const randomDoc = mockDoctors[0];
     return {
       ...doctor,
       role: randomDoc.role,
-      education: randomDoc.education,
-      experience: randomDoc.experience,
+      gender: randomDoc.gender,
+      education: doctor.qualification
+        ? doctor.qualification.toString()
+        : randomDoc.education,
+      experience: doctor.doctor_experience_commenced_on
+        ? doctor.doctor_experience_commenced_on.toString()
+        : randomDoc.experience,
       languages: randomDoc.languages,
-      specializations: randomDoc.specializations,
+      read_profile_picture_url: doctor.read_profile_picture_url ?? "",
+      skills:
+        skills?.data?.results.map((s) => s.skill_object) ??
+        randomDoc.skills.map((s) => s),
     };
   }
 
   // To Do: Mock, remove/adjust this
   const doctor: DoctorModel | undefined =
-    extendDoctor(doctorResponse?.data) ??
+    extendDoctor(doctorData) ??
     mockDoctors.find((d) => d.username === staffUsername);
 
   if (!doctor) {
     return <div>Doctor not found</div>;
   }
-
-  // To Do: Mock, remove/adjust this
-  const doctorResource: ScheduleResourceUser = {
-    id: doctor.id.toString(),
-    name: `${doctor.first_name} ${doctor.last_name}`,
-  };
 
   // To Do: Mock, remove/adjust this
   const mockTokenSlots: SlotAvailability[] = [
@@ -164,7 +179,7 @@ export function AppointmentsPage(props: AppointmentsProps) {
       start_datetime: "2024-12-20T09:00:00+05:30",
       end_datetime: "2024-12-20T09:30:00+05:30",
       availability: {
-        name: doctorResource.name,
+        name: doctor.id?.toString() ?? "",
         tokens_per_slot: 4,
       },
       allocated: 3,
@@ -174,7 +189,7 @@ export function AppointmentsPage(props: AppointmentsProps) {
       start_datetime: "2024-12-20T09:30:00+05:30",
       end_datetime: "2024-12-20T10:00:00+05:30",
       availability: {
-        name: doctorResource.name,
+        name: doctor.id?.toString() ?? "",
         tokens_per_slot: 4,
       },
       allocated: 4,
@@ -185,7 +200,7 @@ export function AppointmentsPage(props: AppointmentsProps) {
       start_datetime: "2024-12-20T14:00:00+05:30",
       end_datetime: "2024-12-20T14:30:00+05:30",
       availability: {
-        name: doctorResource.name,
+        name: doctor.id?.toString() ?? "",
         tokens_per_slot: 4,
       },
       allocated: 0,
@@ -195,7 +210,7 @@ export function AppointmentsPage(props: AppointmentsProps) {
       start_datetime: "2024-12-20T14:30:00+05:30",
       end_datetime: "2024-12-20T15:00:00+05:30",
       availability: {
-        name: doctorResource.name,
+        name: doctor.id?.toString() ?? "",
         tokens_per_slot: 4,
       },
       allocated: 2,
@@ -206,7 +221,7 @@ export function AppointmentsPage(props: AppointmentsProps) {
       start_datetime: "2024-12-21T09:00:00+05:30",
       end_datetime: "2024-12-21T09:30:00+05:30",
       availability: {
-        name: doctorResource.name,
+        name: doctor.id?.toString() ?? "",
         tokens_per_slot: 4,
       },
       allocated: 4,
@@ -216,7 +231,7 @@ export function AppointmentsPage(props: AppointmentsProps) {
       start_datetime: "2024-12-21T09:30:00+05:30",
       end_datetime: "2024-12-21T10:00:00+05:30",
       availability: {
-        name: doctorResource.name,
+        name: doctor.id?.toString() ?? "",
         tokens_per_slot: 4,
       },
       allocated: 1,
@@ -227,7 +242,7 @@ export function AppointmentsPage(props: AppointmentsProps) {
       start_datetime: "2024-12-21T15:00:00+05:30",
       end_datetime: "2024-12-21T15:30:00+05:30",
       availability: {
-        name: doctorResource.name,
+        name: doctor.id?.toString() ?? "",
         tokens_per_slot: 4,
       },
       allocated: 4,
@@ -238,7 +253,7 @@ export function AppointmentsPage(props: AppointmentsProps) {
       start_datetime: "2024-12-22T10:00:00+05:30",
       end_datetime: "2024-12-22T10:30:00+05:30",
       availability: {
-        name: doctorResource.name,
+        name: doctor.id?.toString() ?? "",
         tokens_per_slot: 4,
       },
       allocated: 2,
@@ -248,7 +263,7 @@ export function AppointmentsPage(props: AppointmentsProps) {
       start_datetime: "2024-12-22T10:30:00+05:30",
       end_datetime: "2024-12-22T11:00:00+05:30",
       availability: {
-        name: doctorResource.name,
+        name: doctor.id?.toString() ?? "",
         tokens_per_slot: 4,
       },
       allocated: 4,
@@ -259,7 +274,7 @@ export function AppointmentsPage(props: AppointmentsProps) {
       start_datetime: "2024-12-22T16:00:00+05:30",
       end_datetime: "2024-12-22T16:30:00+05:30",
       availability: {
-        name: doctorResource.name,
+        name: doctor.id?.toString() ?? "",
         tokens_per_slot: 4,
       },
       allocated: 3,
@@ -267,14 +282,13 @@ export function AppointmentsPage(props: AppointmentsProps) {
   ];
 
   // To Do: Mock, remove/adjust this
-  const slotsData = slotsQuery.data?.data ?? mockTokenSlots;
-  const slotsOfDate = filterSlotsByDate(slotsData, selectedDate);
-  const morningSlots = slotsOfDate.filter((slot) => {
+  const slotsData = slotsQuery.data?.data?.results ?? mockTokenSlots;
+  const morningSlots = slotsData.filter((slot) => {
     const slotTime = parseISO(slot.start_datetime);
     return slotTime.getHours() <= 12;
   });
 
-  const eveningSlots = slotsOfDate.filter((slot) => {
+  const eveningSlots = slotsData.filter((slot) => {
     const slotTime = parseISO(slot.start_datetime);
     return slotTime.getHours() >= 12;
   });
@@ -445,10 +459,3 @@ export function AppointmentsPage(props: AppointmentsProps) {
     </div>
   );
 }
-
-const filterSlotsByDate = (slots: SlotAvailability[], date: Date) => {
-  return slots.filter((slot) => {
-    const slotDate = parseISO(slot.start_datetime);
-    return isSameDay(slotDate, date);
-  });
-};

@@ -11,6 +11,7 @@ import { Appointment } from "@/components/Schedule/types";
 
 import * as Notification from "@/Utils/Notifications";
 import query from "@/Utils/request/query";
+import { formatName } from "@/Utils/utils";
 
 interface AppointmentSuccessProps {
   facilityId: string;
@@ -38,24 +39,44 @@ export function AppointmentSuccess(props: AppointmentSuccessProps) {
     id: "123",
     resource: {
       id: "456",
-      name: "Anjali Narayanan, B.Sc. Nursing",
+      first_name: "Anjali",
+      last_name: "Narayanan",
+      username: "anjali.narayanan",
+      email: "anjali.narayanan@carecompanion.in",
+      user_type: 15,
+      last_login: "2024-03-15T09:30:00Z",
     },
     patient: {
       id: "789",
       name: "Janaki Sivaraman",
+      gender: 2,
+      date_of_birth: "1990-05-15",
+      age: 30,
+      address: "123 Main Street, City, Country",
+      pincode: "123456",
     },
     token_slot: {
       start_datetime: "2023-12-20T12:30:00Z",
       end_datetime: "2023-12-20T13:30:00Z",
       id: "123",
-      resource: {
-        id: "456",
+      availability: {
         name: "Anjali Narayanan, B.Sc. Nursing",
+        tokens_per_slot: 1,
       },
-      tokens_count: 1,
-      tokens_remaining: 1,
+      allocated: 1,
     },
     reason_for_visit: "General Checkup",
+    booked_on: "2024-03-15T09:30:00Z",
+    booked_by: {
+      id: "123",
+      first_name: "Anjali",
+      last_name: "Narayanan",
+      username: "anjali.narayanan",
+      email: "anjali.narayanan@carecompanion.in",
+      user_type: 15,
+      last_login: "2024-03-15T09:30:00Z",
+    },
+    status: "booked",
   } as const;
 
   const appointmentData = data ?? mockAppointment;
@@ -88,7 +109,7 @@ export function AppointmentSuccess(props: AppointmentSuccessProps) {
         <div>
           <h2 className="text-sm font-medium text-gray-500 mb-1">Nurse:</h2>
           <p className="text-lg font-medium">
-            {appointmentData?.resource.name}
+            {formatName(appointmentData?.resource)}
           </p>
         </div>
 
@@ -120,8 +141,8 @@ export function AppointmentSuccess(props: AppointmentSuccessProps) {
 
       <div className="mt-12 text-left space-y-2">
         <p className="text-gray-900">
-          Nurse {appointmentData?.resource.name} will visit the patient at the
-          scheduled time.
+          Nurse {appointmentData?.resource.first_name} will visit the patient at
+          the scheduled time.
         </p>
         <p className="text-gray-600">Thank you for choosing our care service</p>
       </div>

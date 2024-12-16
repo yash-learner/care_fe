@@ -7,8 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 
 import { FacilityModel } from "@/components/Facility/models";
-import { ScheduleAPIs } from "@/components/Schedule/api";
-import { UserBareMinimum } from "@/components/Users/models";
+import { UserAssignedModel } from "@/components/Users/models";
 
 import useFilters from "@/hooks/useFilters";
 
@@ -44,17 +43,17 @@ export function FacilityDetailsPage({ id }: Props) {
   });
 
   const { data: docReponse } = useQuery<
-    RequestResult<PaginatedResponse<UserBareMinimum>>
+    RequestResult<PaginatedResponse<UserAssignedModel>>
   >({
-    queryKey: [ScheduleAPIs.appointments.availableDoctors, id],
+    queryKey: [routes.getFacilityUsers, id],
     queryFn: async () => {
-      const response = await request(
-        ScheduleAPIs.appointments.availableDoctors,
-        {
-          pathParams: { facility_id: id },
-          silent: true,
+      const response = await request(routes.getFacilityUsers, {
+        pathParams: { facility_id: id },
+        query: {
+          user_type: "Doctor",
         },
-      );
+        silent: true,
+      });
       if (response.res?.status !== 200) {
         Notification.Error({ msg: "Error while fetching doctors data" });
       }
@@ -64,16 +63,17 @@ export function FacilityDetailsPage({ id }: Props) {
 
   // To Do: Mock, remove/adjust this
   // Need to adjust DoctorModel to match the data from the backend
-  function extendDoctors(doctors: UserBareMinimum[]): DoctorModel[] {
+  function extendDoctors(doctors: UserAssignedModel[]): DoctorModel[] {
     const randomDoc =
       mockDoctors[Math.floor(Math.random() * mockDoctors.length)];
     return doctors.map((doctor) => ({
       ...doctor,
       role: randomDoc.role,
-      education: randomDoc.education,
-      experience: randomDoc.experience,
+      education: doctor.qualification ?? "",
+      experience: doctor.doctor_experience_commenced_on?.toString() ?? "",
       languages: randomDoc.languages,
-      specializations: randomDoc.specializations,
+      read_profile_picture_url: doctor.read_profile_picture_url ?? "",
+      skills: doctor.skills,
     }));
   }
 

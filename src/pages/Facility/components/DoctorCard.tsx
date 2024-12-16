@@ -1,4 +1,4 @@
-import { Link } from "raviger";
+import { navigate } from "raviger";
 
 import { cn } from "@/lib/utils";
 
@@ -54,12 +54,16 @@ export function DoctorCard({ doctor, className, facilityId }: Props) {
             <div className="text-sm text-muted-foreground">
               {getExperience(doctor)}
             </div>
-            <Button variant="outline" asChild>
-              <Link
-                href={`/facility/${facilityId}/appointments/${doctor.username}/otp/send`}
-              >
-                Book Appointment
-              </Link>
+            <Button
+              variant="outline"
+              onClick={() => {
+                localStorage.setItem("doctor", JSON.stringify(doctor));
+                navigate(
+                  `/facility/${facilityId}/appointments/${doctor.username}/otp/send`,
+                );
+              }}
+            >
+              Book Appointment
             </Button>
           </div>
         </div>

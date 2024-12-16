@@ -1,4 +1,5 @@
-import { useQuery } from "@tanstack/react-query";
+import careConfig from "@careConfig";
+import { useMutation, useQuery } from "@tanstack/react-query";
 import { navigate } from "raviger";
 import { useState } from "react";
 
@@ -8,13 +9,14 @@ import { Button } from "@/components/ui/button";
 
 import { PatientModel } from "@/components/Patient/models";
 import { ScheduleAPIs } from "@/components/Schedule/api";
-import { SlotAvailability } from "@/components/Schedule/types";
+import {
+  AppointmentCreate,
+  SlotAvailability,
+} from "@/components/Schedule/types";
 
 import * as Notification from "@/Utils/Notifications";
-import routes from "@/Utils/request/api";
-import query from "@/Utils/request/query";
 import request from "@/Utils/request/request";
-import { PaginatedResponse } from "@/Utils/request/types";
+import { PaginatedResponse, RequestResult } from "@/Utils/request/types";
 import { formatDate } from "@/Utils/utils";
 
 export default function PatientSelect({
@@ -29,6 +31,7 @@ export default function PatientSelect({
     localStorage.getItem("selectedSlot") ?? "",
   ) as SlotAvailability;
   const reason = localStorage.getItem("reason");
+  const OTPaccessToken = localStorage.getItem("OTPaccessToken");
   const [selectedPatient, setSelectedPatient] = useState<string | null>(null);
 
   if (!staffUsername) {
@@ -44,33 +47,47 @@ export default function PatientSelect({
     );
   }
 
-  const { data: patientData } = useQuery<PaginatedResponse<PatientModel>>({
+  const { data: patientData } = useQuery<
+    RequestResult<PaginatedResponse<PatientModel>>
+  >({
     queryKey: ["patient", phoneNumber],
-    queryFn: query(routes.otp.getPatient, {
-      queryParams: { phone_number: phoneNumber ?? "" },
-    }),
-    enabled: !!phoneNumber,
+    queryFn: async () => {
+      const res = await fetch(
+        `${careConfig.apiUrl}/api/v1/otp/patient/?phone_number=${phoneNumber ?? ""}`,
+        {
+          headers: {
+            Authorization: `Bearer ${OTPaccessToken}`,
+            "Content-Type": "application/json",
+          },
+        },
+      );
+      const data = await res.json();
+      return { res, data, error: res.ok ? undefined : data };
+    },
+    enabled: !!phoneNumber && !!OTPaccessToken,
   });
 
-  const createAppointment = async (patientId: string) => {
-    const { res, data } = await request(ScheduleAPIs.appointments.create, {
-      body: {
-        patient: patientId,
-        doctor_username: staffUsername,
-        slot_start: selectedSlot?.start_datetime,
-        reason_for_visit: reason,
-      },
-      pathParams: {
-        facility_id: facilityId,
-      },
-    });
-    if (res?.status === 200) {
-      Notification.Success({ msg: "Appointment created successfully" });
-      navigate(`/facility/${facilityId}/appointments/${data?.id}/success`);
-    }
-    //To do: mock appointment creation, remove this
-    navigate(`/facility/${facilityId}/appointments/123/success`);
-  };
+  const { mutate: createAppointment } = useMutation({
+    mutationFn: async (body: AppointmentCreate) => {
+      const { res, data } = await request(
+        ScheduleAPIs.slots.createAppointment,
+        {
+          pathParams: {
+            facility_id: facilityId,
+            slot_id: selectedSlot?.id ?? "",
+          },
+          body,
+        },
+      );
+      if (res?.status === 200) {
+        Notification.Success({ msg: "Appointment created successfully" });
+        navigate(`/facility/${facilityId}/appointments/${data?.id}/success`);
+      }
+      //To do: mock appointment creation, remove this
+      navigate(`/facility/${facilityId}/appointments/123/success`);
+      return res;
+    },
+  });
 
   const mockPatientData = [
     {
@@ -105,7 +122,7 @@ export default function PatientSelect({
     },
   ];
 
-  const patients = patientData?.results ?? mockPatientData;
+  const patients = patientData?.data?.results ?? mockPatientData;
 
   const renderNoPatientFound = () => {
     return (
@@ -153,7 +170,10 @@ export default function PatientSelect({
                         variant="primary"
                         onClick={(e) => {
                           e.stopPropagation();
-                          createAppointment(patient.id ?? "");
+                          createAppointment({
+                            patient: patient.id ?? "",
+                            reason_for_visit: reason ?? "",
+                          });
                         }}
                       >
                         Confirm

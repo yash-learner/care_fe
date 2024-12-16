@@ -10,10 +10,6 @@ import {
 import { Type } from "@/Utils/request/api";
 import { PaginatedResponse } from "@/Utils/request/types";
 import { WritableOnly } from "@/Utils/types";
-import {
-  AppointmentPatient,
-  AppointmentPatientRegister,
-} from "@/pages/Patient/Utils";
 import { UserBase } from "@/types/user/base";
 
 export const ScheduleAPIs = {
@@ -91,12 +87,6 @@ export const ScheduleAPIs = {
       method: "PUT",
       TBody: Type<Partial<WritableOnly<Appointment>>>(),
       TRes: Type<Appointment>(),
-    },
-    createPatient: {
-      path: "/api/v1/otp/patient/",
-      method: "POST",
-      TBody: Type<AppointmentPatientRegister>(),
-      TRes: Type<AppointmentPatient>(),
     },
   },
 } as const;

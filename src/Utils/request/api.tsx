@@ -77,6 +77,10 @@ import {
 } from "@/components/Users/models";
 
 import { PaginatedResponse } from "@/Utils/request/types";
+import {
+  AppointmentPatient,
+  AppointmentPatientRegister,
+} from "@/pages/Patient/Utils";
 import { AllergyIntolerance } from "@/types/emr/allergyIntolerance";
 import { Observation } from "@/types/emr/observation";
 import { PlugConfig } from "@/types/plugConfig";
@@ -1488,16 +1492,22 @@ const routes = {
       method: "POST",
       TBody: Type<{ phone_number: string; otp: string }>(),
       TRes: Type<Record<string, never>>(),
-      auth: {
-        key: "Authorization",
-        value: "{OTP_API_KEY}",
-        type: "header",
-      },
     },
     getPatient: {
       path: "/api/v1/otp/patient/",
       method: "GET",
       TRes: Type<PaginatedResponse<PatientModel>>(),
+      auth: {
+        key: "Authorization",
+        value: "Bearer {token}",
+        type: "header",
+      },
+    },
+    createPatient: {
+      path: "/api/v1/otp/patient/",
+      method: "POST",
+      TBody: Type<AppointmentPatientRegister>(),
+      TRes: Type<AppointmentPatient>(),
       auth: {
         key: "Authorization",
         value: "Bearer {token}",

@@ -80,7 +80,11 @@ export default function OTP({
       navigate(
         `/facility/${facilityId}/appointments/${staffUsername}/book-appointment`,
       );
+      const OTPaccessToken = response.data?.access;
       localStorage.setItem("phoneNumber", phoneNumber);
+      if (OTPaccessToken) {
+        localStorage.setItem("OTPaccessToken", OTPaccessToken);
+      }
     }
     // To Do: Mock, remove this
     navigate(

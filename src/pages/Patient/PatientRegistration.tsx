@@ -1,5 +1,5 @@
 import careConfig from "@careConfig";
-import { useQuery } from "@tanstack/react-query";
+import { useMutation, useQuery } from "@tanstack/react-query";
 import { navigate } from "raviger";
 import { useCallback, useState } from "react";
 import { useTranslation } from "react-i18next";
@@ -25,10 +25,15 @@ import { SelectFormField } from "@/components/Form/FormFields/SelectFormField";
 import TextAreaFormField from "@/components/Form/FormFields/TextAreaFormField";
 import TextFormField from "@/components/Form/FormFields/TextFormField";
 import { ScheduleAPIs } from "@/components/Schedule/api";
+import {
+  AppointmentCreate,
+  SlotAvailability,
+} from "@/components/Schedule/types";
 
 import { GENDER_TYPES } from "@/common/constants";
 import { validateName, validatePincode } from "@/common/validation";
 
+import * as Notification from "@/Utils/Notifications";
 import { usePubSub } from "@/Utils/pubsubContext";
 import routes from "@/Utils/request/api";
 import request from "@/Utils/request/request";
@@ -57,6 +62,11 @@ type PatientRegistrationProps = {
 export function PatientRegistration(props: PatientRegistrationProps) {
   const { staffUsername } = props;
   const phoneNumber = localStorage.getItem("phoneNumber");
+  const selectedSlot = JSON.parse(
+    localStorage.getItem("selectedSlot") ?? "",
+  ) as SlotAvailability;
+  const reason = localStorage.getItem("reason");
+  const OTPaccessToken = localStorage.getItem("OTPaccessToken");
   const { t } = useTranslation();
   const [ageInputType, setAgeInputType] = useState<"age" | "date_of_birth">(
     "age",
@@ -82,27 +92,27 @@ export function PatientRegistration(props: PatientRegistrationProps) {
         case "gender":
           errors[field] = RequiredFieldValidator()(form[field]);
           return;
-        case "age":
+        case "year_of_birth":
         case "date_of_birth": {
-          const field = ageInputType === "age" ? "age" : "date_of_birth";
+          const field =
+            ageInputType === "age" ? "year_of_birth" : "date_of_birth";
 
           errors[field] = RequiredFieldValidator()(form[field]);
           if (errors[field]) {
             return;
           }
 
-          if (field === "age") {
-            if (form.age < 0) {
-              errors.age = "Age cannot be less than 0";
+          if (field === "year_of_birth") {
+            if (form.year_of_birth < 0) {
+              errors.year_of_birth = "Age cannot be less than 0";
               return;
             }
 
             form.date_of_birth = null;
-            form.year_of_birth = new Date().getFullYear() - form.age;
+            form.year_of_birth = new Date().getFullYear() - form.year_of_birth;
           }
 
           if (field === "date_of_birth") {
-            form.age = null;
             form.year_of_birth = null;
           }
 
@@ -133,9 +143,38 @@ export function PatientRegistration(props: PatientRegistrationProps) {
       }
     });
 
+    console.log(errors);
+
     return errors;
   };
 
+  const { mutate: createAppointment } = useMutation({
+    mutationFn: async (body: AppointmentCreate) => {
+      const { res, data } = await request(
+        ScheduleAPIs.slots.createAppointment,
+        {
+          pathParams: {
+            facility_id: props.facilityId,
+            slot_id: selectedSlot?.id ?? "",
+          },
+          body,
+        },
+      );
+      if (res?.status === 200) {
+        Notification.Success({ msg: "Appointment created successfully" });
+        navigate(
+          `/facility/${props.facilityId}/appointments/${data?.id}/success`,
+        );
+      } else {
+        //To do: mock appointment creation, adjust this
+        Notification.Error({
+          msg: "Appointment creation failed; redirecting to mock success page",
+        });
+        navigate(`/facility/${props.facilityId}/appointments/123/success`);
+      }
+      return res;
+    },
+  });
   const handleSubmit = async (formData: AppointmentPatientRegister) => {
     const data = {
       phone_number: phoneNumber ?? "",
@@ -143,8 +182,13 @@ export function PatientRegistration(props: PatientRegistrationProps) {
         ageInputType === "date_of_birth"
           ? dateQueryString(formData.date_of_birth)
           : undefined,
-      year_of_birth:
-        ageInputType === "age" ? formData.year_of_birth : undefined,
+      age: ageInputType === "age" ? formData.year_of_birth : undefined,
+      /* year_of_birth:
+        ageInputType === "age"
+          ? (
+              new Date().getFullYear() - Number(formData.year_of_birth ?? 0)
+            ).toString()
+          : undefined, */
       name: formData.name,
       pincode: formData.pincode ? formData.pincode : undefined,
       gender: formData.gender,
@@ -155,15 +199,24 @@ export function PatientRegistration(props: PatientRegistrationProps) {
       is_active: true,
     };
 
-    const { res, data: requestData } = await request(
-      ScheduleAPIs.appointments.createPatient,
-      {
-        body: { ...data },
-      },
-    );
+    console.log(data);
 
-    if (res?.ok && requestData) {
+    const response = await fetch(`${careConfig.apiUrl}/api/v1/otp/patient/`, {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${OTPaccessToken}`,
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(data),
+    });
+
+    const requestData = await response.json();
+    if (response.ok && requestData) {
       publish("patient:upsert", requestData);
+      createAppointment({
+        patient: requestData.id,
+        reason_for_visit: reason ?? "",
+      });
     }
   };
   const [isDistrictLoading, setIsDistrictLoading] = useState(false);

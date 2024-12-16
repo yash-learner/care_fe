@@ -1,30 +1,38 @@
 import { useQuery } from "@tanstack/react-query";
-import { useQueryParams } from "raviger";
 
 import PaginatedList from "@/CAREUI/misc/PaginatedList";
 
 import { Card } from "@/components/ui/card";
 
+import SearchByMultipleFields from "@/components/Common/SearchByMultipleFields";
+import FacilityFilter from "@/components/Facility/FacilityFilter";
 import {
   DistrictModel,
   FacilityModel,
   LocalBodyModel,
 } from "@/components/Facility/models";
 
+import useFilters from "@/hooks/useFilters";
+
 import routes from "@/Utils/request/api";
 import request from "@/Utils/request/request";
 import { RequestResult } from "@/Utils/request/types";
 
 import { FacilityCard } from "./components/FacilityCard";
-import { FilterBadges } from "./components/FilterBadges";
 
 export function FacilitiesPage() {
-  const [qParams, setQueryParams] = useQueryParams<{
+  /* const [qParams, setQueryParams] = useQueryParams<{
     district?: string;
     local_body?: string;
     page?: string;
     limit?: string;
-  }>();
+  }>(); */
+
+  const { qParams, updateQuery, FilterBadges, advancedFilter, clearSearch } =
+    useFilters({
+      limit: 14,
+      cacheBlacklist: ["search"],
+    });
 
   const { data: districtResponse } = useQuery<RequestResult<DistrictModel>>({
     queryKey: ["district", qParams.district],
@@ -48,15 +56,45 @@ export function FacilitiesPage() {
     <div className="container mx-auto px-4 py-8">
       <div className="flex items-center gap-4 mb-6">
         <h1 className="text-2xl font-bold">Healthcare Facilities</h1>
-        <FilterBadges
-          district={districtResponse?.data}
-          localBody={localBodyResponse?.data}
-          onRemove={(key) => {
-            const { [key]: _, ...rest } = qParams;
-            setQueryParams(rest);
-          }}
-        />
       </div>
+      <SearchByMultipleFields
+        id="facility-search"
+        options={[
+          {
+            key: "facility_district_pincode",
+            label: "Facility/District/Pincode",
+            type: "text" as const,
+            placeholder: "facility_search_placeholder_pincode",
+            value: qParams.search || "",
+            shortcutKey: "f",
+          },
+        ]}
+        className="w-full"
+        onSearch={(key, value) => updateQuery({ search: value })}
+        clearSearch={clearSearch}
+      />
+      <FacilityFilter {...advancedFilter} key={window.location.search} />
+      <FilterBadges
+        badges={({ badge, value, kasp }) => [
+          badge("Facility/District/Pincode", "search"),
+          value(
+            "District",
+            "district",
+            qParams.district && districtResponse?.data
+              ? districtResponse?.data.name
+              : "",
+          ),
+          value(
+            "Local Body",
+            "local_body",
+            qParams.local_body && localBodyResponse?.data
+              ? localBodyResponse?.data.name
+              : "",
+          ),
+          value("Pin Code", "pin_code", qParams.pin_code || ""),
+          kasp("Empanelled", "kasp_empanelled"),
+        ]}
+      />
 
       <PaginatedList route={routes.getAllFacilities} query={qParams}>
         {() => (
