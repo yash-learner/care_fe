@@ -49,9 +49,6 @@ export function FacilityDetailsPage({ id }: Props) {
     queryFn: async () => {
       const response = await request(routes.getFacilityUsers, {
         pathParams: { facility_id: id },
-        query: {
-          user_type: "Doctor",
-        },
         silent: true,
       });
       if (response.res?.status !== 200) {

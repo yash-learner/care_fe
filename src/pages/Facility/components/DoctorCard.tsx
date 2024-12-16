@@ -5,6 +5,8 @@ import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 
+import { Avatar } from "@/components/Common/Avatar";
+
 import { DoctorModel, getExperience } from "@/pages/Facility/Utils";
 
 interface Props {
@@ -20,12 +22,8 @@ export function DoctorCard({ doctor, className, facilityId }: Props) {
         <div className="p-6">
           <div className="flex flex-col sm:flex-row gap-4">
             <div className="h-32 w-32 shrink-0 overflow-hidden rounded-lg">
-              <img
-                src={
-                  doctor.read_profile_picture_url ||
-                  "/images/default-doctor.png"
-                }
-                alt={`${doctor.first_name} ${doctor.last_name}`}
+              <Avatar
+                name={`${doctor.first_name} ${doctor.last_name}`}
                 className="h-full w-full object-cover"
               />
             </div>
