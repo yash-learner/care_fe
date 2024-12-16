@@ -13,6 +13,7 @@ import { Card } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 
+import { Avatar } from "@/components/Common/Avatar";
 import { FacilityModel } from "@/components/Facility/models";
 import { ScheduleAPIs } from "@/components/Schedule/api";
 import { SlotAvailability } from "@/components/Schedule/types";
@@ -331,21 +332,18 @@ export function AppointmentsPage(props: AppointmentsProps) {
           <div className="sm:w-1/3">
             <Card className={cn("overflow-hidden bg-white")}>
               <div className="flex flex-col">
-                <div className="flex flex-col gap-4 items-center py-4">
-                  <div className="h-96 w-96 shrink-0 overflow-hidden rounded-lg">
-                    <img
-                      src={
-                        doctor.read_profile_picture_url ||
-                        "/images/default-doctor.png"
-                      }
-                      alt={`${doctor.first_name} ${doctor.last_name}`}
-                      className="h-full w-full object-cover"
-                    />
-                  </div>
+                <div className="flex flex-col gap-4 py-4 justify-between h-full">
+                  <Avatar
+                    imageUrl={doctor.read_profile_picture_url}
+                    name={`${doctor.first_name} ${doctor.last_name}`}
+                    className="h-96 w-96 self-center rounded-sm"
+                  />
 
-                  <div className="flex grow flex-col min-w-0 px-3">
+                  <div className="flex grow flex-col px-4">
                     <h3 className="truncate text-xl font-semibold">
-                      {`Dr. ${doctor.first_name} ${doctor.last_name}`}
+                      {doctor.user_type === "Doctor"
+                        ? `Dr. ${doctor.first_name} ${doctor.last_name}`
+                        : `${doctor.first_name} ${doctor.last_name}`}
                     </h3>
                     <p className="text-sm text-muted-foreground truncate">
                       {doctor.role}
@@ -378,8 +376,10 @@ export function AppointmentsPage(props: AppointmentsProps) {
           <div className="flex-1 mx-2">
             <div className="flex flex-col gap-6">
               <span className="text-base font-semibold">
-                Book an Appointment with Dr. {doctor.first_name}{" "}
-                {doctor.last_name}
+                Book an Appointment with{" "}
+                {doctor.user_type === "Doctor"
+                  ? `Dr. ${doctor.first_name} ${doctor.last_name}`
+                  : `${doctor.first_name} ${doctor.last_name}`}
               </span>
               <div>
                 <Label className="mb-2">Reason for visit</Label>

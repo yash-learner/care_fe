@@ -10,16 +10,10 @@ import {
   Command,
   CommandEmpty,
   CommandGroup,
-  CommandInput,
   CommandItem,
 } from "@/components/ui/command";
-import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from "@/components/ui/popover";
 
-import { DistrictModel, LocalBodyModel } from "@/components/Facility/models";
+import { DistrictModel } from "@/components/Facility/models";
 
 import routes from "@/Utils/request/api";
 import request from "@/Utils/request/request";

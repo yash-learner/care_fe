@@ -1,8 +1,12 @@
 import { cn } from "@/lib/utils";
 
+import CareIcon from "@/CAREUI/icons/CareIcon";
+
 import { Badge } from "@/components/ui/badge";
 
 import { SkillObjectModel, UserAssignedModel } from "@/components/Users/models";
+
+import { FACILITY_FEATURE_TYPES } from "@/common/constants";
 
 const getSpecializationText = (specializations: SkillObjectModel[]) => {
   if (specializations.length === 0) {
@@ -33,11 +37,11 @@ const getExperienceText = (experience: string) => {
 };
 
 export const getExperience = (doctor: DoctorModel) => {
-  return (
-    getExperienceText(doctor.experience) +
-    " in " +
-    getSpecializationText(doctor.skills)
-  );
+  const specializationText = getSpecializationText(doctor.skills);
+  if (!doctor.experience || !specializationText) {
+    return "";
+  }
+  return getExperienceText(doctor.experience) + " in " + specializationText;
 };
 
 export interface DoctorModel
@@ -126,20 +130,11 @@ export const mockDoctors: DoctorModel[] = [
   },
 ];
 
-export const FACILITY_FEATURES = {
-  1: { label: "Water Bed", variant: "green" },
-  2: { label: "24/7 Care", variant: "blue" },
-  3: { label: "Wheelchair", variant: "amber" },
-  4: { label: "Mobility Aids", variant: "orange" },
-  5: { label: "Pain Management Tools", variant: "teal" },
-  6: { label: "Incontinence Support", variant: "teal" },
-  7: { label: "Adjustable Hospital Beds", variant: "teal" },
-} as const;
-
-export type FeatureId = keyof typeof FACILITY_FEATURES;
-
-export const FeatureBadge = ({ featureId }: { featureId: FeatureId }) => {
-  const feature = FACILITY_FEATURES[featureId];
+export const FeatureBadge = ({ featureId }: { featureId: number }) => {
+  const feature = FACILITY_FEATURE_TYPES.find((f) => f.id === featureId);
+  if (!feature) {
+    return <></>;
+  }
   const variantStyles = {
     green: "bg-green-100 text-green-800 hover:bg-green-100",
     blue: "bg-blue-100 text-blue-800 hover:bg-blue-100",
@@ -151,9 +146,15 @@ export const FeatureBadge = ({ featureId }: { featureId: FeatureId }) => {
   return (
     <Badge
       variant="outline"
-      className={cn("rounded-sm font-normal", variantStyles[feature.variant])}
+      className={cn(
+        "rounded-sm font-normal",
+        variantStyles[feature.variant as keyof typeof variantStyles],
+      )}
     >
-      {feature.label}
+      <div className="flex flex-row items-center gap-1">
+        <CareIcon icon={feature.icon} />
+        {feature.name}
+      </div>
     </Badge>
   );
 };

@@ -107,7 +107,9 @@ export function AppointmentSuccess(props: AppointmentSuccessProps) {
 
       <div className="grid grid-cols-2 gap-8">
         <div>
-          <h2 className="text-sm font-medium text-gray-500 mb-1">Nurse:</h2>
+          <h2 className="text-sm font-medium text-gray-500 mb-1">
+            Doctor/Nurse:
+          </h2>
           <p className="text-lg font-medium">
             {formatName(appointmentData?.resource)}
           </p>
@@ -141,8 +143,8 @@ export function AppointmentSuccess(props: AppointmentSuccessProps) {
 
       <div className="mt-12 text-left space-y-2">
         <p className="text-gray-900">
-          Nurse {appointmentData?.resource.first_name} will visit the patient at
-          the scheduled time.
+          {formatName(appointmentData?.resource)} will visit the patient at the
+          scheduled time.
         </p>
         <p className="text-gray-600">Thank you for choosing our care service</p>
       </div>
