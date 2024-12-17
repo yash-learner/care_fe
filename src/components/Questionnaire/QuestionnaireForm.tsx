@@ -41,7 +41,7 @@ interface BatchRequest {
 
 export interface QuestionnaireFormProps {
   questionnaireSlug?: string;
-  resourceId: string;
+  patientId: string;
   encounterId?: string;
   onSubmit?: () => void;
   onCancel?: () => void;
@@ -49,7 +49,7 @@ export interface QuestionnaireFormProps {
 
 export function QuestionnaireForm({
   questionnaireSlug,
-  resourceId,
+  patientId,
   encounterId,
   onSubmit,
   onCancel,
@@ -61,9 +61,10 @@ export function QuestionnaireForm({
   const [activeGroupId, setActiveGroupId] = useState<string>();
   const [isInitialized, setIsInitialized] = useState(false);
 
-  const pathParams = usePathParams("/facility/:facilityId/*");
+  const pathParams = usePathParams(
+    "/facility/:facilityId/patient/:patientId/*",
+  );
   const facilityId = pathParams?.facilityId;
-  console.log("Facility ID", facilityId);
 
   const {
     data: questionnaireData,
@@ -203,7 +204,7 @@ export function QuestionnaireForm({
           "encounter",
           [encounter],
           {
-            resourceId: resourceId,
+            patientId: patientId,
             encounterId: "not-applicable",
             facilityId: facilityId,
           },
@@ -230,32 +231,26 @@ export function QuestionnaireForm({
       }
     }
 
-    if (!requestEncounterId) {
-      Error({
-        msg: "You can only submit questionnaire for an active encounter",
-      });
-      return;
-    }
-
     const requests: BatchRequest[] = [];
-    const context = { resourceId, encounterId: requestEncounterId };
-
-    // First, collect all structured data requests
-    questionnaireForms.forEach((form) => {
-      form.responses.forEach((response) => {
-        if (response.structured_type) {
-          const structuredData = response.values?.[0]?.value;
-          if (Array.isArray(structuredData) && structuredData.length > 0) {
-            const structuredRequests = getStructuredRequests(
-              response.structured_type,
-              structuredData,
-              context,
-            );
-            requests.push(...structuredRequests);
+    if (requestEncounterId) {
+      const context = { patientId, encounterId: requestEncounterId };
+      // First, collect all structured data requests if encounterId is provided
+      questionnaireForms.forEach((form) => {
+        form.responses.forEach((response) => {
+          if (response.structured_type) {
+            const structuredData = response.values?.[0]?.value;
+            if (Array.isArray(structuredData) && structuredData.length > 0) {
+              const structuredRequests = getStructuredRequests(
+                response.structured_type,
+                structuredData,
+                context,
+              );
+              requests.push(...structuredRequests);
+            }
           }
-        }
+        });
       });
-    });
+    }
 
     // Then, add questionnaire submission requests
     questionnaireForms.forEach((form) => {
@@ -272,8 +267,9 @@ export function QuestionnaireForm({
           method: "POST",
           reference_id: form.questionnaire.id,
           body: {
-            resource_id: resourceId,
+            resource_id: patientId,
             encounter: requestEncounterId,
+            patient: patientId,
             results: nonStructuredResponses
               .filter(
                 (response) =>

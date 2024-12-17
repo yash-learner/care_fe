@@ -74,7 +74,7 @@ export default function EncounterQuestionnaire({
         <Card>
           <CardContent className="pt-6">
             <QuestionnaireForm
-              resourceId={patientId}
+              patientId={patientId}
               encounterId={consultationId}
               questionnaireSlug={questionnaireSlug}
             />

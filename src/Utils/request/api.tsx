@@ -1375,7 +1375,8 @@ const routes = {
       TRes: Type<Record<string, never>>(),
       TBody: Type<{
         resource_id: string;
-        encounter: string;
+        encounter?: string;
+        patient: string;
         responses: Array<{
           question_id: string;
           value: string | number | boolean;
