@@ -306,6 +306,8 @@ const Login = (props: { forgot?: boolean }) => {
     sendOtpMutation.isPending ||
     verifyOtpMutation.isPending;
 
+  const logos = [stateLogo, customLogo].filter((logo) => logo?.light);
+
   return (
     <div className="relative flex md:h-screen flex-col-reverse md:flex-row">
       {!forgotPassword && <BrowserWarning />}
@@ -315,28 +317,31 @@ const Login = (props: { forgot?: boolean }) => {
         <div></div>
         <div className="mt-4 flex flex-col items-start rounded-lg py-4 md:mt-12">
           <div className="mb-4 hidden items-center gap-6 md:flex">
-            {(customLogo || stateLogo) && (
-              <>
-                <img
-                  src={customLogo?.light ?? stateLogo?.light}
-                  className="h-16 rounded-lg py-3"
-                  alt="state logo"
-                />
-                <div className="h-10 w-0.5 rounded-full bg-white/50" />
-              </>
+            {logos.map((logo, index) =>
+              logo && logo.light ? (
+                <div key={index} className="flex items-center">
+                  <img
+                    src={logo.light}
+                    className="h-16 rounded-lg py-3"
+                    alt="state logo"
+                  />
+                </div>
+              ) : null,
             )}
-            <a
-              href={urls.ohcn}
-              className="inline-block"
-              target="_blank"
-              rel="noopener noreferrer"
-            >
-              <img
-                src={customLogoAlt?.light ?? "/images/ohc_logo_light.svg"}
-                className="h-8"
-                alt="Open Healthcare Network logo"
-              />
-            </a>
+            {logos.length === 0 && (
+              <a
+                href={urls.ohcn}
+                className="inline-block"
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                <img
+                  src={customLogoAlt?.light ?? "/images/ohc_logo_light.svg"}
+                  className="h-8"
+                  alt="Open Healthcare Network logo"
+                />
+              </a>
+            )}
           </div>
           <div className="max-w-lg">
             <h1 className="text-4xl font-black leading-tight tracking-wider text-white lg:text-5xl">
