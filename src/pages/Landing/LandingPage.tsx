@@ -19,7 +19,7 @@ import routes from "@/Utils/request/api";
 import request from "@/Utils/request/request";
 import { RequestResult } from "@/Utils/request/types";
 
-const { mainLogo } = careConfig;
+const { customLogo, mainLogo } = careConfig;
 
 const STATE_ID = "1"; // Kerala's state ID
 
@@ -114,7 +114,15 @@ export function LandingPage() {
       <main className="flex-1 flex flex-col items-center pt-24">
         {/* Logo Section */}
         <div className="mb-8">
-          <img src={mainLogo?.dark} alt="Care Logo" className="h-24 w-auto" />
+          {(customLogo || mainLogo) && (
+            <>
+              <img
+                src={customLogo?.dark ?? mainLogo?.dark}
+                alt="Logo"
+                className="h-24 w-auto"
+              />
+            </>
+          )}
         </div>
 
         {/* Search Section */}
