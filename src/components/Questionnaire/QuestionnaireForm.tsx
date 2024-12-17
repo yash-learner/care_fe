@@ -282,7 +282,7 @@ export function QuestionnaireForm({
                 values: response.values.map((value) => ({
                   ...(value.value_code
                     ? { value_code: value.value_code }
-                    : { value: String(value.value || "") }),
+                    : { value: String(value.value) }),
                 })),
                 note: response.note,
                 body_site: response.body_site,
