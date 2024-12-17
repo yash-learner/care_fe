@@ -269,7 +269,7 @@ export function QuestionnaireForm({
           method: "POST",
           reference_id: form.questionnaire.id,
           body: {
-            resource_id: patientId,
+            resource_id: requestEncounterId ?? patientId,
             encounter: requestEncounterId,
             patient: patientId,
             results: nonStructuredResponses
