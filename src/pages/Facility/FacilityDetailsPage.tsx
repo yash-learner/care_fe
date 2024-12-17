@@ -1,5 +1,6 @@
 import { useQuery } from "@tanstack/react-query";
 import { Link, navigate } from "raviger";
+import { useTranslation } from "react-i18next";
 
 import CareIcon from "@/CAREUI/icons/CareIcon";
 
@@ -16,7 +17,7 @@ import routes from "@/Utils/request/api";
 import request from "@/Utils/request/request";
 import { PaginatedResponse, RequestResult } from "@/Utils/request/types";
 
-import { DoctorModel, FeatureBadge, mockDoctors } from "./Utils";
+import { DoctorModel, FeatureBadge } from "./Utils";
 import { DoctorCard } from "./components/DoctorCard";
 
 interface Props {
@@ -24,6 +25,7 @@ interface Props {
 }
 
 export function FacilityDetailsPage({ id }: Props) {
+  const { t } = useTranslation();
   const { data: facilityResponse, isLoading } = useQuery<
     RequestResult<FacilityModel>
   >({
@@ -65,14 +67,12 @@ export function FacilityDetailsPage({ id }: Props) {
   // To Do: Mock, remove/adjust this
   // Need to adjust DoctorModel to match the data from the backend
   function extendDoctors(doctors: UserAssignedModel[]): DoctorModel[] {
-    const randomDoc =
-      mockDoctors[Math.floor(Math.random() * mockDoctors.length)];
     return doctors.map((doctor) => ({
       ...doctor,
       role: createMockRole(doctor.skills),
       education: doctor.qualification ?? "",
       experience: doctor.doctor_experience_commenced_on?.toString() ?? "",
-      languages: randomDoc.languages,
+      languages: ["English", "Malayalam"],
       read_profile_picture_url: doctor.read_profile_picture_url ?? "",
       skills: doctor.skills,
     }));
@@ -80,7 +80,6 @@ export function FacilityDetailsPage({ id }: Props) {
 
   // To Do: Mock, remove/adjust this
   const doctors = extendDoctors(docReponse?.data?.results ?? []);
-  doctors.push(...mockDoctors);
 
   const facility = facilityResponse?.data;
 
@@ -98,13 +97,15 @@ export function FacilityDetailsPage({ id }: Props) {
     return (
       <div className="container mx-auto px-4 py-8">
         <Card className="p-8 text-center">
-          <h2 className="text-xl font-semibold mb-4">Facility Not Found</h2>
+          <h2 className="text-xl font-semibold mb-4">
+            {t("facility_not_found")}
+          </h2>
           <Button
             variant="outline"
             className="border border-secondary-400"
             onClick={() => navigate("/facilities")}
           >
-            Back to Facilities
+            {t("back_to_facilities")}
           </Button>
         </Card>
       </div>
@@ -121,7 +122,7 @@ export function FacilityDetailsPage({ id }: Props) {
         >
           <Link href="/facilities">
             <CareIcon icon="l-square-shape" className="h-4 w-4 mr-1" />
-            <span className="text-sm underline">Back</span>
+            <span className="text-sm underline">{t("back")}</span>
           </Link>
         </Button>
       </div>
@@ -160,7 +161,7 @@ export function FacilityDetailsPage({ id }: Props) {
         </div>
       </Card>
       <div className="mt-6">
-        {doctors.length > 0 && (
+        {doctors && doctors.length > 0 ? (
           <>
             <div className="grid grid-cols-1 gap-4 @xl:grid-cols-3 @4xl:grid-cols-4 @6xl:grid-cols-5 lg:grid-cols-2">
               {doctors?.map((doctor) => (
@@ -173,11 +174,10 @@ export function FacilityDetailsPage({ id }: Props) {
             </div>
             <Pagination totalCount={doctors.length ?? 0} />
           </>
-        )}
-        {doctors.length === 0 && (
+        ) : (
           <div className="h-full space-y-2 rounded-lg bg-white p-7 shadow">
             <div className="flex w-full items-center justify-center text-xl font-bold text-secondary-500">
-              No Doctors Found
+              {t("no_doctors_found")}
             </div>
           </div>
         )}

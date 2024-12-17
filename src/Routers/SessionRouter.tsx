@@ -60,9 +60,11 @@ const routes = {
       staffUsername={staffUsername}
     />
   ),
-  "/facility/:facilityId/appointments/:appointmentId/success": () => (
-    <AppointmentSuccess />
-  ),
+  "/facility/:facilityId/appointments/:appointmentId/success": ({
+    appointmentId,
+  }: {
+    appointmentId: string;
+  }) => <AppointmentSuccess appointmentId={appointmentId} />,
   "/login": () => <Login />,
   "/forgot-password": () => <Login forgot={true} />,
   "/password_reset/:token": ({ token }: { token: string }) => (

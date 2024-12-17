@@ -1,95 +1,49 @@
-import careConfig from "@careConfig";
 import { useQuery } from "@tanstack/react-query";
 import { format } from "date-fns";
 import { navigate } from "raviger";
+import { useTranslation } from "react-i18next";
 
 import CareIcon from "@/CAREUI/icons/CareIcon";
 
 import { Button } from "@/components/ui/button";
 
-import { Appointment } from "@/components/Schedule/types";
+import Loading from "@/components/Common/Loading";
 import { UserModel } from "@/components/Users/models";
 
 import * as Notification from "@/Utils/Notifications";
+import routes from "@/Utils/request/api";
+import query from "@/Utils/request/query";
 import { formatName } from "@/Utils/utils";
 
-export function AppointmentSuccess() {
-  // const { appointmentId } = props;
+export function AppointmentSuccess(props: { appointmentId: string }) {
+  const { appointmentId } = props;
+  const { t } = useTranslation();
   const OTPaccessToken = localStorage.getItem("OTPaccessToken");
   const doctorData: UserModel = JSON.parse(
     localStorage.getItem("doctor") ?? "{}",
   );
 
-  const { data } = useQuery<{ results: Appointment[] }>({
+  const { data, isLoading, error } = useQuery({
     queryKey: ["appointment"],
-    queryFn: async () => {
-      const response = await fetch(
-        `${careConfig.apiUrl}/api/v1/otp/slots/get_appointments/`,
-        {
-          method: "GET",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${OTPaccessToken}`,
-          },
-        },
-      );
-
-      if (!response.ok) {
-        Notification.Error({ msg: "Appointment not found" });
-        //To do: disabled for mock appointment, remove this
-        //navigate(`/facility/${facilityId}/`);
-      }
-      const data = await response.json();
-      return data;
-    },
+    queryFn: query(routes.otp.getAppointments, {
+      headers: {
+        Authorization: `Bearer ${OTPaccessToken}`,
+      },
+    }),
     enabled: !!OTPaccessToken,
   });
 
-  const mockAppointment: Appointment = {
-    id: "123",
-    resource: {
-      id: "456",
-      first_name: "Anjali",
-      last_name: "Narayanan",
-      username: "anjali.narayanan",
-      email: "anjali.narayanan@carecompanion.in",
-      user_type: 15,
-      last_login: "2024-03-15T09:30:00Z",
-    },
-    patient: {
-      id: "789",
-      name: "Janaki Sivaraman",
-      gender: 2,
-      date_of_birth: "1990-05-15",
-      age: 30,
-      address: "123 Main Street, City, Country",
-      pincode: "123456",
-    },
-    token_slot: {
-      start_datetime: "2023-12-20T12:30:00Z",
-      end_datetime: "2023-12-20T13:30:00Z",
-      id: "123",
-      availability: {
-        name: "Anjali Narayanan, B.Sc. Nursing",
-        tokens_per_slot: 1,
-      },
-      allocated: 1,
-    },
-    reason_for_visit: "General Checkup",
-    booked_on: "2024-03-15T09:30:00Z",
-    booked_by: {
-      id: "123",
-      first_name: "Anjali",
-      last_name: "Narayanan",
-      username: "anjali.narayanan",
-      email: "anjali.narayanan@carecompanion.in",
-      user_type: 15,
-      last_login: "2024-03-15T09:30:00Z",
-    },
-    status: "booked",
-  } as const;
+  if (error) {
+    Notification.Error({ msg: t("appointment_not_found") });
+  }
 
-  const appointmentData = data?.results[0] ?? mockAppointment;
+  const appointmentData = data?.results.find(
+    (appointment) => appointment.id === appointmentId,
+  );
+
+  if (isLoading) {
+    return <Loading />;
+  }
 
   return (
     <div className="max-w-2xl mx-auto p-8 mt-4">
@@ -102,7 +56,7 @@ export function AppointmentSuccess() {
           }}
         >
           <CareIcon icon="l-square-shape" className="h-4 w-4 mr-1" />
-          <span className="text-sm underline">Back to Home</span>
+          <span className="text-sm underline">{t("back_to_home")}</span>
         </Button>
       </div>
       <div className="bg-secondary-100/50 rounded-lg shadow-sm p-12 border border-secondary-400 text-center mb-12">
@@ -111,25 +65,29 @@ export function AppointmentSuccess() {
         </div>
 
         <h1 className="text-2xl font-medium text-gray-900 mb-2">
-          Your appointment has been successfully booked!
+          {t("appointment_booking_success")}
         </h1>
       </div>
 
       <div className="grid grid-cols-2 gap-8">
         <div>
           <h2 className="text-sm font-medium text-gray-500 mb-1">
-            Doctor/Nurse:
+            {t("doctor_nurse")}:
           </h2>
           <p className="text-lg font-medium">{formatName(doctorData)}</p>
         </div>
 
         <div>
-          <h2 className="text-sm font-medium text-gray-500 mb-1">Patient:</h2>
+          <h2 className="text-sm font-medium text-gray-500 mb-1">
+            {t("patient")}:
+          </h2>
           <p className="text-lg font-medium">{appointmentData?.patient.name}</p>
         </div>
 
         <div>
-          <h2 className="text-sm font-medium text-gray-500 mb-1">Date:</h2>
+          <h2 className="text-sm font-medium text-gray-500 mb-1">
+            {t("date")}:
+          </h2>
           <p className="text-lg font-medium">
             {format(
               new Date(appointmentData?.token_slot.start_datetime ?? ""),
@@ -139,7 +97,9 @@ export function AppointmentSuccess() {
         </div>
 
         <div>
-          <h2 className="text-sm font-medium text-gray-500 mb-1">Time:</h2>
+          <h2 className="text-sm font-medium text-gray-500 mb-1">
+            {t("time")}:
+          </h2>
           <p className="text-lg font-medium">
             {format(
               new Date(appointmentData?.token_slot.start_datetime ?? ""),
@@ -151,9 +111,9 @@ export function AppointmentSuccess() {
 
       <div className="mt-12 text-left space-y-2">
         <p className="text-gray-900">
-          {formatName(doctorData)} will visit the patient at the scheduled time.
+          {formatName(doctorData)} {t("doc_will_visit_patient")}
         </p>
-        <p className="text-gray-600">Thank you for choosing our care service</p>
+        <p className="text-gray-600">{t("thank_you_for_choosing")}</p>
       </div>
     </div>
   );

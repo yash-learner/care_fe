@@ -25,6 +25,7 @@ import { SelectFormField } from "@/components/Form/FormFields/SelectFormField";
 import TextAreaFormField from "@/components/Form/FormFields/TextAreaFormField";
 import TextFormField from "@/components/Form/FormFields/TextFormField";
 import {
+  Appointment,
   AppointmentCreate,
   SlotAvailability,
 } from "@/components/Schedule/types";
@@ -35,10 +36,14 @@ import { validateName, validatePincode } from "@/common/validation";
 import * as Notification from "@/Utils/Notifications";
 import { usePubSub } from "@/Utils/pubsubContext";
 import routes from "@/Utils/request/api";
+import mutate from "@/Utils/request/mutate";
 import request from "@/Utils/request/request";
 import { compareBy, dateQueryString } from "@/Utils/utils";
 import { getPincodeDetails, includesIgnoreCase } from "@/Utils/utils";
-import { AppointmentPatientRegister } from "@/pages/Patient/Utils";
+import {
+  AppointmentPatient,
+  AppointmentPatientRegister,
+} from "@/pages/Patient/Utils";
 
 const initialForm: AppointmentPatientRegister = {
   name: "",
@@ -146,35 +151,49 @@ export function PatientRegistration(props: PatientRegistrationProps) {
   };
 
   const { mutate: createAppointment } = useMutation({
-    mutationFn: async (body: AppointmentCreate) => {
-      const res = await fetch(
-        `${careConfig.apiUrl}/api/v1/otp/slots/${selectedSlot?.id}/create_appointment/`,
-        {
-          method: "POST",
-          headers: {
-            Authorization: `Bearer ${OTPaccessToken}`,
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify(body),
+    mutationFn: (body: AppointmentCreate) =>
+      mutate(routes.otp.createAppointment, {
+        pathParams: { id: selectedSlot?.id },
+        body,
+        headers: {
+          Authorization: `Bearer ${OTPaccessToken}`,
         },
-      );
-      const data = await res.json();
-
-      if (res.ok) {
-        Notification.Success({ msg: "Appointment created successfully" });
-        navigate(
-          `/facility/${props.facilityId}/appointments/${data.id}/success`,
-        );
-      } else {
-        Notification.Error({
-          msg: "Appointment creation failed; redirecting to mock success page",
-        });
-        navigate(`/facility/${props.facilityId}/appointments/123/success`);
-      }
-
-      return { res, data, error: res.ok ? undefined : data };
+      })(body),
+    onSuccess: (data: Appointment) => {
+      Notification.Success({ msg: t("appointment_created_success") });
+      navigate(`/facility/${props.facilityId}/appointments/${data.id}/success`);
+    },
+    onError: (error) => {
+      Notification.Error({
+        msg: error?.message || t("failed_to_create_appointment"),
+      });
     },
   });
+
+  const { mutate: createPatient } = useMutation({
+    mutationFn: (body: AppointmentPatientRegister) =>
+      mutate(routes.otp.createPatient, {
+        body,
+        headers: {
+          Authorization: `Bearer ${OTPaccessToken}`,
+        },
+      })(body),
+    onSuccess: (data: AppointmentPatient) => {
+      Notification.Success({ msg: "Patient created successfully" });
+      publish("patient:upsert", data);
+      console.log("data", data);
+      createAppointment({
+        patient: data.id,
+        reason_for_visit: reason ?? "",
+      });
+    },
+    onError: (error) => {
+      Notification.Error({
+        msg: error.message,
+      });
+    },
+  });
+
   const handleSubmit = async (formData: AppointmentPatientRegister) => {
     const data = {
       phone_number: phoneNumber ?? "",
@@ -198,24 +217,7 @@ export function PatientRegistration(props: PatientRegistrationProps) {
       address: formData.address ? formData.address : "",
       is_active: true,
     };
-
-    const response = await fetch(`${careConfig.apiUrl}/api/v1/otp/patient/`, {
-      method: "POST",
-      headers: {
-        Authorization: `Bearer ${OTPaccessToken}`,
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify(data),
-    });
-
-    const requestData = await response.json();
-    if (response.ok && requestData) {
-      publish("patient:upsert", requestData);
-      createAppointment({
-        patient: requestData.external_id,
-        reason_for_visit: reason ?? "",
-      });
-    }
+    createPatient(data);
   };
   const [isDistrictLoading, setIsDistrictLoading] = useState(false);
   const [isLocalbodyLoading, setIsLocalbodyLoading] = useState(false);
@@ -336,7 +338,9 @@ export function PatientRegistration(props: PatientRegistrationProps) {
         {(field) => (
           <>
             <div className="container mx-auto p-4 max-w-3xl">
-              <h2 className="text-xl font-semibold">Patient Registration</h2>
+              <h2 className="text-xl font-semibold">
+                {t("patient_registration")}
+              </h2>
 
               <div className="mt-4 flex-row bg-white border border-gray-200/50 rounded-md p-8 shadow-md">
                 <span className="inline-block bg-primary-100 p-4 rounded-md w-full mb-4 text-primary-600 text-sm">
@@ -567,7 +571,7 @@ export function PatientRegistration(props: PatientRegistrationProps) {
                   }}
                 >
                   <span className="bg-gradient-to-b from-white/15 to-transparent"></span>
-                  Cancel
+                  {t("cancel")}
                 </Button>
                 <Button
                   variant="primary_gradient"
@@ -575,7 +579,7 @@ export function PatientRegistration(props: PatientRegistrationProps) {
                   type="submit"
                 >
                   <span className="bg-gradient-to-b from-white/15 to-transparent"></span>
-                  Register Patient
+                  {t("register_patient")}
                 </Button>
               </div>
             </div>

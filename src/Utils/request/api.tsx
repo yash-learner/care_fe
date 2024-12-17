@@ -68,7 +68,11 @@ import {
   CreateFileResponse,
   FileUploadModel,
 } from "@/components/Patient/models";
-import { SlotAvailability } from "@/components/Schedule/types";
+import {
+  Appointment,
+  AppointmentCreate,
+  SlotAvailability,
+} from "@/components/Schedule/types";
 import {
   SkillModel,
   SkillObjectModel,
@@ -1502,7 +1506,18 @@ const routes = {
       path: "/api/v1/otp/slots/get_slots_for_day/",
       method: "POST",
       TRes: Type<{ results: SlotAvailability[] }>(),
-      TBody: Type<{ resource: string; day: string }>(),
+      TBody: Type<{ facility: string; resource: string; day: string }>(),
+    },
+    getAppointments: {
+      path: "/api/v1/otp/slots/get_appointments/",
+      method: "GET",
+      TRes: Type<{ results: Appointment[] }>(),
+    },
+    createAppointment: {
+      path: "/api/v1/otp/slots/{id}/create_appointment/",
+      method: "POST",
+      TRes: Type<Appointment>(),
+      TBody: Type<AppointmentCreate>(),
     },
   },
 } as const;

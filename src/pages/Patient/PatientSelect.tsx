@@ -1,20 +1,24 @@
-import careConfig from "@careConfig";
 import { useMutation, useQuery } from "@tanstack/react-query";
 import dayjs from "dayjs";
 import { navigate } from "raviger";
 import { useState } from "react";
+import { useTranslation } from "react-i18next";
 
 import CareIcon from "@/CAREUI/icons/CareIcon";
 
 import { Button } from "@/components/ui/button";
 
 import {
+  Appointment,
   AppointmentCreate,
   SlotAvailability,
 } from "@/components/Schedule/types";
 
 import * as Notification from "@/Utils/Notifications";
-import { PaginatedResponse, RequestResult } from "@/Utils/request/types";
+import routes from "@/Utils/request/api";
+import mutate from "@/Utils/request/mutate";
+import query from "@/Utils/request/query";
+import { PaginatedResponse } from "@/Utils/request/types";
 
 import { AppointmentPatient } from "./Utils";
 
@@ -25,6 +29,7 @@ export default function PatientSelect({
   facilityId: string;
   staffUsername: string;
 }) {
+  const { t } = useTranslation();
   const phoneNumber = localStorage.getItem("phoneNumber");
   const selectedSlot = JSON.parse(
     localStorage.getItem("selectedSlot") ?? "",
@@ -46,92 +51,46 @@ export default function PatientSelect({
     );
   }
 
-  const { data: patientData } = useQuery<
-    RequestResult<PaginatedResponse<AppointmentPatient>>
-  >({
-    queryKey: ["otp-patient"],
-    queryFn: async () => {
-      const res = await fetch(`${careConfig.apiUrl}/api/v1/otp/patient/`, {
+  const { data: patientData } = useQuery<PaginatedResponse<AppointmentPatient>>(
+    {
+      queryKey: ["otp-patient"],
+      queryFn: query(routes.otp.getPatient, {
         headers: {
           Authorization: `Bearer ${OTPaccessToken}`,
           "Content-Type": "application/json",
         },
-      });
-      const data = await res.json();
-      return { res, data, error: res.ok ? undefined : data };
+      }),
+      enabled: !!OTPaccessToken,
     },
-    enabled: !!OTPaccessToken,
-  });
+  );
 
   const { mutate: createAppointment } = useMutation({
-    mutationFn: async (body: AppointmentCreate) => {
-      const res = await fetch(
-        `${careConfig.apiUrl}/api/v1/otp/slots/${selectedSlot?.id}/create_appointment/`,
-        {
-          method: "POST",
-          headers: {
-            Authorization: `Bearer ${OTPaccessToken}`,
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify(body),
+    mutationFn: (body: AppointmentCreate) =>
+      mutate(routes.otp.createAppointment, {
+        pathParams: { id: selectedSlot?.id },
+        body,
+        headers: {
+          Authorization: `Bearer ${OTPaccessToken}`,
         },
-      );
-      const data = await res.json();
-
-      if (res.ok) {
-        Notification.Success({ msg: "Appointment created successfully" });
-        navigate(`/facility/${facilityId}/appointments/${data.id}/success`);
-      }
-
-      return { res, data, error: res.ok ? undefined : data };
+      })(body),
+    onSuccess: (data: Appointment) => {
+      Notification.Success({ msg: t("appointment_created_success") });
+      navigate(`/facility/${facilityId}/appointments/${data.id}/success`);
+    },
+    onError: (error) => {
+      Notification.Error({
+        msg: error?.message || t("failed_to_create_appointment"),
+      });
     },
   });
 
-  const mockPatientData = [
-    {
-      id: "T105690908240017",
-      external_id: "T105690908240017",
-      name: "Leo Westervelt",
-      phone_number: "9876543120",
-      date_of_birth: "1996-01-04",
-      year_of_birth: "1996",
-      gender: 1,
-      blood_group: "O+",
-      nationality: "India",
-      is_active: true,
-    },
-    {
-      id: "T105690908240019",
-      external_id: "T105690908240019",
-      name: "Tatiana Franci",
-      phone_number: "9876543120",
-      date_of_birth: "1998-06-02",
-      gender: 2,
-      blood_group: "B+",
-      nationality: "India",
-      is_active: true,
-    },
-    {
-      id: "T105690908240032",
-      external_id: "T105690908240032",
-      name: "Rayna Passaquindici Arcand",
-      phone_number: "9876543120",
-      date_of_birth: "1991-05-23",
-      gender: 2,
-      blood_group: "A+",
-      nationality: "India",
-      is_active: true,
-    },
-  ];
-
-  const patients = patientData?.data?.results ?? mockPatientData;
+  const patients = patientData?.results;
 
   const renderNoPatientFound = () => {
     return (
       <div className="">
         <span className="text-base font-medium">
-          No patients found with this phone number. Please create a new patient
-          to proceed with booking appointment.
+          {t("no_patients_found_phone_number")}
         </span>
       </div>
     );
@@ -152,10 +111,16 @@ export default function PatientSelect({
         <table className="w-full">
           <thead className="text-sm bg-secondary-200 font-medium">
             <tr>
-              <th className="w-2/6 px-4 py-2 text-left">Patient Name/UHID</th>
-              <th className="w-1/6 px-4 py-2 text-left">Primary Ph No.</th>
-              <th className="w-1/6 px-4 py-2 text-left">Date of Birth/Age</th>
-              <th className="w-1/6 px-4 py-2 text-left">Sex</th>
+              <th className="w-2/6 px-4 py-2 text-left">
+                {t("patient_name_uhid")}
+              </th>
+              <th className="w-1/6 px-4 py-2 text-left">
+                {t("primary_ph_no")}
+              </th>
+              <th className="w-1/6 px-4 py-2 text-left">
+                {t("date_of_birth_age")}
+              </th>
+              <th className="w-1/6 px-4 py-2 text-left">{t("sex")}</th>
             </tr>
           </thead>
           <tbody className="divide-y rounded-lg border bg-card">
@@ -206,7 +171,11 @@ export default function PatientSelect({
                       {getPatienDoBorAge(patient as AppointmentPatient)}
                     </td>
                     <td className="p-4 align-middle text-left">
-                      {patient.gender === 1 ? "Male" : "Female"}
+                      {patient.gender == "1"
+                        ? "Male"
+                        : patient.gender == "2"
+                          ? "Female"
+                          : "Transgender"}
                     </td>
                   </>
                 )}
@@ -231,11 +200,11 @@ export default function PatientSelect({
           }
         >
           <CareIcon icon="l-square-shape" className="h-4 w-4 mr-1" />
-          <span className="text-sm underline">Back</span>
+          <span className="text-sm underline">{t("back")}</span>
         </Button>
       </div>
       <div className="flex flex-col justify-center space-y-4 bg-white rounded-lg shadow-md p-8">
-        <h3 className="text-lg font-medium">Select/Register Patient</h3>
+        <h3 className="text-lg font-medium">{t("select_register_patient")}</h3>
         {(patients?.length ?? 0) > 0
           ? renderPatientList()
           : renderNoPatientFound()}
@@ -249,7 +218,7 @@ export default function PatientSelect({
           }
         >
           <span className="bg-gradient-to-b from-white/15 to-transparent"></span>
-          Add New Patient
+          {t("add_new_patient")}
         </Button>
       </div>
     </div>
