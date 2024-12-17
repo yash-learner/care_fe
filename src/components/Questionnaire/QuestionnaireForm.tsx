@@ -1,3 +1,4 @@
+import { usePathParams } from "raviger";
 import { useEffect, useState } from "react";
 
 import { cn } from "@/lib/utils";
@@ -11,6 +12,7 @@ import { Error, Success } from "@/Utils/Notifications";
 import routes from "@/Utils/request/api";
 import useMutation from "@/Utils/request/useMutation";
 import useQuery from "@/Utils/request/useQuery";
+import { Encounter } from "@/types/emr/encounter";
 import {
   DetailedValidationError,
   QuestionValidationError,
@@ -40,7 +42,7 @@ interface BatchRequest {
 export interface QuestionnaireFormProps {
   questionnaireSlug?: string;
   resourceId: string;
-  encounterId: string;
+  encounterId?: string;
   onSubmit?: () => void;
   onCancel?: () => void;
 }
@@ -58,6 +60,10 @@ export function QuestionnaireForm({
   const [activeQuestionnaireId, setActiveQuestionnaireId] = useState<string>();
   const [activeGroupId, setActiveGroupId] = useState<string>();
   const [isInitialized, setIsInitialized] = useState(false);
+
+  const pathParams = usePathParams("/facility/:facilityId/*");
+  const facilityId = pathParams?.facilityId;
+  console.log("Facility ID", facilityId);
 
   const {
     data: questionnaireData,
@@ -165,8 +171,74 @@ export function QuestionnaireForm({
   const handleSubmit = async () => {
     if (hasErrors) return;
 
+    let requestEncounterId: string | undefined = encounterId;
+    // Loop through responses and check if there are any responses of structured_type = "encounter"
+
+    if (!requestEncounterId) {
+      console.log("No encounterId found, Checking for encounter response");
+      const encounterResponse = questionnaireForms.reduce(
+        (found: QuestionnaireResponse | undefined, form) => {
+          return found
+            ? found
+            : form.responses.find((response) => {
+                if (response.structured_type === "encounter") {
+                  return response;
+                }
+              });
+        },
+        undefined,
+      );
+
+      // If there is a question of type encounter, a new encounter is being created, then use the /encounter/create endpoint, to create the encounter, and use the encounterId in the API call to save the questionnaire responses.
+
+      if (
+        encounterResponse &&
+        encounterResponse.values?.[0]?.type === "encounter"
+      ) {
+        console.log("Encounter response found, creating encounter");
+        const encounter = encounterResponse.values?.[0]?.value as Encounter;
+        console.log("Creating encounter", encounter);
+        // Create encounter first
+        const encounterRequests = getStructuredRequests(
+          "encounter",
+          [encounter],
+          {
+            resourceId: resourceId,
+            encounterId: "not-applicable",
+            facilityId: facilityId,
+          },
+        );
+
+        console.log("Encounter requests", encounterRequests);
+
+        if (encounterRequests.length) {
+          console.log("Creating encounter");
+          const encounterResponse = await submitBatch({
+            body: { requests: encounterRequests },
+          });
+
+          // Use the consultationId as encounterId for other requests
+          if (encounterResponse.data?.results[0]?.data?.id) {
+            requestEncounterId = encounterResponse.data.results[0].data.id;
+          } else {
+            Error({
+              msg: "Could not create an encounter",
+            });
+            return;
+          }
+        }
+      }
+    }
+
+    if (!requestEncounterId) {
+      Error({
+        msg: "You can only submit questionnaire for an active encounter",
+      });
+      return;
+    }
+
     const requests: BatchRequest[] = [];
-    const context = { resourceId, encounterId };
+    const context = { resourceId, encounterId: requestEncounterId };
 
     // First, collect all structured data requests
     questionnaireForms.forEach((form) => {
@@ -201,7 +273,7 @@ export function QuestionnaireForm({
           reference_id: form.questionnaire.id,
           body: {
             resource_id: resourceId,
-            encounter: encounterId,
+            encounter: requestEncounterId,
             results: nonStructuredResponses
               .filter(
                 (response) =>

@@ -118,7 +118,7 @@ export function DiagnosisQuestion({
         {question.required && <span className="ml-1 text-red-500">*</span>}
       </Label>
       <div className="rounded-lg border p-4">
-        <div className="overflow-x-auto">
+        <div className="overflow-auto max-w-full">
           <Table>
             <TableHeader>
               <TableRow>
