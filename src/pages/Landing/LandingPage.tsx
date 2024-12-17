@@ -21,6 +21,7 @@ import { RequestResult } from "@/Utils/request/types";
 
 const { customLogo, mainLogo } = careConfig;
 
+// Todo: Lets read the default state ID from ENV.
 const STATE_ID = "1"; // Kerala's state ID
 
 export function LandingPage() {
@@ -119,7 +120,7 @@ export function LandingPage() {
               <img
                 src={customLogo?.dark ?? mainLogo?.dark}
                 alt="Logo"
-                className="h-24 w-auto"
+                className="h-20 w-auto"
               />
             </>
           )}
