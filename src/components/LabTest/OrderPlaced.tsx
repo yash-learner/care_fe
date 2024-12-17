@@ -80,9 +80,9 @@ export const OrderPlaced: React.FC = () => {
         actions={(row) => (
           <Button
             onClick={() => navigate(`/lab_tests/${row.id}/collect`)}
-            variant="secondary"
+            variant="outline_primary"
           >
-            Collect Specimen
+            Collect
           </Button>
         )}
       />

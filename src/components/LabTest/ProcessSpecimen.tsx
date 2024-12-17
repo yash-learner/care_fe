@@ -3,7 +3,6 @@ import { useEffect, useRef, useState } from "react";
 import { FaDroplet } from "react-icons/fa6";
 import { v4 as uuid } from "uuid";
 
-import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
   Command,
@@ -36,14 +35,23 @@ import useAuthUser from "@/hooks/useAuthUser";
 import useOnClickOutside from "@/hooks/useOnClickOutside";
 
 import * as Notification from "@/Utils/Notifications";
+import { mapKeyToBadgeVariant } from "@/Utils/badgeUtils";
 import routes from "@/Utils/request/api";
 import request from "@/Utils/request/request";
 
+import { Badge, BadgeProps } from "../ui/badge";
 import LabObservationCodeSelect from "./LabObservationCodeSelect";
 import { Coding, DiagnosticReport, Specimen } from "./types";
 
 type ProcessSpecimenProps = {
   specimenId?: string;
+};
+
+const priorityVariantMap: Record<string, BadgeProps["variant"]> = {
+  routine: "info",
+  asap: "warning",
+  urgent: "highlight",
+  stat: "error",
 };
 
 export const ProcessSpecimen = ({ specimenId }: ProcessSpecimenProps) => {
@@ -231,7 +239,13 @@ export const ProcessSpecimen = ({ specimenId }: ProcessSpecimenProps) => {
                 <Label className="text-sm font-medium text-gray-600">
                   Priority
                 </Label>
-                <Badge className="bg-red-100 text-red-600 px-2 py-1 text-xs font-medium mt-1">
+                <Badge
+                  variant={mapKeyToBadgeVariant(
+                    specimen.request.priority?.toLowerCase(),
+                    priorityVariantMap,
+                  )}
+                  className="rounded-sm capitalize shadow-none"
+                >
                   {specimen.request.priority ?? "Routine"}
                 </Badge>
               </div>
@@ -317,10 +331,10 @@ export const ProcessSpecimen = ({ specimenId }: ProcessSpecimenProps) => {
         )}
       </div>
       {!!specimen?.processing.length && !diagnosticReport && (
-        <div className="hidden">
+        <div className="space-y-4">
           {/* Todo: Extra this into a separate component if not done already at some where else*/}
 
-          <div className="bg-white shadow-sm rounded-sm border border-gray-300 p-4 space-y-4">
+          <div className="bg-white shadow-sm rounded-sm border border-gray-300 p-4 space-y-4 hidden">
             {/* Label */}
             <div className="grid gap-1.5">
               <Label htmlFor="analyzer-select">Select Analyzer</Label>
@@ -380,7 +394,7 @@ export const ProcessSpecimen = ({ specimenId }: ProcessSpecimenProps) => {
               </Button>
             </div>
           </div>
-          <div className="flex-col justify-between items-center p-4 mb-4 space-y-2 bg-white shadow-sm rounded-sm border border-gray-300">
+          <div className="flex-col justify-between items-center p-4 mb-4 space-y-2 bg-white shadow-sm rounded-sm border border-gray-300 hidden">
             <div className="space-y-1 w-full flex justify-between items-center">
               <h3 className="text-sm font-semibold text-gray-600">
                 Specimen Type:

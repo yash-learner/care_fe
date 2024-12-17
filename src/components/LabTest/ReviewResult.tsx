@@ -26,9 +26,19 @@ import {
 } from "@/components/ui/table";
 import { Textarea } from "@/components/ui/textarea";
 
+import { mapKeyToBadgeVariant } from "@/Utils/badgeUtils";
 import routes from "@/Utils/request/api";
 import request from "@/Utils/request/request";
 import useQuery from "@/Utils/request/useQuery";
+
+import { Badge, BadgeProps } from "../ui/badge";
+
+const priorityVariantMap: Record<string, BadgeProps["variant"]> = {
+  routine: "info",
+  asap: "warning",
+  urgent: "highlight",
+  stat: "error",
+};
 
 export const ReviewResult: React.FC<{
   diagnosticReportId: string;
@@ -283,9 +293,15 @@ export const ReviewResult: React.FC<{
                             <h3 className="text-sm font-semibold text-gray-600">
                               Priority
                             </h3>
-                            <span className="px-3 py-1 inline-block text-sm font-semibold text-red-600 bg-red-100 rounded-lg">
+                            <Badge
+                              variant={mapKeyToBadgeVariant(
+                                diagnosticReport?.based_on.priority?.toLowerCase(),
+                                priorityVariantMap,
+                              )}
+                              className="rounded-sm capitalize shadow-none"
+                            >
                               {diagnosticReport?.based_on.priority ?? "Routine"}
-                            </span>
+                            </Badge>
                           </div>
                         </div>
                         {/* Note Section */}

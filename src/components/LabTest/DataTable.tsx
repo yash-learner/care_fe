@@ -1,6 +1,6 @@
+// Todo: Need to make this component more generic and reusable
 import React from "react";
 
-import { Badge } from "@/components/ui/badge";
 import {
   Table,
   TableBody,
@@ -10,21 +10,21 @@ import {
   TableRow,
 } from "@/components/ui/table";
 
+import { mapKeyToBadgeVariant } from "@/Utils/badgeUtils";
+
+import { Badge, BadgeProps } from "../ui/badge";
+
 interface DataTableProps {
   columns: Array<{ label: string; key: string; render_as?: string }>;
   data: Array<Record<string, any>>;
   actions?: (row: Record<string, any>) => React.ReactNode;
 }
 
-// Todo: Properly map the status to the badge color
-const badgeStyles: Record<string, string> = {
-  pending: "bg-orange-100 text-orange-800",
-  collected: "bg-blue-100 text-blue-800",
-  completed: "bg-green-100 text-green-800",
-  cancelled: "bg-red-100 text-red-800",
-  default: "bg-gray-100 text-gray-800",
-  transit: "bg-yellow-100 text-yellow-800",
-  received: "bg-pink-100 text-pink-800",
+const priorityVariantMap: Record<string, BadgeProps["variant"]> = {
+  routine: "info",
+  asap: "warning",
+  urgent: "highlight",
+  stat: "error",
 };
 
 export const DataTable: React.FC<DataTableProps> = ({
@@ -54,20 +54,20 @@ export const DataTable: React.FC<DataTableProps> = ({
         </TableHeader>
         <TableBody>
           {data.map((row, index) => (
-            <TableRow
-              key={index}
-              className={`hover:bg-gray-50  ${
-                index % 2 === 0 ? "bg-white" : ""
-              }`}
-            >
+            <TableRow key={index} className="bg-white">
               {columns.map((col) => (
                 <TableCell
                   key={col.key}
                   className="px-4 py-2 text-sm text-gray-600"
                 >
                   {col.render_as === "badge" ? (
+                    // Todo: Need to make this component more generic and reusable
                     <Badge
-                      className={`transition-none hover:bg-muted  ${badgeStyles[row[col.key]?.toString()?.toLowerCase()]}`}
+                      variant={mapKeyToBadgeVariant(
+                        row[col.key].toLowerCase(),
+                        priorityVariantMap,
+                      )}
+                      className="rounded-sm capitalize shadow-none"
                     >
                       {row[col.key]}
                     </Badge>

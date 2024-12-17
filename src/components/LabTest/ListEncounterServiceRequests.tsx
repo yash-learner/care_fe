@@ -2,8 +2,7 @@ import { mapKeyToBadgeVariant } from "@/Utils/badgeUtils";
 import routes from "@/Utils/request/api";
 import useQuery from "@/Utils/request/useQuery";
 
-import { Badge } from "../ui/badge";
-import { BadgeProps } from "../ui/badge";
+import { Badge, BadgeProps } from "../ui/badge";
 import { Separator } from "../ui/separator";
 import {
   Table,

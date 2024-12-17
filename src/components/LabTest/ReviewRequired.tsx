@@ -73,7 +73,7 @@ export const ReviewRequired: React.FC = () => {
         actions={(row) => (
           <Button
             onClick={() => navigate(`/lab_tests/${row.id}/review`)}
-            variant="secondary"
+            variant="outline_primary"
           >
             Review
           </Button>
