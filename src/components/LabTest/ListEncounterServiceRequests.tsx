@@ -30,10 +30,10 @@ export default function ListEncounterServiceRequests({
   // TODO: Add Loader while fetching data
 
   const priorityVariantMap: Record<string, BadgeProps["variant"]> = {
-    routine: "default",
+    routine: "info",
     asap: "warning",
-    urgent: "secondary",
-    stat: "destructive",
+    urgent: "highlight",
+    stat: "error",
   };
 
   return (
@@ -66,6 +66,7 @@ export default function ListEncounterServiceRequests({
                     request.priority?.toLowerCase(),
                     priorityVariantMap,
                   )}
+                  className="rounded-sm capitalize shadow-none"
                 >
                   {request.priority || "Routine"}
                 </Badge>
@@ -74,7 +75,12 @@ export default function ListEncounterServiceRequests({
               <TableCell className="p-4">One-time</TableCell>
 
               <TableCell className="rounded-r-md p-4">
-                <Badge className="bg-yellow-600">Pending</Badge>
+                <Badge
+                  variant="highlight"
+                  className="rounded-sm capitalize shadow-none"
+                >
+                  Pending
+                </Badge>
               </TableCell>
             </TableRow>
           ))}
