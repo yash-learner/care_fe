@@ -1,4 +1,4 @@
-import { navigate } from "raviger";
+import { Link, navigate } from "raviger";
 import { useTranslation } from "react-i18next";
 
 import CareIcon from "@/CAREUI/icons/CareIcon";
@@ -21,6 +21,11 @@ export const Updates = (props: PatientProps) => {
     <div className="mt-4 px-3 md:px-0">
       <div className="flex justify-between items-center mb-4">
         <h2 className="text-2xl font-semibold leading-tight">{t("updates")}</h2>
+        <Link
+          href={`/facility/${facilityId}/patient/${patientId}/questionnaire`}
+        >
+          <Button>Add Patient Updates</Button>
+        </Link>
       </div>
 
       <PaginatedList

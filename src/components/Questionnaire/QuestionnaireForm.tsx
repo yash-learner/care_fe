@@ -43,6 +43,7 @@ export interface QuestionnaireFormProps {
   questionnaireSlug?: string;
   patientId: string;
   encounterId?: string;
+  subjectType?: string;
   onSubmit?: () => void;
   onCancel?: () => void;
 }
@@ -51,6 +52,7 @@ export function QuestionnaireForm({
   questionnaireSlug,
   patientId,
   encounterId,
+  subjectType,
   onSubmit,
   onCancel,
 }: QuestionnaireFormProps) {
@@ -358,6 +360,7 @@ export function QuestionnaireForm({
 
           <div className="flex gap-4 items-center">
             <QuestionnaireSearch
+              subjectType={subjectType}
               onSelect={(selected) => {
                 if (
                   questionnaireForms.some(

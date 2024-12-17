@@ -14,6 +14,7 @@ interface Props {
   patientId: string;
   consultationId?: string;
   questionnaireSlug?: string;
+  subjectType?: string;
 }
 
 export default function EncounterQuestionnaire({
@@ -21,6 +22,7 @@ export default function EncounterQuestionnaire({
   patientId,
   consultationId,
   questionnaireSlug,
+  subjectType,
 }: Props) {
   const {
     data: consultation,
@@ -75,6 +77,7 @@ export default function EncounterQuestionnaire({
           <CardContent className="pt-6">
             <QuestionnaireForm
               patientId={patientId}
+              subjectType={subjectType}
               encounterId={consultationId}
               questionnaireSlug={questionnaireSlug}
             />
