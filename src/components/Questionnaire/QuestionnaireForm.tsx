@@ -485,12 +485,14 @@ export function QuestionnaireForm({
           )}
         </div>
         {/* Add a Preview of the QuestionnaireForm */}
-        <div className="p-4 space-y-6">
-          <h2 className="text-xl font-semibold">QuestionnaireForm</h2>
-          <pre className="text-sm text-muted-foreground">
-            {JSON.stringify(questionnaireForms, null, 2)}
-          </pre>
-        </div>
+        {import.meta.env.DEV && (
+          <div className="p-4 space-y-6">
+            <h2 className="text-xl font-semibold">QuestionnaireForm</h2>
+            <pre className="text-sm text-muted-foreground">
+              {JSON.stringify(questionnaireForms, null, 2)}
+            </pre>
+          </div>
+        )}
       </div>
     </div>
   );
