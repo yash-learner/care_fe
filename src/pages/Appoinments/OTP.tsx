@@ -77,14 +77,14 @@ export default function OTP({
       },
     });
     if (response.res?.status === 200) {
-      navigate(
-        `/facility/${facilityId}/appointments/${staffUsername}/book-appointment`,
-      );
       const OTPaccessToken = response.data?.access;
       localStorage.setItem("phoneNumber", phoneNumber);
       if (OTPaccessToken) {
         localStorage.setItem("OTPaccessToken", OTPaccessToken);
       }
+      navigate(
+        `/facility/${facilityId}/appointments/${staffUsername}/book-appointment`,
+      );
     }
     // To Do: Mock, remove this
     navigate(

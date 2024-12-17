@@ -88,7 +88,6 @@ export function LandingPage() {
     const district = districts.find(
       (d) => d.name.toLowerCase() === value.toLowerCase(),
     );
-    console.log(district);
     if (district) {
       setSelectedDistrict(district);
       setSearchQuery("");

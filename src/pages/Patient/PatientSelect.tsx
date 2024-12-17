@@ -1,5 +1,6 @@
 import careConfig from "@careConfig";
 import { useMutation, useQuery } from "@tanstack/react-query";
+import dayjs from "dayjs";
 import { navigate } from "raviger";
 import { useState } from "react";
 
@@ -14,7 +15,6 @@ import {
 
 import * as Notification from "@/Utils/Notifications";
 import { PaginatedResponse, RequestResult } from "@/Utils/request/types";
-import { formatDate } from "@/Utils/utils";
 
 import { AppointmentPatient } from "./Utils";
 
@@ -49,27 +49,24 @@ export default function PatientSelect({
   const { data: patientData } = useQuery<
     RequestResult<PaginatedResponse<AppointmentPatient>>
   >({
-    queryKey: ["patient", phoneNumber],
+    queryKey: ["otp-patient"],
     queryFn: async () => {
-      const res = await fetch(
-        `${careConfig.apiUrl}/api/v1/otp/patient/?phone_number=${phoneNumber ?? ""}`,
-        {
-          headers: {
-            Authorization: `Bearer ${OTPaccessToken}`,
-            "Content-Type": "application/json",
-          },
+      const res = await fetch(`${careConfig.apiUrl}/api/v1/otp/patient/`, {
+        headers: {
+          Authorization: `Bearer ${OTPaccessToken}`,
+          "Content-Type": "application/json",
         },
-      );
+      });
       const data = await res.json();
       return { res, data, error: res.ok ? undefined : data };
     },
-    enabled: !!phoneNumber && !!OTPaccessToken,
+    enabled: !!OTPaccessToken,
   });
 
   const { mutate: createAppointment } = useMutation({
     mutationFn: async (body: AppointmentCreate) => {
       const res = await fetch(
-        `${careConfig.apiUrl}/api/v1/facility/${facilityId}/slots/${selectedSlot?.id}/create_appointment/`,
+        `${careConfig.apiUrl}/api/v1/otp/slots/${selectedSlot?.id}/create_appointment/`,
         {
           method: "POST",
           headers: {
@@ -93,6 +90,7 @@ export default function PatientSelect({
   const mockPatientData = [
     {
       id: "T105690908240017",
+      external_id: "T105690908240017",
       name: "Leo Westervelt",
       phone_number: "9876543120",
       date_of_birth: "1996-01-04",
@@ -104,6 +102,7 @@ export default function PatientSelect({
     },
     {
       id: "T105690908240019",
+      external_id: "T105690908240019",
       name: "Tatiana Franci",
       phone_number: "9876543120",
       date_of_birth: "1998-06-02",
@@ -114,6 +113,7 @@ export default function PatientSelect({
     },
     {
       id: "T105690908240032",
+      external_id: "T105690908240032",
       name: "Rayna Passaquindici Arcand",
       phone_number: "9876543120",
       date_of_birth: "1991-05-23",
@@ -135,6 +135,15 @@ export default function PatientSelect({
         </span>
       </div>
     );
+  };
+
+  const getPatienDoBorAge = (patient: AppointmentPatient) => {
+    if (patient.date_of_birth) {
+      return dayjs(patient.date_of_birth).format("DD MMM YYYY");
+    }
+    const yearOfBirth = parseInt(patient.year_of_birth ?? "");
+    const age = dayjs().year() - yearOfBirth;
+    return `${age} years`;
   };
 
   const renderPatientList = () => {
@@ -194,12 +203,7 @@ export default function PatientSelect({
                       {patient.phone_number}
                     </td>
                     <td className="p-4 align-middle text-left">
-                      {patient.date_of_birth
-                        ? formatDate(
-                            new Date(patient.date_of_birth ?? ""),
-                            "dd MMM yyyy",
-                          )
-                        : (patient.year_of_birth ?? "")}
+                      {getPatienDoBorAge(patient as AppointmentPatient)}
                     </td>
                     <td className="p-4 align-middle text-left">
                       {patient.gender === 1 ? "Male" : "Female"}

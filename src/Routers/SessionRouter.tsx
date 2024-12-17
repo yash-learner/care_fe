@@ -60,14 +60,8 @@ const routes = {
       staffUsername={staffUsername}
     />
   ),
-  "/facility/:facilityId/appointments/:appointmentId/success": ({
-    facilityId,
-    appointmentId,
-  }: {
-    facilityId: string;
-    appointmentId: string;
-  }) => (
-    <AppointmentSuccess facilityId={facilityId} appointmentId={appointmentId} />
+  "/facility/:facilityId/appointments/:appointmentId/success": () => (
+    <AppointmentSuccess />
   ),
   "/login": () => <Login />,
   "/forgot-password": () => <Login forgot={true} />,

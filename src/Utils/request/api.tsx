@@ -68,6 +68,7 @@ import {
   CreateFileResponse,
   FileUploadModel,
 } from "@/components/Patient/models";
+import { SlotAvailability } from "@/components/Schedule/types";
 import {
   SkillModel,
   SkillObjectModel,
@@ -1496,6 +1497,12 @@ const routes = {
         value: "Bearer {token}",
         type: "header",
       },
+    },
+    getAvailableSlotsForADay: {
+      path: "/api/v1/otp/slots/get_slots_for_day/",
+      method: "POST",
+      TRes: Type<{ results: SlotAvailability[] }>(),
+      TBody: Type<{ resource: string; day: string }>(),
     },
   },
 } as const;

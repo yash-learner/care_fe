@@ -142,15 +142,13 @@ export function PatientRegistration(props: PatientRegistrationProps) {
       }
     });
 
-    console.log(errors);
-
     return errors;
   };
 
   const { mutate: createAppointment } = useMutation({
     mutationFn: async (body: AppointmentCreate) => {
       const res = await fetch(
-        `${careConfig.apiUrl}/api/v1/facility/${props.facilityId}/slots/${selectedSlot?.id}/create_appointment/`,
+        `${careConfig.apiUrl}/api/v1/otp/slots/${selectedSlot?.id}/create_appointment/`,
         {
           method: "POST",
           headers: {
@@ -201,8 +199,6 @@ export function PatientRegistration(props: PatientRegistrationProps) {
       is_active: true,
     };
 
-    console.log(data);
-
     const response = await fetch(`${careConfig.apiUrl}/api/v1/otp/patient/`, {
       method: "POST",
       headers: {
@@ -216,7 +212,7 @@ export function PatientRegistration(props: PatientRegistrationProps) {
     if (response.ok && requestData) {
       publish("patient:upsert", requestData);
       createAppointment({
-        patient: requestData.id,
+        patient: requestData.external_id,
         reason_for_visit: reason ?? "",
       });
     }

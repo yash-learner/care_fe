@@ -1,3 +1,4 @@
+import careConfig from "@careConfig";
 import { useQuery } from "@tanstack/react-query";
 import { format } from "date-fns";
 import { navigate } from "raviger";
@@ -6,34 +7,43 @@ import CareIcon from "@/CAREUI/icons/CareIcon";
 
 import { Button } from "@/components/ui/button";
 
-import { ScheduleAPIs } from "@/components/Schedule/api";
 import { Appointment } from "@/components/Schedule/types";
+import { UserModel } from "@/components/Users/models";
 
 import * as Notification from "@/Utils/Notifications";
-import query from "@/Utils/request/query";
 import { formatName } from "@/Utils/utils";
 
-interface AppointmentSuccessProps {
-  facilityId: string;
-  appointmentId: string;
-}
+export function AppointmentSuccess() {
+  // const { appointmentId } = props;
+  const OTPaccessToken = localStorage.getItem("OTPaccessToken");
+  const doctorData: UserModel = JSON.parse(
+    localStorage.getItem("doctor") ?? "{}",
+  );
 
-export function AppointmentSuccess(props: AppointmentSuccessProps) {
-  const { appointmentId, facilityId } = props;
+  const { data } = useQuery<{ results: Appointment[] }>({
+    queryKey: ["appointment"],
+    queryFn: async () => {
+      const response = await fetch(
+        `${careConfig.apiUrl}/api/v1/otp/slots/get_appointments/`,
+        {
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${OTPaccessToken}`,
+          },
+        },
+      );
 
-  const { data, error } = useQuery<Appointment>({
-    queryKey: ["appointment", appointmentId],
-    queryFn: query(ScheduleAPIs.appointments.retrieve, {
-      pathParams: { id: appointmentId, facility_id: facilityId },
-      silent: true,
-    }),
+      if (!response.ok) {
+        Notification.Error({ msg: "Appointment not found" });
+        //To do: disabled for mock appointment, remove this
+        //navigate(`/facility/${facilityId}/`);
+      }
+      const data = await response.json();
+      return data;
+    },
+    enabled: !!OTPaccessToken,
   });
-
-  if (error) {
-    Notification.Error({ msg: "Appointment not found" });
-    //To do: disabled for mock appointment, remove this
-    //navigate(`/facility/${facilityId}/`);
-  }
 
   const mockAppointment: Appointment = {
     id: "123",
@@ -79,7 +89,7 @@ export function AppointmentSuccess(props: AppointmentSuccessProps) {
     status: "booked",
   } as const;
 
-  const appointmentData = data ?? mockAppointment;
+  const appointmentData = data?.results[0] ?? mockAppointment;
 
   return (
     <div className="max-w-2xl mx-auto p-8 mt-4">
@@ -110,9 +120,7 @@ export function AppointmentSuccess(props: AppointmentSuccessProps) {
           <h2 className="text-sm font-medium text-gray-500 mb-1">
             Doctor/Nurse:
           </h2>
-          <p className="text-lg font-medium">
-            {formatName(appointmentData?.resource)}
-          </p>
+          <p className="text-lg font-medium">{formatName(doctorData)}</p>
         </div>
 
         <div>
@@ -143,8 +151,7 @@ export function AppointmentSuccess(props: AppointmentSuccessProps) {
 
       <div className="mt-12 text-left space-y-2">
         <p className="text-gray-900">
-          {formatName(appointmentData?.resource)} will visit the patient at the
-          scheduled time.
+          {formatName(doctorData)} will visit the patient at the scheduled time.
         </p>
         <p className="text-gray-600">Thank you for choosing our care service</p>
       </div>
