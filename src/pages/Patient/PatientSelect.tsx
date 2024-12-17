@@ -14,11 +14,14 @@ import {
   SlotAvailability,
 } from "@/components/Schedule/types";
 
+import { CarePatientTokenKey } from "@/common/constants";
+
 import * as Notification from "@/Utils/Notifications";
 import routes from "@/Utils/request/api";
 import mutate from "@/Utils/request/mutate";
 import query from "@/Utils/request/query";
 import { PaginatedResponse } from "@/Utils/request/types";
+import { TokenData } from "@/types/auth/otpToken";
 
 import { AppointmentPatient } from "./Utils";
 
@@ -30,18 +33,19 @@ export default function PatientSelect({
   staffUsername: string;
 }) {
   const { t } = useTranslation();
-  const phoneNumber = localStorage.getItem("phoneNumber");
   const selectedSlot = JSON.parse(
     localStorage.getItem("selectedSlot") ?? "",
   ) as SlotAvailability;
   const reason = localStorage.getItem("reason");
-  const OTPaccessToken = localStorage.getItem("OTPaccessToken");
+  const tokenData: TokenData = JSON.parse(
+    localStorage.getItem(CarePatientTokenKey) || "{}",
+  );
   const [selectedPatient, setSelectedPatient] = useState<string | null>(null);
 
   if (!staffUsername) {
     Notification.Error({ msg: "Staff Username Not Found" });
     navigate(`/facility/${facilityId}/`);
-  } else if (!phoneNumber) {
+  } else if (!tokenData) {
     Notification.Error({ msg: "Phone Number Not Found" });
     navigate(`/facility/${facilityId}/appointments/${staffUsername}/otp/send`);
   } else if (!selectedSlot) {
@@ -56,11 +60,11 @@ export default function PatientSelect({
       queryKey: ["otp-patient"],
       queryFn: query(routes.otp.getPatient, {
         headers: {
-          Authorization: `Bearer ${OTPaccessToken}`,
+          Authorization: `Bearer ${tokenData.token}`,
           "Content-Type": "application/json",
         },
       }),
-      enabled: !!OTPaccessToken,
+      enabled: !!tokenData.token,
     },
   );
 
@@ -70,7 +74,7 @@ export default function PatientSelect({
         pathParams: { id: selectedSlot?.id },
         body,
         headers: {
-          Authorization: `Bearer ${OTPaccessToken}`,
+          Authorization: `Bearer ${tokenData.token}`,
         },
       })(body),
     onSuccess: (data: Appointment) => {
@@ -171,11 +175,7 @@ export default function PatientSelect({
                       {getPatienDoBorAge(patient as AppointmentPatient)}
                     </td>
                     <td className="p-4 align-middle text-left">
-                      {patient.gender == "1"
-                        ? "Male"
-                        : patient.gender == "2"
-                          ? "Female"
-                          : "Transgender"}
+                      {t(`GENDER__${patient.gender}`)}
                     </td>
                   </>
                 )}

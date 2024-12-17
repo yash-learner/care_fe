@@ -78,6 +78,7 @@ import {
   SkillObjectModel,
   UpdatePasswordForm,
   UserAssignedModel,
+  UserBareMinimum,
   UserModel,
 } from "@/components/Users/models";
 
@@ -912,6 +913,11 @@ const routes = {
     path: "/api/v1/users/{username}/",
     method: "GET",
     TRes: Type<UserModel>(),
+  },
+  getUserBareMinimum: {
+    path: "/api/v1/facility/{facilityId}/get_users/{userExternalId}/",
+    method: "GET",
+    TRes: Type<UserBareMinimum>(),
   },
   updateUserDetails: {
     path: "/api/v1/users/",

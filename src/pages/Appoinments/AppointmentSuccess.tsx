@@ -10,15 +10,20 @@ import { Button } from "@/components/ui/button";
 import Loading from "@/components/Common/Loading";
 import { UserModel } from "@/components/Users/models";
 
+import { CarePatientTokenKey } from "@/common/constants";
+
 import * as Notification from "@/Utils/Notifications";
 import routes from "@/Utils/request/api";
 import query from "@/Utils/request/query";
 import { formatName } from "@/Utils/utils";
+import { TokenData } from "@/types/auth/otpToken";
 
 export function AppointmentSuccess(props: { appointmentId: string }) {
   const { appointmentId } = props;
   const { t } = useTranslation();
-  const OTPaccessToken = localStorage.getItem("OTPaccessToken");
+  const tokenData: TokenData = JSON.parse(
+    localStorage.getItem(CarePatientTokenKey) || "{}",
+  );
   const doctorData: UserModel = JSON.parse(
     localStorage.getItem("doctor") ?? "{}",
   );
@@ -27,10 +32,10 @@ export function AppointmentSuccess(props: { appointmentId: string }) {
     queryKey: ["appointment"],
     queryFn: query(routes.otp.getAppointments, {
       headers: {
-        Authorization: `Bearer ${OTPaccessToken}`,
+        Authorization: `Bearer ${tokenData.token}`,
       },
     }),
-    enabled: !!OTPaccessToken,
+    enabled: !!tokenData.token,
   });
 
   if (error) {

@@ -8,7 +8,7 @@ import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 
 import { FacilityModel } from "@/components/Facility/models";
-import { SkillObjectModel, UserAssignedModel } from "@/components/Users/models";
+import { UserAssignedModel } from "@/components/Users/models";
 
 import useFilters from "@/hooks/useFilters";
 
@@ -18,7 +18,7 @@ import request from "@/Utils/request/request";
 import { PaginatedResponse, RequestResult } from "@/Utils/request/types";
 
 import { DoctorModel, FeatureBadge } from "./Utils";
-import { DoctorCard } from "./components/DoctorCard";
+import { UserCard } from "./components/UserCard";
 
 interface Props {
   id: string;
@@ -35,11 +35,12 @@ export function FacilityDetailsPage({ id }: Props) {
         pathParams: { id },
       }),
   });
+
   const { Pagination } = useFilters({
     limit: 18,
   });
 
-  const { data: docReponse } = useQuery<
+  const { data: docResponse } = useQuery<
     RequestResult<PaginatedResponse<UserAssignedModel>>
   >({
     queryKey: [routes.getFacilityUsers, id],
@@ -49,37 +50,13 @@ export function FacilityDetailsPage({ id }: Props) {
         silent: true,
       });
       if (response.res?.status !== 200) {
-        Notification.Error({ msg: "Error while fetching doctors data" });
+        Notification.Error({ msg: "Error while fetching users data" });
       }
       return response;
     },
   });
 
-  // To Do: Mock, remove/adjust this
-  const createMockRole = (skills: SkillObjectModel[]) => {
-    if (skills.length === 0) {
-      return "General Practitioner";
-    }
-    const randomSkill = skills[Math.floor(Math.random() * skills.length)];
-    return randomSkill.name;
-  };
-
-  // To Do: Mock, remove/adjust this
-  // Need to adjust DoctorModel to match the data from the backend
-  function extendDoctors(doctors: UserAssignedModel[]): DoctorModel[] {
-    return doctors.map((doctor) => ({
-      ...doctor,
-      role: createMockRole(doctor.skills),
-      education: doctor.qualification ?? "",
-      experience: doctor.doctor_experience_commenced_on?.toString() ?? "",
-      languages: ["English", "Malayalam"],
-      read_profile_picture_url: doctor.read_profile_picture_url ?? "",
-      skills: doctor.skills,
-    }));
-  }
-
-  // To Do: Mock, remove/adjust this
-  const doctors = extendDoctors(docReponse?.data?.results ?? []);
+  const users = docResponse?.data?.results ?? [];
 
   const facility = facilityResponse?.data;
 
@@ -161,23 +138,20 @@ export function FacilityDetailsPage({ id }: Props) {
         </div>
       </Card>
       <div className="mt-6">
-        {doctors && doctors.length > 0 ? (
+        {users.length > 0 && (
           <>
             <div className="grid grid-cols-1 gap-4 @xl:grid-cols-3 @4xl:grid-cols-4 @6xl:grid-cols-5 lg:grid-cols-2">
-              {doctors?.map((doctor) => (
-                <DoctorCard
-                  key={doctor.username}
-                  doctor={doctor}
-                  facilityId={id}
-                />
+              {users?.map((user) => (
+                <UserCard key={user.username} user={user} facilityId={id} />
               ))}
             </div>
-            <Pagination totalCount={doctors.length ?? 0} />
+            <Pagination totalCount={users.length ?? 0} />
           </>
-        ) : (
+        )}
+        {users.length === 0 && (
           <div className="h-full space-y-2 rounded-lg bg-white p-7 shadow">
             <div className="flex w-full items-center justify-center text-xl font-bold text-secondary-500">
-              {t("no_doctors_found")}
+              No users Found
             </div>
           </div>
         )}

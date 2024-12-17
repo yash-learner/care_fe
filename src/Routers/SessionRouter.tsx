@@ -32,14 +32,17 @@ const routes = {
   }) => (
     <OTP facilityId={facilityId} staffUsername={staffUsername} page={page} />
   ),
-  "/facility/:facilityId/appointments/:staffUsername/book-appointment": ({
+  "/facility/:facilityId/appointments/:staffExternalId/book-appointment": ({
     facilityId,
-    staffUsername,
+    staffExternalId,
   }: {
     facilityId: string;
-    staffUsername: string;
+    staffExternalId: string;
   }) => (
-    <AppointmentsPage facilityId={facilityId} staffUsername={staffUsername} />
+    <AppointmentsPage
+      facilityId={facilityId}
+      staffExternalId={staffExternalId}
+    />
   ),
   "/facility/:facilityId/appointments/:staffUsername/patient-select": ({
     facilityId,

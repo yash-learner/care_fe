@@ -17,41 +17,42 @@ import { Textarea } from "@/components/ui/textarea";
 import { Avatar } from "@/components/Common/Avatar";
 import { FacilityModel } from "@/components/Facility/models";
 import { SlotAvailability } from "@/components/Schedule/types";
-import { SkillModel, UserModel } from "@/components/Users/models";
+
+import { CarePatientTokenKey } from "@/common/constants";
 
 import * as Notification from "@/Utils/Notifications";
 import routes from "@/Utils/request/api";
 import query from "@/Utils/request/query";
 import request from "@/Utils/request/request";
-import { PaginatedResponse, RequestResult } from "@/Utils/request/types";
+import { RequestResult } from "@/Utils/request/types";
 import { dateQueryString } from "@/Utils/utils";
-
-import { DoctorModel, getExperience, mockDoctors } from "./Utils";
+import { TokenData } from "@/types/auth/otpToken";
 
 interface AppointmentsProps {
   facilityId: string;
-  staffUsername: string;
+  staffExternalId: string;
 }
 
 export function AppointmentsPage(props: AppointmentsProps) {
-  const { facilityId, staffUsername } = props;
   const { t } = useTranslation();
-  const phoneNumber = localStorage.getItem("phoneNumber");
+  const { facilityId, staffExternalId } = props;
   const [selectedMonth, setSelectedMonth] = useState(new Date());
   const [selectedDate, setSelectedDate] = useState(new Date());
   const [selectedSlot, setSelectedSlot] = useState<SlotAvailability>();
   const [reason, setReason] = useState("");
-  const doctorData: UserModel = JSON.parse(
-    localStorage.getItem("doctor") ?? "{}",
-  );
-  const OTPaccessToken = localStorage.getItem("OTPaccessToken");
 
-  if (!staffUsername) {
+  const tokenData: TokenData = JSON.parse(
+    localStorage.getItem(CarePatientTokenKey) || "{}",
+  );
+
+  if (!staffExternalId) {
     Notification.Error({ msg: "Staff username not found" });
     navigate(`/facility/${facilityId}/`);
-  } else if (!phoneNumber) {
+  } else if (!tokenData) {
     Notification.Error({ msg: "Phone number not found" });
-    navigate(`/facility/${facilityId}/appointments/${staffUsername}/otp/send`);
+    navigate(
+      `/facility/${facilityId}/appointments/${staffExternalId}/otp/send`,
+    );
   }
 
   const { data: facilityResponse, error: facilityError } = useQuery<
@@ -69,54 +70,33 @@ export function AppointmentsPage(props: AppointmentsProps) {
     Notification.Error({ msg: "Error while fetching facility data" });
   }
 
-  // To do: Long term, should make this route available
-  /* const { data: doctorResponse, error: doctorError } = useQuery<
-    RequestResult<UserModel>
-  >({
-    queryKey: ["doctor", staffUsername],
+  const { data: userData, error: userError } = useQuery({
+    queryKey: ["user", staffExternalId],
     queryFn: () =>
-      request(routes.getUserDetails, {
-        pathParams: { username: staffUsername ?? "" },
-        silent: true,
+      request(routes.getUserBareMinimum, {
+        pathParams: { facilityId: facilityId, userExternalId: staffExternalId },
       }),
-    enabled: !!staffUsername,
+    enabled: !!staffExternalId,
   });
 
-  if (doctorError) {
-    Notification.Error({ msg: "Error while fetching doctor data" });
-  } */
-
-  const { data: skills, error: skillsError } = useQuery<
-    RequestResult<PaginatedResponse<SkillModel>>
-  >({
-    queryKey: ["skills", staffUsername],
-    queryFn: () =>
-      request(routes.userListSkill, {
-        pathParams: { username: staffUsername },
-        silent: true,
-      }),
-    enabled: !!staffUsername,
-  });
-
-  if (skillsError) {
-    Notification.Error({ msg: "Error while fetching skills data" });
+  if (userError) {
+    Notification.Error({ msg: "Error while fetching user data" });
   }
 
   const slotsQuery = useQuery<{ results: SlotAvailability[] }>({
-    queryKey: ["slots", facilityId, staffUsername, selectedDate],
+    queryKey: ["slots", facilityId, staffExternalId, selectedDate],
     queryFn: query(routes.otp.getAvailableSlotsForADay, {
       body: {
         facility: facilityId,
-        resource: doctorData?.external_id?.toString() ?? "",
+        resource: staffExternalId,
         day: dateQueryString(selectedDate),
       },
       headers: {
-        Authorization: `Bearer ${OTPaccessToken}`,
+        Authorization: `Bearer ${tokenData.token}`,
       },
       silent: true,
     }),
-    enabled:
-      !!staffUsername && !!doctorData && !!selectedDate && !!OTPaccessToken,
+    enabled: !!selectedDate && !!tokenData.token,
   });
 
   if (slotsQuery.error) {
@@ -153,50 +133,16 @@ export function AppointmentsPage(props: AppointmentsProps) {
     );
   };
 
-  // To Do: Mock, remove/adjust this
-  function extendDoctor(
-    doctor: UserModel | undefined,
-  ): DoctorModel | undefined {
-    if (!doctor) return undefined;
-    const randomDoc = mockDoctors[0];
-    return {
-      ...doctor,
-      date_of_birth: doctor.date_of_birth
-        ? new Date(doctor.date_of_birth)
-        : undefined,
-      role: randomDoc.role,
-      gender: randomDoc.gender,
-      education: doctor.qualification
-        ? doctor.qualification.toString()
-        : randomDoc.education,
-      experience: doctor.doctor_experience_commenced_on
-        ? doctor.doctor_experience_commenced_on.toString()
-        : randomDoc.experience,
-      languages: ["English", "Malayalam"],
-      read_profile_picture_url: doctor.read_profile_picture_url ?? "",
-      skills:
-        skills?.data?.results.map((s) => s.skill_object) ??
-        randomDoc.skills.map((s) => s),
-      doctor_experience_commenced_on: doctor.doctor_experience_commenced_on
-        ? new Date(doctor.doctor_experience_commenced_on)
-        : undefined,
-      weekly_working_hours: doctor.weekly_working_hours
-        ? doctor.weekly_working_hours.toString()
-        : undefined,
-    };
+  if (!userData?.data) {
+    return <div>Loading user data...</div>;
   }
 
-  // To Do: Mock, remove/adjust this
-  const doctor: DoctorModel | undefined = extendDoctor(doctorData);
-
-  if (!doctor) {
-    return <div>{t("doctor_not_found")}</div>;
-  }
+  const user = userData.data;
 
   const slotsData = slotsQuery.data?.results;
   const morningSlots = slotsData?.filter((slot) => {
     const slotTime = parseISO(slot.start_datetime);
-    return slotTime.getHours() <= 12;
+    return slotTime.getHours() < 12;
   });
 
   const eveningSlots = slotsData?.filter((slot) => {
@@ -245,32 +191,25 @@ export function AppointmentsPage(props: AppointmentsProps) {
               <div className="flex flex-col">
                 <div className="flex flex-col gap-4 py-4 justify-between h-full">
                   <Avatar
-                    imageUrl={doctor.read_profile_picture_url}
-                    name={`${doctor.first_name} ${doctor.last_name}`}
+                    imageUrl={user.read_profile_picture_url}
+                    name={`${user.first_name} ${user.last_name}`}
                     className="h-96 w-96 self-center rounded-sm"
                   />
 
                   <div className="flex grow flex-col px-4">
                     <h3 className="truncate text-xl font-semibold">
-                      {doctor.user_type === "Doctor"
-                        ? `Dr. ${doctor.first_name} ${doctor.last_name}`
-                        : `${doctor.first_name} ${doctor.last_name}`}
+                      {user.user_type === "Doctor"
+                        ? `Dr. ${user.first_name} ${user.last_name}`
+                        : `${user.first_name} ${user.last_name}`}
                     </h3>
                     <p className="text-sm text-muted-foreground truncate">
-                      {doctor.role}
+                      {user.user_type}
                     </p>
 
-                    <p className="text-xs mt-4">{t("education")}: </p>
+                    {/* <p className="text-xs mt-4">Education: </p>
                     <p className="text-sm text-muted-foreground truncate">
-                      {doctor.education}
-                    </p>
-
-                    <p className="text-xs mt-4">{t("languages")}: </p>
-                    <p className="text-sm text-muted-foreground truncate">
-                      {doctor.languages.join(", ")}
-                    </p>
-
-                    <p className="text-sm mt-6">{getExperience(doctor)}</p>
+                      {user.qualification}
+                    </p> */}
                   </div>
                 </div>
 
@@ -287,10 +226,10 @@ export function AppointmentsPage(props: AppointmentsProps) {
           <div className="flex-1 mx-2">
             <div className="flex flex-col gap-6">
               <span className="text-base font-semibold">
-                {t("book_an_appointment_with")}{" "}
-                {doctor.user_type === "Doctor"
-                  ? `Dr. ${doctor.first_name} ${doctor.last_name}`
-                  : `${doctor.first_name} ${doctor.last_name}`}
+                Book an Appointment with{" "}
+                {user.user_type === "Doctor"
+                  ? `Dr. ${user.first_name} ${user.last_name}`
+                  : `${user.first_name} ${user.last_name}`}
               </span>
               <div>
                 <Label className="mb-2">Reason for visit</Label>
@@ -359,7 +298,7 @@ export function AppointmentsPage(props: AppointmentsProps) {
                 );
                 localStorage.setItem("reason", reason);
                 navigate(
-                  `/facility/${facilityId}/appointments/${staffUsername}/patient-select`,
+                  `/facility/${facilityId}/appointments/${staffExternalId}/patient-select`,
                 );
               }}
             >

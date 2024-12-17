@@ -13,10 +13,13 @@ import PhoneNumberFormField from "@/components/Form/FormFields/PhoneNumberFormFi
 
 import useAppHistory from "@/hooks/useAppHistory";
 
+import { CarePatientTokenKey } from "@/common/constants";
+
 import * as Notification from "@/Utils/Notifications";
 import routes from "@/Utils/request/api";
 import request from "@/Utils/request/request";
 import { parsePhoneNumber } from "@/Utils/utils";
+import { TokenData } from "@/types/auth/otpToken";
 
 export default function OTP({
   facilityId,
@@ -86,10 +89,14 @@ export default function OTP({
         },
       }),
     onSuccess: (response: any) => {
-      const OTPaccessToken = response.data?.access;
-      localStorage.setItem("phoneNumber", phoneNumber);
-      if (OTPaccessToken) {
-        localStorage.setItem("OTPaccessToken", OTPaccessToken);
+      const CarePatientToken = response.data?.access;
+      if (CarePatientToken) {
+        const tokenData: TokenData = {
+          token: CarePatientToken,
+          phoneNumber: phoneNumber,
+          createdAt: new Date().toISOString(),
+        };
+        localStorage.setItem(CarePatientTokenKey, JSON.stringify(tokenData));
       }
       navigate(
         `/facility/${facilityId}/appointments/${staffUsername}/book-appointment`,
@@ -129,7 +136,7 @@ export default function OTP({
             />
           </div>
           <Button
-            variant="primary_gradient"
+            variant="primary"
             type="submit"
             className="w-full h-12 text-lg"
           >

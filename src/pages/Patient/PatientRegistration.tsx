@@ -30,7 +30,7 @@ import {
   SlotAvailability,
 } from "@/components/Schedule/types";
 
-import { GENDER_TYPES } from "@/common/constants";
+import { CarePatientTokenKey, GENDER_TYPES } from "@/common/constants";
 import { validateName, validatePincode } from "@/common/validation";
 
 import * as Notification from "@/Utils/Notifications";
@@ -44,6 +44,7 @@ import {
   AppointmentPatient,
   AppointmentPatientRegister,
 } from "@/pages/Patient/Utils";
+import { TokenData } from "@/types/auth/otpToken";
 
 const initialForm: AppointmentPatientRegister = {
   name: "",
@@ -65,12 +66,14 @@ type PatientRegistrationProps = {
 
 export function PatientRegistration(props: PatientRegistrationProps) {
   const { staffUsername } = props;
-  const phoneNumber = localStorage.getItem("phoneNumber");
   const selectedSlot = JSON.parse(
     localStorage.getItem("selectedSlot") ?? "",
   ) as SlotAvailability;
   const reason = localStorage.getItem("reason");
-  const OTPaccessToken = localStorage.getItem("OTPaccessToken");
+  const tokenData: TokenData = JSON.parse(
+    localStorage.getItem(CarePatientTokenKey) || "{}",
+  );
+
   const { t } = useTranslation();
   const [ageInputType, setAgeInputType] = useState<"age" | "date_of_birth">(
     "age",
@@ -156,7 +159,7 @@ export function PatientRegistration(props: PatientRegistrationProps) {
         pathParams: { id: selectedSlot?.id },
         body,
         headers: {
-          Authorization: `Bearer ${OTPaccessToken}`,
+          Authorization: `Bearer ${tokenData.token}`,
         },
       })(body),
     onSuccess: (data: Appointment) => {
@@ -175,7 +178,7 @@ export function PatientRegistration(props: PatientRegistrationProps) {
       mutate(routes.otp.createPatient, {
         body,
         headers: {
-          Authorization: `Bearer ${OTPaccessToken}`,
+          Authorization: `Bearer ${tokenData.token}`,
         },
       })(body),
     onSuccess: (data: AppointmentPatient) => {
@@ -196,7 +199,7 @@ export function PatientRegistration(props: PatientRegistrationProps) {
 
   const handleSubmit = async (formData: AppointmentPatientRegister) => {
     const data = {
-      phone_number: phoneNumber ?? "",
+      phone_number: tokenData.phoneNumber,
       date_of_birth:
         ageInputType === "date_of_birth"
           ? dateQueryString(formData.date_of_birth)
@@ -345,7 +348,7 @@ export function PatientRegistration(props: PatientRegistrationProps) {
               <div className="mt-4 flex-row bg-white border border-gray-200/50 rounded-md p-8 shadow-md">
                 <span className="inline-block bg-primary-100 p-4 rounded-md w-full mb-4 text-primary-600 text-sm">
                   Phone Number Verified:{" "}
-                  <span className="font-bold">{phoneNumber}</span>
+                  <span className="font-bold">{tokenData.phoneNumber}</span>
                 </span>
                 <TextFormField
                   {...field("name")}
