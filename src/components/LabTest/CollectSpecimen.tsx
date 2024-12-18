@@ -8,6 +8,8 @@ import {
 import React from "react";
 import { FaDroplet } from "react-icons/fa6";
 
+import CareIcon from "@/CAREUI/icons/CareIcon";
+
 import { Button } from "@/components/ui/button";
 import {
   Collapsible,
@@ -291,7 +293,7 @@ export const CollectSpecimen: React.FC<{
                         </div>
 
                         <div className="flex justify-between items-center gap-8">
-                          <div className="flex items-center gap-2 px-2 py-2 bg-gray-50 rounded-md shadow-sm border w-full">
+                          <div className="flex items-center gap-2 px-2 py-2 bg-gray-100 rounded-md shadow-sm border w-full">
                             <span className="">
                               <FaDroplet />
                             </span>
@@ -300,22 +302,38 @@ export const CollectSpecimen: React.FC<{
                             </span>
                           </div>
                           <div className="flex items-center gap-2">
-                            <Button variant="outline" size="sm" disabled>
-                              -
+                            <Button
+                              variant="outline"
+                              size="sm"
+                              disabled
+                              className="border-[1.5px] border-gray-400"
+                            >
+                              <CareIcon
+                                icon="l-minus"
+                                className="font-medium text-lg"
+                              />
                             </Button>
                             <span className="px-4 py-2 bg-gray-50 rounded-md shadow-sm border text-center">
                               1
                             </span>
-                            <Button variant="outline" size="sm" disabled>
-                              +
+                            <Button
+                              variant="outline"
+                              size="sm"
+                              disabled
+                              className="border-[1.5px] border-gray-400"
+                            >
+                              <CareIcon
+                                icon="l-plus"
+                                className="font-medium text-lg"
+                              />
                             </Button>
                           </div>
                         </div>
                       </div>
                       <div className="space-y-5">
-                        <div className="bg-gray-100 pt-1">
+                        <div className="bg-gray-50 rounded-lg">
                           <div
-                            className={`items-center px-4 py-3 border rounded-lg shadow-sm bg-white relative before:content-[''] before:absolute before:top-3 before:left-0 before:h-6 before:w-1 ${
+                            className={`items-center px-4 py-3 border-[1.5px] border-gray-300 rounded-lg shadow-sm bg-white relative before:content-[''] before:absolute before:top-3 before:left-0 before:h-6 before:w-1 mx-[2px] ${
                               data?.collected_at
                                 ? "before:bg-blue-600"
                                 : "before:bg-gray-400"
@@ -338,9 +356,9 @@ export const CollectSpecimen: React.FC<{
                               </span>
                             </div>
                           </div>
-                          <div className="mt-4 px-4 py-3 bg-gray-100 space-y-4">
+                          <div className="mt-4 px-4 py-3 bg-gray-50 space-y-4">
                             <div className="flex justify-between items-center">
-                              <h3 className="text-sm font-semibold text-gray-900">
+                              <h3 className="text-base font-semibold text-gray-900">
                                 Barcode
                               </h3>
 
