@@ -20,7 +20,6 @@ import {
 } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Separator } from "@/components/ui/separator";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 import CircularProgress from "@/components/Common/CircularProgress";
@@ -60,14 +59,8 @@ interface OtpLoginData {
 
 const Login = (props: { forgot?: boolean }) => {
   const { signIn } = useAuthContext();
-  const {
-    mainLogo,
-    reCaptchaSiteKey,
-    urls,
-    stateLogo,
-    customLogo,
-    customLogoAlt,
-  } = careConfig;
+  const { reCaptchaSiteKey, urls, stateLogo, customLogo, customLogoAlt } =
+    careConfig;
   const customDescriptionHtml = __CUSTOM_DESCRIPTION_HTML__;
   const initForm: any = {
     username: "",
@@ -306,7 +299,9 @@ const Login = (props: { forgot?: boolean }) => {
     sendOtpMutation.isPending ||
     verifyOtpMutation.isPending;
 
-  const logos = [stateLogo, customLogo].filter((logo) => logo?.light);
+  const logos = [stateLogo, customLogo].filter(
+    (logo) => logo?.light || logo?.dark,
+  );
 
   return (
     <div className="relative flex md:h-screen flex-col-reverse md:flex-row">
@@ -422,26 +417,35 @@ const Login = (props: { forgot?: boolean }) => {
         <div className="relative h-full items-center justify-center md:flex">
           <div className="w-full max-w-[400px] space-y-6">
             {/* Logo for Mobile */}
-            <div className="flex items-center gap-4 md:hidden">
-              {(customLogo || stateLogo) && (
-                <>
-                  <img
-                    src={customLogo?.dark ?? stateLogo?.dark}
-                    className="h-14 rounded-lg py-3"
-                    alt="state logo"
-                  />
-                  <Separator orientation="vertical" className="h-8" />
-                </>
+            <div className="px-4 flex items-center mx-auto gap-4 md:hidden">
+              {logos.map((logo, index) =>
+                logo && logo.dark ? (
+                  <div key={index} className="flex items-center">
+                    <img
+                      src={logo.dark}
+                      className="h-14 rounded-lg py-3"
+                      alt="state logo"
+                    />
+                  </div>
+                ) : null,
               )}
-              <img
-                src={customLogoAlt?.dark ?? mainLogo?.dark}
-                className="h-8 w-auto"
-                alt="care logo"
-              />
+              {logos.length === 0 && (
+                <a
+                  href={urls.ohcn}
+                  className="inline-block"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  <img
+                    src={customLogoAlt?.light ?? "/images/ohc_logo_light.svg"}
+                    className="h-8"
+                    alt="Open Healthcare Network logo"
+                  />
+                </a>
+              )}
             </div>
-
-            <Card>
-              <CardHeader className="space-y-1">
+            <Card className="mx-4">
+              <CardHeader className="space-y-1 px-4">
                 <CardTitle className="text-2xl font-bold">
                   Welcome back
                 </CardTitle>
