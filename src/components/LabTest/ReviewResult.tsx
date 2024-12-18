@@ -16,15 +16,9 @@ import {
   CollapsibleContent,
   CollapsibleTrigger,
 } from "@/components/ui/collapsible";
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table";
 import { Textarea } from "@/components/ui/textarea";
+
+import { ResultTable } from "@/components/Common/ResultTable";
 
 import { mapKeyToBadgeVariant } from "@/Utils/badgeUtils";
 import routes from "@/Utils/request/api";
@@ -40,20 +34,45 @@ const priorityVariantMap: Record<string, BadgeProps["variant"]> = {
   stat: "error",
 };
 
+const columns = [
+  {
+    key: "parameter",
+    label: "Parameter",
+  },
+  { key: "result", label: "Result" },
+  { key: "unit", label: "Unit" },
+  {
+    key: "referenceRange",
+    label: "Reference Range",
+  },
+  { key: "remark", label: "Remark" },
+];
+
 export const ReviewResult: React.FC<{
   diagnosticReportId: string;
 }> = ({ diagnosticReportId }) => {
   const [open, setOpen] = useState(true);
   const [conclusion, setConclusion] = useState("");
+  const [pdfOpen, setPdfOpen] = useState(false);
 
-  const { data: diagnosticReport, refetch } = useQuery(
-    routes.labs.diagnosticReport.get,
-    {
-      pathParams: {
-        id: diagnosticReportId,
-      },
+  const {
+    data: diagnosticReport,
+    refetch,
+    loading: isLoading,
+  } = useQuery(routes.labs.diagnosticReport.get, {
+    pathParams: {
+      id: diagnosticReportId,
     },
-  );
+  });
+
+  const resultsData =
+    diagnosticReport?.result.map((observation) => ({
+      parameter: observation.main_code?.display ?? observation.main_code?.code,
+      result: observation.value,
+      unit: "Dummy Unit",
+      referenceRange: "Dummy Reference",
+      remark: "Dummy Note",
+    })) ?? [];
 
   return (
     <div className="flex flex-col-reverse lg:flex-row min-h-screen">
@@ -200,12 +219,85 @@ export const ReviewResult: React.FC<{
           </div>
         </div>
 
+        <Collapsible
+          open={pdfOpen}
+          onOpenChange={setPdfOpen}
+          className="border border-blue-300 bg-blue-50 rounded-md px-4 py-3 mb-6 "
+        >
+          <div className="flex justify-between items-center">
+            <div>
+              <h3 className="text-sm font-semibold text-gray-900">
+                Consolidated Test Results
+              </h3>
+              <p className="text-sm text-gray-600">
+                {diagnosticReport?.based_on.id}
+              </p>
+            </div>
+
+            <div className="flex gap-3">
+              <Button
+                variant="outline"
+                size="sm"
+                className="flex items-center gap-2 border-[1.5px] border-gray-400"
+              >
+                <span className="underline text-gray-900 font-semibold text-sm">
+                  Send to patient
+                </span>
+                <CareIcon
+                  icon="l-envelope-alt"
+                  className="size-4 text-gray-700"
+                />
+              </Button>
+
+              <CollapsibleTrigger asChild>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  className="flex items-center gap-2 border-[1.5px] border-gray-400"
+                >
+                  <span className="text-gray-900 font-semibold text-sm">
+                    View
+                  </span>
+                  <CareIcon icon="l-eye" className="size-4 text-gray-700" />
+                </Button>
+              </CollapsibleTrigger>
+            </div>
+          </div>
+          <CollapsibleContent>
+            <div className="w-ful p-4 bg-gray-500 my-4"></div>
+            <div className="relative p-6 bg-gray-50 rounded-lg shadow-md h-[600px]">
+              <div className="flex items-center gap-2 mb-6">
+                <div w-15 h-10>
+                  <img
+                    src="https://raw.githubusercontent.com/ohcnetwork/branding/refs/heads/main/Care/SVG/Logo/Care-Logo_gradient_mark_with_dark_wordmark.svg"
+                    alt="carelabs logo"
+                    className="w-15 h-10"
+                  />
+                </div>
+              </div>
+
+              <div className="h-full w-full justify-center items-center ">
+                <div className="pt-4">
+                  <ResultTable columns={columns} data={resultsData} />
+                </div>
+                <div className="absolute inset-x-0 top-10 flex justify-center items-center pointer-events-none">
+                  <img
+                    src="/images/care_logo_mark.svg"
+                    alt="Logo"
+                    className="w-1/2 h-1/2 opacity-5"
+                  />
+                </div>
+              </div>
+            </div>
+          </CollapsibleContent>
+        </Collapsible>
+
         <div className="mb-4">
           <Collapsible open={open} onOpenChange={setOpen}>
             <div className="relative before:content-[''] before:absolute before:top-0 before:left-0 before:h-7 before:w-1 before:bg-gray-400 before:mt-3.5 before:rounded-r-sm">
               <div
                 className={`items-center px-4 py-3 border rounded-lg shadow-sm max-w-5xl mx-auto space-y-4 ${
-                  diagnosticReport?.id ? "bg-gray-100" : " "
+                  open ? "bg-gray-100" : ""
                 } `}
               >
                 <div className="flex items-center gap-4 justify-between">
@@ -414,48 +506,13 @@ export const ReviewResult: React.FC<{
                         </div>
                       </div>
                       <div
-                        className="bg-gray-100 border border-solid rounded-sm shadow-md space-y-2"
+                        className="bg-gray-100 border border-solid rounded-lg shadow-md space-y-2"
                         id="test-results"
                       >
                         <h2 className="text-base font-semibold text-gray-900 px-4 py-2">
                           Test Results:
                         </h2>
-                        <Table className="w-full border  border-gray-300 bg-white shadow-sm rounded-sm">
-                          <TableHeader className="bg-gray-100">
-                            <TableRow>
-                              <TableHead className="border-r border-slate-300">
-                                Parameter
-                              </TableHead>
-                              <TableHead className="border-r border-solid">
-                                Result
-                              </TableHead>
-                              <TableHead className="border-r border-solid">
-                                Unit
-                              </TableHead>
-                              <TableHead className="border-r border-solid">
-                                Reference Range
-                              </TableHead>
-                              <TableHead>Remark</TableHead>
-                            </TableRow>
-                          </TableHeader>
-                          <TableBody className="bg-white">
-                            {diagnosticReport?.result.map((observation) => (
-                              <TableRow
-                                key={observation.id}
-                                className="divide-x divide-solid"
-                              >
-                                <TableCell>
-                                  {observation.main_code?.display ??
-                                    observation.main_code?.code}
-                                </TableCell>
-                                <TableCell>{observation.value}</TableCell>
-                                <TableCell>Dummy Unit</TableCell>
-                                <TableCell>Dummy Reference</TableCell>
-                                <TableCell>Dummy Note</TableCell>
-                              </TableRow>
-                            ))}
-                          </TableBody>
-                        </Table>
+                        <ResultTable columns={columns} data={resultsData} />
 
                         <div className="flex flex-col gap-2 p-4 bg-gray-60">
                           <h3 className="text-sm font-medium text-gray-600">

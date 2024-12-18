@@ -80,7 +80,7 @@ export const InProcess: React.FC = () => {
         actions={(row) => (
           <Button
             onClick={() => navigate(`/lab_tests/${row.id}/process`)}
-            variant="secondary"
+            variant="outline_primary"
           >
             Process
           </Button>
