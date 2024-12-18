@@ -7,6 +7,7 @@ import { Demography } from "@/components/Patient/PatientDetailsTab/Demography";
 import { Updates } from "@/components/Patient/PatientDetailsTab/patientUpdates";
 import { PatientModel } from "@/components/Patient/models";
 
+import { Appointments } from "./Appointments";
 import { ResourceRequests } from "./ResourceRequests";
 
 export interface PatientProps {
@@ -20,6 +21,10 @@ export const patientTabs = [
   {
     route: "demography",
     component: Demography,
+  },
+  {
+    route: "appointments",
+    component: Appointments,
   },
   {
     route: "encounters",
