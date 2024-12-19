@@ -1,4 +1,5 @@
 import { useMutation } from "@tanstack/react-query";
+import dayjs from "dayjs";
 import { navigate } from "raviger";
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
@@ -58,9 +59,23 @@ export default function OTP({
       }),
     onSuccess: () => {
       if (page === "send") {
-        navigate(
-          `/facility/${facilityId}/appointments/${staffUsername}/otp/verify`,
+        const tokenData: TokenData = JSON.parse(
+          localStorage.getItem(CarePatientTokenKey) || "{}",
         );
+        if (
+          Object.keys(tokenData).length > 0 &&
+          tokenData.phoneNumber === phoneNumber &&
+          dayjs(tokenData.createdAt).isAfter(dayjs().subtract(14, "minutes"))
+        ) {
+          Notification.Success({ msg: t("valid_otp_found") });
+          navigate(
+            `/facility/${facilityId}/appointments/${staffUsername}/book-appointment`,
+          );
+        } else {
+          navigate(
+            `/facility/${facilityId}/appointments/${staffUsername}/otp/verify`,
+          );
+        }
       }
     },
     onError: () => {

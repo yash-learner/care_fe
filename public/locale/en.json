@@ -1582,6 +1582,7 @@
   "vacant": "Vacant",
   "vaccinated": "Vaccinated",
   "vaccine_name": "Vaccine name",
+  "valid_otp_found": "Valid OTP found, Navigating to Appointments",
   "vehicle_preference": "Vehicle preference",
   "vendor_name": "Vendor Name",
   "ventilator_interface": "Respiratory Support Type",
