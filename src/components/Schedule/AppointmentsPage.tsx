@@ -67,7 +67,7 @@ export default function AppointmentsPage() {
       <div className="mt-4 py-4 flex flex-col md:flex-row gap-4 justify-between border-t border-gray-200">
         <div className="flex flex-col md:flex-row gap-4 items-start md:items-center">
           <div>
-            <Label className="mb-2 text-black">Select Doctor</Label>
+            <Label className="mb-2 text-black">Select Practitioner</Label>
             <Select
               value={selectedResourceObj?.id}
               onValueChange={(value) => {
@@ -188,11 +188,11 @@ function AppointmentColumn(props: {
   return (
     <div
       className={cn(
-        "bg-gray-100 py-4 px-3 rounded-lg w-[20rem] overflow-y-hidden",
+        "bg-gray-100 py-4 rounded-lg w-[20rem] overflow-y-hidden",
         !data && "animate-pulse",
       )}
     >
-      <div className="flex items-center gap-3 mb-4">
+      <div className="flex px-3 items-center gap-3 mb-4">
         <h2 className="font-semibold capitalize text-base px-1">
           {props.status.replace("_", " ")}
         </h2>
@@ -206,7 +206,7 @@ function AppointmentColumn(props: {
         </div>
       ) : (
         <ScrollArea>
-          <ul className="space-y-3 px-0.5 pb-4 pt-1 h-[calc(100vh-22rem)]">
+          <ul className="space-y-3 px-3 pb-4 pt-1 h-[calc(100vh-22rem)]">
             {appointments.map((appointment) => (
               <li key={appointment.id}>
                 <Link
