@@ -33,7 +33,7 @@ interface AppointmentsProps {
   staffExternalId: string;
 }
 
-export function AppointmentsPage(props: AppointmentsProps) {
+export function ScheduleAppointment(props: AppointmentsProps) {
   const { t } = useTranslation();
   const { facilityId, staffExternalId } = props;
   const [selectedMonth, setSelectedMonth] = useState(new Date());
