@@ -67,6 +67,7 @@ export const ScheduleAPIs = {
   },
 
   appointments: {
+    // TODO: rename this to available_resources (or something more accurate)
     availableDoctors: {
       path: "/api/v1/facility/{facility_id}/appointments/available_doctors/",
       method: "GET",

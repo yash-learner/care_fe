@@ -82,7 +82,10 @@ export interface Appointment {
   readonly token_slot: SlotAvailability;
   readonly patient: AppointmentPatient;
   readonly booked_on: string;
-  readonly booked_by: UserBase;
+  /**
+   * This is null if the appointment was booked by the patient itself.
+   */
+  readonly booked_by: UserBase | null;
   status:
     | "proposed"
     | "pending"
