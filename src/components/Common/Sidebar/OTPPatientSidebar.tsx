@@ -31,23 +31,21 @@ import { OTPPatientUserContext } from "@/Routers/OTPPatientRouter";
 import { classNames } from "@/Utils/utils";
 import { AppointmentPatient } from "@/pages/Patient/Utils";
 
+import OTPPatientSidebarUserCard from "./OTPPatientSidebarUserCard";
+
 export const SIDEBAR_SHRINK_PREFERENCE_KEY = "sidebarShrinkPreference";
 
 const LOGO_COLLAPSE = "/images/care_logo_mark.svg";
 
-const GetNavItems = () => {
+const GetNavItems = (externalId: string | undefined) => {
   const { t } = useTranslation();
   const BaseNavItems: INavItem[] = [
     { text: t("appointments"), to: "/patient/home", icon: "d-patient" },
-    { text: t("lab_tests"), to: "/patient/lab_tests", icon: "d-patient" },
-    { text: t("abha"), to: "/patient/abha", icon: "d-folder" },
     {
       text: t("medical_records"),
-      to: "/patient/medical_records",
+      to: `/patient/${externalId}`,
       icon: "d-book-open",
     },
-    { text: t("my_doctors"), to: "/patient/doctors", icon: "d-book-open" },
-    { text: t("my_profile"), to: "/patient/profile", icon: "d-people" },
   ];
   return BaseNavItems;
 };
@@ -98,8 +96,6 @@ export const OTPPatientStatelessSidebar = ({
   const activeLink = useActiveLink();
   const Item = shrinked ? ShrinkedSidebarItem : SidebarItem;
 
-  const NavItems = GetNavItems();
-
   const { t } = useTranslation();
 
   const indicatorRef = useRef<HTMLDivElement>(null);
@@ -115,6 +111,8 @@ export const OTPPatientStatelessSidebar = ({
     selectedUser: AppointmentPatient | null;
     setSelectedUser: (user: AppointmentPatient) => void;
   } = useContext(OTPPatientUserContext);
+
+  const NavItems = GetNavItems(selectedUser?.id);
 
   const updateIndicator = () => {
     if (!indicatorRef.current) return;
@@ -195,8 +193,12 @@ export const OTPPatientStatelessSidebar = ({
         )}
       </div>
       <div className="relative mt-4 flex h-full flex-col justify-between">
-        <div className="mx-2 mb-2">
-          <span className="text-xs mb-2 mx-2">{t("switch_patient")}</span>
+        <div
+          className={classNames(
+            "mx-2 mb-2 flex flex-wrap",
+            shrinked ? "flex-row" : "flex-col",
+          )}
+        >
           <Select
             value={selectedUser?.id}
             onValueChange={(value) => {
@@ -207,8 +209,20 @@ export const OTPPatientStatelessSidebar = ({
             }}
           >
             <SelectTrigger>
-              <SelectValue>
-                <span className="font-semibold">{selectedUser?.name}</span>
+              <SelectValue asChild>
+                <div className="flex flex-row justify-between items-center gap-2 w-full text-primary-800">
+                  {!shrinked && (
+                    <div className="flex flex-row items-center gap-2">
+                      <span className="font-semibold">
+                        {selectedUser?.name}
+                      </span>
+                      <span className="text-xs text-secondary-600">
+                        {t("switch_patient")}
+                      </span>
+                    </div>
+                  )}
+                  <CareIcon icon="l-users-alt" className="h-4 self-center" />
+                </div>
               </SelectValue>
             </SelectTrigger>
             <SelectContent>
@@ -243,6 +257,7 @@ export const OTPPatientStatelessSidebar = ({
           })}
         </div>
         <div className="hidden md:block md:flex-1" />
+        <OTPPatientSidebarUserCard shrinked={shrinked} />
       </div>
     </nav>
   );

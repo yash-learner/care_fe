@@ -1,5 +1,4 @@
-import { Link } from "raviger";
-import React from "react";
+import React, { useContext } from "react";
 import { useTranslation } from "react-i18next";
 
 import CareIcon from "@/CAREUI/icons/CareIcon";
@@ -14,9 +13,9 @@ import {
 
 import { Avatar } from "@/components/Common/Avatar";
 
-import useAuthUser, { useAuthContext } from "@/hooks/useAuthUser";
+import { OTPPatientUserContext } from "@/Routers/OTPPatientRouter";
 
-import { formatDisplayName, formatName } from "@/Utils/utils";
+import { useSignOut } from "./Utils";
 
 interface SidebarUserCardProps {
   shrinked: boolean;
@@ -26,8 +25,14 @@ const OTPPatientSidebarUserCard: React.FC<SidebarUserCardProps> = ({
   shrinked,
 }) => {
   const { t } = useTranslation();
-  const user = useAuthUser();
-  const { signOut } = useAuthContext();
+
+  const { selectedUser } = useContext(OTPPatientUserContext);
+
+  const signOut = useSignOut();
+
+  if (!selectedUser) {
+    return null;
+  }
 
   return (
     <div
@@ -48,15 +53,14 @@ const OTPPatientSidebarUserCard: React.FC<SidebarUserCardProps> = ({
             >
               <div className="flex-none text-lg">
                 <Avatar
-                  name={formatDisplayName(user)}
-                  imageUrl={user.read_profile_picture_url}
+                  name={selectedUser.name}
                   className="h-8 rounded-full text-black/50"
                 />
               </div>
               <div className="max-w-32">
                 {!shrinked && (
                   <p className="truncate pl-1 text-xs font-medium tracking-wide">
-                    {formatName(user)}
+                    {selectedUser.name}
                   </p>
                 )}
               </div>
@@ -71,15 +75,6 @@ const OTPPatientSidebarUserCard: React.FC<SidebarUserCardProps> = ({
           </Button>
         </DropdownMenuTrigger>
         <DropdownMenuContent align="end" className="w-full">
-          <Link
-            // TODO: revert this change. Temp. hack until #9382 is merged.
-            href={`/users/${user.username}`}
-            className="block text-sm capitalize text-gray-900"
-          >
-            <DropdownMenuItem className="cursor-pointer">
-              <div id="profile-button">{t("profile")}</div>
-            </DropdownMenuItem>
-          </Link>
           <DropdownMenuItem onClick={signOut} className="cursor-pointer">
             <div id="sign-out-button">{t("sign_out")}</div>
           </DropdownMenuItem>
