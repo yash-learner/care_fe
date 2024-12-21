@@ -1,6 +1,7 @@
 import { useQuery } from "@tanstack/react-query";
 import dayjs from "dayjs";
 import { navigate } from "raviger";
+import { useContext } from "react";
 import { useTranslation } from "react-i18next";
 
 import { Badge } from "@/components/ui/badge";
@@ -20,16 +21,22 @@ import { Appointment } from "@/components/Schedule/types";
 
 import { CarePatientTokenKey } from "@/common/constants";
 
+import { OTPPatientUserContext } from "@/Routers/OTPPatientRouter";
 import routes from "@/Utils/request/api";
 import query from "@/Utils/request/query";
 import { formatName } from "@/Utils/utils";
 import { TokenData } from "@/types/auth/otpToken";
+
+import { AppointmentPatient } from "./Utils";
 
 function OTPPatientHome() {
   const { t } = useTranslation();
   const tokenData: TokenData = JSON.parse(
     localStorage.getItem(CarePatientTokenKey) || "{}",
   );
+
+  const { selectedUser }: { selectedUser: AppointmentPatient | null } =
+    useContext(OTPPatientUserContext);
 
   if (!tokenData) {
     navigate("/login");
@@ -141,11 +148,13 @@ function OTPPatientHome() {
     return <Loading />;
   }
 
-  const appointments = appointmentsData?.results.sort(
-    (a, b) =>
-      new Date(a.token_slot.start_datetime).getTime() -
-      new Date(b.token_slot.start_datetime).getTime(),
-  );
+  const appointments = appointmentsData?.results
+    .filter((appointment) => appointment?.patient.id == selectedUser?.id)
+    .sort(
+      (a, b) =>
+        new Date(a.token_slot.start_datetime).getTime() -
+        new Date(b.token_slot.start_datetime).getTime(),
+    );
 
   const pastAppointments = appointments?.filter((appointment) =>
     dayjs().isAfter(dayjs(appointment.token_slot.start_datetime)),
@@ -160,7 +169,18 @@ function OTPPatientHome() {
       <Table className="[border-spacing:0_0.5rem] border-separate">
         {getTableHeader()}
         <TableBody>
-          {appointments?.map((appointment) => getTableRow(appointment))}
+          {appointments && appointments.length > 0 ? (
+            appointments.map((appointment) => getTableRow(appointment))
+          ) : (
+            <TableRow className="h-32">
+              <TableCell
+                colSpan={7}
+                className="text-center bg-white shadow rounded"
+              >
+                {t("no_appointments")}
+              </TableCell>
+            </TableRow>
+          )}
         </TableBody>
       </Table>
     );

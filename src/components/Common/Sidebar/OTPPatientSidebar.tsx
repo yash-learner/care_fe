@@ -8,6 +8,14 @@ import CareIcon from "@/CAREUI/icons/CareIcon";
 import SlideOver from "@/CAREUI/interactive/SlideOver";
 
 import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+
+import {
   INavItem,
   SidebarShrinkContext,
   ToggleShrink,
@@ -19,7 +27,9 @@ import {
 
 import useActiveLink from "@/hooks/useActiveLink";
 
+import { OTPPatientUserContext } from "@/Routers/OTPPatientRouter";
 import { classNames } from "@/Utils/utils";
+import { AppointmentPatient } from "@/pages/Patient/Utils";
 
 export const SIDEBAR_SHRINK_PREFERENCE_KEY = "sidebarShrinkPreference";
 
@@ -90,10 +100,21 @@ export const OTPPatientStatelessSidebar = ({
 
   const NavItems = GetNavItems();
 
+  const { t } = useTranslation();
+
   const indicatorRef = useRef<HTMLDivElement>(null);
   const activeLinkRef = useRef<HTMLAnchorElement>(null);
   const [lastIndicatorPosition, setLastIndicatorPosition] = useState(0);
   const [isOverflowVisible, setOverflowVisisble] = useState(false);
+  const {
+    users,
+    selectedUser,
+    setSelectedUser,
+  }: {
+    users: AppointmentPatient[];
+    selectedUser: AppointmentPatient | null;
+    setSelectedUser: (user: AppointmentPatient) => void;
+  } = useContext(OTPPatientUserContext);
 
   const updateIndicator = () => {
     if (!indicatorRef.current) return;
@@ -174,6 +195,31 @@ export const OTPPatientStatelessSidebar = ({
         )}
       </div>
       <div className="relative mt-4 flex h-full flex-col justify-between">
+        <div className="mx-2 mb-2">
+          <span className="text-xs mb-2 mx-2">{t("switch_patient")}</span>
+          <Select
+            value={selectedUser?.id}
+            onValueChange={(value) => {
+              const user = users.find((user) => user.id === value);
+              if (user) {
+                setSelectedUser(user);
+              }
+            }}
+          >
+            <SelectTrigger>
+              <SelectValue>
+                <span className="font-semibold">{selectedUser?.name}</span>
+              </SelectValue>
+            </SelectTrigger>
+            <SelectContent>
+              {users.map((user) => (
+                <SelectItem key={user.id} value={user.id}>
+                  {user.name}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </div>
         <div className="relative flex flex-1 flex-col md:flex-none">
           <div
             ref={indicatorRef}
