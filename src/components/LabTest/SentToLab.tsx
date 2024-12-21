@@ -1,18 +1,12 @@
 import { navigate } from "raviger";
 
-
-
 import { Button } from "@/components/ui/button";
 
-
-
 import { DataTable } from "@/components/LabTest/DataTable";
-
-
+import { DataTableSkeleton } from "@/components/LabTest/DataTableSkeleton";
 
 import routes from "@/Utils/request/api";
 import useQuery from "@/Utils/request/useQuery";
-
 
 export const SentToLab: React.FC = () => {
   const keys = [
@@ -76,24 +70,29 @@ export const SentToLab: React.FC = () => {
       </div>
 
       {/* Data Table */}
-      <DataTable
-        columns={keys.map((key) => ({
-          label: key.label,
-          key: key.key,
-          render_as: key.render_as,
-        }))}
-        data={
-          data?.results?.map((specimen) => ({
-            specimenId: specimen.identifier ?? specimen.id.slice(0, 8),
-            orderId: specimen.request.id,
-            patientName: specimen.subject.name,
-            specimen: specimen.type.display || specimen.type.code,
-            tests: specimen.request.code.display || specimen.request.code.code,
-            priority: specimen.request.priority || "Routine",
-            id: specimen.id,
-          })) ?? []
-        }
-      />
+      {data ? (
+        <DataTable
+          columns={keys.map((key) => ({
+            label: key.label,
+            key: key.key,
+            render_as: key.render_as,
+          }))}
+          data={
+            data?.results?.map((specimen) => ({
+              specimenId: specimen.identifier ?? specimen.id.slice(0, 8),
+              orderId: specimen.request.id,
+              patientName: specimen.subject.name,
+              specimen: specimen.type.display || specimen.type.code,
+              tests:
+                specimen.request.code.display || specimen.request.code.code,
+              priority: specimen.request.priority || "Routine",
+              id: specimen.id,
+            })) ?? []
+          }
+        />
+      ) : (
+        <DataTableSkeleton columns={keys} />
+      )}
     </div>
   );
 };

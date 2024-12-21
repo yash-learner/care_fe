@@ -3,6 +3,7 @@ import { navigate } from "raviger";
 import { Button } from "@/components/ui/button";
 
 import { DataTable } from "@/components/LabTest/DataTable";
+import { DataTableSkeleton } from "@/components/LabTest/DataTableSkeleton";
 
 import routes from "@/Utils/request/api";
 import useQuery from "@/Utils/request/useQuery";
@@ -56,6 +57,10 @@ export const OrderPlaced: React.FC = () => {
       phase: "ordered",
     },
   });
+
+  if (!data) {
+    return <DataTableSkeleton columns={keys} />;
+  }
 
   return (
     <div className="p-4 space-y-4">
