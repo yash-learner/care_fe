@@ -56,7 +56,7 @@ function OTPPatientHome() {
               : "default"
         }
       >
-        {status}
+        {t(status)}
       </Badge>
     );
   };
@@ -70,9 +70,13 @@ function OTPPatientHome() {
         <td colSpan={7}>
           <div className="flex bg-white rounded-md shadow items-center p-3">
             <TableCell className="ml-2 border-0 first:rounded-l-md w-[14.28%]">
-              {appointment?.resource && formatName(appointment.resource)}
+              {appointment?.resource
+                ? formatName(appointment.resource)
+                : "Resource from BE"}
             </TableCell>
-            <TableCell className="border-0 w-[14.28%]">{""}</TableCell>
+            <TableCell className="border-0 w-[14.28%]">
+              {"Currently doesn't exist"}
+            </TableCell>
             <TableCell className="border-0 w-[14.28%]">
               {appointmentDate}
             </TableCell>
@@ -80,7 +84,7 @@ function OTPPatientHome() {
               {appointmentTimeSlot}
             </TableCell>
             <TableCell className="border-0 w-[14.28%]">
-              {"Facility Location?"}
+              {"Facility Location"}
             </TableCell>
             <TableCell className="border-0 w-[14.28%]">
               {getStatusChip(appointment.status)}
