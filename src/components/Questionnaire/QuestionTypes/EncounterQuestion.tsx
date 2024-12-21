@@ -154,7 +154,7 @@ export function EncounterQuestion({
         </Select>
       </div>
 
-      {encounter.suggestion !== "DC" && (
+      {encounter.suggestion && encounter.suggestion !== "DC" && (
         <div className="space-y-2">
           <Label>Route to Facility</Label>
           <Select
@@ -200,7 +200,7 @@ export function EncounterQuestion({
         </div>
       )}
 
-      {encounter.suggestion !== "DC" && (
+      {encounter.suggestion && encounter.suggestion !== "DC" && (
         <div className="space-y-2">
           <Label>
             {encounter.suggestion === "A" ? "IP Number" : "OP Number"}
@@ -330,7 +330,7 @@ export function EncounterQuestion({
       )}
 
       {/* Doctor Details */}
-      {encounter.suggestion !== "DC" && (
+      {encounter.suggestion && encounter.suggestion !== "DC" && (
         <div className="space-y-2">
           <Label>Treating Doctor</Label>
           <UserAutocomplete
