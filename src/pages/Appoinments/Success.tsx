@@ -27,7 +27,7 @@ export function AppointmentSuccess(props: { appointmentId: string }) {
   const userData: UserModel = JSON.parse(localStorage.getItem("user") ?? "{}");
 
   const { data, isLoading, error } = useQuery({
-    queryKey: ["appointment"],
+    queryKey: ["appointment", tokenData.phoneNumber],
     queryFn: query(routes.otp.getAppointments, {
       headers: {
         Authorization: `Bearer ${tokenData.token}`,

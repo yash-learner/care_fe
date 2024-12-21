@@ -15,6 +15,7 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 
 import { Avatar } from "@/components/Common/Avatar";
+import Loading from "@/components/Common/Loading";
 import { FacilityModel } from "@/components/Facility/models";
 import { SlotAvailability } from "@/components/Schedule/types";
 
@@ -134,7 +135,7 @@ export function ScheduleAppointment(props: AppointmentsProps) {
   };
 
   if (!userData?.data) {
-    return <div>Loading user data...</div>;
+    return <Loading />;
   }
 
   const user = userData.data;

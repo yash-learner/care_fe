@@ -28,16 +28,16 @@ const LOGO_COLLAPSE = "/images/care_logo_mark.svg";
 const GetNavItems = () => {
   const { t } = useTranslation();
   const BaseNavItems: INavItem[] = [
-    { text: t("appointments"), to: "/otp/appointments", icon: "d-patient" },
-    { text: t("lab_tests"), to: "/otp/lab_tests", icon: "d-patient" },
-    { text: t("abha"), to: "/otp/abha", icon: "d-folder" },
+    { text: t("appointments"), to: "/patient/home", icon: "d-patient" },
+    { text: t("lab_tests"), to: "/patient/lab_tests", icon: "d-patient" },
+    { text: t("abha"), to: "/patient/abha", icon: "d-folder" },
     {
       text: t("medical_records"),
-      to: "/otp/medical_records",
+      to: "/patient/medical_records",
       icon: "d-book-open",
     },
-    { text: t("my_doctors"), to: "/otp/doctors", icon: "d-book-open" },
-    { text: t("my_profile"), to: "/otp/profile", icon: "d-people" },
+    { text: t("my_doctors"), to: "/patient/doctors", icon: "d-book-open" },
+    { text: t("my_profile"), to: "/patient/profile", icon: "d-people" },
   ];
   return BaseNavItems;
 };

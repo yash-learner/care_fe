@@ -13,6 +13,7 @@ import { SidebarShrinkContext } from "@/components/Common/Sidebar/Sidebar";
 import ErrorPage from "@/components/ErrorPages/DefaultErrorPage";
 
 import { AppointmentSuccess } from "@/pages/Appoinments/Success";
+import OTPPatientHome from "@/pages/Patient/index";
 
 const routes = {
   "/facility/:facilityId/appointments/:appointmentId/success": ({
@@ -20,7 +21,7 @@ const routes = {
   }: {
     appointmentId: string;
   }) => <AppointmentSuccess appointmentId={appointmentId} />,
-  // "/otp/appointments": () => <AppointmentsPage />,
+  "/patient/home": () => <OTPPatientHome />,
 };
 
 export default function OTPPatientRouter() {
