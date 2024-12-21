@@ -3,7 +3,6 @@ import { useQuery } from "@tanstack/react-query";
 import { usePath, useRoutes } from "raviger";
 import { createContext, useEffect, useState } from "react";
 
-import Login from "@/components/Auth/Login";
 import ErrorBoundary from "@/components/Common/ErrorBoundary";
 import {
   OTPPatientDesktopSidebar,
@@ -22,6 +21,8 @@ import { AppointmentPatient } from "@/pages/Patient/Utils";
 import OTPPatientHome from "@/pages/Patient/index";
 import { TokenData } from "@/types/auth/otpToken";
 
+import SessionRouter from "./SessionRouter";
+
 const OTPPatientRoutes = {
   "/facility/:facilityId/appointments/:appointmentId/success": ({
     appointmentId,
@@ -32,13 +33,15 @@ const OTPPatientRoutes = {
 };
 
 export const OTPPatientUserContext = createContext<{
-  users: AppointmentPatient[];
+  users?: AppointmentPatient[];
   selectedUser: AppointmentPatient | null;
   setSelectedUser: (user: AppointmentPatient) => void;
+  phoneNumber: string;
 }>({
-  users: [],
+  users: undefined,
   selectedUser: null,
   setSelectedUser: () => {},
+  phoneNumber: "",
 });
 
 export default function OTPPatientRouter() {
@@ -50,6 +53,7 @@ export default function OTPPatientRouter() {
   const [selectedUser, setSelectedUser] = useState<AppointmentPatient | null>(
     null,
   );
+  const [phoneNumber, setPhoneNumber] = useState("");
 
   const tokenData: TokenData = JSON.parse(
     localStorage.getItem(CarePatientTokenKey) || "{}",
@@ -73,6 +77,12 @@ export default function OTPPatientRouter() {
   }, [userData]);
 
   useEffect(() => {
+    if (tokenData.phoneNumber) {
+      setPhoneNumber(tokenData.phoneNumber);
+    }
+  }, [tokenData]);
+
+  useEffect(() => {
     setSidebarOpen(false);
     const pageContainer = window.document.getElementById("pages");
     pageContainer?.scroll(0, 0);
@@ -90,12 +100,12 @@ export default function OTPPatientRouter() {
   }, [shrinked]);
 
   if (!pages) {
-    return <Login />;
+    return <SessionRouter />;
   }
 
   return (
     <OTPPatientUserContext.Provider
-      value={{ users, selectedUser, setSelectedUser }}
+      value={{ users, selectedUser, setSelectedUser, phoneNumber }}
     >
       <SidebarShrinkContext.Provider value={{ shrinked, setShrinked }}>
         <div className="flex h-screen overflow-hidden bg-secondary-100 print:overflow-visible">

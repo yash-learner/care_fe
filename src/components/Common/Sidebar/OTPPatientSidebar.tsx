@@ -107,7 +107,7 @@ export const OTPPatientStatelessSidebar = ({
     selectedUser,
     setSelectedUser,
   }: {
-    users: AppointmentPatient[];
+    users?: AppointmentPatient[] | undefined;
     selectedUser: AppointmentPatient | null;
     setSelectedUser: (user: AppointmentPatient) => void;
   } = useContext(OTPPatientUserContext);
@@ -200,21 +200,30 @@ export const OTPPatientStatelessSidebar = ({
           )}
         >
           <Select
-            value={selectedUser?.id}
+            disabled={users?.length === 0}
+            value={users ? selectedUser?.id : "Book "}
             onValueChange={(value) => {
-              const user = users.find((user) => user.id === value);
+              const user = users?.find((user) => user.id === value);
               if (user) {
                 setSelectedUser(user);
               }
             }}
           >
             <SelectTrigger>
-              <SelectValue asChild>
+              <SelectValue
+                asChild
+                placeholder={
+                  !shrinked &&
+                  (users?.length === 0 ? t("no_patients") : t("select_patient"))
+                }
+              >
                 <div className="flex flex-row justify-between items-center gap-2 w-full text-primary-800">
                   {!shrinked && (
                     <div className="flex flex-row items-center gap-2">
                       <span className="font-semibold">
-                        {selectedUser?.name}
+                        {selectedUser?.name && selectedUser?.name.length > 8
+                          ? selectedUser?.name.slice(0, 8) + "..."
+                          : selectedUser?.name}
                       </span>
                       <span className="text-xs text-secondary-600">
                         {t("switch_patient")}
@@ -226,7 +235,7 @@ export const OTPPatientStatelessSidebar = ({
               </SelectValue>
             </SelectTrigger>
             <SelectContent>
-              {users.map((user) => (
+              {users?.map((user) => (
                 <SelectItem key={user.id} value={user.id}>
                   {user.name}
                 </SelectItem>
