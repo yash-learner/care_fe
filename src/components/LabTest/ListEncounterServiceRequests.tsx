@@ -1,3 +1,5 @@
+import { DataTableSkeleton } from "@/components/LabTest/DataTableSkeleton";
+
 import { mapKeyToBadgeVariant } from "@/Utils/badgeUtils";
 import routes from "@/Utils/request/api";
 import useQuery from "@/Utils/request/useQuery";
@@ -34,6 +36,29 @@ export default function ListEncounterServiceRequests({
     urgent: "highlight",
     stat: "error",
   };
+
+  const columns = [
+    {
+      label: "Test",
+      key: "code.display",
+    },
+    {
+      label: "Priority",
+      key: "priority",
+    },
+    {
+      label: "Reccurrence",
+      key: "reccurrence",
+    },
+    {
+      label: "Status",
+      key: "status",
+    },
+  ];
+
+  if (!data) {
+    return <DataTableSkeleton columns={columns} hasActions={false} />;
+  }
 
   return (
     <div>

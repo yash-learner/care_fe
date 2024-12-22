@@ -13,11 +13,13 @@ import {
 interface DataTableSkeletonProps {
   columns: Array<{ label: string; key: string; render_as?: string }>;
   rowCount?: number;
+  hasActions?: boolean;
 }
 
 export const DataTableSkeleton: React.FC<DataTableSkeletonProps> = ({
   columns,
   rowCount = 5,
+  hasActions = true,
 }) => {
   return (
     <div className="overflow-x-auto w-full">
@@ -32,9 +34,11 @@ export const DataTableSkeleton: React.FC<DataTableSkeletonProps> = ({
                 {col.label}
               </TableHead>
             ))}
-            <TableHead className="px-4 py-2 text-left text-sm font-semibold text-gray-700">
-              Action
-            </TableHead>
+            {hasActions && (
+              <TableHead className="px-4 py-2 text-left text-sm font-semibold text-gray-700">
+                Action
+              </TableHead>
+            )}
           </TableRow>
         </TableHeader>
         <TableBody>
@@ -48,9 +52,11 @@ export const DataTableSkeleton: React.FC<DataTableSkeletonProps> = ({
                   <Skeleton className="h-4 w-full" />
                 </TableCell>
               ))}
-              <TableCell className="px-4 py-2 text-sm text-gray-600">
-                <Skeleton className="h-8 w-16" />
-              </TableCell>
+              {hasActions && (
+                <TableCell className="px-4 py-2 text-sm text-gray-600">
+                  <Skeleton className="h-8 w-16" />
+                </TableCell>
+              )}
             </TableRow>
           ))}
         </TableBody>
