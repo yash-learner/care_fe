@@ -41,6 +41,8 @@ interface QueryParams {
 }
 
 export default function AppointmentsPage() {
+  const { t } = useTranslation();
+
   const [qParams, setQParams] = useQueryParams<QueryParams>();
 
   const authUser = useAuthUser();
@@ -68,7 +70,9 @@ export default function AppointmentsPage() {
       <div className="mt-4 py-4 flex flex-col md:flex-row gap-4 justify-between border-t border-gray-200">
         <div className="flex flex-col md:flex-row gap-4 items-start md:items-center">
           <div>
-            <Label className="mb-2 text-black">Select Practitioner</Label>
+            <Label className="mb-2 text-black">
+              {t("select_practitioner")}
+            </Label>
             <Select
               disabled={resourcesQuery.isLoading}
               value={qParams.resource}
@@ -80,7 +84,7 @@ export default function AppointmentsPage() {
               }}
             >
               <SelectTrigger className="min-w-60">
-                <SelectValue placeholder="Show all">
+                <SelectValue placeholder={t("show_all")}>
                   {resource && (
                     <div className="flex items-center gap-2">
                       <Avatar
@@ -117,7 +121,7 @@ export default function AppointmentsPage() {
 
           <div>
             <Label className="mb-2">
-              <span className="text-black">Today</span>
+              <span className="text-black">{t("today")}</span>
               <span className="pl-1 text-gray-500">
                 ({formatDate(new Date(), "dd MMM yyyy")})
               </span>
@@ -128,7 +132,7 @@ export default function AppointmentsPage() {
                 onClick={() => setQParams({ resource: qParams.resource })}
                 className={cn(!slot && "shadow", "hover:bg-white")}
               >
-                ALL
+                {t("all")}
               </Button>
               {slots?.map((slot) => (
                 <Button
@@ -150,8 +154,8 @@ export default function AppointmentsPage() {
         </div>
 
         <div className="flex gap-4 items-center">
-          <Input className="w-[300px]" placeholder="Search" />
-          <Button variant="outline">Filter</Button>
+          <Input className="w-[300px]" placeholder={t("search")} />
+          <Button variant="outline">{t("filter")}</Button>
           <div className="flex border rounded-lg">
             <Button
               variant="ghost"
@@ -161,7 +165,7 @@ export default function AppointmentsPage() {
               )}
               onClick={() => setViewMode("board")}
             >
-              Board
+              {t("board")}
             </Button>
             <Button
               variant="ghost"
@@ -171,7 +175,7 @@ export default function AppointmentsPage() {
               )}
               onClick={() => setViewMode("list")}
             >
-              List
+              {t("list")}
             </Button>
           </div>
         </div>
@@ -195,6 +199,8 @@ function AppointmentColumn(props: {
   status: Appointment["status"];
   facilityId: string;
 }) {
+  const { t } = useTranslation();
+
   const { data } = useQuery({
     queryKey: ["appointments", props.facilityId, props.status],
     queryFn: query(ScheduleAPIs.appointments.list, {
@@ -221,8 +227,8 @@ function AppointmentColumn(props: {
         </span>
       </div>
       {appointments.length === 0 ? (
-        <div className="flex justify-center items-center h-full">
-          <p className="text-gray-500">No appointments</p>
+        <div className="flex justify-center items-center h-[calc(100vh-22rem)]">
+          <p className="text-gray-500">{t("no_appointments")}</p>
         </div>
       ) : (
         <ScrollArea>
@@ -301,7 +307,7 @@ function AppointmentCard({
                 updateStatus("checked_in");
               }}
             >
-              <span>Check In</span>
+              <span>{t("check_in")}</span>
               <ArrowRightIcon className="size-3 ml-1" />
             </Button>
           )}
@@ -311,12 +317,12 @@ function AppointmentCard({
               size="sm"
               className="opacity-0 group-hover:opacity-100 transition-all duration-200 ease-in-out"
             >
-              <span>Consult</span>
+              <span>{t("consult")}</span>
               <ArrowRightIcon className="size-3 ml-1" />
             </Button>
           )}
           <div className="bg-gray-100 px-2 py-1 rounded text-center">
-            <p className="text-[10px]">TOKEN</p>
+            <p className="text-[10px] uppercase">{t("token")}</p>
             {/* TODO: replace this with token number once that's ready... */}
             <p className="font-bold text-2xl uppercase">
               {getFakeTokenNumber(appointment)}
