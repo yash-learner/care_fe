@@ -40,15 +40,13 @@ interface QueryParams {
   slot?: string;
 }
 
-export default function AppointmentsPage() {
+export default function AppointmentsPage(props: { facilityId?: string }) {
   const { t } = useTranslation();
 
   const [qParams, setQParams] = useQueryParams<QueryParams>();
 
   const authUser = useAuthUser();
-
-  // TODO: remove this
-  const facilityId = authUser.home_facility!;
+  const facilityId = props.facilityId ?? authUser.home_facility!;
 
   const [viewMode, setViewMode] = useState<"board" | "list">("board");
 
@@ -88,7 +86,7 @@ export default function AppointmentsPage() {
                   {resource && (
                     <div className="flex items-center gap-2">
                       <Avatar
-                        imageUrl={resource.read_profile_picture_url}
+                        imageUrl={resource.profile_picture_url}
                         name={formatName(resource)}
                         className="size-6 rounded-full"
                       />
@@ -102,7 +100,7 @@ export default function AppointmentsPage() {
                   <SelectItem key={user.id} value={user.id}>
                     <div className="flex items-center gap-2">
                       <Avatar
-                        imageUrl={user.read_profile_picture_url}
+                        imageUrl={user.profile_picture_url}
                         name={formatName(user)}
                         className="size-6 rounded-full"
                       />

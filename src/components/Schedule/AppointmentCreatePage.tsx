@@ -230,7 +230,7 @@ export default function AppointmentCreatePage(props: Props) {
                     {resource && (
                       <div className="flex items-center gap-2">
                         <Avatar
-                          imageUrl={resource.read_profile_picture_url}
+                          imageUrl={resource.profile_picture_url}
                           name={formatName(resource)}
                           className="size-6 rounded-full"
                         />
@@ -244,7 +244,7 @@ export default function AppointmentCreatePage(props: Props) {
                     <SelectItem key={user.username} value={user.id}>
                       <div className="flex items-center gap-2">
                         <Avatar
-                          imageUrl={user.read_profile_picture_url}
+                          imageUrl={user.profile_picture_url}
                           name={formatDisplayName(user)}
                           className="size-6 rounded-full"
                         />
