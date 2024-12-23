@@ -109,9 +109,7 @@ export const Appointments = (props: PatientProps) => {
                     {appointment.booked_by ? (
                       <>
                         <Avatar
-                          imageUrl={
-                            appointment.booked_by?.read_profile_picture_url
-                          }
+                          imageUrl={appointment.booked_by?.profile_picture_url}
                           name={formatName(appointment.booked_by)}
                           className="mr-2 size-4"
                         />

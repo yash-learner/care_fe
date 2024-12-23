@@ -1,5 +1,5 @@
 import { useMutation, useQuery } from "@tanstack/react-query";
-import { format } from "date-fns";
+import { format, isBefore, isSameDay, max, startOfToday } from "date-fns";
 import { navigate } from "raviger";
 import { useState } from "react";
 import { toast } from "sonner";
@@ -19,16 +19,19 @@ import {
 } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
 
+import { Avatar } from "@/components/Common/Avatar";
 import Page from "@/components/Common/Page";
 import { ScheduleAPIs } from "@/components/Schedule/api";
-import {
-  AppointmentCreate,
-  SlotAvailability,
-} from "@/components/Schedule/types";
+import { SlotAvailability } from "@/components/Schedule/types";
 
+import mutate from "@/Utils/request/mutate";
 import query from "@/Utils/request/query";
-import request from "@/Utils/request/request";
-import { dateQueryString, formatDisplayName } from "@/Utils/utils";
+import {
+  dateQueryString,
+  formatDisplayName,
+  formatName,
+  getMonthStartAndEnd,
+} from "@/Utils/utils";
 
 interface Props {
   facilityId: string;
@@ -36,14 +39,14 @@ interface Props {
 }
 
 export default function AppointmentCreatePage(props: Props) {
-  const [selectedResource, setSelectedResource] = useState<string>();
+  const [resourceId, setResourceId] = useState<string>();
   const [selectedMonth, setSelectedMonth] = useState(new Date());
   const [selectedDate, setSelectedDate] = useState(new Date());
 
   const [reason, setReason] = useState("");
-  const [selectedSlot, setSelectedSlot] = useState<SlotAvailability>();
+  const [selectedSlotId, setSelectedSlotId] = useState<string>();
 
-  const availableResourcesQuery = useQuery({
+  const resourcesQuery = useQuery({
     queryKey: ["availableResources", props.facilityId],
     queryFn: query(ScheduleAPIs.appointments.availableDoctors, {
       pathParams: {
@@ -51,71 +54,149 @@ export default function AppointmentCreatePage(props: Props) {
       },
     }),
   });
+  const resource = resourcesQuery.data?.users.find((r) => r.id === resourceId);
+
+  const month = getMonthStartAndEnd(selectedMonth);
+
+  const fromDate = dateQueryString(max([month.start, startOfToday()]));
+  const toDate = dateQueryString(month.end);
+
+  const heatmapQuery = useQuery({
+    queryKey: ["availabilityHeatmap", resourceId, fromDate, toDate],
+    queryFn: query(ScheduleAPIs.slots.availabilityHeatmap, {
+      pathParams: { facility_id: props.facilityId },
+      body: {
+        resource: resourceId,
+        from_date: fromDate,
+        to_date: toDate,
+      },
+    }),
+    enabled: !!resourceId,
+  });
 
   const slotsQuery = useQuery({
-    queryKey: [selectedResource, dateQueryString(selectedDate)],
+    queryKey: ["slots", resourceId, dateQueryString(selectedDate)],
     queryFn: query(ScheduleAPIs.slots.getAvailableSlotsForADay, {
       pathParams: { facility_id: props.facilityId },
       body: {
-        resource: selectedResource,
+        resource: resourceId,
         day: dateQueryString(selectedDate),
       },
     }),
-    enabled: !!selectedResource && !!selectedDate,
+    enabled: !!resourceId && !!selectedDate,
   });
 
-  const { mutate: createAppointment } = useMutation({
-    mutationFn: (body: AppointmentCreate) =>
-      request(ScheduleAPIs.slots.createAppointment, {
-        pathParams: {
-          facility_id: props.facilityId,
-          slot_id: selectedSlot?.id ?? "",
-        },
-        body,
-        onResponse: ({ res, data }) => {
-          if (res?.ok) {
-            toast.success("Appointment created successfully");
-            navigate(
-              `/facility/${props.facilityId}/patient/${props.patientId}/appointment/${data?.id}/token`,
-            );
-          }
-        },
-      }),
+  const { mutateAsync: createAppointment } = useMutation({
+    mutationFn: mutate(ScheduleAPIs.slots.createAppointment, {
+      pathParams: {
+        facility_id: props.facilityId,
+        slot_id: selectedSlotId ?? "",
+      },
+    }),
   });
 
   const renderDay = (date: Date) => {
-    const isSelected = date.toDateString() === selectedDate?.toDateString();
+    const isSelected = isSameDay(date, selectedDate);
+    const isBeforeToday = isBefore(date, startOfToday());
+
+    const availability = heatmapQuery.data?.[dateQueryString(date)];
+
+    if (
+      heatmapQuery.isFetching ||
+      !availability ||
+      availability.total_slots === 0 || // TODO: replace this with stripes. -- indicates day is not available
+      isBeforeToday
+    ) {
+      return (
+        <button
+          disabled
+          onClick={() => {
+            setSelectedDate(date);
+            setSelectedSlotId(undefined);
+          }}
+          className={cn(
+            "h-full w-full hover:bg-gray-50 rounded-lg relative overflow-hidden border border-gray-200",
+            isSelected ? "ring-2 ring-primary-500" : "",
+          )}
+        >
+          <div className="relative z-10">
+            <span>{date.getDate()}</span>
+          </div>
+        </button>
+      );
+    }
+
+    const { booked_slots, total_slots } = availability;
+    const bookedPercentage = booked_slots / total_slots;
+    const isFullyBooked = booked_slots >= total_slots;
 
     return (
       <button
+        disabled={isBeforeToday || isFullyBooked}
         onClick={() => {
           setSelectedDate(date);
-          setSelectedSlot(undefined);
+          setSelectedSlotId(undefined);
         }}
         className={cn(
-          "h-full w-full hover:bg-gray-50 rounded-lg",
-          isSelected ? "bg-white ring-2 ring-primary-500" : "bg-gray-100",
+          "h-full w-full hover:bg-gray-50 rounded-lg relative overflow-hidden border-2 hover:scale-105 hover:shadow-md transition-all",
+          isSelected ? "border-primary-500" : "border-gray-200",
+          isFullyBooked ? "bg-gray-200" : "bg-white",
         )}
       >
-        <span>{date.getDate()}</span>
+        <div className="relative z-10">
+          <span>{date.getDate()}</span>
+          <span
+            className={cn(
+              "text-xs text-gray-500 block font-semibold",
+              bookedPercentage >= 0.8
+                ? "text-red-500"
+                : bookedPercentage >= 0.5
+                  ? "text-yellow-500"
+                  : "text-primary-500",
+            )}
+          >
+            {total_slots - booked_slots} / {total_slots}
+          </span>
+        </div>
+        {!isFullyBooked && (
+          <div
+            className={cn(
+              "absolute bottom-0 left-0 w-full transition-all",
+              bookedPercentage > 0.8
+                ? "bg-red-100"
+                : bookedPercentage > 0.5
+                  ? "bg-yellow-100"
+                  : "bg-primary-100",
+            )}
+            style={{ height: `${Math.min(bookedPercentage * 100, 100)}%` }}
+          />
+        )}
       </button>
     );
   };
 
-  const handleSubmit = () => {
-    if (!selectedResource) {
-      toast.error("Please select a preferred doctor");
+  const handleSubmit = async () => {
+    if (!resourceId) {
+      toast.error("Please select a practitioner");
       return;
     }
-    if (!selectedSlot) {
+    if (!selectedSlotId) {
       toast.error("Please select a slot");
       return;
     }
 
-    createAppointment({
-      patient: props.patientId,
-      reason_for_visit: reason,
-    });
+    try {
+      const data = await createAppointment({
+        patient: props.patientId,
+        reason_for_visit: reason,
+      });
+      toast.success("Appointment created successfully");
+      navigate(
+        `/facility/${props.facilityId}/patient/${props.patientId}/appointment/${data.id}/token`,
+      );
+    } catch (error) {
+      toast.error("Failed to create appointment");
+    }
   };
 
   return (
@@ -138,24 +219,35 @@ export default function AppointmentCreatePage(props: Props) {
 
           <div className="grid grid-cols-1 md:grid-cols-2">
             <div>
-              <label className="block mb-2">Preferred doctor</label>
+              <label className="block mb-2">Select Practitioner</label>
               <Select
-                disabled={availableResourcesQuery.isLoading}
-                value={selectedResource}
-                onValueChange={(value) => setSelectedResource(value)}
+                disabled={resourcesQuery.isLoading}
+                value={resourceId}
+                onValueChange={(value) => setResourceId(value)}
               >
                 <SelectTrigger>
-                  <SelectValue placeholder="Select" />
+                  <SelectValue placeholder="Show all">
+                    {resource && (
+                      <div className="flex items-center gap-2">
+                        <Avatar
+                          imageUrl={resource.profile_picture_url}
+                          name={formatName(resource)}
+                          className="size-6 rounded-full"
+                        />
+                        <span>{formatName(resource)}</span>
+                      </div>
+                    )}
+                  </SelectValue>
                 </SelectTrigger>
                 <SelectContent>
-                  {availableResourcesQuery.data?.users.map((user) => (
+                  {resourcesQuery.data?.users.map((user) => (
                     <SelectItem key={user.username} value={user.id}>
                       <div className="flex items-center gap-2">
-                        {/* <Avatar
-                          imageUrl={user.read_profile_picture_url}
+                        <Avatar
+                          imageUrl={user.profile_picture_url}
                           name={formatDisplayName(user)}
                           className="size-6 rounded-full"
-                        /> */}
+                        />
                         <span>{formatDisplayName(user)}</span>
                       </div>
                     </SelectItem>
@@ -165,13 +257,18 @@ export default function AppointmentCreatePage(props: Props) {
             </div>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-12">
+          <div
+            className={cn(
+              "grid grid-cols-1 md:grid-cols-2 gap-12",
+              !resourceId && "opacity-50 pointer-events-none",
+            )}
+          >
             <div>
               <Calendar
                 month={selectedMonth}
                 onMonthChange={(month) => {
                   setSelectedMonth(month);
-                  setSelectedSlot(undefined);
+                  setSelectedSlotId(undefined);
                 }}
                 renderDay={renderDay}
                 className="mb-6"
@@ -185,41 +282,79 @@ export default function AppointmentCreatePage(props: Props) {
               </div>
 
               <div className="space-y-6">
-                {slotsQuery.data ? (
-                  <div>
-                    <h4 className="mb-3">(Session Name)</h4>
-                    <div className="flex flex-wrap gap-2">
-                      {slotsQuery.data.results.map((slot) => (
-                        <Button
-                          key={slot.id}
-                          variant={
-                            selectedSlot?.id === slot.id
-                              ? "outline_primary"
-                              : "outline"
-                          }
-                          onClick={() => {
-                            if (selectedSlot?.id === slot.id) {
-                              setSelectedSlot(undefined);
-                            } else {
-                              setSelectedSlot(slot);
-                            }
-                          }}
-                          disabled={
-                            slot.allocated === slot.availability.tokens_per_slot
-                          }
-                        >
-                          {format(slot.start_datetime, "HH:mm")}
-                        </Button>
-                      ))}
-                    </div>
-                  </div>
-                ) : (
+                {slotsQuery.data == null && (
                   <div className="flex items-center justify-center py-32 border-2 border-gray-200 border-dashed rounded-lg text-center">
                     <p className="text-gray-400">
-                      To view available slots, select a preferred doctor.
+                      To view available slots, select a preferred doctor and
+                      date.
                     </p>
                   </div>
                 )}
+                {slotsQuery.data?.results.length === 0 && (
+                  <div className="flex items-center justify-center py-32 border-2 border-gray-200 border-dashed rounded-lg text-center">
+                    <p className="text-gray-400">
+                      No slots available for this date.
+                    </p>
+                  </div>
+                )}
+                {!!slotsQuery.data?.results.length &&
+                  groupSlotsByAvailability(slotsQuery.data.results).map(
+                    ({ availability, slots }) => (
+                      <div key={availability.name}>
+                        <h4 className="mb-3">{availability.name}</h4>
+                        <div className="flex flex-wrap gap-2">
+                          {slots.map((slot) => {
+                            const percentage =
+                              slot.allocated / availability.tokens_per_slot;
+
+                            return (
+                              <Button
+                                key={slot.id}
+                                size="lg"
+                                variant={
+                                  selectedSlotId === slot.id
+                                    ? "outline_primary"
+                                    : "outline"
+                                }
+                                onClick={() => {
+                                  if (selectedSlotId === slot.id) {
+                                    setSelectedSlotId(undefined);
+                                  } else {
+                                    setSelectedSlotId(slot.id);
+                                  }
+                                }}
+                                disabled={
+                                  slot.allocated ===
+                                  availability.tokens_per_slot
+                                }
+                                className="flex flex-col items-center group"
+                              >
+                                <span className="font-semibold">
+                                  {format(slot.start_datetime, "HH:mm")}
+                                </span>
+                                <span
+                                  className={cn(
+                                    "text-xs group-hover:text-inherit",
+                                    percentage >= 1
+                                      ? "text-gray-400"
+                                      : percentage >= 0.8
+                                        ? "text-red-600"
+                                        : percentage >= 0.6
+                                          ? "text-yellow-600"
+                                          : "text-green-600",
+                                  )}
+                                >
+                                  {availability.tokens_per_slot -
+                                    slot.allocated}{" "}
+                                  left
+                                </span>
+                              </Button>
+                            );
+                          })}
+                        </div>
+                      </div>
+                    ),
+                  )}
               </div>
             </div>
           </div>
@@ -229,7 +364,7 @@ export default function AppointmentCreatePage(props: Props) {
             <Button
               variant="primary"
               type="submit"
-              disabled={!selectedSlot}
+              disabled={!selectedSlotId}
               onClick={handleSubmit}
             >
               Schedule Appointment
@@ -240,3 +375,24 @@ export default function AppointmentCreatePage(props: Props) {
     </Page>
   );
 }
+
+const groupSlotsByAvailability = (slots: SlotAvailability[]) => {
+  const result: {
+    availability: SlotAvailability["availability"];
+    slots: Omit<SlotAvailability, "availability">[];
+  }[] = [];
+
+  for (const slot of slots) {
+    const availability = slot.availability;
+    const existing = result.find(
+      (r) => r.availability.name === availability.name,
+    );
+    if (existing) {
+      existing.slots.push(slot);
+    } else {
+      result.push({ availability, slots: [slot] });
+    }
+  }
+
+  return result;
+};

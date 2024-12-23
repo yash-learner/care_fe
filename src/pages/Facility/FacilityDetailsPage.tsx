@@ -8,6 +8,7 @@ import CareIcon from "@/CAREUI/icons/CareIcon";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 
+import { Avatar } from "@/components/Common/Avatar";
 import { useSignOut } from "@/components/Common/Sidebar/Utils";
 import { FacilityModel } from "@/components/Facility/models";
 import { UserAssignedModel } from "@/components/Users/models";
@@ -156,12 +157,9 @@ export function FacilityDetailsPage({ id }: Props) {
       <Card className="overflow-hidden bg-white">
         <div className="flex flex-col sm:flex-row  m-6">
           <div className="h-64 w-64 shrink-0 overflow-hidden rounded-lg">
-            <img
-              src={
-                facility.read_cover_image_url || "/images/default-facility.png"
-              }
-              alt={facility.name}
-              className="h-full w-full object-cover"
+            <Avatar
+              imageUrl={facility.read_cover_image_url}
+              name={facility.name || ""}
             />
           </div>
 
