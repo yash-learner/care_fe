@@ -28,8 +28,6 @@ export default function ListEncounterServiceRequests({
     },
   });
 
-  // TODO: Add Loader while fetching data
-
   const priorityVariantMap: Record<string, BadgeProps["variant"]> = {
     routine: "info",
     asap: "warning",

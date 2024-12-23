@@ -309,11 +309,18 @@ export const ReviewResult: React.FC<{
                       <span className="text-lg font-semibold text-gray-900">
                         {diagnosticReport?.based_on.id}
                       </span>
-                      <span className="px-2 py-1 text-xs font-medium bg-orange-100 text-orange-900 rounded">
+                      <Badge
+                        variant="outline"
+                        className={`${
+                          diagnosticReport?.conclusion
+                            ? "text-green-900 bg-green-100"
+                            : "text-orange-900 bg-orange-100 "
+                        }`}
+                      >
                         {diagnosticReport?.conclusion
-                          ? "Under Review"
-                          : "Completed"}
-                      </span>
+                          ? "Completed"
+                          : "Under Review"}
+                      </Badge>
                     </div>
                   </div>
                   <div className="flex items-center">
@@ -368,10 +375,11 @@ export const ReviewResult: React.FC<{
                             <div className="flex gap-2">
                               <p className="text-lg font-semibold text-gray-900 mb-4">
                                 {diagnosticReport?.based_on?.requester
-                                  ?.first_name ?? "Dummy Name"}
+                                  ?.first_name ?? "NA"}
                               </p>
                               <p className="text-lg font-normal text-gray-900 mb-4">
-                                Dummy Designation
+                                {diagnosticReport?.based_on?.requester
+                                  ?.user_type ?? "NA"}
                               </p>
                             </div>
 

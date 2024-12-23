@@ -242,11 +242,10 @@ export const CollectSpecimen: React.FC<{
                               {[
                                 data?.request.requester?.first_name,
                                 data?.request.requester?.last_name,
-                              ].join(" ")}
-                              {"District Admin"}
+                              ].join(" ") ?? "NA"}
                             </p>
                             <p className="text-lg font-normal text-gray-900 mb-4">
-                              {data?.request.requester?.user_type}
+                              {data?.request.requester?.user_type ?? "NA"}
                             </p>
                           </div>
 
