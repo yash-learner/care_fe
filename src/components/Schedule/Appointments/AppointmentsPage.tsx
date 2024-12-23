@@ -1,5 +1,4 @@
-import { ArrowRightIcon } from "@radix-ui/react-icons";
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { useQuery } from "@tanstack/react-query";
 import { formatDate } from "date-fns";
 import { Link, useQueryParams } from "raviger";
 import { useState } from "react";
@@ -32,7 +31,6 @@ import { formatAvailabilityTime } from "@/components/Users/UserAvailabilityTab";
 import useAuthUser from "@/hooks/useAuthUser";
 
 import query from "@/Utils/request/query";
-import request from "@/Utils/request/request";
 import { formatName, formatPatientAge } from "@/Utils/utils";
 
 interface QueryParams {
@@ -234,13 +232,10 @@ function AppointmentColumn(props: {
             {appointments.map((appointment) => (
               <li key={appointment.id}>
                 <Link
-                  href={`/facility/${props.facilityId}/patient/${appointment.patient.id}/encounters`}
+                  href={`/facility/${props.facilityId}/patient/${appointment.patient.id}/appointments/${appointment.id}`}
                   className="text-inherit"
                 >
-                  <AppointmentCard
-                    appointment={appointment}
-                    facilityId={props.facilityId}
-                  />
+                  <AppointmentCard appointment={appointment} />
                 </Link>
               </li>
             ))}
@@ -251,35 +246,9 @@ function AppointmentColumn(props: {
   );
 }
 
-function AppointmentCard({
-  appointment,
-  facilityId,
-}: {
-  appointment: Appointment;
-  facilityId: string;
-}) {
+function AppointmentCard({ appointment }: { appointment: Appointment }) {
   const { patient } = appointment;
   const { t } = useTranslation();
-  const queryClient = useQueryClient();
-
-  const { mutate: updateStatus } = useMutation({
-    mutationFn: (status: Appointment["status"]) =>
-      request(ScheduleAPIs.appointments.update, {
-        pathParams: {
-          facility_id: facilityId,
-          id: appointment.id,
-        },
-        body: { status },
-      }),
-    onSuccess: () => {
-      queryClient.invalidateQueries({
-        queryKey: ["appointments", facilityId, appointment.status],
-      });
-      queryClient.invalidateQueries({
-        queryKey: ["appointments", facilityId, "checked_in"],
-      });
-    },
-  });
 
   return (
     <div className="bg-white p-3 rounded shadow group hover:ring-1 hover:ring-primary-700 hover:ring-offset-1 hover:ring-offset-white hover:shadow-md transition-all duration-100 ease-in-out">
@@ -293,39 +262,13 @@ function AppointmentCard({
             {t(`GENDER__${patient.gender}`)}
           </p>
         </div>
-        <div className="flex gap-0 group-hover:gap-3 items-end transition-all duration-200 ease-in-out">
-          {appointment.status === "booked" && (
-            <Button
-              variant="outline"
-              size="sm"
-              className="opacity-0 group-hover:opacity-100 transition-all duration-200 ease-in-out"
-              onClick={(e) => {
-                e.preventDefault();
-                e.stopPropagation();
-                updateStatus("checked_in");
-              }}
-            >
-              <span>{t("check_in")}</span>
-              <ArrowRightIcon className="size-3 ml-1" />
-            </Button>
-          )}
-          {appointment.status === "checked_in" && (
-            <Button
-              variant="outline"
-              size="sm"
-              className="opacity-0 group-hover:opacity-100 transition-all duration-200 ease-in-out"
-            >
-              <span>{t("consult")}</span>
-              <ArrowRightIcon className="size-3 ml-1" />
-            </Button>
-          )}
-          <div className="bg-gray-100 px-2 py-1 rounded text-center">
-            <p className="text-[10px] uppercase">{t("token")}</p>
-            {/* TODO: replace this with token number once that's ready... */}
-            <p className="font-bold text-2xl uppercase">
-              {getFakeTokenNumber(appointment)}
-            </p>
-          </div>
+
+        <div className="bg-gray-100 px-2 py-1 rounded text-center">
+          <p className="text-[10px] uppercase">{t("token")}</p>
+          {/* TODO: replace this with token number once that's ready... */}
+          <p className="font-bold text-2xl uppercase">
+            {getFakeTokenNumber(appointment)}
+          </p>
         </div>
       </div>
     </div>

@@ -202,7 +202,7 @@ export default function AppointmentCreatePage(props: Props) {
       });
       toast.success("Appointment created successfully");
       navigate(
-        `/facility/${props.facilityId}/patient/${props.patientId}/appointment/${data.id}/token`,
+        `/facility/${props.facilityId}/patient/${props.patientId}/appointments/${data.id}/token`,
       );
     } catch (error) {
       toast.error("Failed to create appointment");

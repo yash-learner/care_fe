@@ -1,8 +1,9 @@
 import { Redirect } from "raviger";
 
-import AppointmentCreatePage from "@/components/Schedule/AppointmentCreatePage";
-import AppointmentTokenPage from "@/components/Schedule/AppointmentTokenPage";
-import AppointmentsPage from "@/components/Schedule/AppointmentsPage";
+import AppointmentCreatePage from "@/components/Schedule/Appointments/AppointmentCreatePage";
+import AppointmentDetailsPage from "@/components/Schedule/Appointments/AppointmentDetailsPage";
+import AppointmentTokenPage from "@/components/Schedule/Appointments/AppointmentTokenPage";
+import AppointmentsPage from "@/components/Schedule/Appointments/AppointmentsPage";
 
 import useAuthUser from "@/hooks/useAuthUser";
 
@@ -27,7 +28,17 @@ const ScheduleRoutes: AppRoutes = {
     patientId,
   }) => <AppointmentCreatePage facilityId={facilityId} patientId={patientId} />,
 
-  "/facility/:facilityId/patient/:patientId/appointment/:appointmentId/token":
+  "/facility/:facilityId/patient/:patientId/appointments/:appointmentId": ({
+    facilityId,
+    appointmentId,
+  }) => (
+    <AppointmentDetailsPage
+      facilityId={facilityId}
+      appointmentId={appointmentId}
+    />
+  ),
+
+  "/facility/:facilityId/patient/:patientId/appointments/:appointmentId/token":
     ({ facilityId, appointmentId }) => (
       <AppointmentTokenPage
         facilityId={facilityId}
