@@ -1,7 +1,15 @@
 import { useMutation, useQuery } from "@tanstack/react-query";
-import { format, isBefore, isSameDay, max, startOfToday } from "date-fns";
+import {
+  compareAsc,
+  format,
+  isBefore,
+  isSameDay,
+  max,
+  startOfToday,
+} from "date-fns";
 import { navigate } from "raviger";
 import { useState } from "react";
+import { useTranslation } from "react-i18next";
 import { toast } from "sonner";
 
 import { cn } from "@/lib/utils";
@@ -39,6 +47,8 @@ interface Props {
 }
 
 export default function AppointmentCreatePage(props: Props) {
+  const { t } = useTranslation();
+
   const [resourceId, setResourceId] = useState<string>();
   const [selectedMonth, setSelectedMonth] = useState(new Date());
   const [selectedDate, setSelectedDate] = useState(new Date());
@@ -204,14 +214,15 @@ export default function AppointmentCreatePage(props: Props) {
       <hr className="mt-6 mb-8" />
       <div className="container mx-auto p-4 max-w-5xl">
         <div className="mb-8">
+          {/* TODO: confirm how to rename this since we are keeping it abstract / not specific to doctor */}
           <h1 className="text-lg font-bold mb-2">Doctor Consultation</h1>
         </div>
 
         <div className="space-y-8">
           <div>
-            <Label className="mb-2">Reason for visit</Label>
+            <Label className="mb-2">{t("reason_for_visit")}</Label>
             <Textarea
-              placeholder="Type the reason for visit"
+              placeholder={t("reason_for_visit_placeholder")}
               value={reason}
               onChange={(e) => setReason(e.target.value)}
             />
@@ -219,14 +230,14 @@ export default function AppointmentCreatePage(props: Props) {
 
           <div className="grid grid-cols-1 md:grid-cols-2">
             <div>
-              <label className="block mb-2">Select Practitioner</label>
+              <label className="block mb-2">{t("select_practitioner")}</label>
               <Select
                 disabled={resourcesQuery.isLoading}
                 value={resourceId}
                 onValueChange={(value) => setResourceId(value)}
               >
                 <SelectTrigger>
-                  <SelectValue placeholder="Show all">
+                  <SelectValue placeholder={t("show_all")}>
                     {resource && (
                       <div className="flex items-center gap-2">
                         <Avatar
@@ -278,22 +289,21 @@ export default function AppointmentCreatePage(props: Props) {
 
             <div>
               <div className="flex items-center justify-between mb-4">
-                <h3 className="font-medium">Available Time Slots</h3>
+                <h3 className="font-medium">{t("available_time_slots")}</h3>
               </div>
 
               <div className="space-y-6">
                 {slotsQuery.data == null && (
                   <div className="flex items-center justify-center py-32 border-2 border-gray-200 border-dashed rounded-lg text-center">
                     <p className="text-gray-400">
-                      To view available slots, select a preferred doctor and
-                      date.
+                      {t("to_view_available_slots_select_resource_and_date")}
                     </p>
                   </div>
                 )}
                 {slotsQuery.data?.results.length === 0 && (
                   <div className="flex items-center justify-center py-32 border-2 border-gray-200 border-dashed rounded-lg text-center">
                     <p className="text-gray-400">
-                      No slots available for this date.
+                      {t("no_slots_available_for_this_date")}
                     </p>
                   </div>
                 )}
@@ -360,14 +370,14 @@ export default function AppointmentCreatePage(props: Props) {
           </div>
 
           <div className="flex justify-end gap-4">
-            <Button variant="outline">Cancel</Button>
+            <Button variant="outline">{t("cancel")}</Button>
             <Button
               variant="primary"
               type="submit"
               disabled={!selectedSlotId}
               onClick={handleSubmit}
             >
-              Schedule Appointment
+              {t("schedule_appointment")}
             </Button>
           </div>
         </div>
@@ -393,6 +403,16 @@ const groupSlotsByAvailability = (slots: SlotAvailability[]) => {
       result.push({ availability, slots: [slot] });
     }
   }
+
+  // sort slots by start time
+  result.forEach(({ slots }) =>
+    slots.sort((a, b) => compareAsc(a.start_datetime, b.start_datetime)),
+  );
+
+  // sort availability by first slot start time
+  result.sort((a, b) =>
+    compareAsc(a.slots[0].start_datetime, b.slots[0].start_datetime),
+  );
 
   return result;
 };
