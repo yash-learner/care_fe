@@ -6,6 +6,8 @@ import { useTranslation } from "react-i18next";
 
 import { cn } from "@/lib/utils";
 
+import CareIcon from "@/CAREUI/icons/CareIcon";
+
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -17,12 +19,13 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 import { Avatar } from "@/components/Common/Avatar";
 import Page from "@/components/Common/Page";
 import { ScheduleAPIs } from "@/components/Schedule/api";
 import { getFakeTokenNumber } from "@/components/Schedule/helpers";
-import { Appointment } from "@/components/Schedule/types";
+import { Appointment, SlotAvailability } from "@/components/Schedule/types";
 
 import useAuthUser from "@/hooks/useAuthUser";
 
@@ -64,12 +67,33 @@ export default function AppointmentsPage(props: { facilityId?: string }) {
         day: date,
       },
     }),
+    enabled: !!qParams.resource,
   });
   const slots = slotsQuery.data?.results;
   const slot = slots?.find((s) => s.id === qParams.slot);
 
   return (
-    <Page title="Out Patient (OP) Appointments" collapseSidebar>
+    <Page
+      title="Out Patient (OP) Appointments"
+      collapseSidebar
+      options={
+        <Tabs
+          value={viewMode}
+          onValueChange={(value) => setViewMode(value as "board" | "list")}
+        >
+          <TabsList>
+            <TabsTrigger value="board">
+              <CareIcon icon="l-kanban" className="mr-2" />
+              <span>{t("board")}</span>
+            </TabsTrigger>
+            <TabsTrigger value="list">
+              <CareIcon icon="l-list-ul" className="mr-2" />
+              <span>{t("list")}</span>
+            </TabsTrigger>
+          </TabsList>
+        </Tabs>
+      }
+    >
       <div className="mt-4 py-4 flex flex-col md:flex-row gap-4 justify-between border-t border-gray-200">
         <div className="flex flex-col md:flex-row gap-4 items-start md:items-center">
           <div>
@@ -129,42 +153,30 @@ export default function AppointmentsPage(props: { facilityId?: string }) {
                 ({formatDate(new Date(), "dd MMM yyyy")})
               </span>
             </Label>
-            <div className="flex bg-gray-100 rounded-lg p-1 max-w-min">
-              {/* TODO: switch to select if we have more than 3 slots or in mobile view */}
-              <Button
-                size="sm"
-                variant={slot ? "ghost" : "outline"}
-                onClick={() => setQParams({ resource: qParams.resource })}
-                className={cn(!slot && "shadow", "hover:bg-white")}
-              >
-                {t("all")}
-              </Button>
-              {slots?.map((slot) => (
-                <Button
-                  size="sm"
-                  key={slot.id}
-                  variant={slot?.id === qParams.slot ? "outline" : "ghost"}
-                  onClick={() =>
-                    setQParams({ resource: qParams.resource, slot: slot.id })
-                  }
-                  className={cn(
-                    slot?.id === qParams.slot && "shadow",
-                    "hover:bg-white",
-                  )}
-                >
-                  {format(slot.start_datetime, "h:mm a").replace(":00", "")}
-                  {" - "}
-                  {format(slot.end_datetime, "h:mm a").replace(":00", "")}
-                </Button>
-              ))}
-            </div>
+
+            <SlotFilter
+              slots={slots ?? []}
+              selectedSlot={qParams.slot}
+              onSelect={(slot) => {
+                const updated = { ...qParams };
+                if (slot === "all") {
+                  delete updated.slot;
+                } else {
+                  updated.slot = slot;
+                }
+                setQParams(updated);
+              }}
+            />
           </div>
         </div>
 
         <div className="flex gap-4 items-center">
           <Input className="w-[300px]" placeholder={t("search")} />
-          <Button variant="outline">{t("filter")}</Button>
-          <div className="flex border rounded-lg">
+          <Button variant="secondary">
+            <CareIcon icon="l-filter" className="mr-2" />
+            <span>{t("filter")}</span>
+          </Button>
+          {/* <div className="flex border rounded-lg">
             <Button
               variant="ghost"
               className={cn(
@@ -185,7 +197,7 @@ export default function AppointmentsPage(props: { facilityId?: string }) {
             >
               {t("list")}
             </Button>
-          </div>
+          </div> */}
         </div>
       </div>
 
@@ -217,15 +229,27 @@ export default function AppointmentsPage(props: { facilityId?: string }) {
 function AppointmentColumn(props: {
   facilityId: string;
   status: Appointment["status"];
+  resource?: string;
   slot?: string;
 }) {
   const { t } = useTranslation();
 
   const { data } = useQuery({
-    queryKey: ["appointments", props.facilityId, props.status, props.slot],
+    queryKey: [
+      "appointments",
+      props.facilityId,
+      props.status,
+      props.resource,
+      props.slot,
+    ],
     queryFn: query(ScheduleAPIs.appointments.list, {
       pathParams: { facility_id: props.facilityId },
-      queryParams: { status: props.status, limit: 100, slot: props.slot },
+      queryParams: {
+        status: props.status,
+        limit: 100,
+        slot: props.slot,
+        resource: props.resource,
+      },
     }),
   });
 
@@ -296,5 +320,52 @@ function AppointmentCard({ appointment }: { appointment: Appointment }) {
         </div>
       </div>
     </div>
+  );
+}
+
+interface SlotFilterProps {
+  slots: SlotAvailability[];
+  selectedSlot: string | undefined;
+  onSelect: (slot: string) => void;
+}
+
+function SlotFilter({ slots, selectedSlot, onSelect }: SlotFilterProps) {
+  const { t } = useTranslation();
+
+  if (slots.length <= 3) {
+    return (
+      <Tabs value={selectedSlot ?? "all"} onValueChange={onSelect}>
+        <TabsList>
+          <TabsTrigger value="all" className="uppercase">
+            {t("all")}
+          </TabsTrigger>
+          {slots.map((slot) => (
+            <TabsTrigger key={slot.id} value={slot.id}>
+              {format(slot.start_datetime, "h:mm a").replace(":00", "")}
+              {" - "}
+              {format(slot.end_datetime, "h:mm a").replace(":00", "")}
+            </TabsTrigger>
+          ))}
+        </TabsList>
+      </Tabs>
+    );
+  }
+
+  return (
+    <Select value={selectedSlot ?? "all"} onValueChange={onSelect}>
+      <SelectTrigger>
+        <SelectValue />
+      </SelectTrigger>
+      <SelectContent>
+        <SelectItem value="all">{t("show_all_slots")}</SelectItem>
+        {slots.map((slot) => (
+          <SelectItem key={slot.id} value={slot.id}>
+            {format(slot.start_datetime, "h:mm a")}
+            {" - "}
+            {format(slot.end_datetime, "h:mm a")}
+          </SelectItem>
+        ))}
+      </SelectContent>
+    </Select>
   );
 }

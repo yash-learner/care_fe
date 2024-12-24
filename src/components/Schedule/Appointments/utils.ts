@@ -1,6 +1,15 @@
-import { compareAsc } from "date-fns";
+import careConfig from "@careConfig";
+import { useQuery } from "@tanstack/react-query";
+import { compareAsc, eachDayOfInterval, max, startOfToday } from "date-fns";
 
-import { SlotAvailability } from "@/components/Schedule/types";
+import { ScheduleAPIs } from "@/components/Schedule/api";
+import {
+  AvailabilityHeatmap,
+  SlotAvailability,
+} from "@/components/Schedule/types";
+
+import query from "@/Utils/request/query";
+import { dateQueryString, getMonthStartAndEnd } from "@/Utils/utils";
 
 export const groupSlotsByAvailability = (slots: SlotAvailability[]) => {
   const result: {
@@ -29,6 +38,62 @@ export const groupSlotsByAvailability = (slots: SlotAvailability[]) => {
   result.sort((a, b) =>
     compareAsc(a.slots[0].start_datetime, b.slots[0].start_datetime),
   );
+
+  return result;
+};
+
+/**
+ * Get the availability heatmap for a user for a given month
+ */
+export const useAvailabilityHeatmap = ({
+  facilityId,
+  userId,
+  month,
+}: {
+  facilityId: string;
+  userId?: string;
+  month: Date;
+}) => {
+  const { start, end } = getMonthStartAndEnd(month);
+
+  // start from today if the month is current or past
+  const fromDate = dateQueryString(max([start, startOfToday()]));
+  const toDate = dateQueryString(end);
+
+  let queryFn = query(ScheduleAPIs.slots.availabilityHeatmap, {
+    pathParams: { facility_id: facilityId },
+    body: {
+      resource: userId,
+      from_date: fromDate,
+      to_date: toDate,
+    },
+  });
+
+  if (careConfig.appointments.useAvailabilityStatsAPI === false) {
+    queryFn = async () => getInfiniteAvailabilityHeatmap({ fromDate, toDate });
+  }
+
+  return useQuery({
+    queryKey: ["availabilityHeatmap", userId, fromDate, toDate],
+    queryFn,
+    enabled: !!userId,
+  });
+};
+
+const getInfiniteAvailabilityHeatmap = ({
+  fromDate,
+  toDate,
+}: {
+  fromDate: string;
+  toDate: string;
+}) => {
+  const dates = eachDayOfInterval({ start: fromDate, end: toDate });
+
+  const result: AvailabilityHeatmap = {};
+
+  for (const date of dates) {
+    result[dateQueryString(date)] = { total_slots: Infinity, booked_slots: 0 };
+  }
 
   return result;
 };

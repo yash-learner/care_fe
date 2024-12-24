@@ -1,5 +1,5 @@
 import { useMutation, useQuery } from "@tanstack/react-query";
-import { format, isBefore, isSameDay, max, startOfToday } from "date-fns";
+import { format, isBefore, isSameDay, startOfToday } from "date-fns";
 import { navigate } from "raviger";
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
@@ -22,17 +22,15 @@ import { Textarea } from "@/components/ui/textarea";
 
 import { Avatar } from "@/components/Common/Avatar";
 import Page from "@/components/Common/Page";
-import { groupSlotsByAvailability } from "@/components/Schedule/Appointments/utils";
+import {
+  groupSlotsByAvailability,
+  useAvailabilityHeatmap,
+} from "@/components/Schedule/Appointments/utils";
 import { ScheduleAPIs } from "@/components/Schedule/api";
 
 import mutate from "@/Utils/request/mutate";
 import query from "@/Utils/request/query";
-import {
-  dateQueryString,
-  formatDisplayName,
-  formatName,
-  getMonthStartAndEnd,
-} from "@/Utils/utils";
+import { dateQueryString, formatDisplayName, formatName } from "@/Utils/utils";
 
 interface Props {
   facilityId: string;
@@ -59,22 +57,10 @@ export default function AppointmentCreatePage(props: Props) {
   });
   const resource = resourcesQuery.data?.users.find((r) => r.id === resourceId);
 
-  const month = getMonthStartAndEnd(selectedMonth);
-
-  const fromDate = dateQueryString(max([month.start, startOfToday()]));
-  const toDate = dateQueryString(month.end);
-
-  const heatmapQuery = useQuery({
-    queryKey: ["availabilityHeatmap", resourceId, fromDate, toDate],
-    queryFn: query(ScheduleAPIs.slots.availabilityHeatmap, {
-      pathParams: { facility_id: props.facilityId },
-      body: {
-        resource: resourceId,
-        from_date: fromDate,
-        to_date: toDate,
-      },
-    }),
-    enabled: !!resourceId,
+  const heatmapQuery = useAvailabilityHeatmap({
+    facilityId: props.facilityId,
+    userId: resourceId,
+    month: selectedMonth,
   });
 
   const slotsQuery = useQuery({
@@ -136,7 +122,8 @@ export default function AppointmentCreatePage(props: Props) {
 
     const { booked_slots, total_slots } = availability;
     const bookedPercentage = booked_slots / total_slots;
-    const isFullyBooked = booked_slots >= total_slots;
+    const tokensLeft = total_slots - booked_slots;
+    const isFullyBooked = tokensLeft <= 0;
 
     return (
       <button
@@ -153,18 +140,20 @@ export default function AppointmentCreatePage(props: Props) {
       >
         <div className="relative z-10">
           <span>{date.getDate()}</span>
-          <span
-            className={cn(
-              "text-xs text-gray-500 block font-semibold",
-              bookedPercentage >= 0.8
-                ? "text-red-500"
-                : bookedPercentage >= 0.5
-                  ? "text-yellow-500"
-                  : "text-primary-500",
-            )}
-          >
-            {total_slots - booked_slots} left
-          </span>
+          {Number.isFinite(tokensLeft) && (
+            <span
+              className={cn(
+                "text-xs text-gray-500 block font-semibold",
+                bookedPercentage >= 0.8
+                  ? "text-red-500"
+                  : bookedPercentage >= 0.5
+                    ? "text-yellow-500"
+                    : "text-primary-500",
+              )}
+            >
+              {tokensLeft} left
+            </span>
+          )}
         </div>
         {!isFullyBooked && (
           <div
