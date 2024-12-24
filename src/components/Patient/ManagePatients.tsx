@@ -885,7 +885,9 @@ export const PatientManager = () => {
                 navigate(`facility/${selectedFacility.id}/patient`);
                 break;
               case "list-discharged":
-                navigate(`facility/${selectedFacility.id}/discharged-patients`);
+                navigate(
+                  `/patients/discharged?facility=${selectedFacility.id}`,
+                );
                 break;
             }
           } else {

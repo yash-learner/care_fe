@@ -245,7 +245,7 @@ export default function PatientIndex(props: {
             // for a user that has access to just one facility, or if the user is filtering by one facility, take them to the dedicated facility discharge page
             const id = qParams.facility || onlyAccessibleFacility?.id;
             if (id) {
-              navigate(`facility/${id}/discharged-patients`);
+              navigate(`/patients/discharged?facility=${id}`);
               return;
             }
 
@@ -394,7 +394,7 @@ export default function PatientIndex(props: {
               navigate(`/facility/${selectedFacility.id}/patient/create`);
               break;
             case "list-discharged":
-              navigate(`/facility/${selectedFacility.id}/discharged-patients`);
+              navigate(`/patients/discharged?facility=${selectedFacility.id}`);
               break;
           }
         }}
