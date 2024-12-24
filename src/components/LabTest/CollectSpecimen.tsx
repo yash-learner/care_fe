@@ -10,6 +10,7 @@ import { FaDroplet } from "react-icons/fa6";
 
 import CareIcon from "@/CAREUI/icons/CareIcon";
 
+import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
   Collapsible,
@@ -18,9 +19,12 @@ import {
 } from "@/components/ui/collapsible";
 import { Input } from "@/components/ui/input";
 
+import { mapKeyToBadgeVariant } from "@/Utils/badgeUtils";
 import routes from "@/Utils/request/api";
 import request from "@/Utils/request/request";
 import useQuery from "@/Utils/request/useQuery";
+
+import { PRIORITY_VARIANT_MAP } from "./Index";
 
 export const CollectSpecimen: React.FC<{
   specimenId: string;
@@ -137,7 +141,10 @@ export const CollectSpecimen: React.FC<{
           <h2 className="text-2xl leading-tight">Collect Specimen</h2>
           <div className="space-x-4 flex mt-4 lg:mt-0">
             <Button variant={"link"}>Specimen Collected</Button>
-            <Button variant="secondary" className="flex items-center gap-1">
+            <Button
+              variant="secondary"
+              className="flex items-center gap-1 border-[2px] border-gray-300"
+            >
               Next Patient
               <ArrowRightIcon className="h-4 w-4" />
             </Button>
@@ -259,9 +266,15 @@ export const CollectSpecimen: React.FC<{
                           <h3 className="text-sm font-semibold text-gray-600">
                             Priority
                           </h3>
-                          <span className="px-3 py-1 inline-block text-sm font-semibold text-blue-600 bg-blue-100 rounded-lg">
-                            {data?.request.priority ?? "Routine"}
-                          </span>
+                          <Badge
+                            variant={mapKeyToBadgeVariant(
+                              data?.request.priority,
+                              PRIORITY_VARIANT_MAP,
+                            )}
+                            className="capitalize"
+                          >
+                            {data?.request?.priority ?? "Routine"}
+                          </Badge>
                         </div>
                       </div>
                       {/* Note Section */}

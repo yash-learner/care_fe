@@ -39,19 +39,13 @@ import { mapKeyToBadgeVariant } from "@/Utils/badgeUtils";
 import routes from "@/Utils/request/api";
 import request from "@/Utils/request/request";
 
-import { Badge, BadgeProps } from "../ui/badge";
+import { Badge } from "../ui/badge";
+import { PRIORITY_VARIANT_MAP } from "./Index";
 import LabObservationCodeSelect from "./LabObservationCodeSelect";
 import { Coding, DiagnosticReport, Specimen } from "./types";
 
 type ProcessSpecimenProps = {
   specimenId?: string;
-};
-
-const priorityVariantMap: Record<string, BadgeProps["variant"]> = {
-  routine: "info",
-  asap: "warning",
-  urgent: "highlight",
-  stat: "error",
 };
 
 export const ProcessSpecimen = ({ specimenId }: ProcessSpecimenProps) => {
@@ -242,7 +236,7 @@ export const ProcessSpecimen = ({ specimenId }: ProcessSpecimenProps) => {
                 <Badge
                   variant={mapKeyToBadgeVariant(
                     specimen.request.priority?.toLowerCase(),
-                    priorityVariantMap,
+                    PRIORITY_VARIANT_MAP,
                   )}
                   className="rounded-sm capitalize shadow-none"
                 >

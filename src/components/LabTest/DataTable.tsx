@@ -12,20 +12,14 @@ import {
 
 import { mapKeyToBadgeVariant } from "@/Utils/badgeUtils";
 
-import { Badge, BadgeProps } from "../ui/badge";
+import { Badge } from "../ui/badge";
+import { PRIORITY_VARIANT_MAP } from "./Index";
 
 interface DataTableProps {
   columns: Array<{ label: string; key: string; render_as?: string }>;
   data: Array<Record<string, any>>;
   actions?: (row: Record<string, any>) => React.ReactNode;
 }
-
-const priorityVariantMap: Record<string, BadgeProps["variant"]> = {
-  routine: "info",
-  asap: "warning",
-  urgent: "highlight",
-  stat: "error",
-};
 
 export const DataTable: React.FC<DataTableProps> = ({
   columns,
@@ -65,7 +59,7 @@ export const DataTable: React.FC<DataTableProps> = ({
                     <Badge
                       variant={mapKeyToBadgeVariant(
                         row[col.key].toLowerCase(),
-                        priorityVariantMap,
+                        PRIORITY_VARIANT_MAP,
                       )}
                       className="rounded-sm capitalize shadow-none"
                     >

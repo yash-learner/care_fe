@@ -1,6 +1,6 @@
 import { Link, usePath } from "raviger";
 
-
+import { BadgeProps } from "@/components/ui/badge";
 
 import Page from "@/components/Common/Page";
 import { OrderPlaced } from "@/components/LabTest/OrderPlaced";
@@ -11,6 +11,13 @@ import { SpecimenCollected } from "@/components/LabTest/SpecimenCollected";
 import { InProcess } from "./InProcess";
 import { ResultsPublished } from "./ResultsPublished";
 import { ReviewRequired } from "./ReviewRequired";
+
+export const PRIORITY_VARIANT_MAP: Record<string, BadgeProps["variant"]> = {
+  routine: "info",
+  asap: "warning",
+  urgent: "highlight",
+  stat: "error",
+};
 
 export const LabTest = () => {
   const currentPath = usePath();

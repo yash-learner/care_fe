@@ -25,14 +25,8 @@ import routes from "@/Utils/request/api";
 import request from "@/Utils/request/request";
 import useQuery from "@/Utils/request/useQuery";
 
-import { Badge, BadgeProps } from "../ui/badge";
-
-const priorityVariantMap: Record<string, BadgeProps["variant"]> = {
-  routine: "info",
-  asap: "warning",
-  urgent: "highlight",
-  stat: "error",
-};
+import { Badge } from "../ui/badge";
+import { PRIORITY_VARIANT_MAP } from "./Index";
 
 const columns = [
   {
@@ -396,7 +390,7 @@ export const ReviewResult: React.FC<{
                             <Badge
                               variant={mapKeyToBadgeVariant(
                                 diagnosticReport?.based_on.priority?.toLowerCase(),
-                                priorityVariantMap,
+                                PRIORITY_VARIANT_MAP,
                               )}
                               className="rounded-sm capitalize shadow-none"
                             >

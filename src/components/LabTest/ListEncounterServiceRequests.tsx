@@ -4,7 +4,7 @@ import { mapKeyToBadgeVariant } from "@/Utils/badgeUtils";
 import routes from "@/Utils/request/api";
 import useQuery from "@/Utils/request/useQuery";
 
-import { Badge, BadgeProps } from "../ui/badge";
+import { Badge } from "../ui/badge";
 import { Separator } from "../ui/separator";
 import {
   Table,
@@ -14,6 +14,7 @@ import {
   TableHeader,
   TableRow,
 } from "../ui/table";
+import { PRIORITY_VARIANT_MAP } from "./Index";
 
 type ListEncounterServiceRequestsProps = {
   encounterId: string;
@@ -27,13 +28,6 @@ export default function ListEncounterServiceRequests({
       encounter: encounterId,
     },
   });
-
-  const priorityVariantMap: Record<string, BadgeProps["variant"]> = {
-    routine: "info",
-    asap: "warning",
-    urgent: "highlight",
-    stat: "error",
-  };
 
   const columns = [
     {
@@ -86,7 +80,7 @@ export default function ListEncounterServiceRequests({
                 <Badge
                   variant={mapKeyToBadgeVariant(
                     request.priority?.toLowerCase(),
-                    priorityVariantMap,
+                    PRIORITY_VARIANT_MAP,
                   )}
                   className="rounded-sm capitalize shadow-none"
                 >
