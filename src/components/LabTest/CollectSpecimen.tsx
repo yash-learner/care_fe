@@ -1,6 +1,5 @@
 import {
   ArrowRightIcon,
-  CheckIcon,
   ChevronDownIcon,
   ChevronUpIcon,
   CrossCircledIcon,
@@ -24,6 +23,10 @@ import routes from "@/Utils/request/api";
 import request from "@/Utils/request/request";
 import useQuery from "@/Utils/request/useQuery";
 
+import {
+  ProgressBarStep,
+  ServiceRequestTimeline,
+} from "../Common/ServiceRequestTimeline";
 import { PRIORITY_VARIANT_MAP } from "./Index";
 
 export const CollectSpecimen: React.FC<{
@@ -41,89 +44,36 @@ export const CollectSpecimen: React.FC<{
     setOpenOrders((prev) => ({ ...prev, [orderId]: !prev[orderId] }));
   };
 
+  const specimenDispatchedStatus = data?.dispatched_at
+    ? "completed"
+    : data?.collected_at
+      ? "pending"
+      : "notStarted";
+
+  const specimenReceivedStatus = data?.received_at
+    ? "completed"
+    : data?.dispatched_at
+      ? "pending"
+      : "notStarted";
+
+  // Minimal example of steps with no sub-steps
+  const steps: ProgressBarStep[] = [
+    { label: "Order Placed", status: "completed" },
+    {
+      label: "Specimen Collection",
+      status: data?.collected_at ? "completed" : "pending",
+    },
+    { label: "Sent to Lab", status: specimenDispatchedStatus },
+    { label: "Received at Lab", status: specimenReceivedStatus },
+    { label: "Test Ongoing", status: "notStarted" },
+    { label: "Under Review", status: "notStarted" },
+    { label: "Completed", status: "notStarted" },
+  ];
+
   return (
     <div className="flex flex-col-reverse lg:flex-row min-h-screen">
       {/* Left - Navigation/Progress Bar */}
-      <nav className="w-full lg:max-w-xs bg-gray-100 p-6 border-b lg:border-b-0 lg:border-r border-gray-200">
-        <ul className="relative">
-          {/* Order Placed */}
-          <li className="flex gap-2 before:content-[''] before:block before:h-20">
-            <div className="relative last:after:hidden after:absolute after:top-4 after:bottom-0 after:left-[7px] after:w-0.5 after:bg-gray-300 ">
-              <CheckIcon className="relative z-10 h-4 w-4 rounded-full bg-green-600 text-white" />
-            </div>
-            <div className="flex flex-col gap-2 pb-4">
-              <span className="text-green-600">Order Placed</span>
-              <div className="flex flex-col">
-                <span className="text-gray-500 text-sm">
-                  Order 1: CARE_LAB_001
-                </span>
-                <span className="text-gray-500 text-sm">
-                  Order 2: CARE_LAB_002
-                </span>
-              </div>
-            </div>
-          </li>
-
-          {/* Specimen Collection */}
-          <li className="flex gap-2 before:content-[''] before:block before:h-20">
-            <div className="relative last:after:hidden after:absolute after:top-0 after:bottom-0 after:left-[7px] after:w-0.5 after:bg-gray-300 ">
-              <img
-                src="/images/clock_history.svg"
-                className="w-4 h-4 z-10 relative text-base"
-              />
-            </div>
-            <div className="flex flex-col gap-2 pb-4">
-              <span className="text-blue-600">Specimen Collection</span>
-              <div className="flex flex-col">
-                <span className="text-gray-500 text-sm">
-                  Order 1: Collected
-                </span>
-                <span className="text-gray-500 text-sm">Order 2: Pending</span>
-              </div>
-            </div>
-          </li>
-
-          {/* Sent to Lab */}
-          <li className="flex gap-2 before:content-[''] before:block before:h-20">
-            <div className="relative last:after:hidden after:absolute after:top-0 after:bottom-0 after:left-[7px] after:w-0.5 after:bg-gray-300">
-              <div className="relative z-10 h-4 w-4 rounded-full bg-gray-300"></div>
-            </div>
-            <div className="flex flex-col gap-2 pb-4">
-              <span className="text-gray-600">Sent to Lab</span>
-            </div>
-          </li>
-
-          {/* Received at Lab */}
-          <li className="flex gap-2 before:content-[''] before:block before:h-20">
-            <div className="relative last:after:hidden after:absolute after:top-0 after:bottom-0 after:left-[7px] after:w-0.5 after:bg-gray-300">
-              <div className="relative z-10 h-4 w-4 rounded-full bg-gray-300"></div>
-            </div>
-            <span className="text-gray-600">Received at Lab</span>
-          </li>
-
-          {/* Test Ongoing */}
-          <li className="flex gap-2 before:content-[''] before:block before:h-20">
-            <div className="relative last:after:hidden after:absolute after:top-0 after:bottom-0 after:left-[7px] after:w-0.5 after:bg-gray-300">
-              <div className="relative z-10 h-4 w-4 rounded-full bg-gray-300"></div>
-            </div>
-            <span className="text-gray-60">Test Ongoing</span>
-          </li>
-
-          {/* Under Review */}
-          <li className="flex gap-2 before:content-[''] before:block before:h-20">
-            <div className="relative last:after:hidden after:absolute after:top-0 after:bottom-0 after:left-[7px] after:w-0.5 after:bg-gray-300">
-              <div className="relative z-10 h-4 w-4 rounded-full bg-gray-300"></div>
-            </div>
-            <span className="text-gray-600">Under Review</span>
-          </li>
-
-          {/* Completed */}
-          <li className="flex gap-2 before:content-[''] before:block before:h-20">
-            <div className="relative z-10 h-4 w-4 rounded-full bg-gray-300"></div>
-            <span className="text-gray-600">Completed</span>
-          </li>
-        </ul>
-      </nav>
+      <ServiceRequestTimeline steps={steps} />
 
       {/* Right - Main Content */}
       <main className="flex-1 p-6 lg:p-8 max-w-5xl mx-auto">
