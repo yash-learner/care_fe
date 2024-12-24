@@ -398,12 +398,17 @@ export function PatientRegistration(props: PatientRegistrationProps) {
                   />
                 )}
                 {ageInputType === "age" && (
-                  <TextFormField
-                    {...field("year_of_birth")}
-                    placeholder="Enter Age"
-                    required
-                    type="number"
-                  />
+                  <>
+                    <span className="text-xs text-gray-500">
+                      {t("age_notice")}
+                    </span>
+                    <TextFormField
+                      {...field("year_of_birth")}
+                      placeholder="Enter Age"
+                      required
+                      type="number"
+                    />
+                  </>
                 )}
               </div>
               <div className="space-y-2 mt-12 flex-row bg-white border border-gray-200/50 rounded-md p-8 shadow-md">
