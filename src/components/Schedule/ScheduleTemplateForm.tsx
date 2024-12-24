@@ -126,7 +126,6 @@ export default function ScheduleTemplateForm({ user, onRefresh }: Props) {
       valid_from: dateQueryString(values.valid_from),
       valid_to: dateQueryString(values.valid_to),
       name: values.name,
-      resource_type: "user",
       resource: user.external_id,
       availabilities: values.availabilities.map((availability) => ({
         name: availability.name,

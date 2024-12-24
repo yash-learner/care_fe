@@ -5,7 +5,6 @@ import { UserBase } from "@/types/user/base";
 
 export interface ScheduleTemplate {
   readonly id: string;
-  resource_type: "user";
   resource: string;
   name: string;
   valid_from: string;
