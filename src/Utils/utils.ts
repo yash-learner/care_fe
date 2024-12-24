@@ -1,12 +1,11 @@
 import { format } from "date-fns";
 
-import { PatientModel } from "@/components/Patient/models";
-
 import { AREACODES, IN_LANDLINE_AREA_CODES } from "@/common/constants";
 import phoneCodesJson from "@/common/static/countryPhoneAndFlags.json";
 
 import dayjs from "@/Utils/dayjs";
 import { Time } from "@/Utils/types";
+import { PatientModel } from "@/types/emr/patient";
 
 interface ApacheParams {
   age: number;
@@ -240,6 +239,7 @@ export const parsePhoneNumber = (phoneNumber: string, countryCode?: string) => {
   if (phoneNumber === "+91") return "";
   const phoneCodes: Record<string, CountryData> = phoneCodesJson;
   let parsedNumber = phoneNumber.replace(/[-+() ]/g, "");
+  if (parsedNumber.length < 12) return "";
   if (countryCode && phoneCodes[countryCode]) {
     parsedNumber = phoneCodes[countryCode].code + parsedNumber;
   } else if (!phoneNumber.startsWith("+")) {
