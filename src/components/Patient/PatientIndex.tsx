@@ -127,7 +127,7 @@ export default function PatientIndex(props: {
   );
 
   const getCleanedParams = (
-    params: Record<string, string | number | undefined>,
+    params: Record<string, string | number | undefined | boolean>,
   ) => {
     const cleaned: typeof params = {};
     Object.keys(params).forEach((key) => {
@@ -143,8 +143,7 @@ export default function PatientIndex(props: {
     page: qParams.page || 1,
     limit: resultsPerPage,
     is_active:
-      !qParams.last_consultation__new_discharge_reason &&
-      (qParams.is_active || "True"),
+      tab === "search" ? undefined : tab === "discharged" ? false : true,
     phone_number: qParams.phone_number
       ? parsePhoneNumber(qParams.phone_number)
       : undefined,
@@ -268,15 +267,15 @@ export default function PatientIndex(props: {
         }}
         tabs={[
           {
-            label: t("search_patients"),
+            label: t("search"),
             value: "search",
           },
           {
-            label: t("all_patients"),
+            label: t("live"),
             value: "live",
           },
           {
-            label: t("discharged_patients"),
+            label: t("discharged"),
             value: "discharged",
           },
         ]}
