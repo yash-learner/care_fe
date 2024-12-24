@@ -42,8 +42,8 @@ const GetNavItems = (selectedUser: AppointmentPatient | null) => {
   const { t } = useTranslation();
   const { state, district, ward, local_body } = selectedUser || {};
   const paramString =
-    (!state ? `state=${state}&` : "") +
-    (!district ? `district=${district}&` : "") +
+    (state ? `state=${state}&` : "") +
+    (district ? `district=${district}&` : "") +
     (ward ? `ward=${ward}&` : "") +
     (local_body ? `local_body=${local_body}` : "");
   const BaseNavItems: INavItem[] = [
