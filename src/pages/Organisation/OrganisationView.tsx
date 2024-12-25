@@ -30,10 +30,6 @@ export default function OrganisationView({ id }: Props) {
       <div className="space-y-6">
         <div className="flex justify-between items-center">
           <h2 className="text-lg font-semibold">Organisations</h2>
-          <Button variant="outline">
-            <CareIcon icon="l-plus" className="mr-2 h-4 w-4" />
-            Add Organization
-          </Button>
         </div>
 
         {isLoading ? (
