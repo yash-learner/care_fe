@@ -123,51 +123,55 @@ export default function OrganisationSelector(props: OrganisationSelectorProps) {
   };
 
   return (
-    <div className="space-y-4">
+    <>
       {/* Selected Levels */}
       {selectedLevels.map((level, index) => (
-        <InputWithError
-          key={level.id}
-          label={
-            index === 0 ? ORGANISATION_LEVELS.govt[0] : getLevelLabel(level)
-          }
-          required={index === 0 && required}
-        >
-          <div className="flex gap-2">
-            <div className="flex-1 p-2 border rounded-md bg-muted">
-              {level.name}
+        <div>
+          <InputWithError
+            key={level.id}
+            label={
+              index === 0 ? ORGANISATION_LEVELS.govt[0] : getLevelLabel(level)
+            }
+            required={required}
+          >
+            <div className="flex">
+              <div className="flex items-center h-9 w-full rounded-md border border-gray-200 bg-white px-3 py-1 text-base shadow-sm transition-colors file:border-0 file:bg-transparent file:text-sm file:font-medium file:text-gray-950 placeholder:text-gray-500 focus-visible:border-primary-500 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-primary-500 disabled:cursor-not-allowed disabled:opacity-50 md:text-sm dark:border-gray-800 dark:file:text-gray-50 dark:placeholder:text-gray-400 dark:focus-visible:ring-gray-300">
+                {level.name}
+              </div>
+              <Button
+                variant="ghost"
+                size="icon"
+                onClick={() => handleEdit(index)}
+                type="button"
+              >
+                <CareIcon icon="l-trash" className="h-4 w-4" />
+              </Button>
             </div>
-            <Button
-              variant="ghost"
-              size="icon"
-              onClick={() => handleEdit(index)}
-              type="button"
-            >
-              <CareIcon icon="l-pen" className="h-4 w-4" />
-            </Button>
-          </div>
-        </InputWithError>
+          </InputWithError>
+        </div>
       ))}
 
       {/* Next Level Selection */}
       {ORGANISATION_LEVELS.govt[selectedLevels.length] && (
-        <InputWithError
-          label={ORGANISATION_LEVELS.govt[selectedLevels.length]}
-          required={selectedLevels.length === 0 && required}
-        >
-          <Autocomplete
-            value=""
-            options={getOrganizationOptions(
-              selectedLevels.length === 0
-                ? getAllOrganizations?.results
-                : currentLevelOrganizations?.results,
-            )}
-            onChange={(value: string) =>
-              handleLevelChange(value, selectedLevels.length)
-            }
-          />
-        </InputWithError>
+        <div>
+          <InputWithError
+            label={ORGANISATION_LEVELS.govt[selectedLevels.length]}
+            required={selectedLevels.length === 0 && required}
+          >
+            <Autocomplete
+              value=""
+              options={getOrganizationOptions(
+                selectedLevels.length === 0
+                  ? getAllOrganizations?.results
+                  : currentLevelOrganizations?.results,
+              )}
+              onChange={(value: string) =>
+                handleLevelChange(value, selectedLevels.length)
+              }
+            />
+          </InputWithError>
+        </div>
       )}
-    </div>
+    </>
   );
 }

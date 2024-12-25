@@ -644,6 +644,7 @@ export default function PatientRegistration(
               {form.nationality === "India" ? (
                 <>
                   <OrganisationSelector
+                    required={true}
                     onChange={(value) =>
                       setForm((f) => ({
                         ...f,
