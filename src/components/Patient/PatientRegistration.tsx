@@ -97,6 +97,7 @@ export default function PatientRegistration(
     "name",
     "phone_number",
     "emergency_phone_number",
+    "geo_organization",
     "gender",
     "blood_group",
     "date_of_birth",
