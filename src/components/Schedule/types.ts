@@ -73,6 +73,20 @@ interface AppointmentPatient {
   readonly year_of_birth: string | null;
 }
 
+export const AppointmentStatuses = [
+  "proposed",
+  "pending",
+  "booked",
+  "arrived",
+  "fulfilled",
+  "cancelled",
+  "noshow",
+  "entered_in_error",
+  "checked_in",
+  "waitlist",
+  "in_consultation",
+] as const;
+
 export interface Appointment {
   readonly id: string;
   readonly token_slot: SlotAvailability;
@@ -82,18 +96,7 @@ export interface Appointment {
    * This is null if the appointment was booked by the patient itself.
    */
   readonly booked_by: UserBase | null;
-  status:
-    | "proposed"
-    | "pending"
-    | "booked"
-    | "arrived"
-    | "fulfilled"
-    | "cancelled"
-    | "noshow"
-    | "entered_in_error"
-    | "checked_in"
-    | "waitlist"
-    | "in_consultation";
+  status: (typeof AppointmentStatuses)[number];
   readonly reason_for_visit: string;
   readonly resource: UserBase;
 }

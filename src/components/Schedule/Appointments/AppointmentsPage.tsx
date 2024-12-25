@@ -264,7 +264,7 @@ function AppointmentColumn(props: {
     >
       <div className="flex px-3 items-center gap-3 mb-4">
         <h2 className="font-semibold capitalize text-base px-1">
-          {props.status.replace("_", " ")}
+          {t(props.status)}
         </h2>
         <span className="bg-gray-200 px-2 py-1 rounded-md text-sm">
           {data?.count ?? "..."}

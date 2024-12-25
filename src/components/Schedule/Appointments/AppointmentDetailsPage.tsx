@@ -1,19 +1,33 @@
 import {
   CalendarIcon,
+  CheckCircledIcon,
   ClockIcon,
   DownloadIcon,
   DrawingPinIcon,
+  EnterIcon,
+  EyeNoneIcon,
   MobileIcon,
   PersonIcon,
+  PlusCircledIcon,
 } from "@radix-ui/react-icons";
-import { useQuery } from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { differenceInHours, differenceInYears, format } from "date-fns";
 import { useTranslation } from "react-i18next";
 import { toast } from "sonner";
 
+import { cn } from "@/lib/utils";
+
 import { Badge, BadgeProps } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Label } from "@/components/ui/label";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { Separator } from "@/components/ui/separator";
 
 import Loading from "@/components/Common/Loading";
@@ -22,9 +36,10 @@ import { FacilityModel } from "@/components/Facility/models";
 import { AppointmentTokenCard } from "@/components/Schedule/Appointments/AppointmentTokenCard";
 import { formatAppointmentSlotTime } from "@/components/Schedule/Appointments/utils";
 import { ScheduleAPIs } from "@/components/Schedule/api";
-import { Appointment } from "@/components/Schedule/types";
+import { Appointment, AppointmentStatuses } from "@/components/Schedule/types";
 
 import routes from "@/Utils/request/api";
+import mutate from "@/Utils/request/mutate";
 import query from "@/Utils/request/query";
 import { formatName, saveElementAsImage } from "@/Utils/utils";
 
@@ -35,6 +50,7 @@ interface Props {
 
 export default function AppointmentDetailsPage(props: Props) {
   const { t } = useTranslation();
+  const queryClient = useQueryClient();
 
   const facilityQuery = useQuery({
     queryKey: ["facility", props.facilityId],
@@ -53,6 +69,20 @@ export default function AppointmentDetailsPage(props: Props) {
         id: props.appointmentId,
       },
     }),
+  });
+
+  const { mutate: updateAppointment, isPending } = useMutation({
+    mutationFn: mutate(ScheduleAPIs.appointments.update, {
+      pathParams: {
+        facility_id: props.facilityId,
+        id: props.appointmentId,
+      },
+    }),
+    onSuccess: () => {
+      queryClient.invalidateQueries({
+        queryKey: ["appointment", props.appointmentId],
+      });
+    },
   });
 
   const appointment = appointmentQuery.data;
@@ -75,7 +105,12 @@ export default function AppointmentDetailsPage(props: Props) {
       }}
     >
       <div className="container mx-auto p-6 max-w-7xl">
-        <div className="flex flex-col md:flex-row">
+        <div
+          className={cn(
+            "flex flex-col md:flex-row",
+            isPending && "opacity-50 pointer-events-none animate-pulse",
+          )}
+        >
           <AppointmentDetails
             appointment={appointmentQuery.data}
             facility={facilityQuery.data}
@@ -102,6 +137,13 @@ export default function AppointmentDetailsPage(props: Props) {
                 <DownloadIcon className="size-4 mr-2" />
                 <span>{t("save")}</span>
               </Button>
+            </div>
+            <Separator className="my-4" />
+            <div className="mx-6">
+              <AppointmentActions
+                currentStatus={appointment.status}
+                onChange={(status) => updateAppointment({ status })}
+              />
             </div>
           </div>
         </div>
@@ -135,7 +177,7 @@ const AppointmentDetails = ({
                     in_consultation: "primary",
                     pending: "secondary",
                     arrived: "primary",
-                    fulfilled: "default",
+                    fulfilled: "primary",
                     entered_in_error: "destructive",
                     cancelled: "destructive",
                     noshow: "destructive",
@@ -143,8 +185,7 @@ const AppointmentDetails = ({
                 )[appointment.status] ?? "outline"
               }
             >
-              {appointment.status.charAt(0).toUpperCase() +
-                appointment.status.slice(1)}
+              {t(appointment.status)}
             </Badge>
           </CardTitle>
         </CardHeader>
@@ -261,6 +302,83 @@ const AppointmentDetails = ({
         {appointment.booked_by?.last_name} {t("on")}{" "}
         {format(appointment.booked_on, "MMMM d, yyyy 'at' h:mm a")}
       </div>
+    </div>
+  );
+};
+
+interface AppointmentActionsProps {
+  currentStatus: Appointment["status"];
+  onChange: (status: Appointment["status"]) => void;
+}
+
+const AppointmentActions = ({
+  currentStatus,
+  onChange,
+}: AppointmentActionsProps) => {
+  const { t } = useTranslation();
+
+  if (["fulfilled", "cancelled", "entered_in_error"].includes(currentStatus)) {
+    return null;
+  }
+
+  if (!["booked", "checked_in", "in_consultation"].includes(currentStatus)) {
+    return (
+      <div className="w-48">
+        <Label className="mb-2">{t("change_status")}</Label>
+        <Select
+          value={currentStatus}
+          onValueChange={(value) => onChange(value as Appointment["status"])}
+        >
+          <SelectTrigger>
+            <SelectValue />
+          </SelectTrigger>
+          <SelectContent>
+            {AppointmentStatuses.map((status) => (
+              <SelectItem value={status}>{t(status)}</SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+      </div>
+    );
+  }
+
+  return (
+    <div className="flex justify-end gap-2">
+      {currentStatus === "in_consultation" && (
+        <Button variant="outline_primary" onClick={() => onChange("fulfilled")}>
+          <CheckCircledIcon className="size-4 mr-2" />
+          {t("mark_as_fulfilled")}
+        </Button>
+      )}
+
+      {["booked", "checked_in"].includes(currentStatus) && (
+        <Button variant="outline" onClick={() => onChange("noshow")}>
+          <EyeNoneIcon className="size-4 mr-2" />
+          {t("mark_as_noshow")}
+        </Button>
+      )}
+
+      {["booked", "checked_in"].includes(currentStatus) && (
+        <Button
+          variant={
+            currentStatus === "checked_in" ? "outline_primary" : "outline"
+          }
+          onClick={() => onChange("in_consultation")}
+        >
+          <PlusCircledIcon className="size-4 mr-2" />
+          {t("start_consultation")}
+        </Button>
+      )}
+
+      {currentStatus === "booked" && (
+        <Button
+          variant="outline_primary"
+          onClick={() => onChange("checked_in")}
+        >
+          <EnterIcon className="size-4 mr-2" />
+          {t("check_in")}
+        </Button>
+      )}
     </div>
   );
 };
