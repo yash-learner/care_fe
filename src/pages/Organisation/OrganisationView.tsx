@@ -65,17 +65,15 @@ export default function OrganisationView({ id }: Props) {
                             </Badge>
                           </div>
                         </div>
-                        {org.has_children && (
-                          <Button variant="link" asChild>
-                            <Link href={`/organisation/${org.id}`}>
-                              View Details
-                              <CareIcon
-                                icon="l-arrow-right"
-                                className="h-4 w-4"
-                              />
-                            </Link>
-                          </Button>
-                        )}
+                        <Button variant="link" asChild>
+                          <Link href={`/organisation/${org.id}`}>
+                            View Details
+                            <CareIcon
+                              icon="l-arrow-right"
+                              className="h-4 w-4"
+                            />
+                          </Link>
+                        </Button>
                       </div>
                       {org.description && (
                         <p className="text-sm text-gray-500 line-clamp-2">

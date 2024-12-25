@@ -26,7 +26,7 @@ export interface Organization {
   updated_at: string;
 }
 
-export interface OrganizationUser {
+export interface OrganizationUserRole {
   id: string;
   user: {
     id: string;
@@ -41,8 +41,6 @@ export interface OrganizationUser {
     id: string;
     name: string;
   };
-  created_at: string;
-  updated_at: string;
 }
 
 export interface Role {
@@ -54,7 +52,8 @@ export interface Role {
 }
 
 export type OrganizationResponse = PaginatedResponse<Organization>;
-export type OrganizationUserResponse = PaginatedResponse<OrganizationUser>;
+export type OrganizationUserRoleResponse =
+  PaginatedResponse<OrganizationUserRole>;
 export type RoleResponse = PaginatedResponse<Role>;
 
 export const getOrgLevel = (org_type: org_type, level_cache: number) => {

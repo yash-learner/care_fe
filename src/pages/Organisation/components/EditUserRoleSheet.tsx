@@ -2,6 +2,17 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useState } from "react";
 import { toast } from "sonner";
 
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
 import { Button } from "@/components/ui/button";
 import {
   Select,
@@ -24,22 +35,22 @@ import { Avatar } from "@/components/Common/Avatar";
 import routes from "@/Utils/request/api";
 import mutate from "@/Utils/request/mutate";
 import query from "@/Utils/request/query";
-import { OrganizationUser } from "@/types/organisation/organisation";
+import { OrganizationUserRole } from "@/types/organisation/organisation";
 
 interface Props {
   organizationId: string;
-  user: OrganizationUser;
+  userRole: OrganizationUserRole;
   trigger?: React.ReactNode;
 }
 
 export default function EditUserRoleSheet({
   organizationId,
-  user,
+  userRole,
   trigger,
 }: Props) {
   const queryClient = useQueryClient();
   const [open, setOpen] = useState(false);
-  const [selectedRole, setSelectedRole] = useState<string>(user.role.id);
+  const [selectedRole, setSelectedRole] = useState<string>(userRole.role.id);
 
   const { data: roles } = useQuery({
     queryKey: ["roles"],
@@ -48,8 +59,8 @@ export default function EditUserRoleSheet({
 
   const { mutate: updateRole } = useMutation({
     mutationFn: (body: { user: string; role: string }) =>
-      mutate(routes.organisation.assignUser, {
-        pathParams: { id: organizationId },
+      mutate(routes.organisation.updateUserRole, {
+        pathParams: { id: organizationId, userRoleId: userRole.id },
         body,
       })(body),
     onSuccess: () => {
@@ -67,14 +78,34 @@ export default function EditUserRoleSheet({
     },
   });
 
+  const { mutate: removeRole } = useMutation({
+    mutationFn: () =>
+      mutate(routes.organisation.removeUserRole, {
+        pathParams: { id: organizationId, userRoleId: userRole.id },
+      })({}),
+    onSuccess: () => {
+      queryClient.invalidateQueries({
+        queryKey: ["organizationUsers", organizationId],
+      });
+      toast.success("User removed from organization successfully");
+      setOpen(false);
+    },
+    onError: (error) => {
+      const errorData = error.cause as { errors: { msg: string[] } };
+      errorData.errors.msg.forEach((er) => {
+        toast.error(er);
+      });
+    },
+  });
+
   const handleUpdateRole = () => {
-    if (selectedRole === user.role.id) {
+    if (selectedRole === userRole.role.id) {
       toast.error("Please select a different role");
       return;
     }
 
     updateRole({
-      user: user.user.id,
+      user: userRole.user.id,
       role: selectedRole,
     });
   };
@@ -95,31 +126,33 @@ export default function EditUserRoleSheet({
           <div className="rounded-lg border p-4 space-y-4">
             <div className="flex items-start gap-4">
               <Avatar
-                name={`${user.user.first_name} ${user.user.last_name}`}
+                name={`${userRole.user.first_name} ${userRole.user.last_name}`}
                 className="h-12 w-12"
               />
               <div className="flex flex-col flex-1">
                 <span className="font-medium text-lg">
-                  {user.user.first_name} {user.user.last_name}
+                  {userRole.user.first_name} {userRole.user.last_name}
                 </span>
-                <span className="text-sm text-gray-500">{user.user.email}</span>
+                <span className="text-sm text-gray-500">
+                  {userRole.user.email}
+                </span>
               </div>
             </div>
 
             <div className="grid grid-cols-2 gap-4 pt-2 border-t">
               <div>
                 <span className="text-sm text-gray-500">Username</span>
-                <p className="text-sm font-medium">{user.user.username}</p>
+                <p className="text-sm font-medium">{userRole.user.username}</p>
               </div>
               <div>
                 <span className="text-sm text-gray-500">Current Role</span>
-                <p className="text-sm font-medium">{user.role.name}</p>
+                <p className="text-sm font-medium">{userRole.role.name}</p>
               </div>
               <div>
                 <span className="text-sm text-gray-500">Last Login</span>
                 <p className="text-sm font-medium">
-                  {user.user.last_login
-                    ? new Date(user.user.last_login).toLocaleDateString()
+                  {userRole.user.last_login
+                    ? new Date(userRole.user.last_login).toLocaleDateString()
                     : "Never"}
                 </p>
               </div>
@@ -149,13 +182,44 @@ export default function EditUserRoleSheet({
             </Select>
           </div>
 
-          <Button
-            className="w-full"
-            onClick={handleUpdateRole}
-            disabled={selectedRole === user.role.id}
-          >
-            Update Role
-          </Button>
+          <div className="flex flex-col gap-2">
+            <Button
+              className="w-full"
+              onClick={handleUpdateRole}
+              disabled={selectedRole === userRole.role.id}
+            >
+              Update Role
+            </Button>
+
+            <AlertDialog>
+              <AlertDialogTrigger asChild>
+                <Button variant="destructive" className="w-full">
+                  Remove User
+                </Button>
+              </AlertDialogTrigger>
+              <AlertDialogContent>
+                <AlertDialogHeader>
+                  <AlertDialogTitle>
+                    Remove User from Organization
+                  </AlertDialogTitle>
+                  <AlertDialogDescription>
+                    Are you sure you want to remove {userRole.user.first_name}{" "}
+                    {userRole.user.last_name} from this organization? This
+                    action cannot be undone.
+                  </AlertDialogDescription>
+                </AlertDialogHeader>
+                <AlertDialogFooter>
+                  <AlertDialogCancel>Cancel</AlertDialogCancel>
+                  <AlertDialogAction
+                    onClick={() => removeRole()}
+                    className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+                  >
+                    Remove
+                  </AlertDialogAction>
+                </AlertDialogFooter>
+              </AlertDialogContent>
+            </AlertDialog>
+          </div>
         </div>
       </SheetContent>
     </Sheet>

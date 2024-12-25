@@ -93,8 +93,8 @@ import { PatientModel } from "@/types/emr/patient";
 import {
   Organization,
   OrganizationResponse,
-  OrganizationUser,
-  OrganizationUserResponse,
+  OrganizationUserRole,
+  OrganizationUserRoleResponse,
   RoleResponse,
 } from "@/types/organisation/organisation";
 import { PlugConfig } from "@/types/plugConfig";
@@ -1497,16 +1497,22 @@ const routes = {
     listUsers: {
       path: "/api/v1/organization/{id}/users/",
       method: "GET",
-      TRes: {} as OrganizationUserResponse,
+      TRes: {} as OrganizationUserRoleResponse,
     },
     assignUser: {
       path: "/api/v1/organization/{id}/users/",
       method: "POST",
-      TRes: {} as OrganizationUser,
+      TRes: {} as OrganizationUserRole,
       TBody: {} as { user: string; role: string },
     },
-    removeUser: {
-      path: "/api/v1/organization/{id}/users/{userId}/",
+    updateUserRole: {
+      path: "/api/v1/organization/{id}/users/{userRoleId}/",
+      method: "PUT",
+      TRes: {} as OrganizationUserRole,
+      TBody: {} as { user: string; role: string },
+    },
+    removeUserRole: {
+      path: "/api/v1/organization/{id}/users/{userRoleId}/",
       method: "DELETE",
       TRes: {} as Record<string, never>,
     },

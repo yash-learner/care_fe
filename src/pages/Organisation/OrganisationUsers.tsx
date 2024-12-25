@@ -10,7 +10,7 @@ import { Avatar } from "@/components/Common/Avatar";
 
 import routes from "@/Utils/request/api";
 import query from "@/Utils/request/query";
-import { OrganizationUser } from "@/types/organisation/organisation";
+import { OrganizationUserRole } from "@/types/organisation/organisation";
 
 import AddUserSheet from "./components/AddUserSheet";
 import EditUserRoleSheet from "./components/EditUserRoleSheet";
@@ -29,16 +29,11 @@ export default function OrganisationUsers({ id }: Props) {
     enabled: !!id,
   });
 
-  const { isLoading: isLoadingRoles } = useQuery({
-    queryKey: ["roles"],
-    queryFn: query(routes.role.list),
-  });
-
   if (!id) {
     return null;
   }
 
-  if (isLoadingUsers || isLoadingRoles) {
+  if (isLoadingUsers) {
     return (
       <OrganisationLayout id={id}>
         <div className="space-y-4">
@@ -76,15 +71,15 @@ export default function OrganisationUsers({ id }: Props) {
               </CardContent>
             </Card>
           ) : (
-            users?.results?.map((user: OrganizationUser) => (
-              <Card key={user.id} className="h-full">
+            users?.results?.map((userRole: OrganizationUserRole) => (
+              <Card key={userRole.id} className="h-full">
                 <CardContent className="p-6">
                   <div className="flex flex-col h-full">
                     <div className="flex flex-col gap-4 w-full">
                       <div className="flex flex-col gap-4 sm:flex-row w-full">
                         <div className="flex flex-col items-center gap-4 min-[400px]:flex-row sm:items-start">
                           <Avatar
-                            name={`${user.user.first_name} ${user.user.last_name}`}
+                            name={`${userRole.user.first_name} ${userRole.user.last_name}`}
                             className="h-16 w-16 text-2xl"
                           />
                         </div>
@@ -94,7 +89,8 @@ export default function OrganisationUsers({ id }: Props) {
                               <div className="flex flex-col">
                                 <div className="flex items-center gap-x-3">
                                   <h1 className="text-base font-bold">
-                                    {user.user.first_name} {user.user.last_name}
+                                    {userRole.user.first_name}{" "}
+                                    {userRole.user.last_name}
                                   </h1>
                                   <Badge
                                     variant="secondary"
@@ -107,13 +103,13 @@ export default function OrganisationUsers({ id }: Props) {
                                   </Badge>
                                 </div>
                                 <span className="text-sm text-gray-500">
-                                  {user.user.username}
+                                  {userRole.user.username}
                                 </span>
                               </div>
                               <div>
                                 <EditUserRoleSheet
                                   organizationId={id}
-                                  user={user}
+                                  userRole={userRole}
                                   trigger={
                                     <Button
                                       variant="outline"
@@ -135,13 +131,13 @@ export default function OrganisationUsers({ id }: Props) {
                             <div className="text-sm">
                               <div className="text-gray-500">Role</div>
                               <div className="font-medium">
-                                {user.role.name}
+                                {userRole.role.name}
                               </div>
                             </div>
                             <div className="text-sm">
                               <div className="text-gray-500">Email</div>
                               <div className="font-medium">
-                                {user.user.email}
+                                {userRole.user.email}
                               </div>
                             </div>
                           </div>
