@@ -55,6 +55,7 @@ export default function EditUserRoleSheet({
   const { data: roles } = useQuery({
     queryKey: ["roles"],
     queryFn: query(routes.role.list),
+    enabled: open,
   });
 
   const { mutate: updateRole } = useMutation({

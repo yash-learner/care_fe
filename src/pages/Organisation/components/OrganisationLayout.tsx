@@ -64,13 +64,6 @@ export default function OrganisationLayout({ id, children }: Props) {
     return <div>Not found</div>;
   }
 
-  const breadcrumbReplacements = {
-    [id]: {
-      name: org.name,
-      uri: `/organisation/${id}`,
-    },
-  };
-
   const orgParents: OrganizationParent[] = [];
   let currentParent = org.parent;
   while (currentParent) {
@@ -83,7 +76,7 @@ export default function OrganisationLayout({ id, children }: Props) {
   return (
     <Page
       title={`${org.name} ${getOrgLevel(org.org_type, org.level_cache)}`}
-      crumbsReplacements={breadcrumbReplacements}
+      breadcrumbs={false}
     >
       {/* Since we have links to all parent organisations, we can show the breadcrumb here */}
       <Breadcrumb className="mt-1">

@@ -47,11 +47,13 @@ export default function AddUserSheet({ organizationId }: Props) {
   const { data: roles } = useQuery({
     queryKey: ["roles"],
     queryFn: query(routes.role.list),
+    enabled: open,
   });
 
   const { data: users } = useQuery<UserListResponse>({
     queryKey: ["users"],
     queryFn: query(routes.userList),
+    enabled: open,
   });
 
   const { mutate: assignUser } = useMutation({

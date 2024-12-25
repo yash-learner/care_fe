@@ -45,7 +45,7 @@ export default function OrganisationSelector(props: OrganisationSelectorProps) {
     queryFn: query(routes.organisation.list, {
       queryParams: {
         org_type: "govt",
-        parent: undefined,
+        parent: "",
       },
     }),
   });
