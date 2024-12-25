@@ -1,9 +1,16 @@
 import careConfig from "@careConfig";
 import { useQuery } from "@tanstack/react-query";
-import { compareAsc, eachDayOfInterval, max, startOfToday } from "date-fns";
+import {
+  compareAsc,
+  eachDayOfInterval,
+  format,
+  max,
+  startOfToday,
+} from "date-fns";
 
 import { ScheduleAPIs } from "@/components/Schedule/api";
 import {
+  Appointment,
   AvailabilityHeatmap,
   SlotAvailability,
 } from "@/components/Schedule/types";
@@ -96,4 +103,8 @@ const getInfiniteAvailabilityHeatmap = ({
   }
 
   return result;
+};
+
+export const formatAppointmentSlotTime = (appointment: Appointment) => {
+  return format(appointment.token_slot.start_datetime, "dd MMM, yyyy, hh:mm a");
 };

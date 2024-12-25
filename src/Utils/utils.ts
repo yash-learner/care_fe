@@ -1,4 +1,5 @@
 import { format } from "date-fns";
+import html2canvas from "html2canvas";
 
 import { AREACODES, IN_LANDLINE_AREA_CODES } from "@/common/constants";
 import phoneCodesJson from "@/common/static/countryPhoneAndFlags.json";
@@ -586,4 +587,16 @@ export const getMonthStartAndEnd = (date: Date) => {
 export const conditionalObject = (condition: unknown, object?: object) => {
   if (condition) return object;
   else return {};
+};
+
+export const saveElementAsImage = async (id: string, filename: string) => {
+  const element = document.getElementById(id);
+  if (!element) return;
+
+  const canvas = await html2canvas(element);
+
+  const link = document.createElement("a");
+  link.download = filename;
+  link.href = canvas.toDataURL("image/png", 1);
+  link.click();
 };

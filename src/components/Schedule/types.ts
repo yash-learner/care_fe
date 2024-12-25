@@ -61,10 +61,16 @@ interface AppointmentPatient {
   readonly id: string;
   readonly name: string;
   readonly gender: number;
-  readonly date_of_birth: string | null;
-  readonly year_of_birth: string | null;
+  readonly phone_number: string;
+  readonly emergency_phone_number: string;
   readonly address: string;
   readonly pincode: string;
+  readonly state: string | null;
+  readonly district: string | null;
+  readonly local_body: string | null;
+  readonly ward: string | null;
+  readonly date_of_birth: string | null;
+  readonly year_of_birth: string | null;
 }
 
 export interface Appointment {
