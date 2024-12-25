@@ -4,6 +4,15 @@ import { PaginatedResponse } from "@/Utils/request/types";
 
 type org_type = "team" | "govt" | "role" | "other";
 
+export interface OrganizationParent {
+  id: string;
+  name: string;
+  description?: string;
+  org_type: org_type;
+  level_cache: number;
+  parent?: OrganizationParent;
+}
+
 export interface Organization {
   id: string;
   name: string;
@@ -12,7 +21,7 @@ export interface Organization {
   level_cache: number;
   has_children: boolean;
   active: boolean;
-  parent?: string;
+  parent?: OrganizationParent;
   created_at: string;
   updated_at: string;
 }

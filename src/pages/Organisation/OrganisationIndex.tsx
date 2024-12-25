@@ -3,7 +3,6 @@ import { Link } from "raviger";
 
 import CareIcon from "@/CAREUI/icons/CareIcon";
 
-import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -87,11 +86,6 @@ export default function OrganisationIndex() {
               <div className="flex items-start justify-between">
                 <CardTitle className="flex items-center gap-2">
                   {org.name}
-                  {org.has_children && (
-                    <Badge variant="secondary" className="h-5">
-                      Parent
-                    </Badge>
-                  )}
                 </CardTitle>
                 <CardDescription>
                   {getOrgLevel(org.org_type, org.level_cache)}

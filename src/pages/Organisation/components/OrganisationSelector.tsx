@@ -73,7 +73,7 @@ export default function OrganisationSelector(props: OrganisationSelectorProps) {
         let current = organization;
         while (current.parent) {
           const parent = await query(routes.organisation.get, {
-            pathParams: { id: current.parent },
+            pathParams: { id: current.parent.id },
           })({ signal: new AbortController().signal });
           chain.unshift(parent);
           current = parent;

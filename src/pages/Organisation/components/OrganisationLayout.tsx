@@ -38,15 +38,20 @@ export default function OrganisationLayout({ id, children }: Props) {
     },
   ];
 
-  const { data: org } = useQuery<Organization>({
+  const { data: org, isLoading } = useQuery<Organization>({
     queryKey: ["organisation", id],
     queryFn: query(routes.organisation.get, {
       pathParams: { id },
     }),
   });
 
+  if (isLoading) {
+    return <div>Loading...</div>;
+  }
   // add loading state
-  if (!org) return <div>Loading...</div>;
+  if (!org) {
+    return <div>Not found</div>;
+  }
 
   const breadcrumbReplacements = {
     [id]: {
