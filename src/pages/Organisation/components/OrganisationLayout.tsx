@@ -3,13 +3,24 @@ import { Link, usePath } from "raviger";
 
 import CareIcon, { IconName } from "@/CAREUI/icons/CareIcon";
 
+import {
+  Breadcrumb,
+  BreadcrumbItem,
+  BreadcrumbLink,
+  BreadcrumbList,
+  BreadcrumbSeparator,
+} from "@/components/ui/breadcrumb";
 import { Menubar, MenubarMenu, MenubarTrigger } from "@/components/ui/menubar";
 
 import Page from "@/components/Common/Page";
 
 import routes from "@/Utils/request/api";
 import query from "@/Utils/request/query";
-import { Organization, getOrgLevel } from "@/types/organisation/organisation";
+import {
+  Organization,
+  OrganizationParent,
+  getOrgLevel,
+} from "@/types/organisation/organisation";
 
 interface Props {
   id: string;
@@ -59,11 +70,45 @@ export default function OrganisationLayout({ id, children }: Props) {
       uri: `/organisation/${id}`,
     },
   };
+
+  const orgParents: OrganizationParent[] = [];
+  let currentParent = org.parent;
+  while (currentParent) {
+    if (currentParent.id) {
+      orgParents.push(currentParent);
+    }
+    currentParent = currentParent.parent;
+  }
+
   return (
     <Page
       title={`${org.name} ${getOrgLevel(org.org_type, org.level_cache)}`}
       crumbsReplacements={breadcrumbReplacements}
     >
+      {/* Since we have links to all parent organisations, we can show the breadcrumb here */}
+      <Breadcrumb className="mt-1">
+        <BreadcrumbList>
+          {/* Org has parent and each parent may have another parent, so we need to show all the parents */}
+
+          {orgParents.reverse().map((parent) => (
+            <>
+              <BreadcrumbItem key={parent.id}>
+                <BreadcrumbLink href={`/organisation/${parent.id}`}>
+                  {parent.name}
+                </BreadcrumbLink>
+              </BreadcrumbItem>
+              <BreadcrumbItem key={`ellipsis-${parent.id}`}>
+                <BreadcrumbSeparator />
+              </BreadcrumbItem>
+            </>
+          ))}
+          <BreadcrumbItem key={org.id}>
+            <BreadcrumbLink asChild>
+              <Link href={`/organisation/${org.id}`}>{org.name}</Link>
+            </BreadcrumbLink>
+          </BreadcrumbItem>
+        </BreadcrumbList>
+      </Breadcrumb>
       {/* Navigation */}
       <div className="mt-4">
         <Menubar>
