@@ -56,6 +56,21 @@ export const CollectSpecimen: React.FC<{
       ? "pending"
       : "notStarted";
 
+  // Need diagnostic report date from the backend to determine the status
+  const specimenTestInProcessStatus =
+    data?.status === "preliminary"
+      ? "completed"
+      : data?.received_at
+        ? "pending"
+        : "notStarted";
+
+  const specimenUderReviewStatus =
+    data?.status === "final"
+      ? "completed"
+      : data?.status === "preliminary"
+        ? "pending"
+        : "notStarted";
+
   // Minimal example of steps with no sub-steps
   const steps: ProgressBarStep[] = [
     { label: "Order Placed", status: "completed" },
@@ -65,8 +80,8 @@ export const CollectSpecimen: React.FC<{
     },
     { label: "Sent to Lab", status: specimenDispatchedStatus },
     { label: "Received at Lab", status: specimenReceivedStatus },
-    { label: "Test Ongoing", status: "notStarted" },
-    { label: "Under Review", status: "notStarted" },
+    { label: "Test Ongoing", status: specimenTestInProcessStatus },
+    { label: "Under Review", status: specimenUderReviewStatus },
     { label: "Completed", status: "notStarted" },
   ];
 
