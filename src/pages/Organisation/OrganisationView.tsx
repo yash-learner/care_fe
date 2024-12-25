@@ -9,6 +9,7 @@ import { Card, CardContent } from "@/components/ui/card";
 
 import routes from "@/Utils/request/api";
 import query from "@/Utils/request/query";
+import { getOrgLevel } from "@/types/organisation/organisation";
 
 import OrganisationLayout from "./components/OrganisationLayout";
 
@@ -28,7 +29,7 @@ export default function OrganisationView({ id }: Props) {
     <OrganisationLayout id={id}>
       <div className="space-y-6">
         <div className="flex justify-between items-center">
-          <h2 className="text-lg font-semibold">Sub Organizations</h2>
+          <h2 className="text-lg font-semibold">Organisations</h2>
           <Button variant="outline">
             <CareIcon icon="l-plus" className="mr-2 h-4 w-4" />
             Add Organization
@@ -64,28 +65,21 @@ export default function OrganisationView({ id }: Props) {
                           <div className="flex items-center gap-2">
                             <Badge variant="outline">{org.org_type}</Badge>
                             <Badge variant="outline">
-                              Level {org.level_cache}
-                            </Badge>
-                            <Badge
-                              variant="outline"
-                              className={
-                                org.active
-                                  ? "bg-green-50 text-green-700 border-green-300"
-                                  : "bg-red-50 text-red-700 border-red-300"
-                              }
-                            >
-                              {org.active ? "Active" : "Inactive"}
+                              {getOrgLevel(org.org_type, org.level_cache)}
                             </Badge>
                           </div>
                         </div>
-                        <Button variant="ghost" size="icon" asChild>
-                          <Link href={`/organisation/${org.id}`}>
-                            <CareIcon
-                              icon="l-arrow-right"
-                              className="h-4 w-4"
-                            />
-                          </Link>
-                        </Button>
+                        {org.has_children && (
+                          <Button variant="link" asChild>
+                            <Link href={`/organisation/${org.id}`}>
+                              View Details
+                              <CareIcon
+                                icon="l-arrow-right"
+                                className="h-4 w-4"
+                              />
+                            </Link>
+                          </Button>
+                        )}
                       </div>
                       {org.description && (
                         <p className="text-sm text-gray-500 line-clamp-2">
@@ -99,7 +93,7 @@ export default function OrganisationView({ id }: Props) {
             ) : (
               <Card className="col-span-full">
                 <CardContent className="p-6 text-center text-gray-500">
-                  No sub-organizations found.
+                  No sub-organisations found.
                 </CardContent>
               </Card>
             )}

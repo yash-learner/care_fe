@@ -9,7 +9,7 @@ import Page from "@/components/Common/Page";
 
 import routes from "@/Utils/request/api";
 import query from "@/Utils/request/query";
-import { Organization } from "@/types/organisation/organisation";
+import { Organization, getOrgLevel } from "@/types/organisation/organisation";
 
 interface Props {
   id: string;
@@ -28,7 +28,7 @@ export default function OrganisationLayout({ id, children }: Props) {
   const navItems: NavItem[] = [
     {
       path: `/organisation/${id}`,
-      title: "Sub Organizations",
+      title: "Organisations",
       icon: "d-hospital",
     },
     {
@@ -45,30 +45,20 @@ export default function OrganisationLayout({ id, children }: Props) {
     }),
   });
 
+  // add loading state
+  if (!org) return <div>Loading...</div>;
+
   const breadcrumbReplacements = {
     [id]: {
-      name: org?.name,
+      name: org.name,
       uri: `/organisation/${id}`,
     },
   };
-
   return (
-    <Page title={org?.name || ""} crumbsReplacements={breadcrumbReplacements}>
-      {/* Organization Details Card */}
-
-      <dl className="grid grid-cols-4 gap-4">
-        <div className="flex gap-2">
-          <dt className="text-sm font-medium text-gray-500">
-            Organisation Type:
-          </dt>
-          <dd className="text-sm text-gray-900">{org?.org_type}</dd>
-        </div>
-        <div className="flex gap-2">
-          <dt className="text-sm font-medium text-gray-500">Level:</dt>
-          <dd className="text-sm text-gray-900">{org?.level_cache}</dd>
-        </div>
-      </dl>
-
+    <Page
+      title={`${org.name} ${getOrgLevel(org.org_type, org.level_cache)}`}
+      crumbsReplacements={breadcrumbReplacements}
+    >
       {/* Navigation */}
       <div className="mt-4">
         <Menubar>

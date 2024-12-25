@@ -1,11 +1,15 @@
+import { ORGANISATION_LEVELS } from "@/common/constants";
+
 import { PaginatedResponse } from "@/Utils/request/types";
+
+type org_type = "team" | "govt" | "role" | "other";
 
 export interface Organization {
   id: string;
   name: string;
   description?: string;
-  org_type: string;
-  level_cache: string;
+  org_type: org_type;
+  level_cache: number;
   has_children: boolean;
   active: boolean;
   parent?: string;
@@ -43,3 +47,11 @@ export interface Role {
 export type OrganizationResponse = PaginatedResponse<Organization>;
 export type OrganizationUserResponse = PaginatedResponse<OrganizationUser>;
 export type RoleResponse = PaginatedResponse<Role>;
+
+export const getOrgLevel = (org_type: org_type, level_cache: number) => {
+  if (org_type === "govt") {
+    return ORGANISATION_LEVELS.govt[level_cache];
+  } else {
+    return ORGANISATION_LEVELS[org_type];
+  }
+};
