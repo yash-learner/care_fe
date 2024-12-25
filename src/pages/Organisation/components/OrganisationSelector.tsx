@@ -1,7 +1,10 @@
 import { useQuery } from "@tanstack/react-query";
 import { useEffect, useState } from "react";
 
+import CareIcon from "@/CAREUI/icons/CareIcon";
+
 import Autocomplete from "@/components/ui/autocomplete";
+import { Button } from "@/components/ui/button";
 import InputWithError from "@/components/ui/input-with-error";
 
 import { ORGANISATION_LEVELS } from "@/common/constants";
@@ -27,7 +30,6 @@ interface AutoCompleteOption {
 
 export default function OrganisationSelector(props: OrganisationSelectorProps) {
   const { value, onChange, required } = props;
-
   const [selectedLevels, setSelectedLevels] = useState<Organization[]>([]);
 
   const { data: organization } = useQuery<Organization>({
@@ -48,8 +50,13 @@ export default function OrganisationSelector(props: OrganisationSelectorProps) {
     }),
   });
 
-  const { data: organizations } = useQuery<{ results: Organization[] }>({
-    queryKey: ["organisations", selectedLevels[selectedLevels.length - 1]?.id],
+  const { data: currentLevelOrganizations } = useQuery<{
+    results: Organization[];
+  }>({
+    queryKey: [
+      "organisations-current",
+      selectedLevels[selectedLevels.length - 1]?.id,
+    ],
     queryFn: query(routes.organisation.list, {
       queryParams: {
         parent: selectedLevels[selectedLevels.length - 1]?.id,
@@ -79,21 +86,18 @@ export default function OrganisationSelector(props: OrganisationSelectorProps) {
   }, [organization]);
 
   const handleLevelChange = (value: string, level: number) => {
-    const selectedOrg = (
-      level === 0 ? getAllOrganizations?.results : organizations?.results
-    )?.find((org) => org.id === value);
+    const orgList =
+      level === 0
+        ? getAllOrganizations?.results
+        : currentLevelOrganizations?.results;
 
+    const selectedOrg = orgList?.find((org) => org.id === value);
     if (!selectedOrg) return;
 
-    // Remove all levels after the current level
     const newLevels = selectedLevels.slice(0, level);
-
-    // Add the new selection
     newLevels.push(selectedOrg);
-
     setSelectedLevels(newLevels);
 
-    // If the organization has no children, trigger the final onChange
     if (!selectedOrg.has_children) {
       onChange(selectedOrg.id);
     }
@@ -114,53 +118,56 @@ export default function OrganisationSelector(props: OrganisationSelectorProps) {
     return typeof orgLevel === "string" ? orgLevel : orgLevel[0];
   };
 
+  const handleEdit = (level: number) => {
+    setSelectedLevels((prev) => prev.slice(0, level));
+  };
+
   return (
     <div className="space-y-4">
-      {/* First level selection */}
-      <InputWithError
-        label={
-          selectedLevels[0]
-            ? ORGANISATION_LEVELS.govt[selectedLevels[0].level_cache]
-            : ORGANISATION_LEVELS.govt[0]
-        }
-        required={required}
-      >
-        <Autocomplete
-          value={selectedLevels[0]?.id || ""}
-          options={getOrganizationOptions(getAllOrganizations?.results)}
-          onChange={(value: string) => handleLevelChange(value, 0)}
-        />
-      </InputWithError>
-
-      {/* Subsequent levels */}
-      {selectedLevels.slice(1).map((level) => (
-        <InputWithError key={level.id} label={getLevelLabel(level)}>
-          <Autocomplete
-            value={level.id}
-            options={getOrganizationOptions(organizations?.results)}
-            onChange={(value: string) =>
-              handleLevelChange(value, level.level_cache)
-            }
-          />
+      {/* Selected Levels */}
+      {selectedLevels.map((level, index) => (
+        <InputWithError
+          key={level.id}
+          label={
+            index === 0 ? ORGANISATION_LEVELS.govt[0] : getLevelLabel(level)
+          }
+          required={index === 0 && required}
+        >
+          <div className="flex gap-2">
+            <div className="flex-1 p-2 border rounded-md bg-muted">
+              {level.name}
+            </div>
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={() => handleEdit(index)}
+              type="button"
+            >
+              <CareIcon icon="l-pen" className="h-4 w-4" />
+            </Button>
+          </div>
         </InputWithError>
       ))}
 
-      {/* Next level selection if available */}
-      {organizations?.results &&
-        organizations.results.length > 0 &&
-        selectedLevels.length > 0 && (
-          <InputWithError
-            label={ORGANISATION_LEVELS.govt[selectedLevels.length]}
-          >
-            <Autocomplete
-              value=""
-              options={getOrganizationOptions(organizations.results)}
-              onChange={(value: string) =>
-                handleLevelChange(value, selectedLevels.length)
-              }
-            />
-          </InputWithError>
-        )}
+      {/* Next Level Selection */}
+      {ORGANISATION_LEVELS.govt[selectedLevels.length] && (
+        <InputWithError
+          label={ORGANISATION_LEVELS.govt[selectedLevels.length]}
+          required={selectedLevels.length === 0 && required}
+        >
+          <Autocomplete
+            value=""
+            options={getOrganizationOptions(
+              selectedLevels.length === 0
+                ? getAllOrganizations?.results
+                : currentLevelOrganizations?.results,
+            )}
+            onChange={(value: string) =>
+              handleLevelChange(value, selectedLevels.length)
+            }
+          />
+        </InputWithError>
+      )}
     </div>
   );
 }

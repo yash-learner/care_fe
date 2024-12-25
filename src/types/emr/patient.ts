@@ -19,6 +19,7 @@ export interface PatientModel {
   created_date?: string;
   modified_date?: string;
   facility?: string;
+  geo_organization?: string;
   phone_number?: string;
   emergency_phone_number?: string;
   allergies?: string;
@@ -107,7 +108,7 @@ export const validatePatient = (patient: PatientModel, useDob: boolean) => {
   ];
 
   if (patient.nationality === "India") {
-    requiredFields.push("state", "district", "local_body");
+    requiredFields.push("geo_organization");
   }
 
   requiredFields.forEach((field) => {

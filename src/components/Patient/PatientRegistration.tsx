@@ -49,7 +49,6 @@ import query from "@/Utils/request/query";
 import {
   dateQueryString,
   getPincodeDetails,
-  includesIgnoreCase,
   parsePhoneNumber,
 } from "@/Utils/utils";
 import OrganisationSelector from "@/pages/Organisation/components/OrganisationSelector";
@@ -176,56 +175,6 @@ export default function PatientRegistration(
     enabled: !!patientId,
   });
 
-  const setAddress = async (args: {
-    state: (typeof form)["state"];
-    district?: (typeof form)["district"];
-    local_body?: (typeof form)["local_body"];
-    ward?: string;
-  }) => {
-    const { state, district, local_body, ward } = args;
-    setForm((f) => ({
-      ...f,
-      state,
-    }));
-    await new Promise((resolve) => setTimeout(resolve, 500));
-    const districts = await districtsQuery.refetch();
-
-    const matchedDistrict = districts.data?.find((d) => d.id === district);
-    if (!matchedDistrict) return;
-    setForm((f) => ({
-      ...f,
-      district: matchedDistrict.id,
-    }));
-
-    if (local_body) {
-      await new Promise((resolve) => setTimeout(resolve, 500));
-      const localBodies = await localBodyQuery.refetch();
-
-      const matchedLocalBody = localBodies.data?.find(
-        (lb) => lb.id === local_body,
-      );
-      if (!matchedLocalBody) return;
-      setForm((f) => ({
-        ...f,
-        local_body: matchedLocalBody.id,
-      }));
-
-      if (ward) {
-        await new Promise((resolve) => setTimeout(resolve, 500));
-        const wards = await wardsQuery.refetch();
-
-        const matchedWard = wards.data?.results.find(
-          (w) => w.id === Number(ward),
-        );
-        if (!matchedWard) return;
-        setForm((f) => ({
-          ...f,
-          ward: matchedWard.id.toString(),
-        }));
-      }
-    }
-  };
-
   useEffect(() => {
     if (patientQuery.data) {
       setForm(patientQuery.data);
@@ -239,43 +188,8 @@ export default function PatientRegistration(
         setSamePhoneNumber(true);
       if (patientQuery.data.address === patientQuery.data.permanent_address)
         setSameAddress(true);
-      setAddress({
-        state: patientQuery.data.state,
-        district: patientQuery.data.district,
-        local_body: patientQuery.data.local_body,
-        ward: patientQuery.data.ward,
-      });
     }
   }, [patientQuery.data]);
-
-  const statesQuery = useQuery({
-    queryKey: ["states"],
-    queryFn: query(routes.statesList),
-  });
-
-  const districtsQuery = useQuery({
-    queryKey: ["districts", form.state],
-    enabled: !!form.state,
-    queryFn: query(routes.getDistrictByState, {
-      pathParams: { id: form.state?.toString() || "" },
-    }),
-  });
-
-  const localBodyQuery = useQuery({
-    queryKey: ["localbodies", form.district],
-    enabled: !!form.district,
-    queryFn: query(routes.getLocalbodyByDistrict, {
-      pathParams: { id: form.district?.toString() || "" },
-    }),
-  });
-
-  const wardsQuery = useQuery({
-    queryKey: ["wards", form.local_body],
-    enabled: !!form.local_body,
-    queryFn: query(routes.getWardByLocalBody, {
-      pathParams: { id: form.local_body?.toString() || "" },
-    }),
-  });
 
   const handlePincodeChange = async (value: string) => {
     if (!validatePincode(value)) return;
@@ -287,25 +201,8 @@ export default function PatientRegistration(
     );
     if (!pincodeDetails) return;
 
-    const matchedState = statesQuery.data?.results?.find((state) => {
-      return includesIgnoreCase(state.name, pincodeDetails.statename);
-    });
-    if (!matchedState) return;
-    setForm((f) => ({
-      ...f,
-      state: matchedState.id,
-    }));
-    await new Promise((resolve) => setTimeout(resolve, 500));
-    const districts = await districtsQuery.refetch();
-
-    const matchedDistrict = districts.data?.find((district) => {
-      return includesIgnoreCase(district.name, pincodeDetails.districtname);
-    });
-    if (!matchedDistrict) return;
-    setForm((f) => ({
-      ...f,
-      district: matchedDistrict.id,
-    }));
+    const { statename: _stateName, districtname: _districtName } =
+      pincodeDetails;
 
     setShowAutoFilledPincode(true);
     setTimeout(() => {
@@ -737,11 +634,6 @@ export default function PatientRegistration(
                       setForm((f) => ({
                         ...f,
                         nationality: value,
-                        state: undefined,
-                        district: undefined,
-                        local_body: undefined,
-                        ward: undefined,
-                        village: undefined,
                         passport_no: undefined,
                       }));
                     }}
@@ -754,122 +646,10 @@ export default function PatientRegistration(
                     onChange={(value) =>
                       setForm((f) => ({
                         ...f,
-                        state: Number(value),
+                        geo_organization: value,
                       }))
                     }
                   />
-                  <div>
-                    <InputWithError
-                      label={t("state")}
-                      errors={errors["state"]}
-                      required
-                    >
-                      <Autocomplete
-                        options={
-                          statesQuery.data?.results.map((state) => ({
-                            label: state.name,
-                            value: state.id.toString(),
-                          })) || []
-                        }
-                        value={form.state?.toString() || ""}
-                        onChange={(value) =>
-                          setForm((f) => ({
-                            ...f,
-                            state: Number(value),
-                            district: undefined,
-                            local_body: undefined,
-                            ward: undefined,
-                          }))
-                        }
-                        disabled={statesQuery.isLoading}
-                      />
-                    </InputWithError>
-                  </div>
-                  <div>
-                    <InputWithError
-                      label={t("district")}
-                      errors={errors["district"]}
-                      required
-                    >
-                      <Autocomplete
-                        options={
-                          districtsQuery.data?.map((district) => ({
-                            label: district.name,
-                            value: district.id.toString(),
-                          })) || []
-                        }
-                        value={form.district?.toString() || ""}
-                        onChange={(value) =>
-                          setForm((f) => ({
-                            ...f,
-                            district: Number(value),
-                            local_body: undefined,
-                            ward: undefined,
-                          }))
-                        }
-                        disabled={
-                          !form.state ||
-                          districtsQuery.isLoading ||
-                          !districtsQuery.data?.length
-                        }
-                      />
-                    </InputWithError>
-                  </div>
-                  <div>
-                    <InputWithError
-                      label={t("local_body")}
-                      errors={errors["local_body"]}
-                      required
-                    >
-                      <Autocomplete
-                        options={
-                          localBodyQuery.data?.map((localbody) => ({
-                            label: localbody.name,
-                            value: localbody.id.toString(),
-                          })) || []
-                        }
-                        value={form.local_body?.toString() || ""}
-                        onChange={(value) =>
-                          setForm((f) => ({
-                            ...f,
-                            local_body: Number(value),
-                            ward: undefined,
-                          }))
-                        }
-                        disabled={
-                          !form.district ||
-                          localBodyQuery.isLoading ||
-                          !localBodyQuery.data?.length
-                        }
-                      />
-                    </InputWithError>
-                  </div>
-                  <div>
-                    <InputWithError label={t("ward")} errors={errors["ward"]}>
-                      <Autocomplete
-                        options={
-                          wardsQuery.data?.results
-                            .sort((a, b) => a.number - b.number)
-                            .map((ward) => ({
-                              label: ward.number + ": " + ward.name,
-                              value: ward.id.toString(),
-                            })) || []
-                        }
-                        value={form.ward?.toString() || ""}
-                        onChange={(value) =>
-                          setForm((f) => ({
-                            ...f,
-                            ward: value,
-                          }))
-                        }
-                        disabled={
-                          !form.local_body ||
-                          wardsQuery.isLoading ||
-                          !wardsQuery.data?.results.length
-                        }
-                      />
-                    </InputWithError>
-                  </div>
                   <div>
                     <InputWithError
                       label={t("village")}

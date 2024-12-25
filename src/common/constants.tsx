@@ -1682,6 +1682,7 @@ export const ADMIN_USER_TYPES = ["DistrictAdmin", "StateAdmin"] as const;
 export const CarePatientTokenKey = "care_patient_token";
 
 // organisation_levels map based of type. for govt
+// thought: This might be better placed in the organisation types files
 export const ORGANISATION_LEVELS = {
   govt: ["State", "District", "LocalBody", "Ward"],
   team: ["Team"],
