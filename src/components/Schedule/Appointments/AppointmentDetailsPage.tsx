@@ -11,11 +11,13 @@ import {
   PlusCircledIcon,
 } from "@radix-ui/react-icons";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { differenceInHours, differenceInYears, format } from "date-fns";
+import { differenceInYears, format, isPast } from "date-fns";
 import { useTranslation } from "react-i18next";
 import { toast } from "sonner";
 
 import { cn } from "@/lib/utils";
+
+import CareIcon from "@/CAREUI/icons/CareIcon";
 
 import { Badge, BadgeProps } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -41,7 +43,11 @@ import { Appointment, AppointmentStatuses } from "@/components/Schedule/types";
 import routes from "@/Utils/request/api";
 import mutate from "@/Utils/request/mutate";
 import query from "@/Utils/request/query";
-import { formatName, saveElementAsImage } from "@/Utils/utils";
+import {
+  formatName,
+  getReadableDuration,
+  saveElementAsImage,
+} from "@/Utils/utils";
 
 interface Props {
   facilityId: string;
@@ -139,9 +145,9 @@ export default function AppointmentDetailsPage(props: Props) {
               </Button>
             </div>
             <Separator className="my-4" />
-            <div className="mx-6">
+            <div className="mx-6 mt-10">
               <AppointmentActions
-                currentStatus={appointment.status}
+                appointment={appointment}
                 onChange={(status) => updateAppointment({ status })}
               />
             </div>
@@ -210,18 +216,19 @@ const AppointmentDetails = ({
               </p>
               <p className="text-gray-600 capitalize">
                 {t("duration")}:{" "}
-                {differenceInHours(
-                  appointment.token_slot.end_datetime,
+                {getReadableDuration(
                   appointment.token_slot.start_datetime,
-                )}{" "}
-                {t("hours")}
+                  appointment.token_slot.end_datetime,
+                )}
               </p>
             </div>
           </div>
           <Separator />
           <div className="text-sm">
             <p className="font-medium">{t("reason_for_visit")}</p>
-            <p className="text-gray-600">{appointment.reason_for_visit}</p>
+            <p className="text-gray-600">
+              {appointment.reason_for_visit || t("no_reason_provided")}
+            </p>
           </div>
         </CardContent>
       </Card>
@@ -307,15 +314,17 @@ const AppointmentDetails = ({
 };
 
 interface AppointmentActionsProps {
-  currentStatus: Appointment["status"];
+  appointment: Appointment;
   onChange: (status: Appointment["status"]) => void;
 }
 
 const AppointmentActions = ({
-  currentStatus,
+  appointment,
   onChange,
 }: AppointmentActionsProps) => {
   const { t } = useTranslation();
+  const currentStatus = appointment.status;
+  const hasStarted = isPast(appointment.token_slot.start_datetime);
 
   if (["fulfilled", "cancelled", "entered_in_error"].includes(currentStatus)) {
     return null;
@@ -343,42 +352,56 @@ const AppointmentActions = ({
   }
 
   return (
-    <div className="flex justify-end gap-2">
-      {currentStatus === "in_consultation" && (
-        <Button variant="outline_primary" onClick={() => onChange("fulfilled")}>
-          <CheckCircledIcon className="size-4 mr-2" />
-          {t("mark_as_fulfilled")}
-        </Button>
-      )}
-
-      {["booked", "checked_in"].includes(currentStatus) && (
-        <Button variant="outline" onClick={() => onChange("noshow")}>
-          <EyeNoneIcon className="size-4 mr-2" />
-          {t("mark_as_noshow")}
+    <div className="flex flex-col gap-2 w-64 mx-auto">
+      {currentStatus === "booked" && (
+        <Button
+          disabled={!hasStarted}
+          variant="outline_primary"
+          onClick={() => onChange("checked_in")}
+          size="lg"
+        >
+          <EnterIcon className="size-4 mr-2" />
+          {t("check_in")}
         </Button>
       )}
 
       {["booked", "checked_in"].includes(currentStatus) && (
         <Button
+          disabled={!hasStarted}
           variant={
             currentStatus === "checked_in" ? "outline_primary" : "outline"
           }
           onClick={() => onChange("in_consultation")}
+          size="lg"
         >
           <PlusCircledIcon className="size-4 mr-2" />
           {t("start_consultation")}
         </Button>
       )}
 
-      {currentStatus === "booked" && (
+      {currentStatus === "in_consultation" && (
         <Button
+          disabled={!hasStarted}
           variant="outline_primary"
-          onClick={() => onChange("checked_in")}
+          onClick={() => onChange("fulfilled")}
+          size="lg"
         >
-          <EnterIcon className="size-4 mr-2" />
-          {t("check_in")}
+          <CheckCircledIcon className="size-4 mr-2" />
+          {t("mark_as_fulfilled")}
         </Button>
       )}
+
+      {["booked", "checked_in"].includes(currentStatus) && (
+        <Button variant="outline" onClick={() => onChange("noshow")} size="lg">
+          <EyeNoneIcon className="size-4 mr-2" />
+          {t("mark_as_noshow")}
+        </Button>
+      )}
+
+      <Button variant="outline" onClick={() => onChange("cancelled")} size="lg">
+        <CareIcon icon="l-ban" className="text-lg mr-2" />
+        {t("cancel_appointment")}
+      </Button>
     </div>
   );
 };

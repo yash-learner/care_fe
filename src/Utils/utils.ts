@@ -1,4 +1,4 @@
-import { format } from "date-fns";
+import { differenceInMinutes, format } from "date-fns";
 import html2canvas from "html2canvas";
 
 import { AREACODES, IN_LANDLINE_AREA_CODES } from "@/common/constants";
@@ -587,6 +587,29 @@ export const getMonthStartAndEnd = (date: Date) => {
 export const conditionalObject = (condition: unknown, object?: object) => {
   if (condition) return object;
   else return {};
+};
+
+/**
+ * Returns hours and minutes between two dates.
+ *
+ * Eg.
+ * 1 hour and 30 minutes
+ * 2 hours
+ * 30 minutes
+ */
+export const getReadableDuration = (
+  start: string | Date,
+  end: string | Date,
+) => {
+  const duration = differenceInMinutes(end, start);
+  const hours = Math.floor(duration / 60);
+  const minutes = duration % 60;
+  if (hours === 0 && minutes === 0) return "0 minutes";
+  if (hours === 0) return `${minutes} minute${minutes > 1 ? "s" : ""}`;
+  if (minutes === 0) return `${hours} hour${hours > 1 ? "s" : ""}`;
+  return `${hours} hour${hours > 1 ? "s" : ""} and ${minutes} minute${
+    minutes > 1 ? "s" : ""
+  }`;
 };
 
 export const saveElementAsImage = async (id: string, filename: string) => {
