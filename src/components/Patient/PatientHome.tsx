@@ -193,7 +193,7 @@ export const PatientHome = (props: {
             <Link
               href={`/facility/${facilityId}/patient/${id}/book-appointment`}
             >
-              Doctor Consultation
+              {t("schedule_appointment")}
             </Link>
           </Button>
         </>
