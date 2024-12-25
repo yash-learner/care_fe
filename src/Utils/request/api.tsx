@@ -90,6 +90,13 @@ import {
 import { AllergyIntolerance } from "@/types/emr/allergyIntolerance";
 import { Observation } from "@/types/emr/observation";
 import { PatientModel } from "@/types/emr/patient";
+import {
+  Organization,
+  OrganizationResponse,
+  OrganizationUser,
+  OrganizationUserResponse,
+  RoleResponse,
+} from "@/types/organisation/organisation";
 import { PlugConfig } from "@/types/plugConfig";
 import {
   BatchRequestBody,
@@ -1468,6 +1475,50 @@ const routes = {
     path: "/api/v1/patient/{patientId}/allergy_intolerance/",
     method: "GET",
     TRes: Type<PaginatedResponse<AllergyIntolerance>>(),
+  },
+
+  // Organisation Routes
+  organisation: {
+    listMine: {
+      path: "/api/v1/organization/mine/",
+      method: "GET",
+      TRes: {} as OrganizationResponse,
+    },
+    list: {
+      path: "/api/v1/organization/",
+      method: "GET",
+      TRes: {} as OrganizationResponse,
+    },
+    get: {
+      path: "/api/v1/organization/{id}/",
+      method: "GET",
+      TRes: {} as Organization,
+    },
+    listUsers: {
+      path: "/api/v1/organization/{id}/users/",
+      method: "GET",
+      TRes: {} as OrganizationUserResponse,
+    },
+    assignUser: {
+      path: "/api/v1/organization/{id}/users/",
+      method: "POST",
+      TRes: {} as OrganizationUser,
+      TBody: {} as { user: string; role: string },
+    },
+    removeUser: {
+      path: "/api/v1/organization/{id}/users/{userId}/",
+      method: "DELETE",
+      TRes: {} as Record<string, never>,
+    },
+  },
+
+  // Role Routes
+  role: {
+    list: {
+      path: "/api/v1/role/",
+      method: "GET",
+      TRes: {} as RoleResponse,
+    },
   },
 
   // OTP Routes
