@@ -52,6 +52,7 @@ import {
   includesIgnoreCase,
   parsePhoneNumber,
 } from "@/Utils/utils";
+import OrganisationSelector from "@/pages/Organisation/components/OrganisationSelector";
 import { PatientModel, validatePatient } from "@/types/emr/patient";
 
 import Autocomplete from "../ui/autocomplete";
@@ -414,7 +415,7 @@ export default function PatientRegistration(
       <div className="relative mt-4 flex flex-col md:flex-row gap-4">
         <SectionNavigator sections={sidebarItems} className="hidden md:flex" />
         <form className="md:w-[500px]" onSubmit={handleFormSubmit}>
-          {/* 
+          {/*
           // This will need to be updated
           <PLUGIN_Component
                 __name="ExtendPatientRegisterForm"
@@ -749,6 +750,14 @@ export default function PatientRegistration(
               </div>
               {form.nationality === "India" ? (
                 <>
+                  <OrganisationSelector
+                    onChange={(value) =>
+                      setForm((f) => ({
+                        ...f,
+                        state: Number(value),
+                      }))
+                    }
+                  />
                   <div>
                     <InputWithError
                       label={t("state")}
@@ -982,7 +991,7 @@ export default function PatientRegistration(
             </h2>
             <div className="text-sm">{t("volunteer_contact_detail")}</div>
             <br />
-  
+
           </div> */}
           {/* <div id="insurance-details" className="mt-10">
             <h2 className="text-lg font-semibold">

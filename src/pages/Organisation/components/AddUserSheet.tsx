@@ -70,9 +70,9 @@ export default function AddUserSheet({ organizationId }: Props) {
       setSelectedRole("");
     },
     onError: (error) => {
-      const errorData = error.cause as { errors: { msg: string[] } };
-      errorData.errors.msg.forEach((er) => {
-        toast.error(er);
+      const errorData = error.cause as { errors: { msg: string }[] };
+      errorData.errors.forEach((er) => {
+        toast.error(er.msg);
       });
     },
   });
