@@ -108,3 +108,13 @@ const getInfiniteAvailabilityHeatmap = ({
 export const formatAppointmentSlotTime = (appointment: Appointment) => {
   return format(appointment.token_slot.start_datetime, "dd MMM, yyyy, hh:mm a");
 };
+
+export const formatSlotTimeRange = (slot: {
+  start_datetime: string;
+  end_datetime: string;
+}) => {
+  return `${format(slot.start_datetime, "h:mm a")} - ${format(
+    slot.end_datetime,
+    "h:mm a",
+  )}`;
+};

@@ -197,12 +197,12 @@ export default function AppointmentCreatePage(props: Props) {
   };
 
   return (
-    <Page title="Doctor Consultation">
+    <Page title={t("book_appointment")}>
       <hr className="mt-6 mb-8" />
       <div className="container mx-auto p-4 max-w-5xl">
         <div className="mb-8">
           {/* TODO: confirm how to rename this since we are keeping it abstract / not specific to doctor */}
-          <h1 className="text-lg font-bold mb-2">Doctor Consultation</h1>
+          <h1 className="text-lg font-bold mb-2">{t("book_appointment")}</h1>
         </div>
 
         <div className="space-y-8">

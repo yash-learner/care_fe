@@ -1,3 +1,4 @@
+import { CaretDownIcon, CheckIcon, ReloadIcon } from "@radix-ui/react-icons";
 import { useQuery } from "@tanstack/react-query";
 import { format, formatDate } from "date-fns";
 import { Link, useQueryParams } from "raviger";
@@ -9,8 +10,23 @@ import { cn } from "@/lib/utils";
 import CareIcon from "@/CAREUI/icons/CareIcon";
 
 import { Button } from "@/components/ui/button";
+import {
+  Command,
+  CommandEmpty,
+  CommandGroup,
+  CommandInput,
+  CommandItem,
+  CommandList,
+  CommandSeparator,
+} from "@/components/ui/command";
+import { DatePicker } from "@/components/ui/date-picker";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
 import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area";
 import {
   Select,
@@ -23,25 +39,37 @@ import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 import { Avatar } from "@/components/Common/Avatar";
 import Page from "@/components/Common/Page";
+import {
+  formatSlotTimeRange,
+  groupSlotsByAvailability,
+} from "@/components/Schedule/Appointments/utils";
 import { ScheduleAPIs } from "@/components/Schedule/api";
 import { getFakeTokenNumber } from "@/components/Schedule/helpers";
 import { Appointment, SlotAvailability } from "@/components/Schedule/types";
 
 import useAuthUser from "@/hooks/useAuthUser";
 
+import FiltersCache from "@/Utils/FiltersCache";
 import query from "@/Utils/request/query";
 import { dateQueryString, formatName, formatPatientAge } from "@/Utils/utils";
 
 interface QueryParams {
-  resource?: string;
+  practitioner?: string;
   slot?: string;
+  date?: string;
+  search?: string;
 }
 
 export default function AppointmentsPage(props: { facilityId?: string }) {
   const { t } = useTranslation();
 
-  const [qParams, setQParams] = useQueryParams<QueryParams>();
-  const date = dateQueryString(new Date());
+  const [qParams, _setQParams] = useQueryParams<QueryParams>();
+  const date = qParams.date ?? dateQueryString(new Date());
+
+  const setQParams = (params: QueryParams) => {
+    params = FiltersCache.utils.clean({ ...qParams, ...params });
+    _setQParams(params, { replace: true });
+  };
 
   const authUser = useAuthUser();
   const facilityId = props.facilityId ?? authUser.home_facility!;
@@ -56,25 +84,25 @@ export default function AppointmentsPage(props: { facilityId?: string }) {
   });
 
   const resources = resourcesQuery.data?.users;
-  const resource = resources?.find((r) => r.id === qParams.resource);
+  const practitioner = resources?.find((r) => r.id === qParams.practitioner);
 
   const slotsQuery = useQuery({
-    queryKey: ["slots", facilityId, qParams.resource, date],
+    queryKey: ["slots", facilityId, qParams.practitioner, date],
     queryFn: query(ScheduleAPIs.slots.getSlotsForDay, {
       pathParams: { facility_id: facilityId },
       body: {
-        resource: qParams.resource ?? "",
+        resource: qParams.practitioner ?? "",
         day: date,
       },
     }),
-    enabled: !!qParams.resource,
+    enabled: !!qParams.practitioner,
   });
   const slots = slotsQuery.data?.results;
   const slot = slots?.find((s) => s.id === qParams.slot);
 
   return (
     <Page
-      title="Out Patient (OP) Appointments"
+      title={t("appointments")}
       collapseSidebar
       options={
         <Tabs
@@ -100,50 +128,89 @@ export default function AppointmentsPage(props: { facilityId?: string }) {
             <Label className="mb-2 text-black">
               {t("select_practitioner")}
             </Label>
-            <Select
-              disabled={resourcesQuery.isLoading}
-              value={qParams.resource}
-              onValueChange={(value) => {
-                const resource = resourcesQuery.data?.users.find(
-                  (r) => r.id === value,
-                );
-                setQParams({ resource: resource?.id });
-              }}
-            >
-              <SelectTrigger className="min-w-60">
-                <SelectValue placeholder={t("show_all")}>
-                  {resource && (
+            <Popover>
+              <PopoverTrigger asChild disabled={resourcesQuery.isLoading}>
+                <Button
+                  variant="outline"
+                  role="combobox"
+                  className="min-w-60 justify-start"
+                >
+                  {practitioner ? (
                     <div className="flex items-center gap-2">
                       <Avatar
-                        imageUrl={resource.profile_picture_url}
-                        name={formatName(resource)}
+                        imageUrl={practitioner.profile_picture_url}
+                        name={formatName(practitioner)}
                         className="size-6 rounded-full"
                       />
-                      <span>{formatName(resource)}</span>
+                      <span>{formatName(practitioner)}</span>
                     </div>
+                  ) : (
+                    <span>{t("show_all")}</span>
                   )}
-                </SelectValue>
-              </SelectTrigger>
-              <SelectContent>
-                {resourcesQuery.data?.users.map((user) => (
-                  <SelectItem key={user.id} value={user.id}>
-                    <div className="flex items-center gap-2">
-                      <Avatar
-                        imageUrl={user.profile_picture_url}
-                        name={formatName(user)}
-                        className="size-6 rounded-full"
-                      />
-                      <div className="space-x-2">
-                        <span>{formatName(user)}</span>
-                        <span className="text-xs text-gray-500 font-medium">
-                          {user.user_type}
-                        </span>
-                      </div>
-                    </div>
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
+                  <CaretDownIcon className="ml-auto" />
+                </Button>
+              </PopoverTrigger>
+              <PopoverContent className="p-0" align="start">
+                <Command>
+                  <CommandInput
+                    placeholder={t("search")}
+                    className="outline-none border-none ring-0 shadow-none"
+                  />
+                  <CommandList>
+                    <CommandEmpty>
+                      {resourcesQuery.isFetching
+                        ? t("searching")
+                        : t("no_results")}
+                    </CommandEmpty>
+                    <CommandGroup>
+                      <CommandItem
+                        value="all"
+                        onSelect={() =>
+                          setQParams({
+                            practitioner: undefined,
+                            slot: undefined,
+                          })
+                        }
+                        className="cursor-pointer"
+                      >
+                        <span>{t("show_all")}</span>
+                        {qParams.practitioner === undefined && (
+                          <CheckIcon className="ml-auto" />
+                        )}
+                      </CommandItem>
+                      {resourcesQuery.data?.users.map((user) => (
+                        <CommandItem
+                          key={user.id}
+                          value={formatName(user)}
+                          onSelect={() =>
+                            setQParams({
+                              practitioner: user.id,
+                              slot: undefined,
+                            })
+                          }
+                          className="cursor-pointer"
+                        >
+                          <div className="flex items-center gap-2">
+                            <Avatar
+                              imageUrl={user.profile_picture_url}
+                              name={formatName(user)}
+                              className="size-6 rounded-full"
+                            />
+                            <span>{formatName(user)}</span>
+                            <span className="text-xs text-gray-500 font-medium">
+                              {user.user_type}
+                            </span>
+                          </div>
+                          {qParams.practitioner === user.id && (
+                            <CheckIcon className="ml-auto" />
+                          )}
+                        </CommandItem>
+                      ))}
+                    </CommandGroup>
+                  </CommandList>
+                </Command>
+              </PopoverContent>
+            </Popover>
           </div>
 
           <div>
@@ -158,46 +225,51 @@ export default function AppointmentsPage(props: { facilityId?: string }) {
               slots={slots ?? []}
               selectedSlot={qParams.slot}
               onSelect={(slot) => {
-                const updated = { ...qParams };
                 if (slot === "all") {
-                  delete updated.slot;
+                  setQParams({ slot: undefined });
                 } else {
-                  updated.slot = slot;
+                  setQParams({ slot });
                 }
-                setQParams(updated);
               }}
             />
           </div>
         </div>
 
         <div className="flex gap-4 items-center">
-          <Input className="w-[300px]" placeholder={t("search")} />
-          <Button variant="secondary">
-            <CareIcon icon="l-filter" className="mr-2" />
-            <span>{t("filter")}</span>
-          </Button>
-          {/* <div className="flex border rounded-lg">
-            <Button
-              variant="ghost"
-              className={cn(
-                "rounded-r-none",
-                viewMode === "board" && "bg-gray-100",
-              )}
-              onClick={() => setViewMode("board")}
-            >
-              {t("board")}
-            </Button>
-            <Button
-              variant="ghost"
-              className={cn(
-                "rounded-l-none",
-                viewMode === "list" && "bg-gray-100",
-              )}
-              onClick={() => setViewMode("list")}
-            >
-              {t("list")}
-            </Button>
-          </div> */}
+          <Input
+            className="w-[300px]"
+            placeholder={t("search")}
+            value={qParams.search}
+            onChange={(e) => setQParams({ search: e.target.value })}
+          />
+          <Popover>
+            <PopoverTrigger asChild>
+              <Button variant="secondary">
+                <CareIcon icon="l-filter" className="mr-2" />
+                <span>{t("filter")}</span>
+              </Button>
+            </PopoverTrigger>
+            <PopoverContent className="mr-11">
+              <div>
+                <Label className="mb-2">{t("date")}</Label>
+                <DatePicker
+                  date={new Date(date)}
+                  onChange={(date) =>
+                    setQParams({
+                      date: dateQueryString(date),
+                      slot: undefined,
+                    })
+                  }
+                />
+              </div>
+              <div className="flex justify-end bg-gray-100 mt-6 -m-4 py-3 px-4 rounded-md">
+                <Button variant="outline" onClick={() => _setQParams({})}>
+                  <ReloadIcon className="mr-2" />
+                  {t("clear_all_filters")}
+                </Button>
+              </div>
+            </PopoverContent>
+          </Popover>
         </div>
       </div>
 
@@ -217,6 +289,9 @@ export default function AppointmentsPage(props: { facilityId?: string }) {
               status={status}
               facilityId={facilityId}
               slot={slot?.id}
+              practitioner={qParams.practitioner}
+              date={date}
+              search={qParams.search?.toLowerCase()}
             />
           ))}
         </div>
@@ -229,8 +304,10 @@ export default function AppointmentsPage(props: { facilityId?: string }) {
 function AppointmentColumn(props: {
   facilityId: string;
   status: Appointment["status"];
-  resource?: string;
+  practitioner?: string;
   slot?: string;
+  date: string;
+  search?: string;
 }) {
   const { t } = useTranslation();
 
@@ -239,8 +316,9 @@ function AppointmentColumn(props: {
       "appointments",
       props.facilityId,
       props.status,
-      props.resource,
+      props.practitioner,
       props.slot,
+      props.date,
     ],
     queryFn: query(ScheduleAPIs.appointments.list, {
       pathParams: { facility_id: props.facilityId },
@@ -248,12 +326,19 @@ function AppointmentColumn(props: {
         status: props.status,
         limit: 100,
         slot: props.slot,
-        resource: props.resource,
+        resource: props.practitioner,
+        date: props.date,
       },
     }),
   });
 
-  const appointments = data?.results ?? [];
+  let appointments = data?.results ?? [];
+
+  if (props.search) {
+    appointments = appointments.filter(({ patient }) =>
+      patient.name.toLowerCase().includes(props.search!),
+    );
+  }
 
   return (
     <div
@@ -329,8 +414,12 @@ interface SlotFilterProps {
   onSelect: (slot: string) => void;
 }
 
-function SlotFilter({ slots, selectedSlot, onSelect }: SlotFilterProps) {
+function SlotFilter({ selectedSlot, onSelect, ...props }: SlotFilterProps) {
   const { t } = useTranslation();
+  const slots = props.slots.filter((slot) => slot.allocated > 0);
+
+  const resolvedSlot =
+    selectedSlot && slots.find((slot) => slot.id === selectedSlot);
 
   if (slots.length <= 3) {
     return (
@@ -350,6 +439,78 @@ function SlotFilter({ slots, selectedSlot, onSelect }: SlotFilterProps) {
       </Tabs>
     );
   }
+
+  const slotsByAvailability = groupSlotsByAvailability(slots);
+
+  return (
+    <Popover>
+      <PopoverTrigger asChild>
+        <Button
+          variant="outline"
+          role="combobox"
+          className="min-w-60 justify-start"
+        >
+          {resolvedSlot ? (
+            <div className="flex items-center gap-2">
+              <span>{formatSlotTimeRange(resolvedSlot)}</span>
+            </div>
+          ) : (
+            <span>{t("show_all_slots")}</span>
+          )}
+          <CaretDownIcon className="ml-auto" />
+        </Button>
+      </PopoverTrigger>
+      <PopoverContent className="p-0" align="start">
+        <Command>
+          <CommandInput
+            placeholder={t("search")}
+            className="outline-none border-none ring-0 shadow-none"
+          />
+          <CommandList>
+            <CommandEmpty>{t("no_slots_found")}</CommandEmpty>
+            <CommandGroup>
+              <CommandItem
+                value="all"
+                onSelect={() => onSelect("all")}
+                className="cursor-pointer"
+              >
+                <span>{t("show_all")}</span>
+                {selectedSlot === undefined && (
+                  <CheckIcon className="ml-auto" />
+                )}
+              </CommandItem>
+            </CommandGroup>
+            {slotsByAvailability.map(({ availability, slots }) => (
+              <>
+                <CommandSeparator />
+                <CommandGroup
+                  key={availability.name}
+                  heading={availability.name}
+                >
+                  {slots.map((slot) => (
+                    <CommandItem
+                      key={slot.id}
+                      value={formatSlotTimeRange(slot)}
+                      onSelect={() => onSelect(slot.id)}
+                      className="cursor-pointer"
+                    >
+                      <span>{formatSlotTimeRange(slot)}</span>
+                      <span className="text-xs text-gray-500 font-medium">
+                        {slot.allocated} / {availability.tokens_per_slot}
+                      </span>
+                      {selectedSlot === slot.id && (
+                        <CheckIcon className="ml-auto" />
+                      )}
+                    </CommandItem>
+                  ))}
+                </CommandGroup>
+              </>
+            ))}
+          </CommandList>
+        </Command>
+      </PopoverContent>
+    </Popover>
+  );
 
   return (
     <Select value={selectedSlot ?? "all"} onValueChange={onSelect}>
