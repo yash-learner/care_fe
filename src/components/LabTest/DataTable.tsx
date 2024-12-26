@@ -19,12 +19,14 @@ interface DataTableProps {
   columns: Array<{ label: string; key: string; render_as?: string }>;
   data: Array<Record<string, any>>;
   actions?: (row: Record<string, any>) => React.ReactNode;
+  emptyMessage?: string;
 }
 
 export const DataTable: React.FC<DataTableProps> = ({
   columns,
   data,
   actions,
+  emptyMessage = "No records found.",
 }) => {
   return (
     <div className="overflow-x-auto w-full">
@@ -47,34 +49,45 @@ export const DataTable: React.FC<DataTableProps> = ({
           </TableRow>
         </TableHeader>
         <TableBody>
-          {data.map((row, index) => (
-            <TableRow key={index} className="bg-white">
-              {columns.map((col) => (
-                <TableCell
-                  key={col.key}
-                  className="px-4 py-2 text-sm text-gray-600"
-                >
-                  {col.render_as === "badge" ? (
-                    // Todo: Need to make this component more generic and reusable
-                    <Badge
-                      variant={mapKeyToBadgeVariant(
-                        row[col.key].toLowerCase(),
-                        PRIORITY_VARIANT_MAP,
-                      )}
-                      className="rounded-sm capitalize shadow-none"
-                    >
-                      {row[col.key]}
-                    </Badge>
-                  ) : (
-                    row[col.key]
-                  )}
-                </TableCell>
-              ))}
-              {actions && (
-                <TableCell className="px-4 py-2">{actions(row)}</TableCell>
-              )}
+          {data.length > 0 ? (
+            data.map((row, index) => (
+              <TableRow key={index} className="bg-white">
+                {columns.map((col) => (
+                  <TableCell
+                    key={col.key}
+                    className="px-4 py-2 text-sm text-gray-600"
+                  >
+                    {col.render_as === "badge" ? (
+                      // Todo: Need to make this component more generic and reusable
+                      <Badge
+                        variant={mapKeyToBadgeVariant(
+                          row[col.key].toLowerCase(),
+                          PRIORITY_VARIANT_MAP,
+                        )}
+                        className="rounded-sm capitalize shadow-none"
+                      >
+                        {row[col.key]}
+                      </Badge>
+                    ) : (
+                      row[col.key]
+                    )}
+                  </TableCell>
+                ))}
+                {actions && (
+                  <TableCell className="px-4 py-2">{actions(row)}</TableCell>
+                )}
+              </TableRow>
+            ))
+          ) : (
+            <TableRow>
+              <TableCell
+                colSpan={columns.length + (actions ? 1 : 0)}
+                className="px-4 py-2 text-center text-sm text-gray-500"
+              >
+                {emptyMessage}
+              </TableCell>
             </TableRow>
-          ))}
+          )}
         </TableBody>
       </Table>
     </div>
