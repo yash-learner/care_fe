@@ -1,3 +1,4 @@
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
 
@@ -41,6 +42,52 @@ export default function CreateServiceRequest({
     setNote(updatedNote);
   };
 
+  const queryClient = useQueryClient();
+
+  const { mutate: createServiceRequest, isPending } = useMutation({
+    mutationFn: (body: {
+      code: Coding;
+      subject: string;
+      encounter: string;
+      priority: ServiceRequest["priority"];
+      note: Annotation[];
+    }) =>
+      request(routes.labs.serviceRequest.create, {
+        body,
+      }),
+    onSuccess: () => {
+      Notification.Success({ msg: "Test ordered successfully" });
+
+      setCode(undefined);
+      setNote([{ text: "", authorString: "", time: "" }]);
+      setPriority(undefined);
+
+      queryClient.invalidateQueries({
+        queryKey: [
+          routes.labs.serviceRequest.list.path,
+          { encounter: encounter.id },
+        ],
+      });
+    },
+    onError: () => {
+      Notification.Error({ msg: "Failed to order test" });
+    },
+  });
+
+  const handleOrderTest = () => {
+    if (!code) {
+      return;
+    }
+
+    createServiceRequest({
+      code,
+      subject: encounter.patient,
+      encounter: encounter.id,
+      priority,
+      note,
+    });
+  };
+
   return (
     <Card className="bg-inherit shadow-none rounded-md">
       <CardHeader className="grid gap-3">
@@ -53,6 +100,7 @@ export default function CreateServiceRequest({
               placeholder="Type your note here."
               id="note"
               className="bg-white"
+              value={note[0].text}
               onChange={handleNoteChange}
             />
           </div>
@@ -70,7 +118,7 @@ export default function CreateServiceRequest({
               }
             >
               {["routine", "urgent", "asap", "stat"].map((value) => (
-                <div className="flex items-center space-x-1.5">
+                <div className="flex items-center space-x-1.5" key={value}>
                   <RadioGroupItem
                     value={value}
                     id={value}
@@ -121,32 +169,8 @@ export default function CreateServiceRequest({
             <Button variant="outline">Cancel</Button>
             <Button
               variant="primary"
-              onClick={async () => {
-                if (!code) {
-                  return;
-                }
-
-                const { res } = await request(
-                  routes.labs.serviceRequest.create,
-                  {
-                    body: {
-                      code,
-                      subject: encounter.patient,
-                      encounter: encounter.id,
-                      priority,
-                      note,
-                    },
-                  },
-                );
-
-                if (!res?.ok) {
-                  Notification.Error({ msg: "Failed to order test" });
-                  return;
-                }
-
-                Notification.Success({ msg: "Test ordered successfully" });
-                setCode(undefined);
-              }}
+              onClick={handleOrderTest}
+              disabled={isPending}
             >
               Order test
             </Button>
