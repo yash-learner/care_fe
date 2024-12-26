@@ -1,8 +1,10 @@
+import { useQuery } from "@tanstack/react-query";
+
 import { DataTableSkeleton } from "@/components/LabTest/DataTableSkeleton";
 
 import { mapKeyToBadgeVariant } from "@/Utils/badgeUtils";
 import routes from "@/Utils/request/api";
-import useQuery from "@/Utils/request/useQuery";
+import query from "@/Utils/request/query";
 
 import { Badge } from "../ui/badge";
 import { Separator } from "../ui/separator";
@@ -23,10 +25,16 @@ type ListEncounterServiceRequestsProps = {
 export default function ListEncounterServiceRequests({
   encounterId,
 }: ListEncounterServiceRequestsProps) {
-  const { data } = useQuery(routes.labs.serviceRequest.list, {
-    query: {
-      encounter: encounterId,
-    },
+  const { data } = useQuery({
+    queryKey: [
+      routes.labs.serviceRequest.list.path,
+      { encounter: encounterId },
+    ],
+    queryFn: query(routes.labs.serviceRequest.list, {
+      queryParams: {
+        encounter: encounterId,
+      },
+    }),
   });
 
   const columns = [
