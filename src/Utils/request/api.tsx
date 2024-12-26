@@ -1561,7 +1561,7 @@ const routes = {
     createPatient: {
       path: "/api/v1/otp/patient/",
       method: "POST",
-      TBody: Type<AppointmentPatientRegister>(),
+      TBody: Type<Partial<AppointmentPatientRegister>>(),
       TRes: Type<AppointmentPatient>(),
       auth: {
         key: "Authorization",
