@@ -1,5 +1,5 @@
 import { useQuery } from "@tanstack/react-query";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 
 import CareIcon from "@/CAREUI/icons/CareIcon";
 
@@ -21,6 +21,7 @@ interface OrganisationSelectorProps {
   value?: string;
   onChange: (value: string) => void;
   required?: boolean;
+  authToken?: string;
 }
 
 interface AutoCompleteOption {
@@ -29,16 +30,16 @@ interface AutoCompleteOption {
 }
 
 export default function OrganisationSelector(props: OrganisationSelectorProps) {
-  const { value, onChange, required } = props;
+  const { onChange, required } = props;
   const [selectedLevels, setSelectedLevels] = useState<Organization[]>([]);
 
-  const { data: organization } = useQuery<Organization>({
-    queryKey: ["organisation", value],
-    queryFn: query(routes.organisation.get, {
-      pathParams: { id: value || "" },
-    }),
-    enabled: !!value,
-  });
+  const headers = props.authToken
+    ? {
+        headers: {
+          Authorization: `Bearer ${props.authToken}`,
+        },
+      }
+    : {};
 
   const { data: getAllOrganizations } = useQuery<OrganizationResponse>({
     queryKey: ["organisations-root"],
@@ -47,6 +48,7 @@ export default function OrganisationSelector(props: OrganisationSelectorProps) {
         org_type: "govt",
         parent: "",
       },
+      ...headers,
     }),
   });
 
@@ -62,28 +64,10 @@ export default function OrganisationSelector(props: OrganisationSelectorProps) {
         parent: selectedLevels[selectedLevels.length - 1]?.id,
         org_type: "govt",
       },
+      ...headers,
     }),
     enabled: selectedLevels.length > 0,
   });
-
-  useEffect(() => {
-    if (organization) {
-      const fetchParentChain = async () => {
-        const chain: Organization[] = [];
-        let current = organization;
-        while (current.parent) {
-          const parent = await query(routes.organisation.get, {
-            pathParams: { id: current.parent.id },
-          })({ signal: new AbortController().signal });
-          chain.unshift(parent);
-          current = parent;
-        }
-
-        setSelectedLevels(chain);
-      };
-      fetchParentChain();
-    }
-  }, [organization]);
 
   const handleLevelChange = (value: string, level: number) => {
     const orgList =
@@ -152,7 +136,8 @@ export default function OrganisationSelector(props: OrganisationSelectorProps) {
       ))}
 
       {/* Next Level Selection */}
-      {ORGANISATION_LEVELS.govt[selectedLevels.length] && (
+      {(!selectedLevels.length ||
+        selectedLevels[selectedLevels.length - 1]?.has_children) && (
         <div>
           <InputWithError
             label={ORGANISATION_LEVELS.govt[selectedLevels.length]}

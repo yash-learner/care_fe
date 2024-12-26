@@ -26,7 +26,7 @@ const OTPPatientSidebarUserCard: React.FC<SidebarUserCardProps> = ({
 }) => {
   const { t } = useTranslation();
 
-  const { selectedUser, phoneNumber } = useContext(OTPPatientUserContext);
+  const { selectedUser, tokenData } = useContext(OTPPatientUserContext);
 
   const signOut = useSignOut();
 
@@ -56,7 +56,7 @@ const OTPPatientSidebarUserCard: React.FC<SidebarUserCardProps> = ({
               <div className="max-w-32">
                 {!shrinked && (
                   <p className="truncate pl-1 text-xs font-medium tracking-wide">
-                    {selectedUser ? selectedUser.name : phoneNumber}
+                    {selectedUser ? selectedUser.name : tokenData.phoneNumber}
                   </p>
                 )}
               </div>

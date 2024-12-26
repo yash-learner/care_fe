@@ -5,10 +5,7 @@ export type AppointmentPatientRegister = {
   address: string;
   date_of_birth?: string;
   year_of_birth?: string;
-  state?: number;
-  district?: number;
-  ward?: number;
-  local_body?: number;
+  geo_organization?: number;
   pincode?: number;
 };
 

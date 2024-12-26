@@ -1,19 +1,12 @@
-import careConfig from "@careConfig";
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { navigate } from "raviger";
-import { useCallback, useState } from "react";
+import { useState } from "react";
 import { useTranslation } from "react-i18next";
 
 import CareIcon from "@/CAREUI/icons/CareIcon";
 
 import { Button } from "@/components/ui/button";
 
-import Spinner from "@/components/Common/Spinner";
-import {
-  DistrictModel,
-  LocalBodyModel,
-  WardModel,
-} from "@/components/Facility/models";
 import {
   FieldError,
   RequiredFieldValidator,
@@ -21,7 +14,6 @@ import {
 import Form from "@/components/Form/Form";
 import DateFormField from "@/components/Form/FormFields/DateFormField";
 import RadioFormField from "@/components/Form/FormFields/RadioFormField";
-import { SelectFormField } from "@/components/Form/FormFields/SelectFormField";
 import TextAreaFormField from "@/components/Form/FormFields/TextAreaFormField";
 import TextFormField from "@/components/Form/FormFields/TextFormField";
 import {
@@ -37,14 +29,14 @@ import * as Notification from "@/Utils/Notifications";
 import { usePubSub } from "@/Utils/pubsubContext";
 import routes from "@/Utils/request/api";
 import mutate from "@/Utils/request/mutate";
-import request from "@/Utils/request/request";
-import { compareBy, dateQueryString } from "@/Utils/utils";
-import { getPincodeDetails, includesIgnoreCase } from "@/Utils/utils";
+import { dateQueryString } from "@/Utils/utils";
 import {
   AppointmentPatient,
   AppointmentPatientRegister,
 } from "@/pages/Patient/Utils";
 import { TokenData } from "@/types/auth/otpToken";
+
+import OrganisationSelector from "../Organisation/components/OrganisationSelector";
 
 const initialForm: AppointmentPatientRegister = {
   name: "",
@@ -52,11 +44,9 @@ const initialForm: AppointmentPatientRegister = {
   year_of_birth: undefined,
   date_of_birth: "",
   phone_number: "",
-  state: undefined,
-  district: undefined,
-  local_body: undefined,
   address: "",
   pincode: undefined,
+  geo_organization: undefined,
 };
 
 type PatientRegistrationProps = {
@@ -223,100 +213,15 @@ export function PatientRegistration(props: PatientRegistrationProps) {
       name: formData.name,
       pincode: formData.pincode ? formData.pincode : undefined,
       gender: formData.gender,
-      state: formData.state ? formData.state : undefined,
-      district: formData.district ? formData.district : undefined,
-      local_body: formData.local_body ? formData.local_body : undefined,
+      geo_organization: formData.geo_organization,
       address: formData.address ? formData.address : "",
       is_active: true,
     };
+    console.log(formData);
     createPatient(data);
   };
-  const [isDistrictLoading, setIsDistrictLoading] = useState(false);
-  const [isLocalbodyLoading, setIsLocalbodyLoading] = useState(false);
-  const [isWardLoading, setIsWardLoading] = useState(false);
-  const [districts, setDistricts] = useState<DistrictModel[]>([]);
-  const [localBody, setLocalBody] = useState<LocalBodyModel[]>([]);
-  const [ward, setWard] = useState<WardModel[]>([]);
-  const [showAutoFilledPincode, setShowAutoFilledPincode] = useState(false);
 
-  const fetchDistricts = useCallback(async (id: number) => {
-    if (id > 0) {
-      setIsDistrictLoading(true);
-      const { res, data } = await request(routes.getDistrictByState, {
-        pathParams: { id },
-      });
-      if (res?.ok && data) {
-        setDistricts(data);
-      }
-      setIsDistrictLoading(false);
-      return data ? [...data] : [];
-    }
-  }, []);
-
-  const fetchLocalBody = useCallback(async (id: string) => {
-    if (Number(id) > 0) {
-      setIsLocalbodyLoading(true);
-      const { data } = await request(routes.getLocalbodyByDistrict, {
-        pathParams: { id },
-      });
-      setIsLocalbodyLoading(false);
-      setLocalBody(data || []);
-    } else {
-      setLocalBody([]);
-    }
-  }, []);
-
-  const fetchWards = useCallback(async (id: string) => {
-    if (Number(id) > 0) {
-      setIsWardLoading(true);
-      const { data } = await request(routes.getWardByLocalBody, {
-        pathParams: { id },
-      });
-      setIsWardLoading(false);
-      if (data) {
-        setWard(data.results);
-      }
-    } else {
-      setWard([]);
-    }
-  }, []);
-
-  const { data: stateData, isLoading: isStateLoading } = useQuery({
-    queryKey: [routes.statesList],
-    queryFn: () => request(routes.statesList),
-  });
-
-  const handlePincodeChange = async (e: any, setField: any) => {
-    if (!validatePincode(e.value)) return;
-
-    const pincodeDetails = await getPincodeDetails(
-      e.value,
-      careConfig.govDataApiKey,
-    );
-    if (!pincodeDetails) return;
-
-    const matchedState = stateData?.data?.results?.find((state) => {
-      return includesIgnoreCase(state.name, pincodeDetails.statename);
-    });
-    if (!matchedState) return;
-
-    const fetchedDistricts = await fetchDistricts(matchedState.id);
-    if (!fetchedDistricts) return;
-
-    const matchedDistrict = fetchedDistricts.find((district) => {
-      return includesIgnoreCase(district.name, pincodeDetails.districtname);
-    });
-    if (!matchedDistrict) return;
-
-    setField({ name: "state", value: matchedState.id });
-    setField({ name: "district", value: matchedDistrict.id.toString() }); // Convert matchedDistrict.id to string
-
-    fetchLocalBody(matchedDistrict.id.toString()); // Convert matchedDistrict.id to string
-    setShowAutoFilledPincode(true);
-    setTimeout(() => {
-      setShowAutoFilledPincode(false);
-    }, 2000);
-  };
+  // const [showAutoFilledPincode, setShowAutoFilledPincode] = useState(false);
 
   return (
     <>
@@ -424,154 +329,17 @@ export function PatientRegistration(props: PatientRegistrationProps) {
                   required
                   onChange={(e) => {
                     field("pincode").onChange(e);
-                    handlePincodeChange(e, field("pincode").onChange);
                   }}
                 />
-                {showAutoFilledPincode && (
-                  <div>
-                    <CareIcon
-                      icon="l-check-circle"
-                      className="mr-2 text-sm text-green-500"
-                    />
-                    <span className="text-sm text-primary-500">
-                      State and District auto-filled from Pincode
-                    </span>
-                  </div>
-                )}
 
-                <div data-testid="state" id="state-div">
-                  {isStateLoading ? (
-                    <Spinner />
-                  ) : (
-                    <SelectFormField
-                      {...field("state")}
-                      label="State"
-                      required
-                      placeholder="Choose State"
-                      options={stateData?.data?.results || []}
-                      optionLabel={(o: any) => o.name}
-                      optionValue={(o: any) => o.id}
-                      onChange={(e: any) => {
-                        field("state").onChange(e);
-                        field("district").onChange({
-                          name: "district",
-                          value: undefined,
-                        });
-                        field("local_body").onChange({
-                          name: "local_body",
-                          value: undefined,
-                        });
-                        field("ward").onChange({
-                          name: "ward",
-                          value: undefined,
-                        });
-                        fetchDistricts(e.value);
-                        fetchLocalBody("0");
-                        fetchWards("0");
-                      }}
-                    />
-                  )}
-                </div>
-
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                  <div data-testid="district" id="district-div">
-                    {isDistrictLoading ? (
-                      <div className="flex w-full items-center justify-center">
-                        <Spinner />
-                      </div>
-                    ) : (
-                      <SelectFormField
-                        {...field("district")}
-                        label="District"
-                        required
-                        placeholder={
-                          field("state").value
-                            ? "Choose District"
-                            : "Select State First"
-                        }
-                        disabled={!field("state").value}
-                        options={districts}
-                        optionLabel={(o: any) => o.name}
-                        optionValue={(o: any) => o.id}
-                        onChange={(e: any) => {
-                          field("district").onChange(e);
-                          field("local_body").onChange({
-                            name: "local_body",
-                            value: undefined,
-                          });
-                          field("ward").onChange({
-                            name: "ward",
-                            value: undefined,
-                          });
-                          fetchLocalBody(String(e.value));
-                          fetchWards("0");
-                        }}
-                      />
-                    )}
-                  </div>
-                  <div data-testid="localbody" id="local_body-div">
-                    {isLocalbodyLoading ? (
-                      <div className="flex w-full items-center justify-center">
-                        <Spinner />
-                      </div>
-                    ) : (
-                      <SelectFormField
-                        {...field("local_body")}
-                        label="Localbody"
-                        required
-                        placeholder={
-                          field("district").value
-                            ? "Choose Localbody"
-                            : "Select District First"
-                        }
-                        disabled={!field("district").value}
-                        options={localBody}
-                        optionLabel={(o) => o.name}
-                        optionValue={(o) => o.id}
-                        onChange={(e) => {
-                          field("local_body").onChange(e);
-                          field("ward").onChange({
-                            name: "ward",
-                            value: undefined,
-                          });
-                          fetchWards(String(e.value));
-                        }}
-                      />
-                    )}
-                  </div>
-                </div>
-
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                  <div data-testid="ward-respective-lsgi" id="ward-div">
-                    {isWardLoading ? (
-                      <div className="flex w-full items-center justify-center">
-                        <Spinner />
-                      </div>
-                    ) : (
-                      <SelectFormField
-                        {...field("ward")}
-                        label="Ward"
-                        options={ward.sort(compareBy("number")).map((e) => {
-                          return {
-                            id: e.id,
-                            name: e.number + ": " + e.name,
-                          };
-                        })}
-                        placeholder={
-                          field("local_body").value
-                            ? "Choose Ward"
-                            : "Select Localbody First"
-                        }
-                        disabled={!field("local_body").value}
-                        optionLabel={(o: any) => o.name}
-                        optionValue={(o: any) => o.id}
-                        onChange={(e: any) => {
-                          field("ward").onChange(e);
-                        }}
-                      />
-                    )}
-                  </div>
-                </div>
+                <OrganisationSelector
+                  required={true}
+                  authToken={tokenData.token}
+                  onChange={(value) => {
+                    console.log(value);
+                    field("geo_organization").onChange(value);
+                  }}
+                />
               </div>
             </div>
 

@@ -32,12 +32,9 @@ import TransferPatientDialog from "@/components/Facility/TransferPatientDialog";
 import useAppHistory from "@/hooks/useAppHistory";
 
 import {
-  BLOOD_GROUPS,
-  DOMESTIC_HEALTHCARE_SUPPORT_CHOICES,
-  GENDER_TYPES,
-  OCCUPATION_TYPES,
-  RATION_CARD_CATEGORY,
-  SOCIOECONOMIC_STATUS_CHOICES,
+  BLOOD_GROUPS, // DOMESTIC_HEALTHCARE_SUPPORT_CHOICES,
+  GENDER_TYPES, // OCCUPATION_TYPES,
+  //RATION_CARD_CATEGORY, // SOCIOECONOMIC_STATUS_CHOICES ,
 } from "@/common/constants";
 import countryList from "@/common/static/countries.json";
 import { validatePincode } from "@/common/validation";
@@ -88,7 +85,7 @@ export default function PatientRegistration(
 
   const sidebarItems = [
     { label: t("patient__general-info"), id: "general-info" },
-    { label: t("social_profile"), id: "social-profile" },
+    // { label: t("social_profile"), id: "social-profile" },
     //{ label: t("volunteer_contact"), id: "volunteer-contact" },
     //{ label: t("patient__insurance-details"), id: "insurance-details" },
   ];
@@ -673,13 +670,13 @@ export default function PatientRegistration(
               )}
             </div>
           </div>
-          <div id="social-profile" className="mt-10">
-            <h2 className="text-lg font-semibold">
+          {/* <div id="social-profile" className="mt-10"> */}
+          {/* <h2 className="text-lg font-semibold">
               {t("patient__social-profile")}
             </h2>
             <div className="text-sm">{t("social_profile_detail")}</div>
-            <br />
-            <div>
+            <br /> */}
+          {/* <div>
               <InputWithError label={t("occupation")}>
                 <Autocomplete
                   options={OCCUPATION_TYPES.map((occupation) => ({
@@ -695,9 +692,9 @@ export default function PatientRegistration(
                   }
                 />
               </InputWithError>
-            </div>
-            <br />
-            <div>
+            </div> */}
+          {/* <br /> */}
+          {/* <div>
               <InputWithError
                 label={t("ration_card_category")}
                 errors={errors["ration_card_category"]}
@@ -715,9 +712,9 @@ export default function PatientRegistration(
                   </SelectContent>
                 </Select>
               </InputWithError>
-            </div>
-            <br />
-            <InputWithError label={t("socioeconomic_status")}>
+            </div> */}
+          {/* <br /> */}
+          {/* <InputWithError label={t("socioeconomic_status")}>
               <RadioGroup
                 value={form.meta_info?.socioeconomic_status}
                 onValueChange={(value) =>
@@ -740,9 +737,9 @@ export default function PatientRegistration(
                   </Fragment>
                 ))}
               </RadioGroup>
-            </InputWithError>
-            <br />
-            <InputWithError label={t("has_domestic_healthcare_support")}>
+            </InputWithError> */}
+          {/* <br /> */}
+          {/* <InputWithError label={t("has_domestic_healthcare_support")}>
               <RadioGroup
                 value={form.meta_info?.domestic_healthcare_support}
                 onValueChange={(value) =>
@@ -765,8 +762,8 @@ export default function PatientRegistration(
                   </Fragment>
                 ))}
               </RadioGroup>
-            </InputWithError>
-          </div>
+            </InputWithError> */}
+          {/* </div> */}
           {/* <div id="volunteer-contact" className="mt-10">
             <h2 className="text-lg font-semibold">
               {t("patient__volunteer-contact")}
