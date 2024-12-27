@@ -1,4 +1,4 @@
-import { useMutation, useQuery } from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import dayjs from "dayjs";
 import { navigate } from "raviger";
 import { useState } from "react";
@@ -42,6 +42,8 @@ export default function PatientSelect({
   );
   const [selectedPatient, setSelectedPatient] = useState<string | null>(null);
 
+  const queryClient = useQueryClient();
+
   if (!staffUsername) {
     Notification.Error({ msg: "Staff Username Not Found" });
     navigate(`/facility/${facilityId}/`);
@@ -79,11 +81,14 @@ export default function PatientSelect({
       })(body),
     onSuccess: (data: Appointment) => {
       Notification.Success({ msg: t("appointment_created_success") });
+      queryClient.invalidateQueries({
+        queryKey: [
+          ["patients", tokenData.phoneNumber],
+          ["appointment", tokenData.phoneNumber],
+        ],
+      });
       navigate(`/facility/${facilityId}/appointments/${data.id}/success`, {
         replace: true,
-        // Added to ensure navigate only triggers once data is loaded
-        // Sometimes resulted in ErrorBoundary without it
-        state: { appointment: data },
       });
     },
     onError: (error) => {

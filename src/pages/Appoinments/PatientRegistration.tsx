@@ -150,15 +150,15 @@ export function PatientRegistration(props: PatientRegistrationProps) {
     onSuccess: (data: Appointment) => {
       Notification.Success({ msg: t("appointment_created_success") });
       queryClient.invalidateQueries({
-        queryKey: ["patients", tokenData.phoneNumber],
+        queryKey: [
+          ["patients", tokenData.phoneNumber],
+          ["appointment", tokenData.phoneNumber],
+        ],
       });
       navigate(
         `/facility/${props.facilityId}/appointments/${data.id}/success`,
         {
           replace: true,
-          // Added to ensure navigate only triggers once data is loaded
-          // Resulted in ErrorBoundary without it
-          state: { appointment: data },
         },
       );
     },
