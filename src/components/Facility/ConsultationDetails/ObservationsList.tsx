@@ -38,36 +38,28 @@ export default function ObservationsList() {
                   key={item.id}
                   className="flex items-center justify-between p-4"
                 >
-                  <div className="flex items-start gap-4">
-                    <CareIcon
-                      icon="l-stethoscope"
-                      className="mt-1 h-5 w-5 text-muted-foreground"
-                    />
-                    <div>
-                      <h3 className="text-lg font-medium">
-                        {item.main_code.display || item.main_code.code}
-                      </h3>
-                      <div className="mt-1 flex items-center gap-2 text-sm text-muted-foreground">
-                        <CareIcon icon="l-calender" className="h-4 w-4" />
-                        <span>{formatDateTime(item.effective_datetime)}</span>
-                      </div>
-                      {item.value.value_quantity && (
-                        <div className="mt-2 font-medium">
-                          {item.value.value_quantity.value}{" "}
-                          {item.value.value_quantity.code.display}
-                        </div>
-                      )}
-                      {item.value.value && (
-                        <div className="mt-2 font-medium">
-                          {item.value.value}
-                        </div>
-                      )}
-                      {item.note && (
-                        <div className="mt-1 text-sm text-muted-foreground">
-                          {item.note}
-                        </div>
-                      )}
+                  <div>
+                    <div className="text-xs flex items-center gap-1 text-muted-foreground">
+                      <CareIcon icon="l-calender" />
+                      <span>{formatDateTime(item.effective_datetime)}</span>
                     </div>
+                    <div className="font-medium">
+                      {item.main_code.display || item.main_code.code}
+                    </div>
+                    {item.value.value_quantity && (
+                      <div className="mt-1 font-medium">
+                        {item.value.value_quantity.value}{" "}
+                        {item.value.value_quantity.code.display}
+                      </div>
+                    )}
+                    {item.value.value && (
+                      <div className="mt-1 font-medium">{item.value.value}</div>
+                    )}
+                    {item.note && (
+                      <div className="mt-1 text-sm text-muted-foreground">
+                        {item.note}
+                      </div>
+                    )}
                   </div>
                 </Card>
               )}

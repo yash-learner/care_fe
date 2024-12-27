@@ -10,11 +10,7 @@ export const ConsultationSummaryTab = (props: ConsultationTabProps) => {
         hideBack={true}
         breadcrumbs={false}
       />
-      <PrimaryParametersPlot
-        facilityId={props.facilityId}
-        patientId={props.patientId}
-        consultationId={props.consultationId}
-      />
+      <PrimaryParametersPlot patientId={props.patientId} />
     </div>
   );
 };

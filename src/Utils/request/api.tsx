@@ -90,6 +90,7 @@ import {
 import { AllergyIntolerance } from "@/types/emr/allergyIntolerance";
 import { MedicationStatement } from "@/types/emr/medicationStatement";
 import { Observation } from "@/types/emr/observation";
+import { ObservationAnalyzeResponse } from "@/types/emr/observation";
 import { PatientModel } from "@/types/emr/patient";
 import {
   Organization,
@@ -1457,6 +1458,11 @@ const routes = {
     path: "/api/v1/patient/{patientId}/observation/",
     method: "GET",
     TRes: Type<PaginatedResponse<Observation>>(),
+  },
+  observationsAnalyse: {
+    path: "/api/v1/patient/{patientId}/observation/analyse/",
+    method: "POST",
+    TRes: Type<ObservationAnalyzeResponse>(),
   },
 
   // Diagnosis Routes

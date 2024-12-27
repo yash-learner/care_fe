@@ -81,6 +81,10 @@ export interface FacilityModel {
   facility_flags?: FeatureFlag[];
   latitude?: string;
   longitude?: string;
+  ward?: number;
+  local_body?: number;
+  district?: number;
+  state?: number;
 }
 
 export enum SpokeRelationship {

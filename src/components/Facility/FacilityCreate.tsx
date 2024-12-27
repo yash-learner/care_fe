@@ -218,7 +218,7 @@ export const FacilityCreate = (props: FacilityProps) => {
           return;
 
         case "geo_organization":
-          if (!Number(state.form[field])) {
+          if (!String(state.form[field])) {
             errors[field] = t("required");
             invalidForm = true;
           }
@@ -283,6 +283,10 @@ export const FacilityCreate = (props: FacilityProps) => {
         longitude: state.form.longitude,
         phone_number: parsePhoneNumber(state.form.phone_number),
         description: state.form.description,
+        ward: 5896,
+        local_body: 95,
+        district: 5,
+        state: 1,
       };
 
       const { res, data: requestData } = facilityId
