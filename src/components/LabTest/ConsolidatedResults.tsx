@@ -11,7 +11,7 @@ import {
 
 import { ResultTable } from "@/components/Common/ResultTable";
 
-interface ConsolidatedTestResultsProps {
+interface ConsolidatedResultsProps {
   orderId: string;
   columns: Array<{
     key: string;
@@ -20,9 +20,11 @@ interface ConsolidatedTestResultsProps {
   resultsData: Array<any>;
 }
 
-export const ConsolidatedTestResults: React.FC<
-  ConsolidatedTestResultsProps
-> = ({ orderId, columns, resultsData }) => {
+export const ConsolidatedResults: React.FC<ConsolidatedResultsProps> = ({
+  orderId,
+  columns,
+  resultsData,
+}) => {
   const [isOpen, setIsOpen] = useState(false);
 
   return (
