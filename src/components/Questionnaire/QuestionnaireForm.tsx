@@ -263,10 +263,7 @@ export function QuestionnaireForm({
     // Then, add questionnaire submission requests
     questionnaireForms.forEach((form) => {
       const nonStructuredResponses = form.responses.filter((response) => {
-        const question = form.questionnaire.questions.find(
-          (q) => q.id === response.question_id,
-        );
-        return !question?.structured_type;
+        return !response.structured_type;
       });
 
       if (nonStructuredResponses.length > 0) {

@@ -103,11 +103,6 @@ export default function PatientRegistration(
     "permanent_address",
     "pincode",
     "nationality",
-    "state",
-    "district",
-    "local_body",
-    "ward",
-    "village",
     "meta_info",
     "ration_card_category",
   ];
@@ -123,7 +118,6 @@ export default function PatientRegistration(
     year_of_birth: ageDob === "age" ? form.year_of_birth : undefined,
     is_active: true,
     is_antenatal: false,
-    passport_no: form.nationality === "Indian" ? form.passport_no : undefined,
     meta_info: {
       ...(form.meta_info as any),
       occupation:
@@ -632,13 +626,12 @@ export default function PatientRegistration(
                       setForm((f) => ({
                         ...f,
                         nationality: value,
-                        passport_no: undefined,
                       }));
                     }}
                   />
                 </InputWithError>
               </div>
-              {form.nationality === "India" ? (
+              {form.nationality === "India" && (
                 <>
                   <OrganisationSelector
                     required={true}
@@ -649,24 +642,7 @@ export default function PatientRegistration(
                       }))
                     }
                   />
-                  <div>
-                    <InputWithError
-                      label={t("village")}
-                      errors={errors["village"]}
-                    >
-                      <Input {...fieldProps("village")} />
-                    </InputWithError>
-                  </div>
                 </>
-              ) : (
-                <div>
-                  <InputWithError
-                    label={t("passport_number")}
-                    errors={errors["passport_no"]}
-                  >
-                    <Input {...fieldProps("passport_no")} />
-                  </InputWithError>
-                </div>
               )}
             </div>
           </div>
