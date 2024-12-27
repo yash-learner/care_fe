@@ -5,10 +5,10 @@ import { createContext, useEffect, useState } from "react";
 
 import ErrorBoundary from "@/components/Common/ErrorBoundary";
 import {
-  OTPPatientDesktopSidebar,
-  OTPPatientMobileSidebar,
+  PatientDesktopSidebar,
+  PatientMobileSidebar,
   SIDEBAR_SHRINK_PREFERENCE_KEY,
-} from "@/components/Common/Sidebar/OTPPatientSidebar";
+} from "@/components/Common/Sidebar/PatientSidebar";
 import { SidebarShrinkContext } from "@/components/Common/Sidebar/Sidebar";
 import ErrorPage from "@/components/ErrorPages/DefaultErrorPage";
 
@@ -18,25 +18,25 @@ import routes from "@/Utils/request/api";
 import query from "@/Utils/request/query";
 import { AppointmentSuccess } from "@/pages/Appoinments/Success";
 import { AppointmentPatient } from "@/pages/Patient/Utils";
-import OTPPatientHome from "@/pages/Patient/index";
+import PatientHome from "@/pages/Patient/index";
 import { TokenData } from "@/types/auth/otpToken";
 
 import SessionRouter from "./SessionRouter";
 
-const OTPPatientRoutes = {
+const PatientRoutes = {
   "/facility/:facilityId/appointments/:appointmentId/success": ({
     appointmentId,
   }: {
     appointmentId: string;
   }) => <AppointmentSuccess appointmentId={appointmentId} />,
-  "/patient/home": () => <OTPPatientHome />,
+  "/patient/home": () => <PatientHome />,
 };
 
 const tokenData: TokenData = JSON.parse(
   localStorage.getItem(CarePatientTokenKey) || "{}",
 );
 
-export const OTPPatientUserContext = createContext<{
+export const PatientUserContext = createContext<{
   users?: AppointmentPatient[];
   selectedUser: AppointmentPatient | null;
   setSelectedUser: (user: AppointmentPatient) => void;
@@ -48,8 +48,8 @@ export const OTPPatientUserContext = createContext<{
   tokenData: tokenData,
 });
 
-export default function OTPPatientRouter() {
-  const pages = useRoutes(OTPPatientRoutes);
+export default function PatientRouter() {
+  const pages = useRoutes(PatientRoutes);
 
   const path = usePath();
   const [sidebarOpen, setSidebarOpen] = useState(false);
@@ -97,20 +97,20 @@ export default function OTPPatientRouter() {
   }
 
   return (
-    <OTPPatientUserContext.Provider
+    <PatientUserContext.Provider
       value={{ users, selectedUser, setSelectedUser, tokenData }}
     >
       <SidebarShrinkContext.Provider value={{ shrinked, setShrinked }}>
         <div className="flex h-screen overflow-hidden bg-secondary-100 print:overflow-visible">
           <>
             <div className="block md:hidden">
-              <OTPPatientMobileSidebar
+              <PatientMobileSidebar
                 open={sidebarOpen}
                 setOpen={setSidebarOpen}
               />{" "}
             </div>
             <div className="hidden md:block">
-              <OTPPatientDesktopSidebar />
+              <PatientDesktopSidebar />
             </div>
           </>
 
@@ -165,6 +165,6 @@ export default function OTPPatientRouter() {
           </div>
         </div>
       </SidebarShrinkContext.Provider>
-    </OTPPatientUserContext.Provider>
+    </PatientUserContext.Provider>
   );
 }

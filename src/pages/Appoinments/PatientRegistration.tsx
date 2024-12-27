@@ -152,12 +152,15 @@ export function PatientRegistration(props: PatientRegistrationProps) {
       queryClient.invalidateQueries({
         queryKey: ["patients", tokenData.phoneNumber],
       });
-      setTimeout(() => {
-        navigate(
-          `/facility/${props.facilityId}/appointments/${data.id}/success`,
-          { replace: true },
-        );
-      }, 100);
+      navigate(
+        `/facility/${props.facilityId}/appointments/${data.id}/success`,
+        {
+          replace: true,
+          // Added to ensure navigate only triggers once data is loaded
+          // Resulted in ErrorBoundary without it
+          state: { appointment: data },
+        },
+      );
     },
     onError: (error) => {
       Notification.Error({

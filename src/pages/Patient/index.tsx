@@ -14,7 +14,7 @@ import { Appointment } from "@/components/Schedule/types";
 
 import { CarePatientTokenKey } from "@/common/constants";
 
-import { OTPPatientUserContext } from "@/Routers/OTPPatientRouter";
+import { PatientUserContext } from "@/Routers/PatientRouter";
 import routes from "@/Utils/request/api";
 import query from "@/Utils/request/query";
 import { formatName } from "@/Utils/utils";
@@ -22,14 +22,14 @@ import { TokenData } from "@/types/auth/otpToken";
 
 import { AppointmentPatient } from "./Utils";
 
-function OTPPatientHome() {
+function PatientHome() {
   const { t } = useTranslation();
   const tokenData: TokenData = JSON.parse(
     localStorage.getItem(CarePatientTokenKey) || "{}",
   );
 
   const { selectedUser }: { selectedUser: AppointmentPatient | null } =
-    useContext(OTPPatientUserContext);
+    useContext(PatientUserContext);
 
   if (!tokenData) {
     navigate("/login");
@@ -178,4 +178,4 @@ function OTPPatientHome() {
   );
 }
 
-export default OTPPatientHome;
+export default PatientHome;

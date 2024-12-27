@@ -45,7 +45,7 @@ const FormSchema = z.object({
   }),
 });
 
-export default function OTP({
+export default function PatientLogin({
   facilityId,
   staffUsername,
   page,

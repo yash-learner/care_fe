@@ -27,12 +27,12 @@ import {
 
 import useActiveLink from "@/hooks/useActiveLink";
 
-import { OTPPatientUserContext } from "@/Routers/OTPPatientRouter";
+import { PatientUserContext } from "@/Routers/PatientRouter";
 import { classNames } from "@/Utils/utils";
 import { AppointmentPatient } from "@/pages/Patient/Utils";
 
 import { Avatar } from "../Avatar";
-import OTPPatientSidebarUserCard from "./OTPPatientSidebarUserCard";
+import PatientSidebarUserCard from "./PatientSidebarUserCard";
 
 export const SIDEBAR_SHRINK_PREFERENCE_KEY = "sidebarShrinkPreference";
 
@@ -62,10 +62,10 @@ const GetNavItems = (selectedUser: AppointmentPatient | null) => {
   return BaseNavItems;
 };
 
-export const OTPPatientDesktopSidebar = () => {
+export const PatientDesktopSidebar = () => {
   const { shrinked, setShrinked } = useContext(SidebarShrinkContext);
   return (
-    <OTPPatientStatelessSidebar
+    <PatientStatelessSidebar
       shrinked={shrinked}
       setShrinked={setShrinked}
       shrinkable
@@ -78,10 +78,10 @@ interface MobileSidebarProps {
   setOpen: (state: boolean) => void;
 }
 
-export const OTPPatientMobileSidebar = (props: MobileSidebarProps) => {
+export const PatientMobileSidebar = (props: MobileSidebarProps) => {
   return (
     <SlideOver {...props} slideFrom="left" onlyChild>
-      <OTPPatientStatelessSidebar onItemClick={props.setOpen} />
+      <PatientStatelessSidebar onItemClick={props.setOpen} />
     </SlideOver>
   );
 };
@@ -100,7 +100,7 @@ type StatelessSidebarProps =
       onItemClick: (open: boolean) => void;
     };
 
-export const OTPPatientStatelessSidebar = ({
+export const PatientStatelessSidebar = ({
   shrinked = false,
   setShrinked,
   onItemClick,
@@ -122,7 +122,7 @@ export const OTPPatientStatelessSidebar = ({
     users?: AppointmentPatient[] | undefined;
     selectedUser: AppointmentPatient | null;
     setSelectedUser: (user: AppointmentPatient) => void;
-  } = useContext(OTPPatientUserContext);
+  } = useContext(PatientUserContext);
 
   const NavItems = GetNavItems(selectedUser);
 
@@ -279,7 +279,7 @@ export const OTPPatientStatelessSidebar = ({
           })}
         </div>
         <div className="hidden md:block md:flex-1" />
-        <OTPPatientSidebarUserCard shrinked={shrinked} />
+        <PatientSidebarUserCard shrinked={shrinked} />
       </div>
     </nav>
   );

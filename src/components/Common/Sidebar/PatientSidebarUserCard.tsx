@@ -13,7 +13,7 @@ import {
 
 import { Avatar } from "@/components/Common/Avatar";
 
-import { OTPPatientUserContext } from "@/Routers/OTPPatientRouter";
+import { PatientUserContext } from "@/Routers/PatientRouter";
 
 import { useSignOut } from "./Utils";
 
@@ -21,12 +21,12 @@ interface SidebarUserCardProps {
   shrinked: boolean;
 }
 
-const OTPPatientSidebarUserCard: React.FC<SidebarUserCardProps> = ({
+const PatientSidebarUserCard: React.FC<SidebarUserCardProps> = ({
   shrinked,
 }) => {
   const { t } = useTranslation();
 
-  const { selectedUser, tokenData } = useContext(OTPPatientUserContext);
+  const { selectedUser, tokenData } = useContext(PatientUserContext);
 
   const signOut = useSignOut();
 
@@ -80,4 +80,4 @@ const OTPPatientSidebarUserCard: React.FC<SidebarUserCardProps> = ({
   );
 };
 
-export default OTPPatientSidebarUserCard;
+export default PatientSidebarUserCard;
