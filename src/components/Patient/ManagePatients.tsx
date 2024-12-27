@@ -163,7 +163,6 @@ export const PatientManager = () => {
       qParams.last_consultation_current_bed__location || undefined,
     number_of_doses: qParams.number_of_doses || undefined,
     covin_id: qParams.covin_id || undefined,
-    is_kasp: qParams.is_kasp || undefined,
     is_declared_positive: qParams.is_declared_positive || undefined,
     last_vaccinated_date_before:
       qParams.last_vaccinated_date_before || undefined,
@@ -923,7 +922,6 @@ export const PatientManager = () => {
           badges={({
             badge,
             value,
-            kasp,
             phoneNumber,
             dateRange,
             range,
@@ -939,7 +937,6 @@ export const PatientManager = () => {
             ...dateRange("Discharged", "last_consultation_discharge_date"),
             // Admitted to type badges
             badge("No. of vaccination doses", "number_of_doses"),
-            kasp(),
             badge("COWIN ID", "covin_id"),
             badge("Is Antenatal", "is_antenatal"),
             badge("Review Missed", "review_missed"),

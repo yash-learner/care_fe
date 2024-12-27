@@ -101,8 +101,6 @@ type FormDetails = {
   diagnoses: ConsultationDiagnosis[];
   symptoms: EncounterSymptom[];
   create_symptoms: Writable<EncounterSymptom>[];
-  is_kasp: BooleanStrings;
-  kasp_enabled_date: null;
   examination_details: string;
   history_of_present_illness: string;
   treatment_plan: string;
@@ -151,8 +149,6 @@ const initForm: FormDetails = {
   treating_physician_object: null,
   create_diagnoses: [],
   diagnoses: [],
-  is_kasp: "false",
-  kasp_enabled_date: null,
   examination_details: "",
   history_of_present_illness: "",
   treatment_plan: "",
@@ -398,7 +394,6 @@ export const ConsultationForm = ({ facilityId, patientId, id }: Props) => {
             patient_no: data.patient_no ?? "",
             OPconsultation: data.consultation_notes,
             is_telemedicine: `${data.is_telemedicine}`,
-            is_kasp: `${data.is_kasp}`,
             assigned_to: data.assigned_to || "",
             assigned_to_object: data.assigned_to_object,
             treating_physician: data.treating_physician || "",
@@ -553,13 +548,6 @@ export const ConsultationForm = ({ facilityId, patientId, id }: Props) => {
             invalidForm = true;
           }
           return;
-        case "is_kasp":
-          if (!state.form[field]) {
-            errors[field] =
-              `Please select an option, ${careConfig.kasp.string} is mandatory`;
-            invalidForm = true;
-          }
-          return;
         case "procedure": {
           for (const p of state.form.procedure) {
             if (!p.procedure?.replace(/\s/g, "").length) {
@@ -680,8 +668,6 @@ export const ConsultationForm = ({ facilityId, patientId, id }: Props) => {
         admitted: state.form.suggestion === "A",
         encounter_date: state.form.encounter_date,
         category: state.form.category,
-        is_kasp: state.form.is_kasp,
-        kasp_enabled_date: JSON.parse(state.form.is_kasp) ? new Date() : null,
         examination_details: state.form.examination_details,
         history_of_present_illness: state.form.history_of_present_illness,
         treatment_plan: state.form.treatment_plan,
@@ -1423,15 +1409,6 @@ export const ConsultationForm = ({ facilityId, patientId, id }: Props) => {
                         />
                       </div>
 
-                      {careConfig.kasp.enabled && (
-                        <CheckBoxFormField
-                          {...field("is_kasp")}
-                          className="flex-1"
-                          required
-                          label={careConfig.kasp.string}
-                          onChange={handleFormFieldChange}
-                        />
-                      )}
                       <div
                         className="col-span-6"
                         ref={fieldRef["special_instruction"]}

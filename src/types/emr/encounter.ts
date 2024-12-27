@@ -66,9 +66,6 @@ export interface Encounter {
   discharge_notes?: string; // cause_of_death
   death_datetime?: string;
   death_confirmed_doctor?: string;
-
-  // Other flags
-  kasp_enabled_date: string | null;
 }
 
 export interface EncounterRequest {

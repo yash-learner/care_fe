@@ -76,17 +76,11 @@ export interface FacilityModel {
   ward_object?: WardModel;
   modified_date?: string;
   created_date?: string;
-  state?: number;
-  district?: number;
-  local_body?: number;
-  ward?: number;
+  geo_organization?: string;
   pincode?: string;
   facility_flags?: FeatureFlag[];
   latitude?: string;
   longitude?: string;
-  kasp_empanelled?: boolean;
-  patient_count?: number;
-  bed_count?: number;
 }
 
 export enum SpokeRelationship {
@@ -166,8 +160,6 @@ export interface ConsultationModel {
   suggestion?: ConsultationSuggestionValue;
   patient_no?: string;
   route_to_facility?: RouteToFacility;
-  is_kasp?: boolean;
-  kasp_enabled_date?: string;
   readonly diagnoses?: ConsultationDiagnosis[];
   create_diagnoses?: CreateDiagnosis[]; // Used for bulk creating diagnoses upon consultation creation
   readonly symptoms?: EncounterSymptom[];
@@ -677,7 +669,6 @@ export interface ShiftingModel {
   assigned_to_object?: AssignedToObjectModel;
   refering_facility_contact_name: string;
   refering_facility_contact_number: string;
-  is_kasp: boolean;
   vehicle_preference: string;
   preferred_vehicle_choice: string;
   assigned_facility_type: string;
