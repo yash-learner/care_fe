@@ -121,7 +121,7 @@ export const ReviewResult: React.FC<{
 
   return (
     <div className="flex flex-col-reverse lg:flex-row min-h-screen">
-      {/* Left - Navigation/Progress Bar */}
+      {/* Left - Progress Bar */}
       <ServiceRequestTimeline steps={steps} />
 
       {/* Right - Main Content */}

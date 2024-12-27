@@ -210,7 +210,7 @@ export const ProcessSpecimen = ({ specimenId }: ProcessSpecimenProps) => {
                   Order ID
                 </Label>
                 <span className="block text-gray-900 font-semibold mt-1">
-                  {specimen.request.id}
+                  {specimen.request.id.slice(0, 8)}
                 </span>
               </div>
               <div>
@@ -702,10 +702,11 @@ export const ProcessSpecimen = ({ specimenId }: ProcessSpecimenProps) => {
                         id: uuid().toString(),
                         main_code: observation.code!,
                         value: observation.result,
-                        status: "final",
+                        status: "final" as "final",
                         effective_datetime: new Date().toISOString(),
                         data_entered_by_id: currentUserId,
-                        subject_type: "patient",
+                        subject_type: "patient" as "patient",
+                        note: observation.note,
                       })),
                     },
                   },
@@ -757,9 +758,7 @@ export const ProcessSpecimen = ({ specimenId }: ProcessSpecimenProps) => {
                   <TableCell>{observation.value}</TableCell>
                   <TableCell>{observation.reference_range?.unit}</TableCell>
                   <TableCell>Dummy Ref range</TableCell>
-                  <TableCell>
-                    <p></p>
-                  </TableCell>
+                  <TableCell>{observation.note}</TableCell>
                 </TableRow>
               ))}
             </TableBody>

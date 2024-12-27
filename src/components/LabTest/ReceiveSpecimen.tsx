@@ -120,7 +120,7 @@ export const ReceiveSpecimen: React.FC = () => {
               <div>
                 <h3 className="text-sm font-medium text-gray-600">Order ID</h3>
                 <p className="text-base font-semibold text-gray-900">
-                  {scannedSpecimen.request.id}
+                  {scannedSpecimen.request.id.slice(0, 8)}
                 </p>
               </div>
             </div>
@@ -382,7 +382,7 @@ export const ReceiveSpecimen: React.FC = () => {
                             Order ID
                           </h3>
                           <p className="text-base font-semibold text-gray-900">
-                            {specimen.request.id}
+                            {specimen.request.id.slice(0, 8)}
                           </p>
                         </div>
                         {/* Specimen Type */}

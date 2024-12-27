@@ -74,7 +74,7 @@ export const OrderPlaced: React.FC = () => {
         data={
           data?.results?.map((specimen) => ({
             specimenId: specimen.identifier ?? specimen.id.slice(0, 8),
-            orderId: specimen.request.id,
+            orderId: specimen.request.id.slice(0, 8),
             patientName: specimen.subject.name,
             specimen: specimen.type.display || specimen.type.code,
             tests: specimen.request.code.display || specimen.request.code.code,

@@ -130,7 +130,7 @@ export const SendSpecimen: React.FC = () => {
                       </span>
                       <div className="flex items-center gap-2">
                         <span className="text-lg font-semibold text-gray-900">
-                          SPEC009213
+                          {specimen.identifier ?? specimen.id.slice(0, 8)}
                         </span>
                         <span className="px-2 py-1 text-xs font-medium bg-green-100 text-green-900 rounded">
                           Ready for Dispatch

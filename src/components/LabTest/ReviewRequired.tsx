@@ -66,7 +66,7 @@ export const ReviewRequired: React.FC = () => {
         data={
           data?.results?.map((report) => ({
             patientName: report.subject.name,
-            orderId: report.based_on.id,
+            orderId: report.based_on.id.slice(0, 8),
             specimen: report.specimen
               .map((specimen) => specimen.type.display || specimen.type.code)
               .join(", "),
