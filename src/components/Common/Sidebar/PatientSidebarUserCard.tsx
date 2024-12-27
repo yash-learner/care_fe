@@ -26,7 +26,7 @@ const PatientSidebarUserCard: React.FC<SidebarUserCardProps> = ({
 }) => {
   const { t } = useTranslation();
 
-  const { selectedUser, tokenData } = useContext(PatientUserContext);
+  const { selectedPatient, tokenData } = useContext(PatientUserContext);
 
   const signOut = useSignOut();
 
@@ -49,14 +49,18 @@ const PatientSidebarUserCard: React.FC<SidebarUserCardProps> = ({
             >
               <div className="flex-none text-lg">
                 <Avatar
-                  {...(selectedUser != null && { name: selectedUser.name })}
+                  {...(selectedPatient != null && {
+                    name: selectedPatient.name,
+                  })}
                   className="h-6 w-6"
                 />
               </div>
               <div className="max-w-32">
                 {!shrinked && (
                   <p className="truncate pl-1 text-xs font-medium tracking-wide">
-                    {selectedUser ? selectedUser.name : tokenData.phoneNumber}
+                    {selectedPatient
+                      ? selectedPatient.name
+                      : tokenData.phoneNumber}
                   </p>
                 )}
               </div>

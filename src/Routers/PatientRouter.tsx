@@ -37,14 +37,14 @@ const tokenData: TokenData = JSON.parse(
 );
 
 export const PatientUserContext = createContext<{
-  users?: AppointmentPatient[];
-  selectedUser: AppointmentPatient | null;
-  setSelectedUser: (user: AppointmentPatient) => void;
+  patients?: AppointmentPatient[];
+  selectedPatient: AppointmentPatient | null;
+  setSelectedPatient: (patient: AppointmentPatient) => void;
   tokenData: TokenData;
 }>({
-  users: undefined,
-  selectedUser: null,
-  setSelectedUser: () => {},
+  patients: undefined,
+  selectedPatient: null,
+  setSelectedPatient: () => {},
   tokenData: tokenData,
 });
 
@@ -53,10 +53,9 @@ export default function PatientRouter() {
 
   const path = usePath();
   const [sidebarOpen, setSidebarOpen] = useState(false);
-  const [users, setUsers] = useState<AppointmentPatient[]>([]);
-  const [selectedUser, setSelectedUser] = useState<AppointmentPatient | null>(
-    null,
-  );
+  const [patients, setPatients] = useState<AppointmentPatient[]>([]);
+  const [selectedPatient, setSelectedPatient] =
+    useState<AppointmentPatient | null>(null);
 
   const { data: userData } = useQuery({
     queryKey: ["patients", tokenData.phoneNumber],
@@ -70,8 +69,15 @@ export default function PatientRouter() {
 
   useEffect(() => {
     if (userData) {
-      setUsers(userData.results);
-      setSelectedUser(userData.results[0]);
+      setPatients(userData.results);
+      const localPatient: AppointmentPatient | undefined = JSON.parse(
+        localStorage.getItem("selectedPatient") || "{}",
+      );
+      const selectedPatient =
+        userData.results.find((patient) => patient.id === localPatient?.id) ||
+        userData.results[0];
+      setSelectedPatient(selectedPatient);
+      localStorage.setItem("selectedPatient", JSON.stringify(selectedPatient));
     }
   }, [userData]);
 
@@ -98,7 +104,12 @@ export default function PatientRouter() {
 
   return (
     <PatientUserContext.Provider
-      value={{ users, selectedUser, setSelectedUser, tokenData }}
+      value={{
+        patients,
+        selectedPatient,
+        setSelectedPatient,
+        tokenData,
+      }}
     >
       <SidebarShrinkContext.Provider value={{ shrinked, setShrinked }}>
         <div className="flex h-screen overflow-hidden bg-secondary-100 print:overflow-visible">

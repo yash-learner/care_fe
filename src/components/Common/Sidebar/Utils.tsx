@@ -10,6 +10,7 @@ const getRedirectURL = () => {
 export const useSignOut = () => {
   const signOut = useCallback(async () => {
     localStorage.removeItem(CarePatientTokenKey);
+    localStorage.removeItem("selectedPatient");
 
     const redirectURL = getRedirectURL();
     navigate(redirectURL ? `/login?redirect=${redirectURL}` : "/login");
