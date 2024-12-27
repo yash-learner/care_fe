@@ -1377,6 +1377,7 @@ const routes = {
             subject_type: "patient";
             effective_datetime: string;
             data_entered_by_id: number;
+            note: string;
           }[];
         }>(),
         TRes: Type<DiagnosticReport>(),
