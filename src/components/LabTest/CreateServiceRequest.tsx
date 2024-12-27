@@ -100,7 +100,7 @@ export default function CreateServiceRequest({
               placeholder="Type your note here."
               id="note"
               className="bg-white"
-              value={note[0].text}
+              value={note[0]?.text || ""}
               onChange={handleNoteChange}
             />
           </div>
