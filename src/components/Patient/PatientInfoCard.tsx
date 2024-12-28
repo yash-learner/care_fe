@@ -1,5 +1,6 @@
 import {
   BedSingle,
+  ChevronDown,
   CircleCheck,
   CircleDashed,
   Clock,
@@ -9,6 +10,11 @@ import { Link } from "raviger";
 import { useTranslation } from "react-i18next";
 
 import { Badge } from "@/components/ui/badge";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
 
 import { Avatar } from "@/components/Common/Avatar";
 
@@ -101,42 +107,102 @@ export default function PatientInfoCard(props: PatientInfoCardProps) {
                   className="flex w-full flex-wrap items-center justify-center gap-2 text-sm text-secondary-900 sm:flex-row sm:text-sm md:pr-10 lg:justify-normal"
                   id="patient-consultationbadges"
                 >
-                  <Badge
-                    className="capitalize gap-1 py-1 px-2"
-                    variant="outline"
-                    title={`Encounter Status: ${t(`encounter_status__${props.encounter.status}`)}`}
-                  >
-                    {completedEncounterStatus.includes(
-                      props.encounter.status,
-                    ) ? (
-                      <CircleCheck
-                        className="w-4 h-4 text-green-300"
-                        fill="green"
-                      />
-                    ) : (
-                      <CircleDashed className="w-4 h-4 text-yellow-500" />
-                    )}
-                    {t(`encounter_status__${props.encounter.status}`)}
-                  </Badge>
+                  <Popover>
+                    <PopoverTrigger asChild>
+                      <div>
+                        <Badge
+                          className="capitalize gap-1 py-1 px-2 cursor-pointer hover:bg-secondary-100"
+                          variant="outline"
+                          title={`Encounter Status: ${t(`encounter_status__${props.encounter.status}`)}`}
+                        >
+                          {completedEncounterStatus.includes(
+                            props.encounter.status,
+                          ) ? (
+                            <CircleCheck
+                              className="w-4 h-4 text-green-300"
+                              fill="green"
+                            />
+                          ) : (
+                            <CircleDashed className="w-4 h-4 text-yellow-500" />
+                          )}
+                          {t(`encounter_status__${props.encounter.status}`)}
+                          <ChevronDown className="h-3 w-3 opacity-50" />
+                        </Badge>
+                      </div>
+                    </PopoverTrigger>
+                    <PopoverContent className="w-auto p-2">
+                      <div className="space-y-2">
+                        <h4 className="font-medium text-sm">Status History</h4>
+                        {encounter.status_history.history.map(
+                          (history, index) => (
+                            <div
+                              key={index}
+                              className="flex items-center gap-2 text-sm"
+                            >
+                              <span className="text-muted-foreground">
+                                {formatDateTime(history.moved_at)}
+                              </span>
+                              <span className="font-medium">
+                                {t(`encounter_status__${history.status}`)}
+                              </span>
+                            </div>
+                          ),
+                        )}
+                      </div>
+                    </PopoverContent>
+                  </Popover>
 
+                  <Popover>
+                    <PopoverTrigger asChild>
+                      <div>
+                        <Badge
+                          className="capitalize gap-1 py-1 px-2 cursor-pointer hover:bg-secondary-100"
+                          variant="outline"
+                          title={`Encounter Class: ${props.encounter.encounter_class}`}
+                        >
+                          <BedSingle
+                            className="w-4 h-4 text-blue-400"
+                            fill="#93C5FD"
+                          />
+                          {t(
+                            `encounter_class__${props.encounter.encounter_class}`,
+                          )}
+                          <ChevronDown className="h-3 w-3 opacity-50" />
+                        </Badge>
+                      </div>
+                    </PopoverTrigger>
+                    <PopoverContent className="w-auto p-2">
+                      <div className="space-y-2">
+                        <h4 className="font-medium text-sm">Class History</h4>
+                        {encounter.encounter_class_history.history.map(
+                          (history, index) => (
+                            <div
+                              key={index}
+                              className="flex items-center gap-2 text-sm"
+                            >
+                              <span className="text-muted-foreground">
+                                {formatDateTime(history.moved_at)}
+                              </span>
+                              <span className="font-medium">
+                                {t(`encounter_class__${history.status}`)}
+                              </span>
+                            </div>
+                          ),
+                        )}
+                      </div>
+                    </PopoverContent>
+                  </Popover>
                   <Badge
                     className="capitalize gap-1 py-1 px-2"
                     variant="outline"
-                    title={`Encounter Class: ${props.encounter.encounter_class}`}
-                  >
-                    <BedSingle
-                      className="w-4 h-4 text-blue-400"
-                      fill="#93C5FD"
-                    />
-                    {t(`encounter_class__${props.encounter.encounter_class}`)}
-                  </Badge>
-                  <Badge
-                    className="capitalize gap-1 py-1 px-2"
-                    variant="outline"
-                    title={`Priority: ${t(`encounter_priority__${props.encounter.priority}`)}`}
+                    title={`Priority: ${t(
+                      `encounter_priority__${props.encounter.priority.toLowerCase()}`,
+                    )}`}
                   >
                     <Clock className="w-4 h-4 text-yellow-500" />
-                    {t(`encounter_priority__${props.encounter.priority}`)}
+                    {t(
+                      `encounter_priority__${props.encounter.priority.toLowerCase()}`,
+                    )}
                   </Badge>
 
                   {patient.blood_group && (

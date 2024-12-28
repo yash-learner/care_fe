@@ -1,3 +1,5 @@
+import { navigate } from "raviger";
+
 import { Card, CardContent } from "@/components/ui/card";
 
 import Page from "@/components/Common/Page";
@@ -31,6 +33,15 @@ export default function EncounterQuestionnaire({
               subjectType={subjectType}
               encounterId={encounterId}
               questionnaireSlug={questionnaireSlug}
+              onSubmit={() => {
+                if (encounterId) {
+                  navigate(
+                    `/facility/${facilityId}/encounter/${encounterId}/updates`,
+                  );
+                } else {
+                  navigate(`/patient/${patientId}/updates`);
+                }
+              }}
             />
           </CardContent>
         </Card>

@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { toast } from "sonner";
 
 import { cn } from "@/lib/utils";
 
@@ -7,7 +8,6 @@ import { Button } from "@/components/ui/button";
 
 import Loading from "@/components/Common/Loading";
 
-import { Error, Success } from "@/Utils/Notifications";
 import routes from "@/Utils/request/api";
 import useMutation from "@/Utils/request/useMutation";
 import useQuery from "@/Utils/request/useQuery";
@@ -241,12 +241,12 @@ export function QuestionnaireForm({
         handleSubmissionError(
           response.error.results as ValidationErrorResponse[],
         );
-        Error({ msg: "Failed to submit questionnaire" });
+        toast.error("Failed to submit questionnaire");
       }
       return;
     }
 
-    Success({ msg: "Questionnaire submitted successfully" });
+    toast.success("Questionnaire submitted successfully");
     onSubmit?.();
   };
 
