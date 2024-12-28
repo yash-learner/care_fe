@@ -1,18 +1,21 @@
 import CareIcon from "@/CAREUI/icons/CareIcon";
 
+import { Badge } from "@/components/ui/badge";
+
+import { Avatar } from "@/components/Common/Avatar";
 import ButtonV2 from "@/components/Common/ButtonV2";
 
 import useAuthUser from "@/hooks/useAuthUser";
 
 import { triggerGoal } from "@/Integrations/Plausible";
 import { PLUGIN_Component } from "@/PluginEngine";
-import { formatDateTime, formatPatientAge } from "@/Utils/utils";
+import { formatPatientAge } from "@/Utils/utils";
 import { Encounter } from "@/types/emr/encounter";
 import { Patient } from "@/types/emr/newPatient";
 
 export interface PatientInfoCardProps {
   patient: Patient;
-  encounter?: Encounter;
+  encounter: Encounter;
   fetchPatientData?: (state: { aborted: boolean }) => void;
 }
 
@@ -30,12 +33,7 @@ export default function PatientInfoCard(props: PatientInfoCardProps) {
           <div className="flex justify-evenly lg:justify-normal">
             <div className="flex flex-col items-start lg:items-center">
               <div className="w-24 min-w-20 bg-secondary-200 h-24">
-                <div className="flex h-full items-center justify-center">
-                  <CareIcon
-                    icon="l-user-injured"
-                    className="text-3xl text-secondary-500"
-                  />
-                </div>
+                <Avatar name={patient.name} className="w-full h-full" />
               </div>
             </div>
             <div className="flex items-center justify-center">
@@ -66,28 +64,17 @@ export default function PatientInfoCard(props: PatientInfoCardProps) {
                   className="flex w-full flex-wrap items-center justify-center gap-2 text-sm text-secondary-900 sm:flex-row sm:text-sm md:pr-10 lg:justify-normal"
                   id="patient-consultationbadges"
                 >
-                  {encounter && (
-                    <div className="flex items-center justify-center rounded border border-secondary-500 bg-secondary-100 p-1 px-3 text-xs font-semibold leading-4">
-                      <span className="flex">
-                        {encounter.period?.start && (
-                          <div>
-                            Status: {encounter.status}
-                            {" | "}
-                            Started: {formatDateTime(encounter.period.start)}
-                          </div>
-                        )}
-                      </span>
-                    </div>
-                  )}
+                  <Badge variant="outline">{encounter.status}</Badge>
+
                   {patient.blood_group && (
-                    <div className="inline-flex w-full items-center justify-start rounded border border-secondary-500 bg-secondary-100 p-1 px-2 text-xs font-semibold leading-4">
-                      Blood Group: {patient.blood_group}
-                    </div>
+                    <Badge title="Blood Group" variant="outline">
+                      {patient.blood_group}
+                    </Badge>
                   )}
-                  {encounter?.status === "discharged" && (
-                    <p className="rounded border border-red-600 bg-red-100 px-2 py-[2px] text-sm text-red-600">
-                      Discharged
-                    </p>
+                  {encounter.hospitalization?.discharge_disposition && (
+                    <Badge title="Discharge Disposition" variant="outline">
+                      {encounter.hospitalization.discharge_disposition}
+                    </Badge>
                   )}
                 </div>
               </div>

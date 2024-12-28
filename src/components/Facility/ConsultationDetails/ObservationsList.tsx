@@ -5,21 +5,25 @@ import PaginatedList from "@/CAREUI/misc/PaginatedList";
 
 import { Card } from "@/components/ui/card";
 
-import { useSlugs } from "@/hooks/useSlug";
-
 import routes from "@/Utils/request/api";
 import { formatDateTime } from "@/Utils/utils";
+import { Encounter } from "@/types/emr/encounter";
 import { Observation } from "@/types/emr/observation";
 
-export default function ObservationsList() {
-  const [patientId, consultationId] = useSlugs("patient", "consultation");
+interface Props {
+  encounter: Encounter;
+}
+
+export default function ObservationsList(props: Props) {
   const { t } = useTranslation();
+  const patientId = props.encounter.patient.id;
+  const encounterId = props.encounter.id;
 
   return (
     <PaginatedList
       route={routes.listObservations}
       pathParams={{ patientId }}
-      query={{ encounter: consultationId, ignore_group: true }}
+      query={{ encounter: encounterId, ignore_group: true }}
     >
       {() => (
         <div className="mt-4 flex w-full flex-col gap-4">

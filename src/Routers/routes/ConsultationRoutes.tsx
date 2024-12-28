@@ -183,7 +183,7 @@ const consultationRoutes: AppRoutes = {
         consultationId={consultationId}
       />
     ),
-  "/facility/:facilityId/patient/:patientId/consultation/:consultationId/questionnaire_response/:id":
+  "/facility/:facilityId/patient/:patientId/encounter/:encounterId/questionnaire_response/:id":
     ({ patientId, id }) => (
       <QuestionnaireResponseView responseId={id} patientId={patientId} />
     ),

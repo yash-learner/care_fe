@@ -20,6 +20,7 @@ import { EncounterNeurologicalMonitoringTab } from "@/pages/Encounters/tabs/Enco
 import EncounterNursingTab from "@/pages/Encounters/tabs/EncounterNursingTab";
 import { EncounterPlotsTab } from "@/pages/Encounters/tabs/EncounterPlotsTab";
 import { EncounterPressureSoreTab } from "@/pages/Encounters/tabs/EncounterPressureSoreTab";
+import { EncounterUpdatesTab } from "@/pages/Encounters/tabs/EncounterUpdatesTab";
 import { Encounter } from "@/types/emr/encounter";
 import { Patient } from "@/types/emr/newPatient";
 
@@ -31,7 +32,7 @@ export interface EncounterTabProps {
 
 const defaultTabs = {
   // feed: EncounterFeedTab,
-  // updates: EncounterUpdatesTab,
+  updates: EncounterUpdatesTab,
   plots: EncounterPlotsTab,
   medicines: EncounterMedicinesTab,
   files: EncounterFilesTab,

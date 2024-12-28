@@ -72,8 +72,8 @@ export type Period = {
 export type Hospitalization = {
   re_admission: boolean;
   admit_source: EncounterAdmitSources;
-  discharge_disposition: EncounterDischargeDisposition;
-  diet_preference: EncounterDietPreference;
+  discharge_disposition?: EncounterDischargeDisposition;
+  diet_preference?: EncounterDietPreference;
 };
 
 export type History = {
@@ -92,6 +92,10 @@ export type StatusHistory = {
 export interface Encounter {
   id: string;
   patient: Patient;
+  facility: {
+    id: string;
+    name: string;
+  };
   status: EncounterStatus;
   encounter_class: EncounterClass;
   period: Period;
