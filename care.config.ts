@@ -117,6 +117,9 @@ const careConfig = {
         package: app.split("@")[0],
       }))
     : [],
+
+  plotsConfigUrl:
+    env.REACT_OBSERVATION_PLOTS_CONFIG_URL || "/config/plots.json",
 } as const;
 
 export default careConfig;
