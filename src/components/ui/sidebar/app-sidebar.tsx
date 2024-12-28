@@ -50,6 +50,11 @@ const facilityLinks = (selectedFacility: UserFacilityModel | null, t: any) => {
       { name: t("resource"), url: "/resource", icon: "d-book-open" },
       { name: t("users"), url: "/users", icon: "d-people" },
       { name: t("organisation"), url: "/organisation", icon: "d-people" },
+      {
+        name: t("facility_organisation"),
+        url: `/facility/${selectedFacility.id}/organisation`,
+        icon: "d-people",
+      },
     ];
   }
 };
