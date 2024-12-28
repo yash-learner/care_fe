@@ -42,7 +42,7 @@ const facilityLinks = (selectedFacility: UserFacilityModel | null, t: any) => {
 
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   const exactMatch = usePathParams("/facility/:facilityId");
-  const subpathMatch = usePathParams("/facility/:facilityId/:subpath");
+  const subpathMatch = usePathParams("/facility/:facilityId/*");
   const facilityId = exactMatch?.facilityId || subpathMatch?.facilityId;
 
   const user = useAuthUser();
