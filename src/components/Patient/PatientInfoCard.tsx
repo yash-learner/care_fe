@@ -168,7 +168,7 @@ export default function PatientInfoCard(props: PatientInfoCardProps) {
             <div className="flex w-full flex-col gap-3 lg:w-auto 2xl:flex-row">
               <Button asChild variant="primary">
                 <Link
-                  href={`/patient/${patient.id}/encounter/${encounter.id}/updates`}
+                  href={`/facility/${encounter.facility.id}/patient/${patient.id}/encounter/${encounter.id}/edit_encounter`}
                 >
                   Update Encounter
                 </Link>

@@ -241,7 +241,7 @@ export function QuestionnaireForm({
     }
 
     const requests: BatchRequest[] = [];
-    if (requestEncounterId) {
+    if (requestEncounterId && patientId) {
       const context = { patientId, encounterId: requestEncounterId };
       // First, collect all structured data requests if encounterId is provided
       questionnaireForms.forEach((form) => {
