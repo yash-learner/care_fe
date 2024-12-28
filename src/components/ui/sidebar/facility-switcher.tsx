@@ -1,5 +1,6 @@
 import { CaretSortIcon } from "@radix-ui/react-icons";
 import { Hospital } from "lucide-react";
+import { navigate } from "raviger";
 import * as React from "react";
 
 import {
@@ -23,7 +24,6 @@ import { UserFacilityModel } from "@/components/Users/models";
 export function FacilitySwitcher({
   facilities,
   selectedFacility,
-  setSelectedFacility,
 }: {
   facilities: UserFacilityModel[];
   selectedFacility: UserFacilityModel | null;
@@ -63,7 +63,7 @@ export function FacilitySwitcher({
             {facilities.map((facility, index) => (
               <DropdownMenuItem
                 key={facility.name}
-                onClick={() => setSelectedFacility(facility)}
+                onClick={() => navigate(`/facility/${facility.id}`)}
                 className="gap-2 p-2"
               >
                 <div className="flex size-6 items-center justify-center rounded-sm border">
