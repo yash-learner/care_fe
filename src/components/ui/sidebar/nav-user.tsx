@@ -2,6 +2,7 @@
 
 import { CaretSortIcon } from "@radix-ui/react-icons";
 import { BadgeCheck, LogOut } from "lucide-react";
+import { navigate } from "raviger";
 import { useTranslation } from "react-i18next";
 
 import {
@@ -76,7 +77,9 @@ export function NavUser() {
             </DropdownMenuLabel>
             <DropdownMenuSeparator />
             <DropdownMenuGroup>
-              <DropdownMenuItem>
+              <DropdownMenuItem
+                onClick={() => navigate(`/users/${user.username}`)}
+              >
                 <BadgeCheck />
                 {t("profile")}
               </DropdownMenuItem>
