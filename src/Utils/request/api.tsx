@@ -94,6 +94,7 @@ import { ObservationAnalyzeResponse } from "@/types/emr/observation";
 import { PatientModel } from "@/types/emr/patient";
 import {
   FacilityOrganization,
+  FacilityOrganizationCreate,
   FacilityOrganizationResponse,
 } from "@/types/facilityOrganization/facilityOrganization";
 import {
@@ -1532,7 +1533,7 @@ const routes = {
       path: "/api/v1/facility/{facilityId}/organizations/",
       method: "POST",
       TRes: {} as FacilityOrganization,
-      TBody: {} as { name: string; description?: string },
+      TBody: {} as FacilityOrganizationCreate,
     },
     listUsers: {
       path: "/api/v1/facility/{facilityId}/organizations/{organizationId}/users/",
