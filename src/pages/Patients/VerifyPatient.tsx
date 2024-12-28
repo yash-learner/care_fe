@@ -141,7 +141,7 @@ export default function VerifyPatient(props: { facilityId: string }) {
                     className="h-14 w-full justify-start text-lg"
                   >
                     <Link
-                      href={`/facility/${props.facilityId}/encounter/${encounter.id}/update`}
+                      href={`/facility/${props.facilityId}/encounter/${encounter.id}/updates`}
                     >
                       <CareIcon icon="l-stethoscope" className="mr-4 size-6" />
                       {encounter.status.replace("_", " ").toUpperCase()} -{" "}

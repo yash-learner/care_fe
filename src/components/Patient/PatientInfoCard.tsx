@@ -89,7 +89,7 @@ export default function PatientInfoCard(props: PatientInfoCardProps) {
             <div className="flex w-full flex-col gap-3 lg:w-auto 2xl:flex-row">
               <ButtonV2
                 variant="primary"
-                href={`/patient/${patient.id}/encounter/${encounter.id}/update`}
+                href={`/patient/${patient.id}/encounter/${encounter.id}/updates`}
                 className="w-full"
                 onClick={() => {
                   triggerGoal("Patient Card Button Clicked", {

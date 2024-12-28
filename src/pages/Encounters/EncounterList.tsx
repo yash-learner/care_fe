@@ -114,7 +114,7 @@ export function EncounterList({
               </TableCell>
               <TableCell>
                 <Link
-                  href={`/facility/${facilityId}/consultation/${encounter.id}`}
+                  href={`/facility/${facilityId}/encounter/${encounter.id}/updates`}
                 >
                   View
                 </Link>
