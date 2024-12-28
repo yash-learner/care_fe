@@ -88,6 +88,7 @@ import {
   AppointmentPatientRegister,
 } from "@/pages/Patient/Utils";
 import { AllergyIntolerance } from "@/types/emr/allergyIntolerance";
+import { Encounter, EncounterRequest } from "@/types/emr/encounter";
 import { MedicationStatement } from "@/types/emr/medicationStatement";
 import { Observation } from "@/types/emr/observation";
 import { ObservationAnalyzeResponse } from "@/types/emr/observation";
@@ -676,6 +677,7 @@ const routes = {
 
   searchPatient: {
     path: "/api/v1/patient/search/",
+    method: "POST",
     TRes: Type<PaginatedResponse<DupPatientModel>>(),
   },
   patientList: {
@@ -1531,6 +1533,21 @@ const routes = {
       path: "/api/v1/role/",
       method: "GET",
       TRes: {} as RoleResponse,
+    },
+  },
+
+  // Encounter Routes
+  encounter: {
+    list: {
+      path: "/api/v1/facility/{facilityId}/encounter/",
+      method: "GET",
+      TRes: Type<PaginatedResponse<Encounter>>(),
+    },
+    create: {
+      path: "/api/v1/facility/{facilityId}/encounter/",
+      method: "POST",
+      TRes: Type<Encounter>(),
+      TBody: Type<EncounterRequest>(),
     },
   },
 

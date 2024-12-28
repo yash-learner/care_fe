@@ -32,7 +32,7 @@ import TransferPatientDialog from "@/components/Facility/TransferPatientDialog";
 import useAppHistory from "@/hooks/useAppHistory";
 
 import {
-  BLOOD_GROUPS, // DOMESTIC_HEALTHCARE_SUPPORT_CHOICES,
+  BLOOD_GROUP_CHOICES, // DOMESTIC_HEALTHCARE_SUPPORT_CHOICES,
   GENDER_TYPES, // OCCUPATION_TYPES,
   //RATION_CARD_CATEGORY, // SOCIOECONOMIC_STATUS_CHOICES ,
 } from "@/common/constants";
@@ -284,7 +284,7 @@ export default function PatientRegistration(
   const patientPhoneSearch = useQuery({
     queryKey: ["patients", "phone-number", debouncedNumber],
     queryFn: query(routes.searchPatient, {
-      queryParams: {
+      body: {
         phone_number: parsePhoneNumber(debouncedNumber || "") || "",
       },
     }),
@@ -292,7 +292,7 @@ export default function PatientRegistration(
   });
 
   const duplicatePatients = patientPhoneSearch.data?.results.filter(
-    (p) => p.patient_id !== patientId,
+    (p) => p.id !== patientId,
   );
   if (patientId && patientQuery.isLoading) {
     return <Loading />;
@@ -304,16 +304,6 @@ export default function PatientRegistration(
       <div className="relative mt-4 flex flex-col md:flex-row gap-4">
         <SectionNavigator sections={sidebarItems} className="hidden md:flex" />
         <form className="md:w-[500px]" onSubmit={handleFormSubmit}>
-          {/*
-          // This will need to be updated
-          <PLUGIN_Component
-                __name="ExtendPatientRegisterForm"
-                facilityId={facilityId}
-                patientId={patientId}
-                state={state}
-                dispatch={dispatch}
-                field={field}
-              /> */}
           <div id={"general-info"}>
             <h2 className="text-lg font-semibold">
               {t("patient__general-info")}
@@ -397,7 +387,7 @@ export default function PatientRegistration(
               <RadioGroup
                 value={form.gender?.toString()}
                 onValueChange={(value) =>
-                  setForm((f) => ({ ...f, gender: Number(value) }))
+                  setForm((f) => ({ ...f, gender: value }))
                 }
                 className="flex items-center gap-4"
               >
@@ -425,9 +415,9 @@ export default function PatientRegistration(
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
-                  {BLOOD_GROUPS.map((bg) => (
-                    <SelectItem key={bg} value={bg}>
-                      {bg}
+                  {BLOOD_GROUP_CHOICES.map((bg) => (
+                    <SelectItem key={bg.id} value={bg.id}>
+                      {bg.text}
                     </SelectItem>
                   ))}
                 </SelectContent>

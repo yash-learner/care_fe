@@ -205,12 +205,13 @@ export function QuestionnaireForm({
         encounterResponse.values?.[0]?.type === "encounter"
       ) {
         console.log("Encounter response found, creating encounter");
-        const encounter = encounterResponse.values?.[0]?.value as Encounter;
-        console.log("Creating encounter", encounter);
+        const encounterRequest = encounterResponse.values?.[0]
+          ?.value as Encounter;
+        console.log("Creating encounter", encounterRequest);
         // Create encounter first
         const encounterRequests = getStructuredRequests(
           "encounter",
-          [encounter],
+          [encounterRequest],
           {
             patientId: patientId,
             encounterId: "not-applicable",

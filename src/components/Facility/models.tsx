@@ -201,14 +201,13 @@ export interface ConsultationModel {
 }
 
 export interface DupPatientModel {
-  id: number;
+  id: string;
   gender: string;
   phone_number: string;
   patient_id: string;
   name: string;
   date_of_birth: string;
   year_of_birth: number;
-  state_id: number;
   is_expired: boolean;
 }
 
@@ -641,7 +640,7 @@ export type InventoryLogResponse = InventorySummaryResponse & {
 };
 
 export type PatientTransferRequest = {
-  facility: string;
+  phone_number: string;
   year_of_birth: string;
 };
 
