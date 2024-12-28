@@ -28,7 +28,7 @@ import {
 import { Avatar } from "@/components/Common/Avatar";
 import { UserFacilityModel, UserModel } from "@/components/Users/models";
 
-import { PatientUserContextType } from "@/Routers/PatientRouter";
+import { PatientUserContextType } from "@/Providers/PatientUserProvider";
 import { classNames } from "@/Utils/utils";
 import { AppointmentPatient } from "@/pages/Patient/Utils";
 
