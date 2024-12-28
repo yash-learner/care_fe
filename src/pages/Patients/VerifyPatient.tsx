@@ -12,6 +12,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 
 import { Avatar } from "@/components/Common/Avatar";
 import Page from "@/components/Common/Page";
+import CreateEncounterForm from "@/components/Encounter/CreateEncounterForm";
 
 import routes from "@/Utils/request/api";
 import mutate from "@/Utils/request/mutate";
@@ -118,20 +119,14 @@ export default function VerifyPatient(props: { facilityId: string }) {
                 </Link>
               </Button>
 
-              <Button
-                asChild
-                variant="secondary"
-                className="h-14 w-full justify-start text-lg"
-              >
-                <Link
-                  href={`/facility/${props.facilityId}/patient/${patientData.id}/consultation`}
-                >
-                  <CareIcon icon="l-stethoscope" className="mr-4 size-6" />
-                  Create Encounter
-                </Link>
-              </Button>
+              <CreateEncounterForm
+                patientId={patientData.id}
+                facilityId={props.facilityId}
+                patientName={patientData.name}
+              />
             </CardContent>
           </Card>
+
           <Card className="mt-4">
             <CardHeader>
               <CardTitle>Active Encounters</CardTitle>
