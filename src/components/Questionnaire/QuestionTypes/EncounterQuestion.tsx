@@ -25,6 +25,7 @@ import type { Question } from "@/types/questionnaire/question";
 
 interface EncounterQuestionProps {
   question: Question;
+  encounterId: string;
   questionnaireResponse: QuestionnaireResponse;
   updateQuestionnaireResponseCB: (response: QuestionnaireResponse) => void;
   disabled?: boolean;
@@ -39,6 +40,7 @@ export function EncounterQuestion({
   disabled,
   clearError,
   organizations = [],
+  encounterId,
   patientId = "",
 }: EncounterQuestionProps) {
   const [encounter, setEncounter] = useState<
@@ -59,6 +61,7 @@ export function EncounterQuestion({
       facility: existingValue?.facility,
     };
   });
+  console.log(encounterId);
 
   const updateEncounter = (
     updates: Partial<Omit<EncounterRequest, "organizations" | "patient">>,

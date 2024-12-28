@@ -398,6 +398,7 @@ export function QuestionnaireForm({
               </div>
 
               <QuestionRenderer
+                encounterId={encounterId}
                 questions={form.questionnaire.questions}
                 responses={form.responses}
                 onResponseChange={(responses) => {
