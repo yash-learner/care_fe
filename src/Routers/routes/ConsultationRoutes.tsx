@@ -17,8 +17,20 @@ import FileUploadPage from "@/components/Patient/FileUploadPage";
 import PatientConsentRecords from "@/components/Patient/PatientConsentRecords";
 
 import { AppRoutes } from "@/Routers/AppRouter";
+import { EncounterShow } from "@/pages/Encounters/EncounterShow";
 
 const consultationRoutes: AppRoutes = {
+  "/facility/:facilityId/encounter/:encounterId/:tab": ({
+    facilityId,
+    encounterId,
+    tab,
+  }) => (
+    <EncounterShow
+      facilityId={facilityId}
+      encounterId={encounterId}
+      tab={tab}
+    />
+  ),
   "/facility/:facilityId/patient/:patientId/consultation": ({
     facilityId,
     patientId,

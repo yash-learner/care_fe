@@ -6,7 +6,7 @@ import phoneCodesJson from "@/common/static/countryPhoneAndFlags.json";
 
 import dayjs from "@/Utils/dayjs";
 import { Time } from "@/Utils/types";
-import { NewPatientModel } from "@/types/emr/newPatient";
+import { Patient } from "@/types/emr/newPatient";
 import { PatientModel } from "@/types/emr/patient";
 
 interface ApacheParams {
@@ -388,7 +388,7 @@ export const patientAgeInYears = (obj: PatientModel) => {
 };
 
 export const formatPatientAge = (
-  obj: PatientModel | NewPatientModel,
+  obj: PatientModel | Patient,
   abbreviated = false,
 ) => {
   const suffixes = getRelativeDateSuffix(abbreviated);

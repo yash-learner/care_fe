@@ -17,8 +17,8 @@ import { ConsultationUpdatesTab } from "@/components/Facility/ConsultationDetail
 import DoctorVideoSlideover from "@/components/Facility/DoctorVideoSlideover";
 import PatientNotesSlideover from "@/components/Facility/PatientNotesSlideover";
 import { ConsultationModel } from "@/components/Facility/models";
-import PatientInfoCard from "@/components/Patient/PatientInfoCard";
 
+// import PatientInfoCard from "@/components/Patient/PatientInfoCard";
 import useAuthUser from "@/hooks/useAuthUser";
 import { useCareAppConsultationTabs } from "@/hooks/useCareApps";
 
@@ -276,7 +276,7 @@ export const ConsultationDetails = (props: any) => {
         <div className="mt-4 w-full border-b-2 border-secondary-200">
           <div className="mt-2 flex w-full flex-col md:flex-row">
             <div className="size-full rounded-lg border bg-white text-black shadow">
-              <PatientInfoCard
+              {/* <PatientInfoCard
                 patient={patientData}
                 consultation={consultationData}
                 fetchPatientData={() => {
@@ -285,7 +285,7 @@ export const ConsultationDetails = (props: any) => {
                 }}
                 consultationId={consultationId}
                 activeShiftingData={activeShiftingData}
-              />
+              /> */}
 
               <div className="flex flex-col justify-between px-4 md:flex-row">
                 {consultationData.admitted_to && (

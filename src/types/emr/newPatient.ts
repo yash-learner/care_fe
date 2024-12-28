@@ -11,7 +11,7 @@ export type BloodGroupChoices =
 
 export type GenderChoices = "male" | "female" | "non_binary" | "transgender";
 
-export interface NewPatientModel {
+export interface Patient {
   id: string;
   name: string;
   gender: GenderChoices;

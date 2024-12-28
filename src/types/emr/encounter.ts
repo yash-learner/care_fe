@@ -1,3 +1,4 @@
+import { Patient } from "@/types/emr/newPatient";
 import { UserBase } from "@/types/user/base";
 
 export type EncounterStatus =
@@ -75,11 +76,6 @@ export type Hospitalization = {
   diet_preference: EncounterDietPreference;
 };
 
-export interface Patient {
-  id: string;
-  name: string;
-}
-
 export interface Encounter {
   id: string;
   patient: Patient;
@@ -91,6 +87,8 @@ export interface Encounter {
   external_identifier?: string;
   created_by: UserBase;
   updated_by: UserBase;
+  created_date: string;
+  updated_date: string;
 }
 
 export interface EncounterRequest {
@@ -102,4 +100,5 @@ export interface EncounterRequest {
   hospitalization?: Hospitalization;
   priority: EncounterPriority;
   external_identifier?: string;
+  facility: string;
 }

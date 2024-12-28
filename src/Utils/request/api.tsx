@@ -88,7 +88,7 @@ import {
 import { AllergyIntolerance } from "@/types/emr/allergyIntolerance";
 import { Encounter, EncounterRequest } from "@/types/emr/encounter";
 import { MedicationStatement } from "@/types/emr/medicationStatement";
-import { NewPatientModel, PartialPatientModel } from "@/types/emr/newPatient";
+import { PartialPatientModel, Patient } from "@/types/emr/newPatient";
 import { Observation } from "@/types/emr/observation";
 import { ObservationAnalyzeResponse } from "@/types/emr/observation";
 import { PatientModel } from "@/types/emr/patient";
@@ -1525,7 +1525,7 @@ const routes = {
   // Encounter Routes
   encounter: {
     list: {
-      path: "/api/v1/facility/{facilityId}/encounter/",
+      path: "/api/v1/encounter/",
       method: "GET",
       TRes: Type<PaginatedResponse<Encounter>>(),
     },
@@ -1534,6 +1534,11 @@ const routes = {
       method: "POST",
       TRes: Type<Encounter>(),
       TBody: Type<EncounterRequest>(),
+    },
+    get: {
+      path: "/api/v1/encounter/{id}/",
+      method: "GET",
+      TRes: Type<Encounter>(),
     },
   },
 
@@ -1549,7 +1554,7 @@ const routes = {
     search_retrieve: {
       path: "/api/v1/patient/search_retrieve/",
       method: "POST",
-      TRes: Type<NewPatientModel>(),
+      TRes: Type<Patient>(),
       TBody: Type<{
         phone_number: string;
         year_of_birth: string;

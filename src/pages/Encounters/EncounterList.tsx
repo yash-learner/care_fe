@@ -112,6 +112,13 @@ export function EncounterList({
                 {encounter.period.start &&
                   format(new Date(encounter.period.start), "PPp")}
               </TableCell>
+              <TableCell>
+                <Link
+                  href={`/facility/${facilityId}/consultation/${encounter.id}`}
+                >
+                  View
+                </Link>
+              </TableCell>
             </TableRow>
           ))}
         </TableBody>

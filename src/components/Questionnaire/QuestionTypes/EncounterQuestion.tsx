@@ -56,6 +56,7 @@ export function EncounterQuestion({
       priority: existingValue?.priority || "routine",
       external_identifier: existingValue?.external_identifier || "",
       hospitalization: existingValue?.hospitalization,
+      facility: existingValue?.facility,
     };
   });
 

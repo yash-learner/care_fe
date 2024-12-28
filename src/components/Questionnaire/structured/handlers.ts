@@ -143,10 +143,11 @@ const handlers: {
           hospitalization: encounter.hospitalization,
           priority: encounter.priority,
           external_identifier: encounter.external_identifier,
+          facility: facilityId,
         };
 
         return {
-          url: `/api/v1/facility/${facilityId}/encounter/`,
+          url: `/api/v1/encounter/`,
           method: "POST",
           body,
           reference_id: "encounter",
