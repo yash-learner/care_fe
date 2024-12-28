@@ -18,7 +18,7 @@ type QueryParams = {
 
 export const ConsultationPlotsTab = (props: ConsultationTabProps) => {
   const { t } = useTranslation();
-  const [qParams] = useQueryParams<QueryParams>();
+  const [qParams, setQParams] = useQueryParams<QueryParams>();
 
   const { data, isLoading } = useQuery<ObservationPlotConfig>({
     queryKey: ["plots-config"],
@@ -38,7 +38,10 @@ export const ConsultationPlotsTab = (props: ConsultationTabProps) => {
 
   return (
     <div className="mt-2">
-      <Tabs value={currentTabId}>
+      <Tabs
+        value={currentTabId}
+        onValueChange={(value) => setQParams({ plot: value })}
+      >
         <TabsList>
           {data.map((tab) => (
             <TabsTrigger key={tab.id} value={tab.id}>
@@ -57,14 +60,6 @@ export const ConsultationPlotsTab = (props: ConsultationTabProps) => {
           </TabsContent>
         ))}
       </Tabs>
-
-      <div>
-        <ObservationVisualizer
-          patientId={props.patientId}
-          codeGroups={currentTab.groups}
-          gridCols={2}
-        />
-      </div>
     </div>
   );
 };
