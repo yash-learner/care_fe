@@ -1325,6 +1325,14 @@ const routes = {
     },
   },
 
+  facility: {
+    getUsers: {
+      path: "/api/v1/facility/{facility_id}/users/",
+      method: "GET",
+      TRes: Type<PaginatedResponse<UserModel>>(),
+    },
+  },
+
   valueset: {
     // list: {
     //   path: "/api/v1/valueset/",
