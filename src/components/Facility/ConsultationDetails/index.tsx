@@ -15,6 +15,7 @@ import { ConsultationMedicinesTab } from "@/components/Facility/ConsultationDeta
 import { ConsultationNeurologicalMonitoringTab } from "@/components/Facility/ConsultationDetails/ConsultationNeurologicalMonitoringTab";
 import ConsultationNursingTab from "@/components/Facility/ConsultationDetails/ConsultationNursingTab";
 import { ConsultationNutritionTab } from "@/components/Facility/ConsultationDetails/ConsultationNutritionTab";
+import { ConsultationPlotsTab } from "@/components/Facility/ConsultationDetails/ConsultationPlotsTab";
 import { ConsultationPressureSoreTab } from "@/components/Facility/ConsultationDetails/ConsultationPressureSoreTab";
 import { ConsultationSummaryTab } from "@/components/Facility/ConsultationDetails/ConsultationSummaryTab";
 import { ConsultationUpdatesTab } from "@/components/Facility/ConsultationDetails/ConsultationUpdatesTab";
@@ -55,6 +56,7 @@ export interface ConsultationTabProps {
 const defaultTabs = {
   UPDATES: ConsultationUpdatesTab,
   FEED: ConsultationFeedTab,
+  PLOTS: ConsultationPlotsTab,
   SUMMARY: ConsultationSummaryTab,
   MEDICINES: ConsultationMedicinesTab,
   FILES: ConsultationFilesTab,

@@ -30,6 +30,15 @@ import { Code } from "@/types/questionnaire/code";
 import { Avatar } from "../Avatar";
 import { ObservationHistoryTable } from "./ObservationHistoryTable";
 
+export type ObservationPlotConfig = {
+  id: string;
+  name: string;
+  groups: {
+    title: string;
+    codes: Code[];
+  }[];
+}[];
+
 interface CodeGroup {
   codes: Code[];
   title: string;
