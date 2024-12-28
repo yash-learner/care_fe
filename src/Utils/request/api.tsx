@@ -1038,7 +1038,7 @@ const routes = {
   },
   editUpload: {
     path: "/api/v1/files/{id}/?file_type={fileType}&associating_id={associatingId}",
-    method: "PATCH",
+    method: "PUT",
     TBody: Type<Partial<FileUploadModel>>(),
     TRes: Type<FileUploadModel>(),
   },

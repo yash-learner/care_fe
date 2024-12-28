@@ -8,9 +8,6 @@ import { useState } from "react";
 
 import CareIcon from "@/CAREUI/icons/CareIcon";
 
-import { Badge } from "@/components/ui/badge";
-import { Card, CardContent } from "@/components/ui/card";
-
 import ButtonV2 from "@/components/Common/ButtonV2";
 import Tabs from "@/components/Common/Tabs";
 import ObservationsList from "@/components/Facility/ConsultationDetails/ObservationsList";
@@ -20,96 +17,16 @@ import { SymptomsList } from "@/components/Patient/symptoms/list";
 
 import { QueryParams } from "@/Utils/request/types";
 import { classNames } from "@/Utils/utils";
-import { formatDateTime } from "@/Utils/utils";
 import { EncounterTabProps } from "@/pages/Encounters/EncounterShow";
 
 export const EncounterUpdatesTab = (props: EncounterTabProps) => {
   const [showObservations, setShowObservations] = useState(true);
   const [observationsQuery, setObservationsQuery] = useState<QueryParams>();
 
-  function getStatusColor(status: string) {
-    const statusColors = {
-      in_progress: "bg-blue-100 text-blue-800 border-blue-200",
-      completed: "bg-green-100 text-green-800 border-green-200",
-      discharged: "bg-purple-100 text-purple-800 border-purple-200",
-      cancelled: "bg-red-100 text-red-800 border-red-200",
-      on_hold: "bg-yellow-100 text-yellow-800 border-yellow-200",
-      // Add other statuses as needed
-    };
-    return (
-      statusColors[status as keyof typeof statusColors] ||
-      "bg-gray-100 text-gray-800 border-gray-200"
-    );
-  }
-
   return (
     <div className="flex flex-col gap-2">
       <div className="flex flex-col xl:flex-row w-full">
         <div className="mt-4 grid gap-4 lg:grid-cols-2 w-full">
-          <Card className="pt-4 col-span-2">
-            <CardContent>
-              <div className="grid gap-4 md:grid-cols-2">
-                <div className="space-y-2">
-                  <div className="flex items-center justify-between">
-                    <span className="text-sm text-muted-foreground">
-                      Status
-                    </span>
-                    <Badge
-                      className={`${getStatusColor(props.encounter.status)}`}
-                    >
-                      {props.encounter.status.replace("_", " ").toUpperCase()}
-                    </Badge>
-                  </div>
-                  <div className="flex items-center justify-between">
-                    <span className="text-sm text-muted-foreground">Class</span>
-                    <span className="text-sm font-medium">
-                      {props.encounter.encounter_class.toUpperCase()}
-                    </span>
-                  </div>
-                  <div className="flex items-center justify-between">
-                    <span className="text-sm text-muted-foreground">
-                      Priority
-                    </span>
-                    <span className="text-sm font-medium">
-                      {props.encounter.priority}
-                    </span>
-                  </div>
-                </div>
-                <div className="space-y-2">
-                  <div className="flex items-center justify-between">
-                    <span className="text-sm text-muted-foreground">
-                      Start Date
-                    </span>
-                    <span className="text-sm font-medium">
-                      {props.encounter.period.start
-                        ? formatDateTime(props.encounter.period.start)
-                        : "Not started"}
-                    </span>
-                  </div>
-                  <div className="flex items-center justify-between">
-                    <span className="text-sm text-muted-foreground">
-                      End Date
-                    </span>
-                    <span className="text-sm font-medium">
-                      {props.encounter.period.end
-                        ? formatDateTime(props.encounter.period.end)
-                        : "Ongoing"}
-                    </span>
-                  </div>
-                  {props.encounter.external_identifier && (
-                    <div className="flex items-center justify-between">
-                      <span className="text-sm text-muted-foreground">
-                        External ID
-                      </span>
-                      <span className="text-sm font-medium">
-                        {props.encounter.external_identifier}
-                      </span>
-                    </div>
-                  )}
-                </div>
-              </div>
-            </CardContent>
-          </Card>
           <div className="md:col-span-2">
             <SymptomsList
               patientId={props.patient.id}
@@ -122,6 +39,7 @@ export const EncounterUpdatesTab = (props: EncounterTabProps) => {
               encounterId={props.encounter.id}
             />
           </div>
+          <QuestionnaireResponsesList encounter={props.encounter} />
         </div>
         {/* <div className="w-full xl:w-2/3" id="basic-information">
           <PageTitle
@@ -129,7 +47,7 @@ export const EncounterUpdatesTab = (props: EncounterTabProps) => {
             hideBack={true}
             breadcrumbs={false}
           />
-          
+
 
 
             {props.consultationData.history_of_present_illness && (

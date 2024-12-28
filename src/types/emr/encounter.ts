@@ -121,3 +121,5 @@ export interface EncounterRequest {
   external_identifier?: string;
   facility: string;
 }
+
+export const completedEncounterStatus = ["completed", "discharged"];

@@ -39,13 +39,13 @@ const consultationRoutes: AppRoutes = {
       questionnaireSlug="encounter"
     />
   ),
-  "/facility/:facilityId/patient/:patientId/encounter": ({
+  "/facility/:facilityId/encounter/:encounterId/edit_encounter": ({
     facilityId,
-    patientId,
+    encounterId,
   }) => (
     <EncounterQuestionnaire
       facilityId={facilityId}
-      patientId={patientId}
+      encounterId={encounterId}
       questionnaireSlug="encounter"
     />
   ),
@@ -57,7 +57,7 @@ const consultationRoutes: AppRoutes = {
         consultationId={id}
       />
     ),
-  "/facility/:facilityId/patient/:patientId/consultation/:id/files/": ({
+  "/facility/:facilityId/patient/:patientId/encounterId/:id/files/": ({
     facilityId,
     patientId,
     id,
@@ -65,8 +65,8 @@ const consultationRoutes: AppRoutes = {
     <FileUploadPage
       facilityId={facilityId}
       patientId={patientId}
-      consultationId={id}
-      type="CONSULTATION"
+      encounterId={id}
+      type="encounter"
     />
   ),
   "/facility/:facilityId/patient/:patientId/consultation/:consultationId/prescriptions":
@@ -175,27 +175,27 @@ const consultationRoutes: AppRoutes = {
       subjectType="patient"
     />
   ),
-  "/facility/:facilityId/patient/:patientId/consultation/:consultationId/questionnaire":
-    ({ facilityId, patientId, consultationId }) => (
-      <EncounterQuestionnaire
-        facilityId={facilityId}
-        patientId={patientId}
-        consultationId={consultationId}
-      />
-    ),
+  "/facility/:facilityId/encounter/:encounterId/questionnaire": ({
+    facilityId,
+    encounterId,
+  }) => (
+    <EncounterQuestionnaire facilityId={facilityId} encounterId={encounterId} />
+  ),
   "/facility/:facilityId/patient/:patientId/encounter/:encounterId/questionnaire_response/:id":
     ({ patientId, id }) => (
       <QuestionnaireResponseView responseId={id} patientId={patientId} />
     ),
-  "/facility/:facilityId/patient/:patientId/consultation/:consultationId/questionnaire/:slug":
-    ({ facilityId, patientId, consultationId, slug }) => (
-      <EncounterQuestionnaire
-        facilityId={facilityId}
-        patientId={patientId}
-        consultationId={consultationId}
-        questionnaireSlug={slug}
-      />
-    ),
+  "/facility/:facilityId/encounter/:encounterId/questionnaire/:slug": ({
+    facilityId,
+    encounterId,
+    slug,
+  }) => (
+    <EncounterQuestionnaire
+      facilityId={facilityId}
+      encounterId={encounterId}
+      questionnaireSlug={slug}
+    />
+  ),
 };
 
 export default consultationRoutes;
