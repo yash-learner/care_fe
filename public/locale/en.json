@@ -1040,6 +1040,7 @@
   "log_update": "Log Update",
   "log_updates": "Log Updates",
   "login": "Login",
+  "logout": "Log Out",
   "longitude_invalid": "Longitude must be between -180 and 180",
   "low": "Low",
   "lsg": "Lsg",

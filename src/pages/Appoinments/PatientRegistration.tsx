@@ -93,7 +93,7 @@ export function PatientRegistration(props: PatientRegistrationProps) {
       date_of_birth: z.date().or(z.string()).optional(),
       pincode: z
         .string()
-        .optional()
+        .min(1, t("field_required"))
         .refine((pincode) => {
           if (!pincode) return true;
           return validatePincode(pincode);
