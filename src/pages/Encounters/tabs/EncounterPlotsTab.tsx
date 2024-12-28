@@ -10,13 +10,14 @@ import {
   ObservationVisualizer,
 } from "@/components/Common/Charts/ObservationChart";
 import Loading from "@/components/Common/Loading";
-import { ConsultationTabProps } from "@/components/Facility/ConsultationDetails";
+
+import { EncounterTabProps } from "@/pages/Encounters/EncounterShow";
 
 type QueryParams = {
   plot: ObservationPlotConfig[number]["id"];
 };
 
-export const ConsultationPlotsTab = (props: ConsultationTabProps) => {
+export const EncounterPlotsTab = (props: EncounterTabProps) => {
   const { t } = useTranslation();
   const [qParams, setQParams] = useQueryParams<QueryParams>();
 
@@ -51,9 +52,9 @@ export const ConsultationPlotsTab = (props: ConsultationTabProps) => {
         </TabsList>
 
         {data.map((tab) => (
-          <TabsContent value={tab.id}>
+          <TabsContent key={tab.id} value={tab.id}>
             <ObservationVisualizer
-              patientId={props.patientId}
+              patientId={props.patient.id}
               codeGroups={tab.groups}
               gridCols={2}
             />

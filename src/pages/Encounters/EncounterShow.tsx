@@ -4,59 +4,54 @@ import { useState } from "react";
 import { useTranslation } from "react-i18next";
 
 import Loading from "@/components/Common/Loading";
+import PageHeadTitle from "@/components/Common/PageHeadTitle";
 import PageTitle from "@/components/Common/PageTitle";
 import ErrorPage from "@/components/ErrorPages/DefaultErrorPage";
-// import { ConsultationProvider } from "@/components/Facility/ConsultationContext";
-import { ConsultationFeedTab } from "@/components/Facility/ConsultationDetails/ConsultationFeedTab";
-import { ConsultationFilesTab } from "@/components/Facility/ConsultationDetails/ConsultationFilesTab";
-import { ConsultationMedicinesTab } from "@/components/Facility/ConsultationDetails/ConsultationMedicinesTab";
-import { ConsultationNeurologicalMonitoringTab } from "@/components/Facility/ConsultationDetails/ConsultationNeurologicalMonitoringTab";
-import ConsultationNursingTab from "@/components/Facility/ConsultationDetails/ConsultationNursingTab";
-import { ConsultationPlotsTab } from "@/components/Facility/ConsultationDetails/ConsultationPlotsTab";
-import { ConsultationPressureSoreTab } from "@/components/Facility/ConsultationDetails/ConsultationPressureSoreTab";
-import { ConsultationUpdatesTab } from "@/components/Facility/ConsultationDetails/ConsultationUpdatesTab";
-import { ConsultationModel } from "@/components/Facility/models";
 import PatientInfoCard from "@/components/Patient/PatientInfoCard";
 
-import useAuthUser from "@/hooks/useAuthUser";
 import { useCareAppConsultationTabs } from "@/hooks/useCareApps";
 
 import routes from "@/Utils/request/api";
 import query from "@/Utils/request/query";
+import { keysOf } from "@/Utils/utils";
+import { EncounterFilesTab } from "@/pages/Encounters/tabs/EncounterFilesTab";
+import { EncounterMedicinesTab } from "@/pages/Encounters/tabs/EncounterMedicinesTab";
+import { EncounterNeurologicalMonitoringTab } from "@/pages/Encounters/tabs/EncounterNeurologicalMonitoringTab";
+import EncounterNursingTab from "@/pages/Encounters/tabs/EncounterNursingTab";
+import { EncounterPlotsTab } from "@/pages/Encounters/tabs/EncounterPlotsTab";
+import { EncounterPressureSoreTab } from "@/pages/Encounters/tabs/EncounterPressureSoreTab";
 import { Encounter } from "@/types/emr/encounter";
-import { PatientModel } from "@/types/emr/patient";
+import { Patient } from "@/types/emr/newPatient";
 
-export interface ConsultationTabProps {
-  consultationId: string;
+export interface EncounterTabProps {
   facilityId: string;
-  patientId: string;
-  consultationData: ConsultationModel;
-  patientData: PatientModel;
+  encounter: Encounter;
+  patient: Patient;
 }
 
 const defaultTabs = {
-  UPDATES: ConsultationUpdatesTab,
-  FEED: ConsultationFeedTab,
-  PLOTS: ConsultationPlotsTab,
-  MEDICINES: ConsultationMedicinesTab,
-  FILES: ConsultationFilesTab,
-  NURSING: ConsultationNursingTab,
-  NEUROLOGICAL_MONITORING: ConsultationNeurologicalMonitoringTab,
-  PRESSURE_SORE: ConsultationPressureSoreTab,
-} as Record<string, React.FC<ConsultationTabProps>>;
+  // feed: EncounterFeedTab,
+  // updates: EncounterUpdatesTab,
+  plots: EncounterPlotsTab,
+  medicines: EncounterMedicinesTab,
+  files: EncounterFilesTab,
+  nursing: EncounterNursingTab,
+  neurological_monitoring: EncounterNeurologicalMonitoringTab,
+  pressure_sore: EncounterPressureSoreTab,
+} as Record<string, React.FC<EncounterTabProps>>;
 
-export const EncounterShow = ({
-  encounterId,
-  facilityId,
-  tab,
-}: {
+interface Props {
   encounterId: string;
   facilityId: string;
   tab?: string;
-}) => {
+}
+
+export const EncounterShow = (props: Props) => {
+  const { facilityId, encounterId } = props;
+  const { t } = useTranslation();
   const pluginTabs = useCareAppConsultationTabs();
 
-  const tabs: Record<string, React.FC<ConsultationTabProps>> = {
+  const tabs: Record<string, React.FC<EncounterTabProps>> = {
     ...defaultTabs,
     ...pluginTabs,
   };
@@ -64,7 +59,7 @@ export const EncounterShow = ({
   // if (Object.keys(tabs).includes(tab.toUpperCase())) {
   //   tab = tab.toUpperCase();
   // }
-  const [showDoctors, setShowDoctors] = useState(false);
+  // const [showDoctors, setShowDoctors] = useState(false);
   // const [patientData, setPatientData] = useState<PatientModel>();
   // const [activeShiftingData, setActiveShiftingData] = useState<Array<any>>([]);
 
@@ -85,9 +80,9 @@ export const EncounterShow = ({
   // };
   const [showPatientNotesPopup, setShowPatientNotesPopup] = useState(false);
 
-  const authUser = useAuthUser();
+  // const authUser = useAuthUser();
 
-  const { data: encounterData, isLoading } = useQuery<Encounter>({
+  const { data: encounterData, isLoading } = useQuery({
     queryKey: ["encounter", encounterId],
     queryFn: query(routes.encounter.get, {
       pathParams: { id: encounterId },
@@ -151,19 +146,17 @@ export const EncounterShow = ({
   //   });
   // }, [patientDataQuery.data?.id]);
 
-  if (isLoading) {
+  if (isLoading || !encounterData) {
     return <Loading />;
   }
 
-  // const consultationTabProps: ConsultationTabProps = {
-  //   consultationId,
-  //   consultationData,
-  //   patientId: consultationData.patient,
-  //   facilityId: consultationData.facility,
-  //   patientData,
-  // };
+  const encounterTabProps: EncounterTabProps = {
+    encounter: encounterData,
+    patient: encounterData.patient,
+    facilityId,
+  };
 
-  if (!tab) {
+  if (!props.tab) {
     return <ErrorPage />;
   }
 
@@ -171,7 +164,7 @@ export const EncounterShow = ({
     return <ErrorPage />;
   }
 
-  const SelectedTab = tabs[tab];
+  const SelectedTab = tabs[props.tab];
 
   const tabButtonClasses = (selected: boolean) =>
     `capitalize min-w-max-content cursor-pointer font-bold whitespace-nowrap ${
@@ -327,38 +320,27 @@ export const EncounterShow = ({
         <div className="mt-4 w-full border-b-2 border-secondary-200">
           <div className="overflow-x-auto sm:flex sm:items-baseline">
             <div className="mt-4 sm:mt-0">
-              {/* <nav
-                  className="flex space-x-6 overflow-x-auto pb-2 pl-2"
-                  id="consultation_tab_nav"
-                >
-                  {keysOf(tabs).map((p) => {
-                    if (p === "FEED") {
-                      if (
-                        isCameraAttached === false || // No camera attached
-                        consultationData?.discharge_date || // Discharged
-                        !consultationData?.current_bed?.bed_object?.id || // Not admitted to bed
-                        !CameraFeedPermittedUserTypes.includes(
-                          authUser.user_type,
-                        )
-                      )
-                        return null; // Hide feed tab
-                    }
-
-                    return (
-                      <Link
-                        key={p}
-                        className={tabButtonClasses(tab === p)}
-                        href={`/facility/${facilityId}/patient/${patientId}/consultation/${consultationId}/${p.toLocaleLowerCase()}`}
-                      >
-                        {t(`CONSULTATION_TAB__${p}`)}
-                      </Link>
-                    );
-                  })}
-                </nav> */}
+              <nav
+                className="flex space-x-6 overflow-x-auto pb-2 pl-2"
+                id="encounter_tab_nav"
+              >
+                {keysOf(tabs).map((tab) => (
+                  <Link
+                    key={tab}
+                    className={tabButtonClasses(props.tab === tab)}
+                    href={`/facility/${facilityId}/encounter/${encounterData.id}/${tab}`}
+                  >
+                    {t(`ENCOUNTER_TAB__${tab}`)}
+                  </Link>
+                ))}
+              </nav>
             </div>
           </div>
         </div>
-        {/* <SelectedTab {...consultationTabProps} /> */}
+        <div className="mt-4">
+          <PageHeadTitle title={t(`ENCOUNTER_TAB__${props.tab}`)} />
+          <SelectedTab {...encounterTabProps} />
+        </div>
       </div>
     </div>
 

@@ -2,9 +2,7 @@ import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 
 import Loading from "@/components/Common/Loading";
-import PageTitle from "@/components/Common/PageTitle";
 import Pagination from "@/components/Common/Pagination";
-import { ConsultationTabProps } from "@/components/Facility/ConsultationDetails/index";
 import LogUpdateAnalyseTable from "@/components/Facility/Consultations/LogUpdateAnalyseTable";
 import {
   NursingPlotFields,
@@ -17,6 +15,7 @@ import { NURSING_CARE_PROCEDURES, PAGINATION_LIMIT } from "@/common/constants";
 
 import routes from "@/Utils/request/api";
 import request from "@/Utils/request/request";
+import { EncounterTabProps } from "@/pages/Encounters/EncounterShow";
 
 const REVERSE_CHOICES = {
   appetite: {
@@ -90,7 +89,7 @@ const ROUTINE_ROWS = [
   { subField: true, field: "appetite" } as const,
 ];
 
-const NursingPlot = ({ consultationId }: ConsultationTabProps) => {
+const NursingPlot = (props: EncounterTabProps) => {
   const { t } = useTranslation();
   const [results, setResults] = useState<{ [date: string]: NursingPlotRes }>(
     {},
@@ -113,8 +112,8 @@ const NursingPlot = ({ consultationId }: ConsultationTabProps) => {
       }
     };
 
-    fetchDailyRounds(currentPage, consultationId);
-  }, [consultationId, currentPage]);
+    fetchDailyRounds(currentPage, props.encounter.id);
+  }, [props.encounter.id, currentPage]);
 
   const handlePagination = (page: number) => setCurrentPage(page);
 
@@ -182,7 +181,7 @@ const NursingPlot = ({ consultationId }: ConsultationTabProps) => {
   );
 };
 
-const RoutineSection = ({ consultationId }: ConsultationTabProps) => {
+const RoutineSection = (props: EncounterTabProps) => {
   const { t } = useTranslation();
   const [page, setPage] = useState(1);
   const [totalCount, setTotalCount] = useState<number>();
@@ -192,7 +191,7 @@ const RoutineSection = ({ consultationId }: ConsultationTabProps) => {
     const getData = async () => {
       const { data } = await request(routes.dailyRoundsAnalyse, {
         body: { fields: RoutineFields, page },
-        pathParams: { consultationId },
+        pathParams: { consultationId: props.encounter.id },
       });
       if (!data) {
         return;
@@ -208,7 +207,7 @@ const RoutineSection = ({ consultationId }: ConsultationTabProps) => {
     };
 
     getData();
-  }, [page, consultationId]);
+  }, [page, props.encounter.id]);
 
   if (results == null) {
     return <Loading />;
@@ -246,15 +245,10 @@ const RoutineSection = ({ consultationId }: ConsultationTabProps) => {
   );
 };
 
-export default function ConsultationNursingTab(props: ConsultationTabProps) {
+export default function EncounterNursingTab(props: EncounterTabProps) {
   const { t } = useTranslation();
   return (
-    <div>
-      <PageTitle
-        title={t("nursing_information")}
-        hideBack
-        breadcrumbs={false}
-      />
+    <>
       <div>
         <h4 aria-label={t("routine")}>{t("routine")}</h4>
         <RoutineSection {...props} />
@@ -263,6 +257,6 @@ export default function ConsultationNursingTab(props: ConsultationTabProps) {
         <h4 aria-label={t("nursing_care")}>{t("nursing_care")}</h4>
         <NursingPlot {...props} />
       </div>
-    </div>
+    </>
   );
 }

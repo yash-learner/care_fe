@@ -103,7 +103,7 @@ export interface Encounter {
   created_date: string;
   updated_date: string;
   encounter_class_history: EncounterClassHistory;
-  status_history: StatusHistory[];
+  status_history: StatusHistory;
 }
 
 export interface EncounterRequest {

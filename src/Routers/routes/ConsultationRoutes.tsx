@@ -1,7 +1,5 @@
-import { ConsultationDetails } from "@/components/Facility/ConsultationDetails";
 import QuestionnaireResponseView from "@/components/Facility/ConsultationDetails/QuestionnaireResponseView";
 import ConsultationDoctorNotes from "@/components/Facility/ConsultationDoctorNotes";
-import { ConsultationForm } from "@/components/Facility/ConsultationForm";
 import Investigation from "@/components/Facility/Investigations";
 import InvestigationPrintPreview from "@/components/Facility/Investigations/InvestigationsPrintPreview";
 import ShowInvestigation from "@/components/Facility/Investigations/ShowInvestigation";
@@ -50,17 +48,6 @@ const consultationRoutes: AppRoutes = {
       patientId={patientId}
       questionnaireSlug="encounter"
     />
-  ),
-  "/facility/:facilityId/patient/:patientId/consultation_old": ({
-    facilityId,
-    patientId,
-  }) => <ConsultationForm facilityId={facilityId} patientId={patientId} />,
-  "/facility/:facilityId/patient/:patientId/consultation/:id/update": ({
-    facilityId,
-    patientId,
-    id,
-  }) => (
-    <ConsultationForm facilityId={facilityId} patientId={patientId} id={id} />
   ),
   "/facility/:facilityId/patient/:patientId/consultation/:id/consent-records":
     ({ facilityId, patientId, id }) => (
@@ -162,21 +149,6 @@ const consultationRoutes: AppRoutes = {
         id={id}
       />
     ),
-  "/facility/:facilityId/patient/:patientId/consultation/:consultationId": ({
-    facilityId,
-    patientId,
-    consultationId,
-  }) => (
-    <ConsultationDetails
-      facilityId={facilityId}
-      patientId={patientId}
-      consultationId={consultationId}
-      tab={"updates"}
-    />
-  ),
-  "/consultation/:consultationId": ({ consultationId }) => (
-    <ConsultationDetails consultationId={consultationId} tab={"updates"} />
-  ),
   "/facility/:facilityId/patient/:patientId/consultation/:consultationId/treatment-summary":
     ({ facilityId, patientId, consultationId }) => (
       <TreatmentSummary
@@ -222,15 +194,6 @@ const consultationRoutes: AppRoutes = {
         patientId={patientId}
         consultationId={consultationId}
         questionnaireSlug={slug}
-      />
-    ),
-  "/facility/:facilityId/patient/:patientId/consultation/:consultationId/:tab":
-    ({ facilityId, patientId, consultationId, tab }) => (
-      <ConsultationDetails
-        facilityId={facilityId}
-        patientId={patientId}
-        consultationId={consultationId}
-        tab={tab}
       />
     ),
 };
