@@ -86,7 +86,7 @@ import {
   AppointmentPatientRegister,
 } from "@/pages/Patient/Utils";
 import { AllergyIntolerance } from "@/types/emr/allergyIntolerance";
-import { Encounter, EncounterRequest } from "@/types/emr/encounter";
+import { Encounter, EncounterEditRequest } from "@/types/emr/encounter";
 import { MedicationStatement } from "@/types/emr/medicationStatement";
 import { PartialPatientModel, Patient } from "@/types/emr/newPatient";
 import { Observation } from "@/types/emr/observation";
@@ -1587,12 +1587,18 @@ const routes = {
       path: "/api/v1/encounter/",
       method: "POST",
       TRes: Type<Encounter>(),
-      TBody: Type<EncounterRequest>(),
+      TBody: Type<EncounterEditRequest>(),
     },
     get: {
       path: "/api/v1/encounter/{id}/",
       method: "GET",
       TRes: Type<Encounter>(),
+    },
+    update: {
+      path: "/api/v1/encounter/{id}/",
+      method: "PUT",
+      TRes: Type<Encounter>(),
+      TBody: Type<EncounterEditRequest>(),
     },
   },
 
