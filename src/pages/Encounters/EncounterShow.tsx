@@ -1,49 +1,28 @@
 import { useQuery } from "@tanstack/react-query";
 import { Link, navigate } from "raviger";
-import { useCallback, useEffect, useState } from "react";
+import { useState } from "react";
 import { useTranslation } from "react-i18next";
 
 import Loading from "@/components/Common/Loading";
 import PageTitle from "@/components/Common/PageTitle";
-import RelativeDateUserMention from "@/components/Common/RelativeDateUserMention";
 import ErrorPage from "@/components/ErrorPages/DefaultErrorPage";
 // import { ConsultationProvider } from "@/components/Facility/ConsultationContext";
-import { ConsultationABGTab } from "@/components/Facility/ConsultationDetails/ConsultationABGTab";
-import { ConsultationDialysisTab } from "@/components/Facility/ConsultationDetails/ConsultationDialysisTab";
 import { ConsultationFeedTab } from "@/components/Facility/ConsultationDetails/ConsultationFeedTab";
 import { ConsultationFilesTab } from "@/components/Facility/ConsultationDetails/ConsultationFilesTab";
-import { ConsultationInvestigationsTab } from "@/components/Facility/ConsultationDetails/ConsultationInvestigationsTab";
 import { ConsultationMedicinesTab } from "@/components/Facility/ConsultationDetails/ConsultationMedicinesTab";
 import { ConsultationNeurologicalMonitoringTab } from "@/components/Facility/ConsultationDetails/ConsultationNeurologicalMonitoringTab";
 import ConsultationNursingTab from "@/components/Facility/ConsultationDetails/ConsultationNursingTab";
-import { ConsultationNutritionTab } from "@/components/Facility/ConsultationDetails/ConsultationNutritionTab";
 import { ConsultationPlotsTab } from "@/components/Facility/ConsultationDetails/ConsultationPlotsTab";
 import { ConsultationPressureSoreTab } from "@/components/Facility/ConsultationDetails/ConsultationPressureSoreTab";
-import { ConsultationSummaryTab } from "@/components/Facility/ConsultationDetails/ConsultationSummaryTab";
 import { ConsultationUpdatesTab } from "@/components/Facility/ConsultationDetails/ConsultationUpdatesTab";
-import { ConsultationVentilatorTab } from "@/components/Facility/ConsultationDetails/ConsultationVentilatorTab";
-import DoctorVideoSlideover from "@/components/Facility/DoctorVideoSlideover";
-import PatientNotesSlideover from "@/components/Facility/PatientNotesSlideover";
 import { ConsultationModel } from "@/components/Facility/models";
 import PatientInfoCard from "@/components/Patient/PatientInfoCard";
 
 import useAuthUser from "@/hooks/useAuthUser";
 import { useCareAppConsultationTabs } from "@/hooks/useCareApps";
 
-import { GENDER_TYPES } from "@/common/constants";
-
-import { triggerGoal } from "@/Integrations/Plausible";
-import { CameraFeedPermittedUserTypes } from "@/Utils/permissions";
 import routes from "@/Utils/request/api";
 import query from "@/Utils/request/query";
-import request from "@/Utils/request/request";
-import useTanStackQueryInstead from "@/Utils/request/useQuery";
-import {
-  formatDateTime,
-  humanizeStrings,
-  keysOf,
-  relativeTime,
-} from "@/Utils/utils";
 import { Encounter } from "@/types/emr/encounter";
 import { PatientModel } from "@/types/emr/patient";
 
@@ -59,17 +38,11 @@ const defaultTabs = {
   UPDATES: ConsultationUpdatesTab,
   FEED: ConsultationFeedTab,
   PLOTS: ConsultationPlotsTab,
-  SUMMARY: ConsultationSummaryTab,
   MEDICINES: ConsultationMedicinesTab,
   FILES: ConsultationFilesTab,
-  INVESTIGATIONS: ConsultationInvestigationsTab,
-  ABG: ConsultationABGTab,
   NURSING: ConsultationNursingTab,
   NEUROLOGICAL_MONITORING: ConsultationNeurologicalMonitoringTab,
-  VENTILATOR: ConsultationVentilatorTab,
-  NUTRITION: ConsultationNutritionTab,
   PRESSURE_SORE: ConsultationPressureSoreTab,
-  DIALYSIS: ConsultationDialysisTab,
 } as Record<string, React.FC<ConsultationTabProps>>;
 
 export const EncounterShow = ({
@@ -81,7 +54,6 @@ export const EncounterShow = ({
   facilityId: string;
   tab?: string;
 }) => {
-  const { t } = useTranslation();
   const pluginTabs = useCareAppConsultationTabs();
 
   const tabs: Record<string, React.FC<ConsultationTabProps>> = {
