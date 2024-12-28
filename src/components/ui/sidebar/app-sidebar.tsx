@@ -67,7 +67,6 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
           <FacilitySwitcher
             facilities={user.facilities}
             selectedFacility={selectedFacility}
-            setSelectedFacility={setSelectedFacility}
           />
         )}
       </SidebarHeader>
