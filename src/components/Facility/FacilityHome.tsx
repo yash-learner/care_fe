@@ -492,7 +492,7 @@ export const FacilityHome = ({ facilityId }: Props) => {
                 ghost
                 border
                 className="mt-2 flex w-full flex-row justify-center md:w-auto"
-                onClick={() => navigate(`/patients?facility=${facilityId}`)}
+                onClick={() => navigate(`/facility/${facilityId}/patients`)}
               >
                 <CareIcon icon="l-user-injured" className="text-lg" />
                 <span>{t("view_patients")}</span>
