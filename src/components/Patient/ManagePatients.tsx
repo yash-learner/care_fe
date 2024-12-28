@@ -39,7 +39,6 @@ import useTanStackQueryInstead from "../../Utils/request/useQuery";
 import {
   formatPatientAge,
   humanizeStrings,
-  isAntenatal,
   parsePhoneNumber,
 } from "../../Utils/utils";
 import { ICD11DiagnosisModel } from "../Diagnosis/types";
@@ -608,18 +607,6 @@ export const PatientManager = () => {
                         variant="primary"
                         startIcon="l-clock-three"
                         text={`IP Day No: ${dayjs().diff(patient.last_consultation.encounter_date, "day") + 1}`}
-                      />
-                    )}
-                  {patient.gender === 2 &&
-                    patient.is_antenatal &&
-                    isAntenatal(patient.last_menstruation_start_date) &&
-                    patient.is_active && (
-                      <Chip
-                        size="small"
-                        variant="custom"
-                        className="bg-pink-100 text-pink-600"
-                        startIcon="l-baby-carriage"
-                        text="Antenatal"
                       />
                     )}
                   {patient.is_medical_worker && patient.is_active && (

@@ -1,9 +1,13 @@
+import { useMutation } from "@tanstack/react-query";
 import { navigate } from "raviger";
 import { useReducer, useState } from "react";
 import { useTranslation } from "react-i18next";
 
 import { Cancel, Submit } from "@/components/Common/ButtonV2";
-import { DupPatientModel } from "@/components/Facility/models";
+import {
+  DupPatientModel,
+  PatientTransferRequest,
+} from "@/components/Facility/models";
 import { SelectFormField } from "@/components/Form/FormFields/SelectFormField";
 import TextFormField from "@/components/Form/FormFields/TextFormField";
 import { FieldChangeEvent } from "@/components/Form/FormFields/Utils";
@@ -12,7 +16,7 @@ import { OptionsType } from "@/common/constants";
 
 import * as Notification from "@/Utils/Notifications";
 import routes from "@/Utils/request/api";
-import request from "@/Utils/request/request";
+import mutate from "@/Utils/request/mutate";
 
 interface Props {
   patientList: Array<DupPatientModel>;
@@ -62,7 +66,7 @@ const TransferPatientDialog = (props: Props) => {
   const [state, dispatch] = useReducer(patientFormReducer, initialState);
   const patientOptions: Array<OptionsType> = patientList.map((patient) => {
     return {
-      id: patient.patient_id as unknown as number,
+      id: patient.id,
       text: [
         patient.name,
         `(${patient.gender})`,
@@ -145,39 +149,47 @@ const TransferPatientDialog = (props: Props) => {
     return !invalidForm;
   };
 
+  const { mutate: transferPatient } = useMutation({
+    mutationFn: (body: PatientTransferRequest) =>
+      mutate(routes.searchPatient, {
+        body,
+      })(body),
+    onSuccess: (data) => {
+      dispatch({ type: "set_form", form: initForm });
+      handleOk();
+      const patientName =
+        patientOptions.find((p) => p.id === state.form.patient)?.text || "";
+      if (data.results.length > 0) {
+        Notification.Success({
+          msg: `Patient ${patientName} transferred successfully`,
+        });
+
+        navigate(
+          `/facility/${facilityId}/patient/${data.results[0].id}/encounter`,
+        );
+      }
+    },
+    onError: (error) => {
+      Notification.Error({
+        msg: error?.message || "Failed to transfer patient",
+      });
+    },
+    onSettled: () => {
+      setIsLoading(false);
+    },
+  });
+
   const handleSubmit = async () => {
     const validForm = validateForm();
     if (validForm) {
       setIsLoading(true);
-      const { res, data } = await request(routes.transferPatient, {
-        body: {
-          facility: facilityId,
-          year_of_birth: state.form.year_of_birth,
-        },
-        pathParams: {
-          id: state.form.patient,
-        },
-      });
-      setIsLoading(false);
-      if (res?.ok && data) {
-        dispatch({ type: "set_form", form: initForm });
-        handleOk();
+      const patient = patientList.find((p) => p.id === state.form.patient);
+      if (!patient) return;
 
-        const patientName =
-          patientOptions.find((p) => p.id === state.form.patient)?.text || "";
-        Notification.Success({
-          msg: `Patient ${patientName} transferred successfully`,
-        });
-        const newFacilityId =
-          data && data.facility_object && data.facility_object.id;
-        if (newFacilityId) {
-          navigate(
-            `/facility/${newFacilityId}/patient/${data.patient}/consultation`,
-          );
-        } else {
-          navigate("/facility");
-        }
-      }
+      transferPatient({
+        phone_number: patient.phone_number,
+        year_of_birth: String(state.form.year_of_birth),
+      });
     }
   };
 

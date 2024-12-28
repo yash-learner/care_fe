@@ -136,14 +136,6 @@ export default function ShiftDetails(props: { id: string }) {
               {patientData ? formatPatientAge(patientData, true) : ""}
             </div>
           )}
-          {patientData?.gender === 2 && patientData?.is_antenatal && (
-            <div>
-              <span className="font-semibold leading-relaxed">
-                {t("is_antenatal")}:{" "}
-              </span>
-              <span className="badge badge-pill badge-warning">{t("yes")}</span>
-            </div>
-          )}
           <div>
             <span className="font-semibold leading-relaxed">
               {t("gender")}:{" "}

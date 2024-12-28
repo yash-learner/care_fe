@@ -32,7 +32,7 @@ import TransferPatientDialog from "@/components/Facility/TransferPatientDialog";
 import useAppHistory from "@/hooks/useAppHistory";
 
 import {
-  BLOOD_GROUPS, // DOMESTIC_HEALTHCARE_SUPPORT_CHOICES,
+  BLOOD_GROUP_CHOICES, // DOMESTIC_HEALTHCARE_SUPPORT_CHOICES,
   GENDER_TYPES, // OCCUPATION_TYPES,
   //RATION_CARD_CATEGORY, // SOCIOECONOMIC_STATUS_CHOICES ,
 } from "@/common/constants";
@@ -103,11 +103,6 @@ export default function PatientRegistration(
     "permanent_address",
     "pincode",
     "nationality",
-    "state",
-    "district",
-    "local_body",
-    "ward",
-    "village",
     "meta_info",
     "ration_card_category",
   ];
@@ -123,7 +118,6 @@ export default function PatientRegistration(
     year_of_birth: ageDob === "age" ? form.year_of_birth : undefined,
     is_active: true,
     is_antenatal: false,
-    passport_no: form.nationality === "Indian" ? form.passport_no : undefined,
     meta_info: {
       ...(form.meta_info as any),
       occupation:
@@ -290,7 +284,7 @@ export default function PatientRegistration(
   const patientPhoneSearch = useQuery({
     queryKey: ["patients", "phone-number", debouncedNumber],
     queryFn: query(routes.searchPatient, {
-      queryParams: {
+      body: {
         phone_number: parsePhoneNumber(debouncedNumber || "") || "",
       },
     }),
@@ -298,7 +292,7 @@ export default function PatientRegistration(
   });
 
   const duplicatePatients = patientPhoneSearch.data?.results.filter(
-    (p) => p.patient_id !== patientId,
+    (p) => p.id !== patientId,
   );
   if (patientId && patientQuery.isLoading) {
     return <Loading />;
@@ -310,16 +304,6 @@ export default function PatientRegistration(
       <div className="relative mt-4 flex flex-col md:flex-row gap-4">
         <SectionNavigator sections={sidebarItems} className="hidden md:flex" />
         <form className="md:w-[500px]" onSubmit={handleFormSubmit}>
-          {/*
-          // This will need to be updated
-          <PLUGIN_Component
-                __name="ExtendPatientRegisterForm"
-                facilityId={facilityId}
-                patientId={patientId}
-                state={state}
-                dispatch={dispatch}
-                field={field}
-              /> */}
           <div id={"general-info"}>
             <h2 className="text-lg font-semibold">
               {t("patient__general-info")}
@@ -403,7 +387,7 @@ export default function PatientRegistration(
               <RadioGroup
                 value={form.gender?.toString()}
                 onValueChange={(value) =>
-                  setForm((f) => ({ ...f, gender: Number(value) }))
+                  setForm((f) => ({ ...f, gender: value }))
                 }
                 className="flex items-center gap-4"
               >
@@ -431,9 +415,9 @@ export default function PatientRegistration(
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
-                  {BLOOD_GROUPS.map((bg) => (
-                    <SelectItem key={bg} value={bg}>
-                      {bg}
+                  {BLOOD_GROUP_CHOICES.map((bg) => (
+                    <SelectItem key={bg.id} value={bg.id}>
+                      {bg.text}
                     </SelectItem>
                   ))}
                 </SelectContent>
@@ -632,13 +616,12 @@ export default function PatientRegistration(
                       setForm((f) => ({
                         ...f,
                         nationality: value,
-                        passport_no: undefined,
                       }));
                     }}
                   />
                 </InputWithError>
               </div>
-              {form.nationality === "India" ? (
+              {form.nationality === "India" && (
                 <>
                   <OrganisationSelector
                     required={true}
@@ -649,24 +632,7 @@ export default function PatientRegistration(
                       }))
                     }
                   />
-                  <div>
-                    <InputWithError
-                      label={t("village")}
-                      errors={errors["village"]}
-                    >
-                      <Input {...fieldProps("village")} />
-                    </InputWithError>
-                  </div>
                 </>
-              ) : (
-                <div>
-                  <InputWithError
-                    label={t("passport_number")}
-                    errors={errors["passport_no"]}
-                  >
-                    <Input {...fieldProps("passport_no")} />
-                  </InputWithError>
-                </div>
               )}
             </div>
           </div>

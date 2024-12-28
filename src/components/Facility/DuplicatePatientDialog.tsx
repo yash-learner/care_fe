@@ -62,7 +62,7 @@ const DuplicatePatientDialog = (props: Props) => {
                           {patient.name}
                         </div>
                         <div className="break-words text-xs">
-                          ID : {patient.patient_id}
+                          ID : {patient.id}
                         </div>
                       </TableCell>
                       <TableCell>{patient.gender}</TableCell>

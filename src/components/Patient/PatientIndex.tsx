@@ -41,6 +41,7 @@ import useQuery from "@/Utils/request/useQuery";
 import { formatPatientAge, parsePhoneNumber } from "@/Utils/utils";
 
 export default function PatientIndex(props: {
+  facilityId: string;
   tab?: "live" | "discharged" | "search";
 }) {
   const { t } = useTranslation();
@@ -58,43 +59,16 @@ export default function PatientIndex(props: {
     clearSearch,
   } = useFilters({
     limit: 12,
-    cacheBlacklist: [
-      "name",
-      "patient_no",
-      "phone_number",
-      "emergency_phone_number",
-    ],
+    cacheBlacklist: ["phone_number"],
   });
 
   const searchOptions = [
-    {
-      key: "name",
-      type: "text" as const,
-      placeholder: t("search_by_patient_name"),
-      value: qParams.name || "",
-      shortcutKey: "n",
-    },
-    {
-      key: "patient_no",
-      type: "text" as const,
-      placeholder: t("search_by_patient_no"),
-      value: qParams.patient_no || "",
-      shortcutKey: "u",
-    },
     {
       key: "phone_number",
       type: "phone" as const,
       placeholder: t("search_by_phone_number"),
       value: qParams.phone_number || "",
       shortcutKey: "p",
-    },
-
-    {
-      key: "emergency_phone_number",
-      type: "phone" as const,
-      placeholder: t("search_by_emergency_phone_number"),
-      value: qParams.emergency_phone_number || "",
-      shortcutKey: "e",
     },
   ];
 
@@ -106,17 +80,13 @@ export default function PatientIndex(props: {
 
       switch (key) {
         case "phone_number":
-        case "emergency_phone_number":
           if (value.length >= 13 || value === "") {
             updatedQuery[key] = value;
           } else {
             updatedQuery[key] = "";
           }
           break;
-        case "name":
-        case "patient_no":
-          updatedQuery[key] = value;
-          break;
+
         default:
           break;
       }
@@ -146,9 +116,6 @@ export default function PatientIndex(props: {
       tab === "search" ? undefined : tab === "discharged" ? false : true,
     phone_number: qParams.phone_number
       ? parsePhoneNumber(qParams.phone_number)
-      : undefined,
-    emergency_phone_number: qParams.emergency_phone_number
-      ? parsePhoneNumber(qParams.emergency_phone_number)
       : undefined,
     local_body: qParams.lsgBody || undefined,
     offset: (qParams.page ? qParams.page - 1 : 0) * resultsPerPage,
@@ -301,10 +268,7 @@ export default function PatientIndex(props: {
               options={searchOptions}
               onFieldChange={() => {
                 updateQuery({
-                  name: "",
-                  patient_no: "",
                   phone_number: "",
-                  emergency_phone_number: "",
                 });
               }}
               onSearch={handleSearch}
