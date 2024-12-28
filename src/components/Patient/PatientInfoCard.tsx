@@ -70,7 +70,7 @@ export default function PatientInfoCard(props: PatientInfoCardProps) {
                   {formatPatientAge(patient, true)} • {patient.gender}
                 </div>
               </div>
-              <div className="grid gap-4 grid-cols-2">
+              <div className="grid gap-4 grid-cols-3">
                 <div className="flex flex-col space-y-1">
                   <span className="text-xs text-muted-foreground font-medium">
                     Start Date
@@ -92,17 +92,17 @@ export default function PatientInfoCard(props: PatientInfoCardProps) {
                   </span>
                 </div>
                 {props.encounter.external_identifier && (
-                  <div className="flex flex-col space-y-1 col-span-2">
-                    <span className="text-sm text-muted-foreground font-medium">
-                      Hospital ID
+                  <div className="flex flex-col space-y-1 col-span-1">
+                    <span className="text-xs text-muted-foreground font-medium">
+                      Hospital Identifier
                     </span>
-                    <span className="text-sm">
+                    <span className="text-xs">
                       {props.encounter.external_identifier}
                     </span>
                   </div>
                 )}
               </div>
-              <div className="flex flex-wrap items-center gap-2 text-sm sm:flex-row">
+              <div className="flex flex-wrap items-center gap-2 text-sm sm:flex-row mt-2">
                 <div
                   className="flex w-full flex-wrap items-center justify-center gap-2 text-sm text-secondary-900 sm:flex-row sm:text-sm md:pr-10 lg:justify-normal"
                   id="patient-consultationbadges"

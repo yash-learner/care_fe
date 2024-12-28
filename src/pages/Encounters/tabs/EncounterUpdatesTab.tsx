@@ -1,28 +1,11 @@
-import {
-  Popover,
-  PopoverButton,
-  PopoverPanel,
-  Transition,
-} from "@headlessui/react";
-import { useState } from "react";
-
-import CareIcon from "@/CAREUI/icons/CareIcon";
-
-import ButtonV2 from "@/components/Common/ButtonV2";
-import Tabs from "@/components/Common/Tabs";
 import ObservationsList from "@/components/Facility/ConsultationDetails/ObservationsList";
 import QuestionnaireResponsesList from "@/components/Facility/ConsultationDetails/QuestionnaireResponsesList";
 import { DiagnosisList } from "@/components/Patient/diagnosis/list";
 import { SymptomsList } from "@/components/Patient/symptoms/list";
 
-import { QueryParams } from "@/Utils/request/types";
-import { classNames } from "@/Utils/utils";
 import { EncounterTabProps } from "@/pages/Encounters/EncounterShow";
 
 export const EncounterUpdatesTab = (props: EncounterTabProps) => {
-  const [showObservations, setShowObservations] = useState(true);
-  const [observationsQuery, setObservationsQuery] = useState<QueryParams>();
-
   return (
     <div className="flex flex-col gap-2">
       <div className="flex flex-col xl:flex-row w-full">
@@ -39,7 +22,9 @@ export const EncounterUpdatesTab = (props: EncounterTabProps) => {
               encounterId={props.encounter.id}
             />
           </div>
-          <QuestionnaireResponsesList encounter={props.encounter} />
+          <div className="md:col-span-2">
+            <QuestionnaireResponsesList encounter={props.encounter} />
+          </div>
         </div>
         {/* <div className="w-full xl:w-2/3" id="basic-information">
           <PageTitle
@@ -385,90 +370,7 @@ export const EncounterUpdatesTab = (props: EncounterTabProps) => {
           </div>
         </div> */}
         <div className="w-full pl-0 md:pl-4 xl:w-1/3">
-          <div className="flex items-center">
-            <Tabs
-              className="mr-2 mt-3 w-full lg:w-full"
-              tabs={[
-                {
-                  text: "Observations",
-                  value: 1,
-                },
-                { text: "Questionnaire Responses", value: 0 },
-              ]}
-              onTabChange={(v) => setShowObservations(!!v)}
-              currentTab={showObservations ? 1 : 0}
-            />
-            {showObservations ? (
-              <Popover className="relative mt-3">
-                <PopoverButton>
-                  <ButtonV2
-                    className="border p-3"
-                    variant={
-                      observationsQuery?.ordering ? "primary" : "secondary"
-                    }
-                  >
-                    <CareIcon icon="l-filter" />
-                  </ButtonV2>
-                </PopoverButton>
-                <Transition
-                  enter="transition ease-out duration-200"
-                  enterFrom="opacity-0 translate-y-1"
-                  enterTo="opacity-100 translate-y-0"
-                  leave="transition ease-in duration-150"
-                  leaveFrom="opacity-100 translate-y-0"
-                  leaveTo="opacity-0 translate-y-1"
-                >
-                  <PopoverPanel className="absolute right-0 z-30">
-                    <div className="rounded-lg shadow-lg ring-1 ring-secondary-400">
-                      <div className="relative flex flex-col rounded-b-lg bg-white">
-                        {[
-                          {
-                            value: "-effective_datetime",
-                            label: "Newest First",
-                          },
-                          {
-                            value: "effective_datetime",
-                            label: "Oldest First",
-                          },
-                        ].map(({ value, label }) => (
-                          <div
-                            key={value}
-                            className={classNames(
-                              "dropdown-item-primary pointer-events-auto m-2 flex w-56 cursor-pointer items-center justify-start gap-3 rounded border-0 px-4 py-2 text-sm font-normal transition-all duration-200 ease-in-out",
-                              observationsQuery?.ordering === value
-                                ? "bg-primary-100 !font-medium text-primary-500"
-                                : "",
-                            )}
-                            onClick={() => {
-                              setObservationsQuery({
-                                ordering: value,
-                              });
-                            }}
-                          >
-                            <CareIcon
-                              className="text-primary-600"
-                              icon={
-                                value.startsWith("-")
-                                  ? "l-sort-amount-down"
-                                  : "l-sort-amount-up"
-                              }
-                            />
-                            <span>{label}</span>
-                          </div>
-                        ))}
-                      </div>
-                    </div>
-                  </PopoverPanel>
-                </Transition>
-              </Popover>
-            ) : null}
-          </div>
-
-          {showObservations ? (
-            <ObservationsList encounter={props.encounter} />
-          ) : (
-            <QuestionnaireResponsesList encounter={props.encounter} />
-          )}
+          <ObservationsList encounter={props.encounter} />
         </div>
       </div>
     </div>
