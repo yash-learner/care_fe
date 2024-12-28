@@ -23,11 +23,9 @@ import {
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Textarea } from "@/components/ui/textarea";
 
-import DialogModal from "@/components/Common/Dialog";
 import Loading from "@/components/Common/Loading";
 import Page from "@/components/Common/Page";
 import DuplicatePatientDialog from "@/components/Facility/DuplicatePatientDialog";
-import TransferPatientDialog from "@/components/Facility/TransferPatientDialog";
 
 import useAppHistory from "@/hooks/useAppHistory";
 
@@ -80,7 +78,6 @@ export default function PatientRegistration(
   >({});
   const [suppressDuplicateWarning, setSuppressDuplicateWarning] =
     useState(!!patientId);
-  const [showTransferDialog, setShowTransferDialog] = useState(false);
   const [debouncedNumber, setDebouncedNumber] = useState<string>();
 
   const sidebarItems = [
@@ -236,12 +233,13 @@ export default function PatientRegistration(
 
   const handleDialogClose = (action: string) => {
     if (action === "transfer") {
-      setShowTransferDialog(true);
-    } else if (action === "back") {
-      setShowTransferDialog(false);
+      navigate(`/facility/${facilityId}/patients`, {
+        query: {
+          phone_number: form.phone_number,
+        },
+      });
     } else {
       setSuppressDuplicateWarning(true);
-      setShowTransferDialog(false);
     }
   };
 
@@ -775,25 +773,6 @@ export default function PatientRegistration(
             }}
           />
         )}
-      {!!duplicatePatients?.length && (
-        <DialogModal
-          show={showTransferDialog}
-          onClose={() => {
-            handleDialogClose("close");
-          }}
-          title="Patient Transfer Form"
-          className="max-w-md md:min-w-[600px]"
-        >
-          <TransferPatientDialog
-            patientList={duplicatePatients}
-            handleOk={() => handleDialogClose("close")}
-            handleCancel={() => {
-              handleDialogClose("close");
-            }}
-            facilityId={facilityId}
-          />
-        </DialogModal>
-      )}
     </Page>
   );
 }

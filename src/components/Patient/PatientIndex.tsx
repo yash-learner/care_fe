@@ -1,5 +1,5 @@
 import { useMutation } from "@tanstack/react-query";
-import { navigate } from "raviger";
+import { navigate, useQueryParams } from "raviger";
 import { useCallback, useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { toast } from "sonner";
@@ -49,8 +49,9 @@ export default function PatientIndex(props: {
   facilityId: string;
   tab?: "live" | "discharged" | "search";
 }) {
+  const [qParams] = useQueryParams();
   const { t } = useTranslation();
-  const [phoneNumber, setPhoneNumber] = useState("");
+  const [phoneNumber, setPhoneNumber] = useState(qParams.phone_number || "");
   const [yearOfBirth, setYearOfBirth] = useState("");
   const [selectedPatient, setSelectedPatient] =
     useState<PartialPatientModel | null>(null);

@@ -43,7 +43,7 @@ export default function VerifyPatient(props: { facilityId: string }) {
   }, [phone_number, year_of_birth, partial_id, verifyPatient]);
 
   return (
-    <Page title="Verify Patient" hideBack breadcrumbs={false}>
+    <Page title="Patient Actions" hideBack breadcrumbs={false}>
       {!phone_number || !year_of_birth || !partial_id ? (
         <Alert variant="destructive">
           <AlertCircle className="h-4 w-4" />
