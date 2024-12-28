@@ -51,7 +51,6 @@ import {
   WardModel,
 } from "@/components/Facility/models";
 import {
-  DupPatientModel,
   PatientConsentModel,
   PatientTransferRequest,
 } from "@/components/Facility/models";
@@ -90,6 +89,7 @@ import {
 import { AllergyIntolerance } from "@/types/emr/allergyIntolerance";
 import { Encounter, EncounterRequest } from "@/types/emr/encounter";
 import { MedicationStatement } from "@/types/emr/medicationStatement";
+import { NewPatientModel, PartialPatientModel } from "@/types/emr/newPatient";
 import { Observation } from "@/types/emr/observation";
 import { ObservationAnalyzeResponse } from "@/types/emr/observation";
 import { PatientModel } from "@/types/emr/patient";
@@ -678,7 +678,7 @@ const routes = {
   searchPatient: {
     path: "/api/v1/patient/search/",
     method: "POST",
-    TRes: Type<PaginatedResponse<DupPatientModel>>(),
+    TRes: Type<PaginatedResponse<PartialPatientModel>>(),
   },
   patientList: {
     path: "/api/v1/patient/",
@@ -1409,14 +1409,6 @@ const routes = {
     TBody: Type<BatchRequestBody>(),
   },
 
-  patient: {
-    allergyIntolerance: {
-      create: {
-        method: "POST",
-        path: "/api/v1/patient/:patientId/allergy_intolerance/",
-      },
-    },
-  },
   plugConfig: {
     listPlugConfigs: {
       path: "/api/v1/plug_config/",
@@ -1548,6 +1540,27 @@ const routes = {
       method: "POST",
       TRes: Type<Encounter>(),
       TBody: Type<EncounterRequest>(),
+    },
+  },
+
+  // New Patient Routes
+
+  patient: {
+    allergyIntolerance: {
+      create: {
+        method: "POST",
+        path: "/api/v1/patient/:patientId/allergy_intolerance/",
+      },
+    },
+    search_retrieve: {
+      path: "/api/v1/patient/search_retrieve/",
+      method: "POST",
+      TRes: Type<NewPatientModel>(),
+      TBody: Type<{
+        phone_number: string;
+        year_of_birth: string;
+        partial_id: string;
+      }>(),
     },
   },
 

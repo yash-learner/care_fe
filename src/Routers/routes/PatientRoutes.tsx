@@ -10,6 +10,7 @@ import PatientRegistration from "@/components/Patient/PatientRegistration";
 
 import { AppRoutes } from "@/Routers/AppRouter";
 import { EncounterList } from "@/pages/Encounters/EncounterList";
+import VerifyPatient from "@/pages/Patients/VerifyPatient";
 
 const PatientRoutes: AppRoutes = {
   "/facility/:facilityId/patients": ({ facilityId }) => (
@@ -17,6 +18,9 @@ const PatientRoutes: AppRoutes = {
   ),
   "/facility/:facilityId/encounters": ({ facilityId }) => (
     <EncounterList facilityId={facilityId} />
+  ),
+  "/facility/:facilityId/patients/verify": ({ facilityId }) => (
+    <VerifyPatient facilityId={facilityId} />
   ),
   // "/facility/:facilityId/encounters/live": ({ facilityId }) => (
   //   <EncounterIndex facilityId={facilityId} />

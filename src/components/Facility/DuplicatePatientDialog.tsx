@@ -4,7 +4,8 @@ import { useTranslation } from "react-i18next";
 import CareIcon from "@/CAREUI/icons/CareIcon";
 
 import DialogModal from "@/components/Common/Dialog";
-import { DupPatientModel } from "@/components/Facility/models";
+
+import { PartialPatientModel } from "@/types/emr/newPatient";
 
 import { Button } from "../ui/button";
 import {
@@ -17,7 +18,7 @@ import {
 } from "../ui/table";
 
 interface Props {
-  patientList: Array<DupPatientModel>;
+  patientList: Array<PartialPatientModel>;
   handleOk: (action: string) => void;
   handleCancel: () => void;
 }

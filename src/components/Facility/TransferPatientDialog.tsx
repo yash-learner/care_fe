@@ -4,10 +4,7 @@ import { useReducer, useState } from "react";
 import { useTranslation } from "react-i18next";
 
 import { Cancel, Submit } from "@/components/Common/ButtonV2";
-import {
-  DupPatientModel,
-  PatientTransferRequest,
-} from "@/components/Facility/models";
+import { PatientTransferRequest } from "@/components/Facility/models";
 import { SelectFormField } from "@/components/Form/FormFields/SelectFormField";
 import TextFormField from "@/components/Form/FormFields/TextFormField";
 import { FieldChangeEvent } from "@/components/Form/FormFields/Utils";
@@ -17,9 +14,10 @@ import { OptionsType } from "@/common/constants";
 import * as Notification from "@/Utils/Notifications";
 import routes from "@/Utils/request/api";
 import mutate from "@/Utils/request/mutate";
+import { PartialPatientModel } from "@/types/emr/newPatient";
 
 interface Props {
-  patientList: Array<DupPatientModel>;
+  patientList: Array<PartialPatientModel>;
   handleOk: () => void;
   handleCancel: () => void;
   facilityId: string;
@@ -67,12 +65,7 @@ const TransferPatientDialog = (props: Props) => {
   const patientOptions: Array<OptionsType> = patientList.map((patient) => {
     return {
       id: patient.id,
-      text: [
-        patient.name,
-        `(${patient.gender})`,
-        patient.is_expired ? "(Expired)" : "",
-      ].join(" "),
-      disabled: patient.is_expired,
+      text: [patient.name, `(${patient.gender})`].join(" "),
     };
   });
 
