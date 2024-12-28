@@ -425,7 +425,7 @@ export const FacilityHome = ({ facilityId }: Props) => {
                 </DropdownItem>
                 <DropdownItem
                   id="view-assets"
-                  onClick={() => navigate(`/assets?facility=${facilityId}`)}
+                  onClick={() => navigate(`/facility/${facilityId}/assets`)}
                   icon={<CareIcon icon="l-medkit" className="text-lg" />}
                 >
                   {t("view_asset")}
