@@ -19,7 +19,6 @@ import {
   InvestigationType,
 } from "@/components/Facility/Investigations";
 import { Investigation } from "@/components/Facility/Investigations/Reports/types";
-import { InvestigationSessionType } from "@/components/Facility/Investigations/investigationsTab";
 import {
   BedModel,
   CommentModel,
@@ -1062,11 +1061,6 @@ const routes = {
         session: string;
       }[];
     }>(),
-  },
-  getInvestigationSessions: {
-    path: "/api/v1/consultation/{consultation_external_id}/investigation/get_sessions/",
-    method: "GET",
-    TRes: Type<InvestigationSessionType[]>(),
   },
   getInvestigation: {
     path: "/api/v1/consultation/{consultation_external_id}/investigation/",

@@ -6,10 +6,8 @@ import Loading from "@/components/Common/Loading";
 import PageTitle from "@/components/Common/PageTitle";
 import RelativeDateUserMention from "@/components/Common/RelativeDateUserMention";
 import ErrorPage from "@/components/ErrorPages/DefaultErrorPage";
-import { ConsultationDialysisTab } from "@/components/Facility/ConsultationDetails/ConsultationDialysisTab";
 import { ConsultationFeedTab } from "@/components/Facility/ConsultationDetails/ConsultationFeedTab";
 import { ConsultationFilesTab } from "@/components/Facility/ConsultationDetails/ConsultationFilesTab";
-import { ConsultationInvestigationsTab } from "@/components/Facility/ConsultationDetails/ConsultationInvestigationsTab";
 import { ConsultationMedicinesTab } from "@/components/Facility/ConsultationDetails/ConsultationMedicinesTab";
 import { ConsultationNeurologicalMonitoringTab } from "@/components/Facility/ConsultationDetails/ConsultationNeurologicalMonitoringTab";
 import ConsultationNursingTab from "@/components/Facility/ConsultationDetails/ConsultationNursingTab";
@@ -55,11 +53,9 @@ const defaultTabs = {
   PLOTS: ConsultationPlotsTab,
   MEDICINES: ConsultationMedicinesTab,
   FILES: ConsultationFilesTab,
-  INVESTIGATIONS: ConsultationInvestigationsTab,
   NURSING: ConsultationNursingTab,
   NEUROLOGICAL_MONITORING: ConsultationNeurologicalMonitoringTab,
   PRESSURE_SORE: ConsultationPressureSoreTab,
-  DIALYSIS: ConsultationDialysisTab,
 } as Record<string, React.FC<ConsultationTabProps>>;
 
 export const ConsultationDetails = (props: any) => {
