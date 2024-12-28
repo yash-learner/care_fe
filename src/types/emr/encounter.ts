@@ -76,6 +76,19 @@ export type Hospitalization = {
   diet_preference: EncounterDietPreference;
 };
 
+export type History = {
+  status: string;
+  moved_at: string;
+};
+
+export type EncounterClassHistory = {
+  history: History[];
+};
+
+export type StatusHistory = {
+  history: History[];
+};
+
 export interface Encounter {
   id: string;
   patient: Patient;
@@ -89,6 +102,8 @@ export interface Encounter {
   updated_by: UserBase;
   created_date: string;
   updated_date: string;
+  encounter_class_history: EncounterClassHistory;
+  status_history: StatusHistory[];
 }
 
 export interface EncounterRequest {

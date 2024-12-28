@@ -1,4 +1,4 @@
-import { useMutation } from "@tanstack/react-query";
+import { useMutation, useQuery } from "@tanstack/react-query";
 import { AlertCircle, CalendarIcon } from "lucide-react";
 import { Link, useQueryParams } from "raviger";
 import { useEffect } from "react";
@@ -15,7 +15,10 @@ import Page from "@/components/Common/Page";
 
 import routes from "@/Utils/request/api";
 import mutate from "@/Utils/request/mutate";
+import query from "@/Utils/request/query";
+import { PaginatedResponse } from "@/Utils/request/types";
 import { formatPatientAge } from "@/Utils/utils";
+import { Encounter } from "@/types/emr/encounter";
 
 export default function VerifyPatient(props: { facilityId: string }) {
   const [qParams] = useQueryParams();
@@ -29,6 +32,17 @@ export default function VerifyPatient(props: { facilityId: string }) {
         toast.error(er);
       });
     },
+  });
+
+  const { data: encounters } = useQuery<PaginatedResponse<Encounter>>({
+    queryKey: ["encounters", patientData?.id],
+    queryFn: query(routes.encounter.list, {
+      queryParams: {
+        patient: patientData?.id,
+        live: false,
+      },
+    }),
+    enabled: !!patientData?.id,
   });
 
   // Verify patient when component mounts if all required params are present
@@ -84,8 +98,8 @@ export default function VerifyPatient(props: { facilityId: string }) {
                 </div>
               </div>
             </CardHeader>
-            {/* <CardContent className="space-y-4"></CardContent> */}
           </Card>
+
           <Card className="mt-4">
             <CardHeader>
               <CardTitle>Actions</CardTitle>
@@ -116,6 +130,42 @@ export default function VerifyPatient(props: { facilityId: string }) {
                   Create Encounter
                 </Link>
               </Button>
+            </CardContent>
+          </Card>
+          <Card className="mt-4">
+            <CardHeader>
+              <CardTitle>Active Encounters</CardTitle>
+            </CardHeader>
+            <CardContent className="flex flex-col gap-4">
+              {encounters?.results && encounters.results.length > 0 ? (
+                encounters.results.map((encounter: Encounter) => (
+                  <Button
+                    key={encounter.id}
+                    asChild
+                    variant="secondary"
+                    className="h-14 w-full justify-start text-lg"
+                  >
+                    <Link
+                      href={`/facility/${props.facilityId}/encounter/${encounter.id}/update`}
+                    >
+                      <CareIcon icon="l-stethoscope" className="mr-4 size-6" />
+                      {encounter.status.replace("_", " ").toUpperCase()} -{" "}
+                      {encounter.priority}
+                      <span className="ml-auto text-sm text-gray-500">
+                        {encounter.period?.start
+                          ? new Date(
+                              encounter.period.start,
+                            ).toLocaleDateString()
+                          : "-"}
+                      </span>
+                    </Link>
+                  </Button>
+                ))
+              ) : (
+                <div className="text-center text-gray-500">
+                  No active encounters found
+                </div>
+              )}
             </CardContent>
           </Card>
         </div>
