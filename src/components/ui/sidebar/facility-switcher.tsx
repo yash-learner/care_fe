@@ -27,7 +27,6 @@ export function FacilitySwitcher({
 }: {
   facilities: UserFacilityModel[];
   selectedFacility: UserFacilityModel | null;
-  setSelectedFacility: (facility: UserFacilityModel) => void;
 }) {
   const { isMobile } = useSidebar();
 
