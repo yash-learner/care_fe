@@ -77,7 +77,7 @@ export function EncounterQuestion({
     // Create the response value with the encounter request
     const responseValue: ResponseValue = {
       type: "encounter",
-      value: encounterRequest as unknown as typeof responseValue.value,
+      value: [encounterRequest] as unknown as typeof responseValue.value,
     };
 
     updateQuestionnaireResponseCB({
