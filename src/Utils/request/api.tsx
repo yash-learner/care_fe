@@ -1530,7 +1530,7 @@ const routes = {
       TRes: Type<PaginatedResponse<Encounter>>(),
     },
     create: {
-      path: "/api/v1/facility/{facilityId}/encounter/",
+      path: "/api/v1/encounter/",
       method: "POST",
       TRes: Type<Encounter>(),
       TBody: Type<EncounterRequest>(),

@@ -22,10 +22,13 @@ import {
 } from "@/components/ui/sidebar";
 
 import { Avatar } from "@/components/Common/Avatar";
+import { usePatientSignOut } from "@/components/Common/Sidebar/Utils";
 
 import useAuthUser, { useAuthContext } from "@/hooks/useAuthUser";
 
-export function NavUser() {
+import { AppointmentPatient } from "@/pages/Patient/Utils";
+
+export function FacilityNavUser() {
   const { t } = useTranslation();
   const user = useAuthUser();
   const { isMobile } = useSidebar();
@@ -87,7 +90,85 @@ export function NavUser() {
             <DropdownMenuSeparator />
             <DropdownMenuItem onClick={signOut}>
               <LogOut />
-              Log out
+              {t("logout")}
+            </DropdownMenuItem>
+          </DropdownMenuContent>
+        </DropdownMenu>
+      </SidebarMenuItem>
+    </SidebarMenu>
+  );
+}
+
+export function PatientNavUser({
+  patient,
+  phoneNumber,
+}: {
+  patient: AppointmentPatient | null;
+  phoneNumber: string;
+}) {
+  const { t } = useTranslation();
+  const { isMobile } = useSidebar();
+  const signOut = usePatientSignOut();
+
+  return (
+    <SidebarMenu>
+      <SidebarMenuItem>
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <SidebarMenuButton
+              size="lg"
+              className="data-[state=open]:bg-sidebar-accent data-[state=open]:text-sidebar-accent-foreground"
+            >
+              <Avatar
+                className="h-8 w-8 rounded-lg"
+                name={patient?.name || phoneNumber}
+              />
+              <div className="grid flex-1 text-left text-sm leading-tight">
+                <span className="truncate font-semibold">
+                  {patient?.name || phoneNumber}
+                </span>
+                {patient && (
+                  <span className="truncate text-xs">{phoneNumber}</span>
+                )}
+              </div>
+              <CaretSortIcon className="ml-auto size-4" />
+            </SidebarMenuButton>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent
+            className="w-[--radix-dropdown-menu-trigger-width] min-w-56 rounded-lg"
+            side={isMobile ? "bottom" : "right"}
+            align="end"
+            sideOffset={4}
+          >
+            <DropdownMenuLabel className="p-0 font-normal">
+              <div className="flex items-center gap-2 px-1 py-1.5 text-left text-sm">
+                <Avatar
+                  className="h-8 w-8 rounded-lg"
+                  name={patient?.name || phoneNumber}
+                />
+                <div className="grid flex-1 text-left text-sm leading-tight">
+                  <span className="truncate font-semibold">
+                    {patient?.name || phoneNumber}
+                  </span>
+                  {patient && (
+                    <span className="truncate text-xs">{phoneNumber}</span>
+                  )}
+                </div>
+              </div>
+            </DropdownMenuLabel>
+            <DropdownMenuSeparator />
+            <DropdownMenuGroup>
+              {patient && (
+                <DropdownMenuItem>
+                  <BadgeCheck />
+                  {t("profile")}
+                </DropdownMenuItem>
+              )}
+            </DropdownMenuGroup>
+            <DropdownMenuSeparator />
+            <DropdownMenuItem onClick={signOut}>
+              <LogOut />
+              {t("logout")}
             </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>

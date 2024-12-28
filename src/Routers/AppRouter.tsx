@@ -13,6 +13,7 @@ import { NoticeBoard } from "@/components/Notifications/NoticeBoard";
 import ShowPushNotification from "@/components/Notifications/ShowPushNotification";
 import ScheduleRoutes from "@/components/Schedule/routes";
 
+import useAuthUser from "@/hooks/useAuthUser";
 import { usePluginRoutes } from "@/hooks/useCareApps";
 
 import AssetRoutes from "@/Routers/routes/AssetRoutes";
@@ -75,7 +76,6 @@ const Routes: AppRoutes = {
 
 export default function AppRouter() {
   const pluginRoutes = usePluginRoutes();
-
   let routes = Routes;
 
   useRedirect("/user", "/users");
@@ -87,10 +87,11 @@ export default function AppRouter() {
   };
 
   const pages = useRoutes(routes) || <ErrorPage />;
+  const user = useAuthUser();
 
   return (
     <SidebarProvider>
-      <AppSidebar />
+      <AppSidebar user={user} />
 
       <main
         id="pages"

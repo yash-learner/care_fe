@@ -1,15 +1,12 @@
 import careConfig from "@careConfig";
 import { useQuery } from "@tanstack/react-query";
-import { usePath, useRoutes } from "raviger";
+import { useRoutes } from "raviger";
 import { createContext, useEffect, useState } from "react";
 
+import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
+import { AppSidebar } from "@/components/ui/sidebar/app-sidebar";
+
 import ErrorBoundary from "@/components/Common/ErrorBoundary";
-import {
-  PatientDesktopSidebar,
-  PatientMobileSidebar,
-  SIDEBAR_SHRINK_PREFERENCE_KEY,
-} from "@/components/Common/Sidebar/PatientSidebar";
-import { SidebarShrinkContext } from "@/components/Common/Sidebar/Sidebar";
 import ErrorPage from "@/components/ErrorPages/DefaultErrorPage";
 
 import { CarePatientTokenKey } from "@/common/constants";
@@ -36,12 +33,14 @@ const tokenData: TokenData = JSON.parse(
   localStorage.getItem(CarePatientTokenKey) || "{}",
 );
 
-export const PatientUserContext = createContext<{
+export type PatientUserContextType = {
   patients?: AppointmentPatient[];
   selectedPatient: AppointmentPatient | null;
   setSelectedPatient: (patient: AppointmentPatient) => void;
   tokenData: TokenData;
-}>({
+};
+
+export const PatientUserContext = createContext<PatientUserContextType>({
   patients: undefined,
   selectedPatient: null,
   setSelectedPatient: () => {},
@@ -50,9 +49,6 @@ export const PatientUserContext = createContext<{
 
 export default function PatientRouter() {
   const pages = useRoutes(PatientRoutes);
-
-  const path = usePath();
-  const [sidebarOpen, setSidebarOpen] = useState(false);
   const [patients, setPatients] = useState<AppointmentPatient[]>([]);
   const [selectedPatient, setSelectedPatient] =
     useState<AppointmentPatient | null>(null);
@@ -68,7 +64,7 @@ export default function PatientRouter() {
   });
 
   useEffect(() => {
-    if (userData) {
+    if (userData?.results && userData.results.length > 0) {
       setPatients(userData.results);
       const localPatient: AppointmentPatient | undefined = JSON.parse(
         localStorage.getItem("selectedPatient") || "{}",
@@ -81,101 +77,54 @@ export default function PatientRouter() {
     }
   }, [userData]);
 
-  useEffect(() => {
-    setSidebarOpen(false);
-    const pageContainer = window.document.getElementById("pages");
-    pageContainer?.scroll(0, 0);
-  }, [path]);
-
-  const [shrinked, setShrinked] = useState(
-    localStorage.getItem(SIDEBAR_SHRINK_PREFERENCE_KEY) === "true",
-  );
-
-  useEffect(() => {
-    localStorage.setItem(
-      SIDEBAR_SHRINK_PREFERENCE_KEY,
-      shrinked ? "true" : "false",
-    );
-  }, [shrinked]);
-
   if (!pages) {
     return <SessionRouter />;
   }
 
+  const patientUserContext: PatientUserContextType = {
+    patients,
+    selectedPatient,
+    setSelectedPatient,
+    tokenData,
+  };
+
   return (
-    <PatientUserContext.Provider
-      value={{
-        patients,
-        selectedPatient,
-        setSelectedPatient,
-        tokenData,
-      }}
-    >
-      <SidebarShrinkContext.Provider value={{ shrinked, setShrinked }}>
-        <div className="flex h-screen overflow-hidden bg-secondary-100 print:overflow-visible">
-          <>
-            <div className="block md:hidden">
-              <PatientMobileSidebar
-                open={sidebarOpen}
-                setOpen={setSidebarOpen}
-              />{" "}
-            </div>
-            <div className="hidden md:block">
-              <PatientDesktopSidebar />
-            </div>
-          </>
+    <PatientUserContext.Provider value={patientUserContext}>
+      <SidebarProvider>
+        <AppSidebar
+          patientUserContext={patientUserContext}
+          facilitySidebar={false}
+        />
 
-          <div className="relative flex w-full flex-1 flex-col overflow-hidden bg-gray-100 print:overflow-visible">
-            <div className="relative z-10 flex h-16 shrink-0 bg-white shadow md:hidden">
-              <button
-                onClick={() => setSidebarOpen(true)}
-                className="border-r border-secondary-200 px-4 text-secondary-500 focus:bg-secondary-100 focus:text-secondary-600 focus:outline-none md:hidden"
-                aria-label="Open sidebar"
-              >
-                <svg
-                  className="h-6 w-6"
-                  stroke="currentColor"
-                  fill="none"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth="2"
-                    d="M4 6h16M4 12h16M4 18h7"
-                  />
-                </svg>
-              </button>
-              <a
-                href="/"
-                className="flex h-full w-full items-center px-4 md:hidden"
-              >
-                <img
-                  className="h-8 w-auto"
-                  src={careConfig.mainLogo?.dark}
-                  alt="care logo"
-                />
-              </a>
+        <main
+          id="pages"
+          className="flex-1 overflow-y-auto bg-gray-100 focus:outline-none md:pb-2 md:pr-2"
+        >
+          <div className="relative z-10 flex h-16 shrink-0 bg-white shadow md:hidden">
+            <div className="flex items-center">
+              <SidebarTrigger className="px-2" />
             </div>
-
-            <main
-              id="pages"
-              className="flex-1 overflow-y-auto bg-gray-100 focus:outline-none md:pb-2 md:pr-2"
+            <a
+              href="/"
+              className="flex h-full w-full items-center px-4 md:hidden"
             >
-              <div
-                className="max-w-8xl mx-auto mt-4 min-h-[96vh] rounded-lg border bg-gray-50 p-3 shadow"
-                data-cui-page
-              >
-                <ErrorBoundary
-                  fallback={<ErrorPage forError="PAGE_LOAD_ERROR" />}
-                >
-                  {pages}
-                </ErrorBoundary>
-              </div>
-            </main>
+              <img
+                className="h-8 w-auto"
+                src={careConfig.mainLogo?.dark}
+                alt="care logo"
+              />
+            </a>
           </div>
-        </div>
-      </SidebarShrinkContext.Provider>
+          <div
+            className="max-w-8xl mx-auto mt-4 min-h-[96vh] rounded-lg border bg-gray-50 p-3 shadow"
+            data-cui-page
+          >
+            <ErrorBoundary fallback={<ErrorPage forError="PAGE_LOAD_ERROR" />}>
+              {pages}
+            </ErrorBoundary>
+          </div>
+        </main>
+      </SidebarProvider>
     </PatientUserContext.Provider>
   );
 }

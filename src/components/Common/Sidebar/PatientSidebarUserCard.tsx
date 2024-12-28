@@ -15,7 +15,7 @@ import { Avatar } from "@/components/Common/Avatar";
 
 import { PatientUserContext } from "@/Routers/PatientRouter";
 
-import { useSignOut } from "./Utils";
+import { usePatientSignOut } from "./Utils";
 
 interface SidebarUserCardProps {
   shrinked: boolean;
@@ -28,7 +28,7 @@ const PatientSidebarUserCard: React.FC<SidebarUserCardProps> = ({
 
   const { selectedPatient, tokenData } = useContext(PatientUserContext);
 
-  const signOut = useSignOut();
+  const signOut = usePatientSignOut();
 
   return (
     <div
