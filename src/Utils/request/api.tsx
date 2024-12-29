@@ -1605,6 +1605,12 @@ const routes = {
   // New Patient Routes
 
   patient: {
+    getPatient: {
+      path: "/api/v1/patient/{id}/",
+      method: "GET",
+      TBody: Type<Patient>(),
+      TRes: Type<Patient>(),
+    },
     allergyIntolerance: {
       create: {
         method: "POST",

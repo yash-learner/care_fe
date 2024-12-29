@@ -63,3 +63,8 @@ export const getOrgLevel = (org_type: org_type, level_cache: number) => {
     return ORGANIZATION_LEVELS[org_type];
   }
 };
+
+export const getOrgLevelLabel = (org_type: org_type, level_cache: number) => {
+  const orgLevel = getOrgLevel(org_type, level_cache);
+  return typeof orgLevel === "string" ? orgLevel : orgLevel[0];
+};

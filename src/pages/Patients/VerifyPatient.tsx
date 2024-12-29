@@ -2,13 +2,11 @@ import { useMutation, useQuery } from "@tanstack/react-query";
 import { AlertCircle, CalendarIcon } from "lucide-react";
 import { Link, useQueryParams } from "raviger";
 import { useEffect } from "react";
-import { useTranslation } from "react-i18next";
 import { toast } from "sonner";
 
 import CareIcon from "@/CAREUI/icons/CareIcon";
 
 import { Alert, AlertDescription } from "@/components/ui/alert";
-import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -20,6 +18,7 @@ import {
 
 import { Avatar } from "@/components/Common/Avatar";
 import CreateEncounterForm from "@/components/Encounter/CreateEncounterForm";
+import { EncounterCard } from "@/components/Facility/EncounterCard";
 
 import routes from "@/Utils/request/api";
 import mutate from "@/Utils/request/mutate";
@@ -28,25 +27,9 @@ import { PaginatedResponse } from "@/Utils/request/types";
 import { formatPatientAge } from "@/Utils/utils";
 import { Encounter } from "@/types/emr/encounter";
 
-const getStatusColor = (status: string) => {
-  switch (status) {
-    case "planned":
-      return "bg-blue-100 text-blue-800";
-    case "in_progress":
-      return "bg-yellow-100 text-yellow-800";
-    case "completed":
-      return "bg-green-100 text-green-800";
-    case "cancelled":
-      return "bg-red-100 text-red-800";
-    default:
-      return "bg-gray-100 text-gray-800";
-  }
-};
-
 export default function VerifyPatient(props: { facilityId: string }) {
   const [qParams] = useQueryParams();
   const { phone_number, year_of_birth, partial_id } = qParams;
-  const { t } = useTranslation();
 
   const { mutate: verifyPatient, data: patientData } = useMutation({
     mutationFn: mutate(routes.patient.search_retrieve),
@@ -208,39 +191,11 @@ export default function VerifyPatient(props: { facilityId: string }) {
             </CardHeader>
             <CardContent className="flex flex-col gap-3 pt-2">
               {encounters?.results && encounters.results.length > 0 ? (
-                <div className="grid gap-3 grid-cols-1 md:grid-cols-2">
+                <>
                   {encounters.results.map((encounter: Encounter) => (
-                    <Link
-                      href={`/facility/${props.facilityId}/encounter/${encounter.id}/updates`}
-                    >
-                      <Card
-                        key={encounter.id}
-                        className="hover:shadow-lg transition-shadow group cursor-pointer"
-                      >
-                        <CardHeader className="p-3 md:p-4 pb-2 space-y-0">
-                          <div className="flex items-center justify-between gap-2">
-                            <CardTitle className="text-sm md:text-base">
-                              {t(
-                                `encounter_class__${encounter.encounter_class}`,
-                              )}{" "}
-                              {encounter.period.start && (
-                                <span className="text-xs font-normal">
-                                  -{" "}
-                                  {new Date(
-                                    encounter.period.start,
-                                  ).toLocaleDateString()}
-                                </span>
-                              )}
-                            </CardTitle>
-                            <Badge className={getStatusColor(encounter.status)}>
-                              {t(`encounter_status__${encounter.status}`)}
-                            </Badge>
-                          </div>
-                        </CardHeader>
-                      </Card>
-                    </Link>
+                    <EncounterCard encounter={encounter} key={encounter.id} />
                   ))}
-                </div>
+                </>
               ) : (
                 <div className="flex flex-col items-center justify-center p-6 md:p-8 text-center border rounded-lg border-dashed">
                   <div className="rounded-full bg-primary/10 p-2 md:p-3 mb-3 md:mb-4">
