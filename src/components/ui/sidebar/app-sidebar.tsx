@@ -52,7 +52,11 @@ function generateFacilityLinks(
       url: `${baseUrl}/appointments`,
       icon: "d-calendar",
     },
-    { name: t("patients"), url: `${baseUrl}/patients`, icon: "d-patient" },
+    {
+      name: t("Search Patients"),
+      url: `${baseUrl}/patients`,
+      icon: "d-patient",
+    },
     { name: t("encounters"), url: `${baseUrl}/encounters`, icon: "d-patient" },
     { name: t("assets"), url: `${baseUrl}/assets`, icon: "d-folder" },
     { name: t("shifting"), url: "/shifting", icon: "d-ambulance" },
