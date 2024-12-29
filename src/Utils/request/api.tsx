@@ -1037,10 +1037,21 @@ const routes = {
     TRes: Type<FileUploadModel>(),
   },
   editUpload: {
-    path: "/api/v1/files/{id}/?file_type={fileType}&associating_id={associatingId}",
+    path: "/api/v1/files/{id}/",
     method: "PUT",
     TBody: Type<Partial<FileUploadModel>>(),
     TRes: Type<FileUploadModel>(),
+  },
+  markUploadCompleted: {
+    path: "/api/v1/files/{id}/mark_upload_completed/",
+    method: "POST",
+    TRes: Type<FileUploadModel>(),
+  },
+  archiveUpload: {
+    path: "/api/v1/files/{id}/archive/",
+    method: "POST",
+    TRes: Type<FileUploadModel>(),
+    TBody: Type<{ archive_reason: string }>(),
   },
 
   // Investigation
