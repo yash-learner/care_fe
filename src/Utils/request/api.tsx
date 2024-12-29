@@ -44,7 +44,6 @@ import {
   PatientNotesEditModel,
   PatientNotesModel,
   PatientTransferResponse,
-  ResourceModel,
   ShiftingModel,
   StateModel,
   WardModel,
@@ -114,6 +113,11 @@ import { Diagnosis } from "@/types/questionnaire/diagnosis";
 import type { QuestionnaireDetail } from "@/types/questionnaire/questionnaire";
 import type { QuestionnaireResponse } from "@/types/questionnaire/questionnaireResponse";
 import { Symptom } from "@/types/questionnaire/symptom";
+import {
+  CreateResourceRequest,
+  ResourceRequest,
+  UpdateResourceRequest,
+} from "@/types/resourceRequest/resourceRequest";
 
 /**
  * A fake function that returns an empty object casted to type T
@@ -1121,24 +1125,24 @@ const routes = {
   createResource: {
     path: "/api/v1/resource/",
     method: "POST",
-    TRes: Type<ResourceModel>(),
-    TBody: Type<Partial<ResourceModel>>(),
+    TRes: Type<ResourceRequest>(),
+    TBody: Type<CreateResourceRequest>(),
   },
   updateResource: {
     path: "/api/v1/resource/{id}/",
     method: "PUT",
-    TRes: Type<ResourceModel>(),
-    TBody: Type<Partial<ResourceModel>>(),
+    TRes: Type<ResourceRequest>(),
+    TBody: Type<UpdateResourceRequest>(),
   },
   listResourceRequests: {
     path: "/api/v1/resource/",
     method: "GET",
-    TRes: Type<PaginatedResponse<ResourceModel>>(),
+    TRes: Type<PaginatedResponse<ResourceRequest>>(),
   },
   getResourceDetails: {
     path: "/api/v1/resource/{id}/",
     method: "GET",
-    TRes: Type<ResourceModel>(),
+    TRes: Type<ResourceRequest>(),
   },
   downloadResourceRequests: {
     path: "/api/v1/resource/",
