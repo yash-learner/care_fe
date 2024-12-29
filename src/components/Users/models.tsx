@@ -7,7 +7,7 @@ import {
 import { GENDER_TYPES, UserRole } from "@/common/constants";
 
 import { FeatureFlag } from "@/Utils/featureFlags";
-import { Organization } from "@/types/organisation/organisation";
+import { Organization } from "@/types/organization/organization";
 
 interface HomeFacilityObjectModel {
   id?: string;

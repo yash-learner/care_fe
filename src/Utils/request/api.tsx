@@ -103,7 +103,7 @@ import {
   OrganizationUserRole,
   OrganizationUserRoleResponse,
   RoleResponse,
-} from "@/types/organisation/organisation";
+} from "@/types/organization/organization";
 import { PlugConfig } from "@/types/plugConfig";
 import {
   BatchRequestBody,
@@ -1485,8 +1485,8 @@ const routes = {
     TRes: Type<PaginatedResponse<AllergyIntolerance>>(),
   },
 
-  // Organisation Routes
-  organisation: {
+  // Organization Routes
+  organization: {
     listMine: {
       path: "/api/v1/organization/mine/",
       method: "GET",

@@ -29,7 +29,7 @@ import UserDashboard from "@/pages/UserDashboard";
 
 import { QuestionnaireList } from "../components/Questionnaire";
 import { QuestionnaireShow } from "../components/Questionnaire/show";
-import OrganisationRoutes from "./routes/OrganisationRouter";
+import OrganizationRoutes from "./routes/OrganizationRoutes";
 
 // List of paths where the sidebar should be hidden
 const PATHS_WITHOUT_SIDEBAR = ["/"];
@@ -59,7 +59,7 @@ const Routes: AppRoutes = {
   ...ShiftingRoutes,
   ...ScheduleRoutes,
   ...UserRoutes,
-  ...OrganisationRoutes,
+  ...OrganizationRoutes,
   "/notifications/:id": ({ id }) => <ShowPushNotification id={id} />,
   "/notice_board": () => <NoticeBoard />,
 

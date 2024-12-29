@@ -1259,7 +1259,6 @@
   "optional": "Optional",
   "oral_issue_for_non_oral_nutrition_route_error": "Can be specified only if nutrition route is set to Oral",
   "ordering": "Ordering",
-  "organisation": "Organisation",
   "organization": "Organization",
   "organization_for_care_support": "Organization for Care Support",
   "origin_facility": "Current facility",

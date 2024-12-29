@@ -8,7 +8,7 @@ import { Avatar } from "@/components/Common/Avatar";
 
 import useAuthUser from "@/hooks/useAuthUser";
 
-import { getOrgLevel } from "@/types/organisation/organisation";
+import { getOrgLevel } from "@/types/organization/organization";
 
 export default function UserDashboard() {
   const user = useAuthUser();
@@ -89,7 +89,7 @@ export default function UserDashboard() {
           <h2 className="text-lg font-semibold px-1">Your Organizations</h2>
           <div className="grid gap-3 md:gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
             {organizations.map((org) => (
-              <Link key={org.id} href={`/organisation/${org.id}`}>
+              <Link key={org.id} href={`/organization/${org.id}`}>
                 <Card className="transition-all hover:shadow-md hover:border-primary/20">
                   <CardContent className="flex items-center gap-3 p-3 md:p-4">
                     <Avatar

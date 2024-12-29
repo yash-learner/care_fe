@@ -46,7 +46,7 @@ import {
   getPincodeDetails,
   parsePhoneNumber,
 } from "@/Utils/utils";
-import OrganisationSelector from "@/pages/Organisation/components/OrganisationSelector";
+import OrganizationSelector from "@/pages/Organization/components/OrganizationSelector";
 import { PatientModel, validatePatient } from "@/types/emr/patient";
 
 import Autocomplete from "../ui/autocomplete";
@@ -621,7 +621,7 @@ export default function PatientRegistration(
               </div>
               {form.nationality === "India" && (
                 <>
-                  <OrganisationSelector
+                  <OrganizationSelector
                     required={true}
                     onChange={(value) =>
                       setForm((f) => ({
