@@ -118,7 +118,12 @@ export function AppSidebar({
   }, [facilityId, user, user?.facilities, facilitySidebar]);
 
   return (
-    <Sidebar collapsible="icon" variant="sidebar" {...props}>
+    <Sidebar
+      collapsible="icon"
+      variant="sidebar"
+      {...props}
+      className="group-data-[side=left]:border-r-0"
+    >
       <SidebarHeader>
         {user && user.facilities && user.facilities.length > 0 && (
           <FacilitySwitcher
