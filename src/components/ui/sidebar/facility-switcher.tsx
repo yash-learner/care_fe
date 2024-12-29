@@ -1,4 +1,4 @@
-import { CaretSortIcon } from "@radix-ui/react-icons";
+import { CaretSortIcon, DashboardIcon } from "@radix-ui/react-icons";
 import { Hospital } from "lucide-react";
 import { navigate } from "raviger";
 import * as React from "react";
@@ -73,6 +73,11 @@ export function FacilitySwitcher({
               </DropdownMenuItem>
             ))}
             <DropdownMenuSeparator />
+            {/* add a button to `/`  and call it dashboard */}
+            <DropdownMenuItem onClick={() => navigate("/")}>
+              <DashboardIcon className="size-4" />
+              View Dashboard
+            </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>
       </SidebarMenuItem>
