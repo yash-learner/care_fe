@@ -485,6 +485,19 @@ export function EncounterList({
                       In Progress
                     </TabsTrigger>
                     <TabsTrigger
+                      value="discharged"
+                      className="data-[state=active]:bg-primary/10 data-[state=active]:text-primary"
+                      onClick={() =>
+                        updateQuery({
+                          ...{ encounter_class: encounterClass, priority },
+                          status: "discharged",
+                        })
+                      }
+                    >
+                      <CareIcon icon="l-home" className="mr-2 h-4 w-4" />
+                      Discharged
+                    </TabsTrigger>
+                    <TabsTrigger
                       value="completed"
                       className="data-[state=active]:bg-primary/10 data-[state=active]:text-primary"
                       onClick={() =>
