@@ -89,7 +89,7 @@ export default function FacilityOrganizationIndex({
   }
 
   return (
-    <Page title="Facility Organizations">
+    <Page title="Facility Organizations" hideBack={true}>
       <div className="flex justify-end mb-4">
         <CreateFacilityOrganizationSheet facilityId={facilityId} />
       </div>

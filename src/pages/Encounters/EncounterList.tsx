@@ -226,7 +226,7 @@ export function EncounterList({
   const { t } = useTranslation();
 
   return (
-    <Page title="Encounters">
+    <Page title="Encounters" hideBack={true}>
       <div className="space-y-4 mt-2">
         <div className="rounded-lg border bg-card shadow-sm">
           <div className="flex flex-col">

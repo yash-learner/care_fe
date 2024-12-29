@@ -178,7 +178,7 @@ export const FacilityHome = ({ facilityId }: Props) => {
       title={facilityData?.name || "Facility"}
       crumbsReplacements={{ [facilityId]: { name: facilityData?.name } }}
       focusOnLoad={true}
-      hideBack={true}
+      hideBack={false}
     >
       <ConfirmDialog
         title={t("delete_item", { name: facilityData?.name })}
