@@ -84,7 +84,7 @@ const buildQueryParams = (
 ) => {
   const params: Record<string, string | undefined> = {};
   if (facilityId) {
-    params.facilityId = facilityId;
+    params.facility = facilityId;
   }
   if (status && ["live", "ended"].includes(status)) {
     params.live = status === "live" ? "true" : undefined;
@@ -181,7 +181,6 @@ export function EncounterList({
   >({
     queryKey: ["encounters", facilityId, qParams],
     queryFn: query(routes.encounter.list, {
-      pathParams: { facilityId: facilityId || "" },
       queryParams: {
         ...buildQueryParams(status, facilityId, encounterClass, priority),
         name,
@@ -661,7 +660,7 @@ export function EncounterList({
                   <CardHeader className="space-y-1 pb-2">
                     <div className="flex items-center justify-between">
                       <Link
-                        href={`/patient/${encounter.patient.id}`}
+                        href={`/facility/${facilityId}/patient/${encounter.patient.id}`}
                         className="hover:text-primary"
                       >
                         <CardTitle className="group-hover:text-primary transition-colors">
