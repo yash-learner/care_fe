@@ -799,6 +799,7 @@
   "encounter_discharge_disposition__rehab": "Rehabilitation",
   "encounter_discharge_disposition__snf": "Skilled nursing facility",
   "encounter_duration_confirmation": "The duration of this encounter would be",
+  "encounter_priority__ASAP": "ASAP",
   "encounter_priority__as_needed": "As needed",
   "encounter_priority__asap": "ASAP",
   "encounter_priority__callback_for_scheduling": "Callback for scheduling",
