@@ -75,7 +75,7 @@ export default function PrescriptionDetailCard({
                     {prescription.category === "discharge" &&
                       `${t("discharge")} `}
                     {t(
-                      prescription.dosage_instruction[0].as_needed_boolean
+                      prescription.dosage_instruction.as_needed_boolean
                         ? "prn_prescription"
                         : "prescription",
                     )}
@@ -146,33 +146,31 @@ export default function PrescriptionDetailCard({
               </div>
             </Detail>
 
-            {prescription.dosage_instruction[0].dose_and_rate?.[0]
-              .dose_range && (
+            {prescription.dosage_instruction.dose_and_rate?.dose_range && (
               <>
                 <Detail className="col-span-5" label={t("start_dosage")}>
                   {displayQuantity(
-                    prescription.dosage_instruction[0].dose_and_rate?.[0]
-                      .dose_range?.low as Quantity,
+                    prescription.dosage_instruction.dose_and_rate?.dose_range
+                      ?.low as Quantity,
                   )}
                 </Detail>
                 <Detail className="col-span-5" label={t("target_dosage")}>
                   {displayQuantity(
-                    prescription.dosage_instruction[0].dose_and_rate?.[0]
-                      .dose_range?.high as Quantity,
+                    prescription.dosage_instruction.dose_and_rate?.dose_range
+                      ?.high as Quantity,
                   )}
                 </Detail>
               </>
             )}
 
-            {prescription.dosage_instruction[0].dose_and_rate?.[0]
-              .dose_quantity && (
+            {prescription.dosage_instruction.dose_and_rate?.dose_quantity && (
               <Detail
                 className="col-span-10 sm:col-span-6 md:col-span-4"
                 label={t("dosage")}
               >
                 {displayQuantity(
-                  prescription.dosage_instruction[0].dose_and_rate?.[0]
-                    .dose_quantity as Quantity,
+                  prescription.dosage_instruction.dose_and_rate
+                    ?.dose_quantity as Quantity,
                 )}
               </Detail>
             )}
@@ -181,19 +179,19 @@ export default function PrescriptionDetailCard({
               className="col-span-10 break-all sm:col-span-6"
               label={t("route")}
             >
-              {displayCode(prescription.dosage_instruction[0].route)}
+              {displayCode(prescription.dosage_instruction.route)}
             </Detail>
 
-            {prescription.dosage_instruction[0].as_needed_boolean ? (
+            {prescription.dosage_instruction.as_needed_boolean ? (
               <Detail
                 className="col-span-10 md:col-span-4"
                 label={t("indicator")}
               >
-                {displayCode(prescription.dosage_instruction[0].as_needed_for)}
+                {displayCode(prescription.dosage_instruction.as_needed_for)}
               </Detail>
             ) : (
               <Detail className="col-span-5" label={t("frequency")}>
-                {displayTiming(prescription.dosage_instruction[0].timing)}
+                {displayTiming(prescription.dosage_instruction.timing)}
               </Detail>
             )}
 

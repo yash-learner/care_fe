@@ -97,7 +97,7 @@ export interface MedicationRequestDosageInstruction {
    * - If `type` is `ordered`, `dose_quantity` must be present.
    * - If `type` is `calculated`, `dose_range` must be present. This is used for titrated medications.
    */
-  dose_and_rate?: (
+  dose_and_rate?:
     | {
         type?: "ordered";
         dose_quantity?: DosageQuantity;
@@ -107,8 +107,7 @@ export interface MedicationRequestDosageInstruction {
         type: "calculated";
         dose_range?: DoseRange;
         dose_quantity?: undefined;
-      }
-  )[];
+      };
   max_dose_per_period?: DoseRange;
 }
 
@@ -125,7 +124,7 @@ export interface MedicationRequest {
   patient?: string; // UUID
   encounter?: string; // UUID
   authored_on: string;
-  dosage_instruction: [MedicationRequestDosageInstruction];
+  dosage_instruction: MedicationRequestDosageInstruction;
   note?: string;
 
   created_by?: UserBareMinimum;
