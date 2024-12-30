@@ -91,6 +91,7 @@ import { PartialPatientModel, Patient } from "@/types/emr/newPatient";
 import { Observation } from "@/types/emr/observation";
 import { ObservationAnalyzeResponse } from "@/types/emr/observation";
 import { PatientModel } from "@/types/emr/patient";
+import { BaseFacility } from "@/types/facility/facility";
 import {
   FacilityOrganization,
   FacilityOrganizationCreate,
@@ -447,6 +448,16 @@ const routes = {
 
   getFacilityUsers: {
     path: "/api/v1/facility/{facility_id}/get_users/",
+    TRes: Type<PaginatedResponse<UserAssignedModel>>(),
+  },
+
+  getScheduleAbleFacilityUser: {
+    path: "/api/v1/facility/{facility_id}/schedulable_users/{user_id}/",
+    TRes: Type<UserAssignedModel>(),
+  },
+
+  getScheduleAbleFacilityUsers: {
+    path: "/api/v1/facility/{facility_id}/schedulable_users/",
     TRes: Type<PaginatedResponse<UserAssignedModel>>(),
   },
 
@@ -1347,6 +1358,11 @@ const routes = {
       method: "GET",
       TRes: Type<PaginatedResponse<UserModel>>(),
     },
+    list: {
+      path: "/api/v1/facility/",
+      method: "GET",
+      TRes: Type<PaginatedResponse<BaseFacility>>(),
+    },
   },
 
   valueset: {
@@ -1687,6 +1703,12 @@ const routes = {
       path: "/api/v1/users/",
       method: "GET",
       TRes: Type<PaginatedResponse<UserBase>>(),
+    },
+    create: {
+      path: "/api/v1/users/",
+      method: "POST",
+      TRes: Type<UserBase>(),
+      TBody: Type<UserBase>(),
     },
   },
 
