@@ -23,25 +23,25 @@ import {
 } from "@/components/ui/sheet";
 
 import { Avatar } from "@/components/Common/Avatar";
-import { UserBareMinimum } from "@/components/Users/models";
 
 import routes from "@/Utils/request/api";
 import mutate from "@/Utils/request/mutate";
 import query from "@/Utils/request/query";
+import { UserBase } from "@/types/user/base";
 
 interface Props {
   organizationId: string;
 }
 
 interface UserListResponse {
-  results: UserBareMinimum[];
+  results: UserBase[];
   count: number;
 }
 
 export default function AddUserSheet({ organizationId }: Props) {
   const queryClient = useQueryClient();
   const [open, setOpen] = useState(false);
-  const [selectedUser, setSelectedUser] = useState<UserBareMinimum>();
+  const [selectedUser, setSelectedUser] = useState<UserBase>();
   const [selectedRole, setSelectedRole] = useState<string>("");
 
   const { data: roles } = useQuery({
@@ -52,7 +52,7 @@ export default function AddUserSheet({ organizationId }: Props) {
 
   const { data: users } = useQuery<UserListResponse>({
     queryKey: ["users"],
-    queryFn: query(routes.userList),
+    queryFn: query(routes.user.list),
     enabled: open,
   });
 
@@ -86,21 +86,19 @@ export default function AddUserSheet({ organizationId }: Props) {
     }
 
     assignUser({
-      user: selectedUser.external_id,
+      user: selectedUser.id,
       role: selectedRole,
     });
   };
 
   const userOptions =
-    users?.results?.map((user: UserBareMinimum) => ({
+    users?.results?.map((user: UserBase) => ({
       label: `${user.first_name} ${user.last_name} (${user.username})`,
-      value: user.external_id,
+      value: user.id,
     })) || [];
 
   const handleUserChange = (value: string) => {
-    const user = users?.results?.find(
-      (u: UserBareMinimum) => u.external_id === value,
-    );
+    const user = users?.results?.find((u: UserBase) => u.id === value);
     setSelectedUser(user);
     setSelectedRole("");
   };
@@ -125,7 +123,7 @@ export default function AddUserSheet({ organizationId }: Props) {
             <h3 className="text-sm font-medium">Search User</h3>
             <Autocomplete
               options={userOptions}
-              value={selectedUser?.external_id || ""}
+              value={selectedUser?.id || ""}
               onChange={handleUserChange}
               placeholder="Search users..."
               noOptionsMessage="No users found"
