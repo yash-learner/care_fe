@@ -61,6 +61,11 @@ export default function OrganizationLayout({
       title: "Patients",
       icon: "d-patient",
     },
+    {
+      path: `${baseUrl}/${id}/facilities`,
+      title: "Facilities",
+      icon: "d-hospital",
+    },
   ];
 
   const { data: org, isLoading } = useQuery<Organization>({
