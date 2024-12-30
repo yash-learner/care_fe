@@ -1,12 +1,10 @@
 import ManageUsers from "@/components/Users/ManageUsers";
-import UserAdd from "@/components/Users/UserAdd";
 import UserHome from "@/components/Users/UserHome";
 
 import { AppRoutes } from "@/Routers/AppRouter";
 
 const UserRoutes: AppRoutes = {
   "/users": () => <ManageUsers />,
-  "/users/add": () => <UserAdd />,
   "/facility/:facilityId/users/:username": ({ facilityId, username }) => (
     <UserHome facilityId={facilityId} username={username} tab="profile" />
   ),

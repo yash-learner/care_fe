@@ -1,5 +1,3 @@
-import { useState } from "react";
-
 import CareIcon from "@/CAREUI/icons/CareIcon";
 
 import { Button } from "@/components/ui/button";
@@ -14,8 +12,11 @@ import {
 
 import CreateUserForm from "@/components/Users/CreateUserForm";
 
-export default function AddUserSheet() {
-  const [open, setOpen] = useState(false);
+export default function AddUserSheet(props: {
+  open: boolean;
+  setOpen: (open: boolean) => void;
+}) {
+  const { open, setOpen } = props;
 
   return (
     <Sheet open={open} onOpenChange={setOpen}>

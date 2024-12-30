@@ -1,11 +1,10 @@
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { useTranslation } from "react-i18next";
+import { toast } from "sonner";
 import * as z from "zod";
 
 import { Button } from "@/components/ui/button";
-import { Checkbox } from "@/components/ui/checkbox";
 import {
   Form,
   FormControl,
@@ -66,27 +65,8 @@ const userFormSchema = z
         /^\+91[0-9]{10}$/,
         "Phone number must start with +91 followed by 10 digits",
       ),
-    alt_phone_number: z
-      .string()
-      .regex(
-        /^\+91[0-9]{10}$/,
-        "Phone number must start with +91 followed by 10 digits",
-      )
-      .optional(),
-    phone_number_is_whatsapp: z.boolean().default(true),
     date_of_birth: z.string().min(1, "Date of birth is required"),
     gender: z.enum(["male", "female", "other"]),
-    qualification: z.string().optional(),
-    doctor_experience_commenced_on: z.string().optional(),
-    doctor_medical_council_registration: z.string().optional(),
-    weekly_working_hours: z
-      .string()
-      .refine(
-        (val) => !val || (Number(val) >= 0 && Number(val) <= 168),
-        "Working hours must be between 0 and 168",
-      )
-      .optional(),
-    video_connect_link: z.string().url().optional(),
     geo_organization: z.string().min(1, "Organization is required"),
   })
   .refine((data) => data.password === data.c_password, {
@@ -108,25 +88,13 @@ export default function CreateUserForm({ onSubmitSuccess }: Props) {
     defaultValues: {
       user_type: "staff",
       phone_number: "+91",
-      alt_phone_number: "+91",
-      phone_number_is_whatsapp: true,
       gender: "male",
     },
   });
 
-  const userType = form.watch("user_type");
-  const phoneNumber = form.watch("phone_number");
-  const isWhatsApp = form.watch("phone_number_is_whatsapp");
-
-  useEffect(() => {
-    if (isWhatsApp) {
-      form.setValue("alt_phone_number", phoneNumber);
-    }
-  }, [phoneNumber, isWhatsApp, form]);
-
   const onSubmit = async (data: UserFormValues) => {
     try {
-      const { res, error } = await request(routes.user.create, {
+      const { res } = await request(routes.user.create, {
         body: {
           ...data,
           // Omit c_password as it's not needed in the API
@@ -135,14 +103,10 @@ export default function CreateUserForm({ onSubmitSuccess }: Props) {
       });
 
       if (res?.ok) {
-        Notification.Success({
-          msg: t("user_added_successfully"),
-        });
+        toast.success(t("user_added_successfully"));
         onSubmitSuccess?.();
       } else {
-        Notification.Error({
-          msg: error?.message ?? t("user_add_error"),
-        });
+        toast.error(t("user_add_error"));
       }
     } catch (error) {
       Notification.Error({
@@ -284,59 +248,9 @@ export default function CreateUserForm({ onSubmitSuccess }: Props) {
               </FormItem>
             )}
           />
-
-          <FormField
-            control={form.control}
-            name="alt_phone_number"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Alternative Phone Number</FormLabel>
-                <FormControl>
-                  <Input
-                    placeholder="+91XXXXXXXXXX"
-                    {...field}
-                    disabled={isWhatsApp}
-                  />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
         </div>
 
-        <FormField
-          control={form.control}
-          name="phone_number_is_whatsapp"
-          render={({ field }) => (
-            <FormItem className="flex flex-row items-start space-x-3 space-y-0">
-              <FormControl>
-                <Checkbox
-                  checked={field.value}
-                  onCheckedChange={field.onChange}
-                />
-              </FormControl>
-              <div className="space-y-1 leading-none">
-                <FormLabel>WhatsApp number is same as phone number</FormLabel>
-              </div>
-            </FormItem>
-          )}
-        />
-
         <div className="grid grid-cols-2 gap-4">
-          <FormField
-            control={form.control}
-            name="date_of_birth"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Date of Birth</FormLabel>
-                <FormControl>
-                  <Input type="date" {...field} />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-
           <FormField
             control={form.control}
             name="gender"
@@ -360,101 +274,6 @@ export default function CreateUserForm({ onSubmitSuccess }: Props) {
                     ))}
                   </SelectContent>
                 </Select>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-        </div>
-
-        {(userType === "doctor" || userType === "nurse") && (
-          <FormField
-            control={form.control}
-            name="qualification"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Qualification</FormLabel>
-                <FormControl>
-                  <Input placeholder="Qualification" {...field} />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-        )}
-
-        {userType === "doctor" && (
-          <>
-            <div className="grid grid-cols-2 gap-4">
-              <FormField
-                control={form.control}
-                name="doctor_experience_commenced_on"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Years of Experience</FormLabel>
-                    <FormControl>
-                      <Input
-                        type="number"
-                        placeholder="Years of experience"
-                        {...field}
-                      />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-
-              <FormField
-                control={form.control}
-                name="doctor_medical_council_registration"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Medical Council Registration</FormLabel>
-                    <FormControl>
-                      <Input
-                        placeholder="Medical council registration"
-                        {...field}
-                      />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-            </div>
-          </>
-        )}
-
-        <div className="grid grid-cols-2 gap-4">
-          <FormField
-            control={form.control}
-            name="weekly_working_hours"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Weekly Working Hours</FormLabel>
-                <FormControl>
-                  <Input
-                    type="number"
-                    placeholder="Weekly working hours"
-                    {...field}
-                  />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-
-          <FormField
-            control={form.control}
-            name="video_connect_link"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Video Connect Link</FormLabel>
-                <FormControl>
-                  <Input
-                    type="url"
-                    placeholder="https://example.com"
-                    {...field}
-                  />
-                </FormControl>
                 <FormMessage />
               </FormItem>
             )}

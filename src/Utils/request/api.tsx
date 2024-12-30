@@ -241,6 +241,12 @@ const routes = {
     TRes: Type<PaginatedResponse<UserModel>>(),
   },
 
+  getUserList: {
+    path: "/api/v1/users/",
+    method: "GET",
+    TRes: Type<PaginatedResponse<UserBase>>(),
+  },
+
   userListSkill: {
     path: "/api/v1/users/{username}/skill/",
     method: "GET",
@@ -300,8 +306,8 @@ const routes = {
   partialUpdateUser: {
     path: "/api/v1/users/{username}/",
     method: "PATCH",
-    TRes: Type<UserModel>(),
-    TBody: Type<Partial<UserModel>>(),
+    TRes: Type<UserBase>(),
+    TBody: Type<Partial<UserBase>>(),
   },
 
   updateProfilePicture: {
@@ -944,7 +950,7 @@ const routes = {
   getUserDetails: {
     path: "/api/v1/users/{username}/",
     method: "GET",
-    TRes: Type<UserModel>(),
+    TRes: Type<UserBase>(),
   },
   getUserBareMinimum: {
     path: "/api/v1/facility/{facilityId}/get_users/{userExternalId}/",
@@ -1356,7 +1362,7 @@ const routes = {
     getUsers: {
       path: "/api/v1/facility/{facility_id}/users/",
       method: "GET",
-      TRes: Type<PaginatedResponse<UserModel>>(),
+      TRes: Type<PaginatedResponse<UserBase>>(),
     },
     list: {
       path: "/api/v1/facility/",

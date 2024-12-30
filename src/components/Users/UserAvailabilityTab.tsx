@@ -27,15 +27,15 @@ import {
   isDateInRange,
 } from "@/components/Schedule/helpers";
 import { ScheduleAvailability } from "@/components/Schedule/types";
-import { UserModel } from "@/components/Users/models";
 
 import useSlug from "@/hooks/useSlug";
 
 import query from "@/Utils/request/query";
 import { formatTimeShort } from "@/Utils/utils";
+import { UserBase } from "@/types/user/user";
 
 type Props = {
-  userData: UserModel;
+  userData: UserBase;
 };
 
 export default function UserAvailabilityTab({ userData: user }: Props) {
@@ -55,7 +55,7 @@ export default function UserAvailabilityTab({ userData: user }: Props) {
     queryKey: ["user-availability-templates", user.username],
     queryFn: query(ScheduleAPIs.templates.list, {
       pathParams: { facility_id: facilityId! },
-      queryParams: { resource: user.external_id },
+      queryParams: { resource: user.id },
     }),
     enabled: !!facilityId,
   });
@@ -64,7 +64,7 @@ export default function UserAvailabilityTab({ userData: user }: Props) {
     queryKey: ["user-availability-exceptions", user.username],
     queryFn: query(ScheduleAPIs.exceptions.list, {
       pathParams: { facility_id: facilityId! },
-      queryParams: { resource: user.external_id },
+      queryParams: { resource: user.id },
     }),
   });
 

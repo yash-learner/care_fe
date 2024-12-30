@@ -40,13 +40,13 @@ import {
   getTokenDuration,
 } from "@/components/Schedule/helpers";
 import { ScheduleSlotTypes } from "@/components/Schedule/types";
-import { UserModel } from "@/components/Users/models";
 
 import useSlug from "@/hooks/useSlug";
 
 import mutate from "@/Utils/request/mutate";
 import { Time } from "@/Utils/types";
 import { dateQueryString } from "@/Utils/utils";
+import { UserBase } from "@/types/user/user";
 
 const formSchema = z.object({
   name: z.string().min(1, "Template name is required"),
@@ -80,7 +80,7 @@ const formSchema = z.object({
 
 interface Props {
   onRefresh?: () => void;
-  user: UserModel;
+  user: UserBase;
 }
 
 export default function ScheduleTemplateForm({ user, onRefresh }: Props) {

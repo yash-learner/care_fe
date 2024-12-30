@@ -1,4 +1,5 @@
 import { useQuery } from "@tanstack/react-query";
+import { useState } from "react";
 
 import CareIcon from "@/CAREUI/icons/CareIcon";
 
@@ -30,6 +31,8 @@ export default function OrganizationUsers({ id, navOrganizationId }: Props) {
     }),
     enabled: !!id,
   });
+
+  const [openAddUserSheet, setOpenAddUserSheet] = useState(false);
 
   if (!id) {
     return null;
@@ -63,7 +66,10 @@ export default function OrganizationUsers({ id, navOrganizationId }: Props) {
         <div className="flex justify-between items-center">
           <h2 className="text-lg font-semibold">Users</h2>
           <div className="flex gap-2">
-            <AddUserSheet />
+            <AddUserSheet
+              open={openAddUserSheet}
+              setOpen={setOpenAddUserSheet}
+            />
             <LinkUserSheet organizationId={id} />
           </div>
         </div>

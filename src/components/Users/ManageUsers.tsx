@@ -50,7 +50,7 @@ export default function ManageUsers() {
   );
 
   const { data: userListData, loading: userListLoading } =
-    useTanStackQueryInstead(routes.userList, {
+    useTanStackQueryInstead(routes.getUserList, {
       query: {
         limit: resultsPerPage.toString(),
         offset: (
