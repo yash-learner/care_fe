@@ -149,7 +149,6 @@
     "@types/react-google-recaptcha": "^2.1.9",
     "@types/uuid": "^10.0.0",
     "@typescript-eslint/eslint-plugin": "^7.18.0",
-    "@vitejs/plugin-react-swc": "^3.7.2",
     "autoprefixer": "^10.4.20",
     "cypress-localstorage-commands": "^2.2.6",
     "cypress-split": "^1.24.5",
