@@ -451,6 +451,11 @@ const routes = {
     TRes: Type<PaginatedResponse<UserAssignedModel>>(),
   },
 
+  getScheduleAbleFacilityUser: {
+    path: "/api/v1/facility/{facility_id}/schedulable_users/{user_id}/",
+    TRes: Type<UserAssignedModel>(),
+  },
+
   getScheduleAbleFacilityUsers: {
     path: "/api/v1/facility/{facility_id}/schedulable_users/",
     TRes: Type<PaginatedResponse<UserAssignedModel>>(),
