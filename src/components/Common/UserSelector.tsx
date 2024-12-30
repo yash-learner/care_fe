@@ -25,7 +25,7 @@ import useDebouncedState from "@/hooks/useDebouncedState";
 import routes from "@/Utils/request/api";
 import query from "@/Utils/request/query";
 import { formatName } from "@/Utils/utils";
-import { UserBase } from "@/types/user/base";
+import { UserBase } from "@/types/user/user";
 
 interface Props {
   selected?: UserBase;

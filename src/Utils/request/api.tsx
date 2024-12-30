@@ -118,7 +118,7 @@ import {
   ResourceRequest,
   UpdateResourceRequest,
 } from "@/types/resourceRequest/resourceRequest";
-import { UserBase } from "@/types/user/base";
+import { UserBase } from "@/types/user/user";
 
 /**
  * A fake function that returns an empty object casted to type T
@@ -323,7 +323,7 @@ const routes = {
   },
 
   addUser: {
-    path: "/api/v1/users/add_user/",
+    path: "/api/v1/users/",
     method: "POST",
     TRes: Type<UserModel>(),
   },

@@ -38,7 +38,7 @@ import { Avatar } from "@/components/Common/Avatar";
 import routes from "@/Utils/request/api";
 import mutate from "@/Utils/request/mutate";
 import query from "@/Utils/request/query";
-import { UserBase } from "@/types/user/base";
+import { UserBase } from "@/types/user/user";
 
 import { PatientProps } from ".";
 

@@ -4,6 +4,7 @@ import { toast } from "sonner";
 
 import CareIcon from "@/CAREUI/icons/CareIcon";
 
+import Autocomplete from "@/components/ui/autocomplete";
 import { Button } from "@/components/ui/button";
 import {
   Select,
@@ -22,26 +23,25 @@ import {
 } from "@/components/ui/sheet";
 
 import { Avatar } from "@/components/Common/Avatar";
-import UserSelector from "@/components/Common/UserSelector";
+import { UserBareMinimum } from "@/components/Users/models";
 
 import routes from "@/Utils/request/api";
 import mutate from "@/Utils/request/mutate";
 import query from "@/Utils/request/query";
-import { formatName } from "@/Utils/utils";
-import { UserBase } from "@/types/user/user";
 
 interface Props {
   organizationId: string;
-  facilityId: string;
 }
 
-export default function AddFacilityUserSheet({
-  facilityId,
-  organizationId,
-}: Props) {
+interface UserListResponse {
+  results: UserBareMinimum[];
+  count: number;
+}
+
+export default function LinkUserSheet({ organizationId }: Props) {
   const queryClient = useQueryClient();
   const [open, setOpen] = useState(false);
-  const [selectedUser, setSelectedUser] = useState<UserBase>();
+  const [selectedUser, setSelectedUser] = useState<UserBareMinimum>();
   const [selectedRole, setSelectedRole] = useState<string>("");
 
   const { data: roles } = useQuery({
@@ -50,15 +50,21 @@ export default function AddFacilityUserSheet({
     enabled: open,
   });
 
+  const { data: users } = useQuery<UserListResponse>({
+    queryKey: ["users"],
+    queryFn: query(routes.userList),
+    enabled: open,
+  });
+
   const { mutate: assignUser } = useMutation({
     mutationFn: (body: { user: string; role: string }) =>
-      mutate(routes.facilityOrganization.assignUser, {
-        pathParams: { facilityId: facilityId, organizationId: organizationId },
+      mutate(routes.organization.assignUser, {
+        pathParams: { id: organizationId },
         body,
       })(body),
     onSuccess: () => {
       queryClient.invalidateQueries({
-        queryKey: ["facilityOrganizationUsers", facilityId, organizationId],
+        queryKey: ["organizationUsers", organizationId],
       });
       toast.success("User added to organization successfully");
       setOpen(false);
@@ -80,12 +86,21 @@ export default function AddFacilityUserSheet({
     }
 
     assignUser({
-      user: selectedUser.id,
+      user: selectedUser.external_id,
       role: selectedRole,
     });
   };
 
-  const handleUserChange = (user: UserBase) => {
+  const userOptions =
+    users?.results?.map((user: UserBareMinimum) => ({
+      label: `${user.first_name} ${user.last_name} (${user.username})`,
+      value: user.external_id,
+    })) || [];
+
+  const handleUserChange = (value: string) => {
+    const user = users?.results?.find(
+      (u: UserBareMinimum) => u.external_id === value,
+    );
     setSelectedUser(user);
     setSelectedRole("");
   };
@@ -95,30 +110,35 @@ export default function AddFacilityUserSheet({
       <SheetTrigger asChild>
         <Button>
           <CareIcon icon="l-plus" className="mr-2 h-4 w-4" />
-          Add User
+          Link User
         </Button>
       </SheetTrigger>
       <SheetContent>
         <SheetHeader>
-          <SheetTitle>Add User to Organization</SheetTitle>
+          <SheetTitle>Link User to Organization</SheetTitle>
           <SheetDescription>
-            Search for a user and assign a role to add them to the organization.
+            Search for an existing user and assign a role to link them to the
+            organization.
           </SheetDescription>
         </SheetHeader>
-        <div className="space-y-6 py-4 min-h-full">
-          <UserSelector
-            selected={selectedUser}
-            onChange={handleUserChange}
-            placeholder="Search for a user"
-            noOptionsMessage="No users found"
-          />
+        <div className="space-y-6 py-4">
+          <div className="space-y-4">
+            <h3 className="text-sm font-medium">Search User</h3>
+            <Autocomplete
+              options={userOptions}
+              value={selectedUser?.external_id || ""}
+              onChange={handleUserChange}
+              placeholder="Search users..."
+              noOptionsMessage="No users found"
+            />
+          </div>
+
           {selectedUser && (
             <div className="space-y-4">
               <div className="rounded-lg border p-4 space-y-4">
                 <div className="flex items-start gap-4">
                   <Avatar
-                    imageUrl={selectedUser.profile_picture_url}
-                    name={formatName(selectedUser)}
+                    name={`${selectedUser.first_name} ${selectedUser.last_name}`}
                     className="h-12 w-12"
                   />
                   <div className="flex flex-col flex-1">
@@ -175,7 +195,7 @@ export default function AddFacilityUserSheet({
                 onClick={handleAddUser}
                 disabled={!selectedRole}
               >
-                Add to Organization
+                Link to Organization
               </Button>
             </div>
           )}
