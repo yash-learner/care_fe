@@ -1,6 +1,7 @@
 import { CaretDownIcon } from "@radix-ui/react-icons";
 import { useQuery } from "@tanstack/react-query";
 import { CheckIcon } from "lucide-react";
+import { useState } from "react";
 import { useTranslation } from "react-i18next";
 
 import { Button } from "@/components/ui/button";
@@ -41,19 +42,20 @@ export default function UserSelector({
   noOptionsMessage,
 }: Props) {
   const { t } = useTranslation();
+  const [open, setOpen] = useState(false);
   const [search, setSearch] = useDebouncedState("", 500);
 
   const { data, isFetching } = useQuery({
     queryKey: ["users", search],
     queryFn: query(routes.user.list, {
-      queryParams: { search },
+      queryParams: { search_text: search },
     }),
   });
 
   const users = data?.results || [];
 
   return (
-    <Popover modal>
+    <Popover open={open} onOpenChange={setOpen}>
       <PopoverTrigger asChild>
         <Button
           variant="outline"
@@ -76,7 +78,7 @@ export default function UserSelector({
         </Button>
       </PopoverTrigger>
       <PopoverContent className="p-0" align="start">
-        <Command>
+        <Command filter={() => 1}>
           <CommandInput
             placeholder={t("search")}
             onValueChange={setSearch}
@@ -92,8 +94,11 @@ export default function UserSelector({
               {users.map((user: UserBase) => (
                 <CommandItem
                   key={user.id}
-                  value={formatName(user)}
-                  onSelect={() => onChange(user)}
+                  value={user.id}
+                  onSelect={() => {
+                    onChange(user);
+                    setOpen(false);
+                  }}
                   className="cursor-pointer"
                 >
                   <div className="flex items-center gap-2">
