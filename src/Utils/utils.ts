@@ -4,6 +4,7 @@ import html2canvas from "html2canvas";
 import { AREACODES, IN_LANDLINE_AREA_CODES } from "@/common/constants";
 import phoneCodesJson from "@/common/static/countryPhoneAndFlags.json";
 
+import * as Notification from "@/Utils/Notifications";
 import dayjs from "@/Utils/dayjs";
 import { Time } from "@/Utils/types";
 import { DoseRange, Timing } from "@/types/emr/medicationRequest";
@@ -427,11 +428,6 @@ export const formatPatientAge = (
   return `${day}${suffixes.day}`;
 };
 
-export const scrollTo = (id: string | boolean) => {
-  const element = document.querySelector(`#${id}`);
-  element?.scrollIntoView({ behavior: "smooth", block: "center" });
-};
-
 export const compareBy = <T extends object>(key: keyof T) => {
   return (a: T, b: T) => {
     return a[key] < b[key] ? -1 : a[key] > b[key] ? 1 : 0;
@@ -474,14 +470,6 @@ export const properRoundOf = (value: number) => {
     return value.toFixed();
   }
   return value.toFixed(2);
-};
-
-export const isPostPartum = (data_of_delivery?: string) => {
-  return dayjs().diff(data_of_delivery, "week") <= 6;
-};
-
-export const isAntenatal = (menstruation_start_date?: string) => {
-  return dayjs().diff(menstruation_start_date, "month") <= 9;
 };
 
 /**
@@ -591,11 +579,6 @@ export const getMonthStartAndEnd = (date: Date) => {
   };
 };
 
-export const conditionalObject = (condition: unknown, object?: object) => {
-  if (condition) return object;
-  else return {};
-};
-
 export const displayCode = (code?: Code) => {
   if (!code) return "N/A";
 
@@ -656,4 +639,13 @@ export const saveElementAsImage = async (id: string, filename: string) => {
   link.download = filename;
   link.href = canvas.toDataURL("image/png", 1);
   link.click();
+};
+
+export const copyToClipboard = async (content: string) => {
+  try {
+    await navigator.clipboard.writeText(content);
+    Notification.Success({ msg: "Copied to clipboard" });
+  } catch (err) {
+    Notification.Error({ msg: "Copying is not allowed" });
+  }
 };

@@ -40,6 +40,7 @@ export default function UserHome(props: UserHomeProps) {
   if (!username) {
     username = authUser.username;
   }
+  const loggedInUser = username === authUser.username;
 
   const { loading, refetch: refetchUserDetails } = useTanStackQueryInstead(
     routes.getUserDetails,
@@ -101,7 +102,11 @@ export default function UserHome(props: UserHomeProps) {
     <>
       <Page
         title={formatName(userData) || userData.username || t("manage_user")}
-        crumbsReplacements={{ [username]: { name: username } }}
+        crumbsReplacements={
+          loggedInUser
+            ? { [username]: { name: "Profile" } }
+            : { [username]: { name: username } }
+        }
         focusOnLoad={true}
         backUrl="/users"
         hideTitleOnPage

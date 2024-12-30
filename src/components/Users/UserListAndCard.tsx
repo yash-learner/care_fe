@@ -14,7 +14,7 @@ import useAuthUser from "@/hooks/useAuthUser";
 import useSlug from "@/hooks/useSlug";
 import useWindowDimensions from "@/hooks/useWindowDimensions";
 
-import { USER_TYPES, USER_TYPE_OPTIONS } from "@/common/constants";
+import { USER_TYPE_OPTIONS } from "@/common/constants";
 
 import {
   classNames,
@@ -23,11 +23,8 @@ import {
   relativeTime,
 } from "@/Utils/utils";
 
-export const GetUserTypes = (editForm = false) => {
+export const GetUserTypes = () => {
   const authUser = useAuthUser();
-
-  const userIndex = USER_TYPES.indexOf(authUser.user_type);
-  const readOnlyUsers = USER_TYPE_OPTIONS.filter((user) => user.readOnly);
   const defaultAllowedUserTypes = USER_TYPE_OPTIONS;
 
   // Superuser gets all options
@@ -54,7 +51,7 @@ export const GetUserTypes = (editForm = false) => {
   return defaultAllowedUserTypes;
 };
 export const CanUserAccess = (user: UserModel | UserAssignedModel) => {
-  const allowedTypes = GetUserTypes(true).map((type) => type.id);
+  const allowedTypes = GetUserTypes().map((type) => type.id);
   return allowedTypes.includes(user.user_type);
 };
 const GetDetailsButton = (username: string) => {
@@ -136,30 +133,33 @@ export const UserStatusIndicator = ({
   className?: string;
   addPadding?: boolean;
 }) => {
-  const cur_online = isUserOnline(user);
+  const authUser = useAuthUser();
+  const isAuthUser = user.id === authUser.id;
+  const isOnline = isUserOnline(user) || isAuthUser;
   const { t } = useTranslation();
+
   return (
     <div
       className={classNames(
         "inline-flex items-center gap-2 rounded-full",
         addPadding ? "px-3 py-1" : "py-px",
-        cur_online ? "bg-green-100" : "bg-gray-100",
+        isOnline ? "bg-green-100" : "bg-gray-100",
         className,
       )}
     >
       <span
         className={classNames(
           "inline-block h-2 w-2 shrink-0 rounded-full",
-          cur_online ? "bg-green-500" : "bg-gray-400",
+          isOnline ? "bg-green-500" : "bg-gray-400",
         )}
       ></span>
       <span
         className={classNames(
           "whitespace-nowrap text-xs",
-          cur_online ? "text-green-700" : "text-gray-500",
+          isOnline ? "text-green-700" : "text-gray-500",
         )}
       >
-        {cur_online
+        {isOnline
           ? t("online")
           : user.last_login
             ? relativeTime(user.last_login)
