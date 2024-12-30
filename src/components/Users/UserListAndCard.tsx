@@ -11,6 +11,7 @@ import SearchInput from "@/components/Form/SearchInput";
 import { UserAssignedModel, UserModel } from "@/components/Users/models";
 
 import useAuthUser from "@/hooks/useAuthUser";
+import useSlug from "@/hooks/useSlug";
 import useWindowDimensions from "@/hooks/useWindowDimensions";
 
 import { USER_TYPES, USER_TYPE_OPTIONS } from "@/common/constants";
@@ -58,11 +59,12 @@ export const CanUserAccess = (user: UserModel | UserAssignedModel) => {
 };
 const GetDetailsButton = (username: string) => {
   const { t } = useTranslation();
+  const facilityId = useSlug("facility");
   return (
     <div className="grow">
       <button
         id={`more-details-${username}`}
-        onClick={() => navigate(`/users/${username}`)}
+        onClick={() => navigate(`/facility/${facilityId}/users/${username}`)}
         className="flex flex-grow-0 items-center gap-2 rounded-lg bg-gray-100 px-3 py-2 text-xs hover:bg-gray-200"
       >
         <CareIcon icon="l-arrow-up-right" className="text-lg" />
