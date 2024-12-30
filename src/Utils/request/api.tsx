@@ -1722,6 +1722,11 @@ const routes = {
       TRes: Type<UserBase>(),
       TBody: Type<UserBase>(),
     },
+    get: {
+      path: "/api/v1/users/{username}/",
+      method: "GET",
+      TRes: Type<UserBase>(),
+    },
   },
 
   // OTP Routes

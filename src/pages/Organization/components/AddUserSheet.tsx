@@ -12,12 +12,19 @@ import {
 
 import CreateUserForm from "@/components/Users/CreateUserForm";
 
-export default function AddUserSheet(props: {
+import { UserBase } from "@/types/user/user";
+
+interface AddUserSheetProps {
   open: boolean;
   setOpen: (open: boolean) => void;
-}) {
-  const { open, setOpen } = props;
+  onUserCreated?: (user: UserBase) => void;
+}
 
+export default function AddUserSheet({
+  open,
+  setOpen,
+  onUserCreated,
+}: AddUserSheetProps) {
   return (
     <Sheet open={open} onOpenChange={setOpen}>
       <SheetTrigger asChild>
@@ -34,7 +41,12 @@ export default function AddUserSheet(props: {
           </SheetDescription>
         </SheetHeader>
         <div className="mt-6">
-          <CreateUserForm onSubmitSuccess={() => setOpen(false)} />
+          <CreateUserForm
+            onSubmitSuccess={(user) => {
+              setOpen(false);
+              onUserCreated?.(user);
+            }}
+          />
         </div>
       </SheetContent>
     </Sheet>

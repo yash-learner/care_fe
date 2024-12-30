@@ -97,7 +97,7 @@ const userFormSchema = z
 type UserFormValues = z.infer<typeof userFormSchema>;
 
 interface Props {
-  onSubmitSuccess?: () => void;
+  onSubmitSuccess?: (user: UserBase) => void;
 }
 
 export default function CreateUserForm({ onSubmitSuccess }: Props) {
@@ -126,7 +126,11 @@ export default function CreateUserForm({ onSubmitSuccess }: Props) {
 
   const onSubmit = async (data: UserFormValues) => {
     try {
-      const { res, error } = await request(routes.user.create, {
+      const {
+        res,
+        data: user,
+        error,
+      } = await request(routes.user.create, {
         body: {
           ...data,
           // Omit c_password as it's not needed in the API
@@ -138,7 +142,7 @@ export default function CreateUserForm({ onSubmitSuccess }: Props) {
         Notification.Success({
           msg: t("user_added_successfully"),
         });
-        onSubmitSuccess?.();
+        onSubmitSuccess?.(user!);
       } else {
         Notification.Error({
           msg: error?.message ?? t("user_add_error"),

@@ -1,5 +1,5 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { toast } from "sonner";
 
 import CareIcon from "@/CAREUI/icons/CareIcon";
@@ -31,13 +31,34 @@ import { UserBase } from "@/types/user/user";
 
 interface Props {
   organizationId: string;
+  open: boolean;
+  setOpen: (open: boolean) => void;
+  preSelectedUsername?: string;
 }
 
-export default function LinkUserSheet({ organizationId }: Props) {
+export default function LinkUserSheet({
+  organizationId,
+  open,
+  setOpen,
+  preSelectedUsername,
+}: Props) {
   const queryClient = useQueryClient();
-  const [open, setOpen] = useState(false);
   const [selectedUser, setSelectedUser] = useState<UserBase>();
   const [selectedRole, setSelectedRole] = useState<string>("");
+
+  const { data: preSelectedUser } = useQuery({
+    queryKey: ["user", preSelectedUsername],
+    queryFn: query(routes.user.get, {
+      pathParams: { username: preSelectedUsername || "" },
+    }),
+    enabled: !!preSelectedUsername,
+  });
+
+  useEffect(() => {
+    if (preSelectedUser) {
+      setSelectedUser(preSelectedUser);
+    }
+  }, [preSelectedUser]);
 
   const { data: roles } = useQuery({
     queryKey: ["roles"],

@@ -1,5 +1,5 @@
 import { useQuery } from "@tanstack/react-query";
-import { useState } from "react";
+import { useQueryParams } from "raviger";
 
 import CareIcon from "@/CAREUI/icons/CareIcon";
 
@@ -24,6 +24,14 @@ interface Props {
 }
 
 export default function OrganizationUsers({ id, navOrganizationId }: Props) {
+  const [qParams, setQueryParams] = useQueryParams<{
+    sheet: string;
+    username: string;
+  }>();
+
+  const openAddUserSheet = qParams.sheet === "add";
+  const openLinkUserSheet = qParams.sheet === "link";
+
   const { data: users, isLoading: isLoadingUsers } = useQuery({
     queryKey: ["organizationUsers", id],
     queryFn: query(routes.organization.listUsers, {
@@ -31,8 +39,6 @@ export default function OrganizationUsers({ id, navOrganizationId }: Props) {
     }),
     enabled: !!id,
   });
-
-  const [openAddUserSheet, setOpenAddUserSheet] = useState(false);
 
   if (!id) {
     return null;
@@ -68,9 +74,21 @@ export default function OrganizationUsers({ id, navOrganizationId }: Props) {
           <div className="flex gap-2">
             <AddUserSheet
               open={openAddUserSheet}
-              setOpen={setOpenAddUserSheet}
+              setOpen={(open) => {
+                setQueryParams({ sheet: open ? "add" : "", username: "" });
+              }}
+              onUserCreated={(user) => {
+                setQueryParams({ sheet: "link", username: user.username });
+              }}
             />
-            <LinkUserSheet organizationId={id} />
+            <LinkUserSheet
+              organizationId={id}
+              open={openLinkUserSheet}
+              setOpen={(open) => {
+                setQueryParams({ sheet: open ? "link" : "", username: "" });
+              }}
+              preSelectedUsername={qParams.username}
+            />
           </div>
         </div>
 
