@@ -7,7 +7,7 @@ import { toast } from "sonner";
  * @example
  * formatKey("patient_name") => "Patient Name"
  */
-const formatKey = (key) => {
+const formatKey = (key: string) => {
   return key
     .replace(/[^a-zA-Z0-9]+/g, " ") // Replace non-alphanumeric characters with a space
     .trim()
@@ -19,7 +19,7 @@ const formatKey = (key) => {
     .join(" ");
 };
 
-const notifyError = (error) => {
+const notifyError = (error: any) => {
   let errorMsg = "";
   if (typeof error === "string" || !error) {
     errorMsg =
@@ -27,8 +27,8 @@ const notifyError = (error) => {
   } else if (error.detail) {
     errorMsg = error.detail;
   } else {
-    for (let [key, value] of Object.entries(error)) {
-      let keyName = formatKey(key);
+    for (const [key, value] of Object.entries(error)) {
+      const keyName = formatKey(key);
       if (Array.isArray(value)) {
         const uniques = [...new Set(value)];
         errorMsg += `${keyName} - ${uniques.splice(0, 5).join(", ")}`;
@@ -43,28 +43,35 @@ const notifyError = (error) => {
   toast.error(errorMsg);
 };
 
-/** Close all Notifications **/
-export const closeAllNotifications = () => {
-  toast.dismiss();
-};
-
-/** Success message handler */
-export const Success = ({ msg }) => {
+/**
+ * Success message handler
+ * @deprecated Use `toast.success` instead
+ */
+export const Success = ({ msg }: { msg: string }) => {
   toast.success(msg);
 };
 
-/** Error message handler */
-export const Error = ({ msg }) => {
-  toast.error(msg);
+/**
+ * Error message handler
+ * @deprecated Use `toast.error` instead
+ */
+export const Error = ({ msg }: { msg: any }) => {
+  notifyError(msg);
 };
 
-/** Warning message handler */
-export const Warn = ({ msg }) => {
+/**
+ * Warning message handler
+ * @deprecated Use `toast.warning` instead
+ */
+export const Warn = ({ msg }: { msg: string }) => {
   toast.warning(msg);
 };
 
-/** 400 Bad Request handler */
-export const BadRequest = ({ errs }) => {
+/**
+ * 400 Bad Request handler
+ * @deprecated TODO: add a better error handler
+ */
+export const BadRequest = ({ errs }: { errs: any }) => {
   if (Array.isArray(errs)) {
     errs.forEach((error) => notifyError(error));
   } else {
