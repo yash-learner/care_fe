@@ -166,9 +166,9 @@ export default function FacilityOrganizationUsers({ id, facilityId }: Props) {
                               </div>
                             </div>
                             <div className="text-sm">
-                              <div className="text-gray-500">Email</div>
+                              <div className="text-gray-500">Phone Number</div>
                               <div className="font-medium">
-                                {userRole.user.email}
+                                {userRole.user.phone_number}
                               </div>
                             </div>
                           </div>
