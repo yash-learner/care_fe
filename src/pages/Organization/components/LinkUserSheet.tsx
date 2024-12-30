@@ -4,7 +4,6 @@ import { toast } from "sonner";
 
 import CareIcon from "@/CAREUI/icons/CareIcon";
 
-import Autocomplete from "@/components/ui/autocomplete";
 import { Button } from "@/components/ui/button";
 import {
   Select,
@@ -23,36 +22,26 @@ import {
 } from "@/components/ui/sheet";
 
 import { Avatar } from "@/components/Common/Avatar";
-import { UserBareMinimum } from "@/components/Users/models";
+import UserSelector from "@/components/Common/UserSelector";
 
 import routes from "@/Utils/request/api";
 import mutate from "@/Utils/request/mutate";
 import query from "@/Utils/request/query";
+import { UserBase } from "@/types/user/user";
 
 interface Props {
   organizationId: string;
 }
 
-interface UserListResponse {
-  results: UserBareMinimum[];
-  count: number;
-}
-
 export default function LinkUserSheet({ organizationId }: Props) {
   const queryClient = useQueryClient();
   const [open, setOpen] = useState(false);
-  const [selectedUser, setSelectedUser] = useState<UserBareMinimum>();
+  const [selectedUser, setSelectedUser] = useState<UserBase>();
   const [selectedRole, setSelectedRole] = useState<string>("");
 
   const { data: roles } = useQuery({
     queryKey: ["roles"],
     queryFn: query(routes.role.list),
-    enabled: open,
-  });
-
-  const { data: users } = useQuery<UserListResponse>({
-    queryKey: ["users"],
-    queryFn: query(routes.userList),
     enabled: open,
   });
 
@@ -86,22 +75,13 @@ export default function LinkUserSheet({ organizationId }: Props) {
     }
 
     assignUser({
-      user: selectedUser.external_id,
+      user: selectedUser.id,
       role: selectedRole,
     });
   };
 
-  const userOptions =
-    users?.results?.map((user: UserBareMinimum) => ({
-      label: `${user.first_name} ${user.last_name} (${user.username})`,
-      value: user.external_id,
-    })) || [];
-
-  const handleUserChange = (value: string) => {
-    const user = users?.results?.find(
-      (u: UserBareMinimum) => u.external_id === value,
-    );
-    setSelectedUser(user);
+  const handleUserChange = (value: UserBase) => {
+    setSelectedUser(value);
     setSelectedRole("");
   };
 
@@ -122,17 +102,12 @@ export default function LinkUserSheet({ organizationId }: Props) {
           </SheetDescription>
         </SheetHeader>
         <div className="space-y-6 py-4">
-          <div className="space-y-4">
-            <h3 className="text-sm font-medium">Search User</h3>
-            <Autocomplete
-              options={userOptions}
-              value={selectedUser?.external_id || ""}
-              onChange={handleUserChange}
-              placeholder="Search users..."
-              noOptionsMessage="No users found"
-            />
-          </div>
-
+          <UserSelector
+            selected={selectedUser}
+            onChange={handleUserChange}
+            placeholder="Search for a user"
+            noOptionsMessage="No users found"
+          />
           {selectedUser && (
             <div className="space-y-4">
               <div className="rounded-lg border p-4 space-y-4">
