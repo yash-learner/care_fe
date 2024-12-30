@@ -112,9 +112,9 @@ export default function OrganizationFacilities({
               >
                 <Card className="h-full hover:border-primary/50 transition-colors overflow-hidden">
                   <div className="relative h-48 bg-gray-100">
-                    {facility.cover_image_url ? (
+                    {facility.read_cover_image_url ? (
                       <img
-                        src={facility.cover_image_url}
+                        src={facility.read_cover_image_url}
                         alt={facility.name}
                         className="w-full h-full object-cover"
                       />

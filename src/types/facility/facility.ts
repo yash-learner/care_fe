@@ -7,6 +7,6 @@ export interface BaseFacility {
   district: number;
   state: number;
   facility_type: string;
-  cover_image_url: string;
+  read_cover_image_url: string;
   features: string[];
 }
