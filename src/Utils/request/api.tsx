@@ -1540,6 +1540,12 @@ const routes = {
       method: "DELETE",
       TRes: {} as Record<string, never>,
     },
+    listPatients: {
+      // TODO: change this to the correct endpoint
+      path: "/api/v1/patient/",
+      method: "GET",
+      TRes: Type<PaginatedResponse<Patient>>(),
+    },
   },
 
   facilityOrganization: {
