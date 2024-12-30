@@ -1,5 +1,5 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { toast } from "sonner";
 
 import CareIcon from "@/CAREUI/icons/CareIcon";
@@ -33,16 +33,35 @@ import { UserBase } from "@/types/user/user";
 interface Props {
   organizationId: string;
   facilityId: string;
+  open: boolean;
+  setOpen: (open: boolean) => void;
+  preSelectedUsername?: string;
 }
 
-export default function AddFacilityUserSheet({
+export default function LinkFacilityUserSheet({
   facilityId,
   organizationId,
+  open,
+  setOpen,
+  preSelectedUsername,
 }: Props) {
   const queryClient = useQueryClient();
-  const [open, setOpen] = useState(false);
   const [selectedUser, setSelectedUser] = useState<UserBase>();
   const [selectedRole, setSelectedRole] = useState<string>("");
+
+  const { data: preSelectedUser } = useQuery({
+    queryKey: ["user", preSelectedUsername],
+    queryFn: query(routes.user.get, {
+      pathParams: { username: preSelectedUsername || "" },
+    }),
+    enabled: !!preSelectedUsername,
+  });
+
+  useEffect(() => {
+    if (preSelectedUser) {
+      setSelectedUser(preSelectedUser);
+    }
+  }, [preSelectedUser]);
 
   const { data: roles } = useQuery({
     queryKey: ["roles"],
@@ -95,14 +114,14 @@ export default function AddFacilityUserSheet({
       <SheetTrigger asChild>
         <Button>
           <CareIcon icon="l-plus" className="mr-2 h-4 w-4" />
-          Add User
+          Link User
         </Button>
       </SheetTrigger>
       <SheetContent>
         <SheetHeader>
-          <SheetTitle>Add User to Organization</SheetTitle>
+          <SheetTitle>Link User to Facility</SheetTitle>
           <SheetDescription>
-            Search for a user and assign a role to add them to the organization.
+            Search for a user and assign a role to add them to the facility.
           </SheetDescription>
         </SheetHeader>
         <div className="space-y-6 py-4 min-h-full">
