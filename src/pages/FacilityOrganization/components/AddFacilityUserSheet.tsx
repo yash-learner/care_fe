@@ -1,11 +1,26 @@
+import { CaretDownIcon } from "@radix-ui/react-icons";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { CheckIcon } from "lucide-react";
 import { useState } from "react";
+import { useTranslation } from "react-i18next";
 import { toast } from "sonner";
 
 import CareIcon from "@/CAREUI/icons/CareIcon";
 
-import Autocomplete from "@/components/ui/autocomplete";
 import { Button } from "@/components/ui/button";
+import {
+  Command,
+  CommandEmpty,
+  CommandGroup,
+  CommandInput,
+  CommandItem,
+  CommandList,
+} from "@/components/ui/command";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
 import {
   Select,
   SelectContent,
@@ -28,6 +43,7 @@ import { UserBareMinimum } from "@/components/Users/models";
 import routes from "@/Utils/request/api";
 import mutate from "@/Utils/request/mutate";
 import query from "@/Utils/request/query";
+import { formatName } from "@/Utils/utils";
 
 interface Props {
   organizationId: string;
@@ -43,6 +59,8 @@ export default function AddFacilityUserSheet({
   facilityId,
   organizationId,
 }: Props) {
+  const { t } = useTranslation();
+
   const queryClient = useQueryClient();
   const [open, setOpen] = useState(false);
   const [selectedUser, setSelectedUser] = useState<UserBareMinimum>();
@@ -95,16 +113,7 @@ export default function AddFacilityUserSheet({
     });
   };
 
-  const userOptions =
-    users?.results?.map((user: UserBareMinimum) => ({
-      label: `${user.first_name} ${user.last_name} (${user.username})`,
-      value: user.external_id,
-    })) || [];
-
-  const handleUserChange = (value: string) => {
-    const user = users?.results?.find(
-      (u: UserBareMinimum) => u.external_id === value,
-    );
+  const handleUserChange = (user: UserBareMinimum) => {
     setSelectedUser(user);
     setSelectedRole("");
   };
@@ -125,22 +134,76 @@ export default function AddFacilityUserSheet({
           </SheetDescription>
         </SheetHeader>
         <div className="space-y-6 py-4 min-h-full">
-          <div className="space-y-4">
-            <h3 className="text-sm font-medium">Search User</h3>
-            <Autocomplete
-              options={userOptions}
-              value={selectedUser?.external_id || ""}
-              onChange={handleUserChange}
-              placeholder="Search users..."
-              noOptionsMessage="No users found"
-            />
-          </div>
+          <Popover modal>
+            <PopoverTrigger asChild>
+              <Button
+                variant="outline"
+                role="combobox"
+                className="min-w-60 justify-start"
+              >
+                {selectedUser ? (
+                  <div className="flex items-center gap-2">
+                    <Avatar
+                      imageUrl={selectedUser.read_profile_picture_url}
+                      name={formatName(selectedUser)}
+                      className="size-6 rounded-full"
+                    />
+                    <span>{formatName(selectedUser)}</span>
+                  </div>
+                ) : (
+                  <span>Select User</span>
+                )}
+                <CaretDownIcon className="ml-auto" />
+              </Button>
+            </PopoverTrigger>
+            <PopoverContent className="p-0" align="start">
+              <Command>
+                <CommandInput
+                  placeholder={t("search")}
+                  className="outline-none border-none ring-0 shadow-none"
+                />
+                <CommandList>
+                  <CommandEmpty>
+                    {users?.results?.length === 0
+                      ? t("no_results")
+                      : t("searching")}
+                  </CommandEmpty>
+                  <CommandGroup>
+                    {users?.results?.map((user) => (
+                      <CommandItem
+                        key={user.id}
+                        value={formatName(user)}
+                        onSelect={() => handleUserChange(user)}
+                        className="cursor-pointer"
+                      >
+                        <div className="flex items-center gap-2">
+                          <Avatar
+                            imageUrl={user.read_profile_picture_url}
+                            name={formatName(user)}
+                            className="size-6 rounded-full"
+                          />
+                          <span>{formatName(user)}</span>
+                          <span className="text-xs text-gray-500 font-medium">
+                            {user.username}
+                          </span>
+                        </div>
+                        {selectedUser?.id === user.id && (
+                          <CheckIcon className="ml-auto" />
+                        )}
+                      </CommandItem>
+                    ))}
+                  </CommandGroup>
+                </CommandList>
+              </Command>
+            </PopoverContent>
+          </Popover>
           {selectedUser && (
             <div className="space-y-4">
               <div className="rounded-lg border p-4 space-y-4">
                 <div className="flex items-start gap-4">
                   <Avatar
-                    name={`${selectedUser.first_name} ${selectedUser.last_name}`}
+                    imageUrl={selectedUser.read_profile_picture_url}
+                    name={formatName(selectedUser)}
                     className="h-12 w-12"
                   />
                   <div className="flex flex-col flex-1">
