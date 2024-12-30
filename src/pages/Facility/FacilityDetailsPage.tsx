@@ -10,11 +10,11 @@ import { Card } from "@/components/ui/card";
 import { Markdown } from "@/components/ui/markdown";
 
 import { Avatar } from "@/components/Common/Avatar";
-import { usePatientSignOut } from "@/components/Common/Sidebar/Utils";
 import { FacilityModel } from "@/components/Facility/models";
 import { UserAssignedModel } from "@/components/Users/models";
 
 import useFilters from "@/hooks/useFilters";
+import { usePatientSignOut } from "@/hooks/usePatientSignOut";
 
 import { CarePatientTokenKey } from "@/common/constants";
 
