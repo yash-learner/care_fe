@@ -722,13 +722,22 @@ export function EncounterList({
                   <CardContent className="">
                     <div className="flex flex-col space-y-2">
                       <div className="flex flex-wrap items-center gap-2">
-                        <Badge className={getStatusColor(encounter.status)}>
+                        <Badge
+                          className={getStatusColor(encounter.status)}
+                          variant="outline"
+                        >
                           {t(`encounter_status__${encounter.status}`)}
                         </Badge>
-                        <Badge className="bg-gray-100 text-gray-800">
+                        <Badge
+                          className="bg-gray-100 text-gray-800"
+                          variant="outline"
+                        >
                           {t(`encounter_class__${encounter.encounter_class}`)}
                         </Badge>
-                        <Badge className={getPriorityColor(encounter.priority)}>
+                        <Badge
+                          className={getPriorityColor(encounter.priority)}
+                          variant="outline"
+                        >
                           {t(`encounter_priority__${encounter.priority}`)}
                         </Badge>
                       </div>
