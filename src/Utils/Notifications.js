@@ -1,38 +1,4 @@
-import { Stack, alert, defaultModules } from "@pnotify/core";
-import * as PNotifyMobile from "@pnotify/mobile";
-
-defaultModules.set(PNotifyMobile, {});
-
-const notifyStack = new Stack({
-  dir1: "down",
-  dir2: "left",
-  firstpos1: 25,
-  firstpos2: 25,
-  modal: false,
-  maxOpen: 3,
-  maxStrategy: "close",
-  maxClosureCausesWait: false,
-  push: "top",
-});
-
-const notify = (text, type) => {
-  const notification = alert({
-    type: type,
-    text: text,
-    styling: "brighttheme",
-    mode: "light",
-    sticker: false,
-    buttons: {
-      closer: false,
-      sticker: false,
-    },
-    stack: notifyStack,
-    delay: 3000,
-  });
-  notification.refs.elem.addEventListener("click", () => {
-    notification.close();
-  });
-};
+import { toast } from "sonner";
 
 /**
  * Formats input string to a more human readable format
@@ -74,27 +40,27 @@ const notifyError = (error) => {
       errorMsg += "\n";
     }
   }
-  notify(errorMsg, "error");
+  toast.error(errorMsg);
 };
 
 /** Close all Notifications **/
 export const closeAllNotifications = () => {
-  notifyStack.close();
+  toast.dismiss();
 };
 
 /** Success message handler */
 export const Success = ({ msg }) => {
-  notify(msg, "success");
+  toast.success(msg);
 };
 
 /** Error message handler */
 export const Error = ({ msg }) => {
-  notify(msg, "error");
+  toast.error(msg);
 };
 
 /** Warning message handler */
 export const Warn = ({ msg }) => {
-  notify(msg, "notice");
+  toast.warning(msg);
 };
 
 /** 400 Bad Request handler */
