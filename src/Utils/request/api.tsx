@@ -1688,6 +1688,12 @@ const routes = {
       method: "GET",
       TRes: Type<PaginatedResponse<UserBase>>(),
     },
+    create: {
+      path: "/api/v1/users/",
+      method: "POST",
+      TRes: Type<UserBase>(),
+      TBody: Type<UserBase>(),
+    },
   },
 
   // OTP Routes

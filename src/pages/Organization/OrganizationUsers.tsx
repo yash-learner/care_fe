@@ -63,7 +63,7 @@ export default function OrganizationUsers({ id, navOrganizationId }: Props) {
         <div className="flex justify-between items-center">
           <h2 className="text-lg font-semibold">Users</h2>
           <div className="flex gap-2">
-            <AddUserSheet organizationId={id} />
+            <AddUserSheet />
             <LinkUserSheet organizationId={id} />
           </div>
         </div>
