@@ -21,7 +21,6 @@ import AvatarEditModal from "@/components/Common/AvatarEditModal";
 import ConfirmDialog from "@/components/Common/ConfirmDialog";
 import ContactLink from "@/components/Common/ContactLink";
 import Loading from "@/components/Common/Loading";
-import Page from "@/components/Common/Page";
 
 import useAuthUser from "@/hooks/useAuthUser";
 
@@ -184,12 +183,7 @@ export const FacilityHome = ({ facilityId }: Props) => {
     authUser.user_type === "StateAdmin";
 
   return (
-    <Page
-      title={facilityData?.name || "Facility"}
-      crumbsReplacements={{ [facilityId]: { name: facilityData?.name } }}
-      focusOnLoad={true}
-      hideBack={false}
-    >
+    <div>
       <ConfirmDialog
         title={t("delete_item", { name: facilityData?.name })}
         description={
@@ -365,6 +359,6 @@ export const FacilityHome = ({ facilityId }: Props) => {
           </Card>
         </div>
       </div>
-    </Page>
+    </div>
   );
 };
