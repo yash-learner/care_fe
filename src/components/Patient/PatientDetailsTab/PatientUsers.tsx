@@ -298,8 +298,8 @@ export const PatientUsers = (props: PatientProps) => {
                 </div>
                 <div className="mt-4 grid grid-cols-2 gap-x-4 gap-y-2">
                   <div className="text-sm">
-                    <div className="text-gray-500">Email</div>
-                    <div className="font-medium">{user.email}</div>
+                    <div className="text-gray-500">Phone Number</div>
+                    <div className="font-medium">{user.phone_number}</div>
                   </div>
                   <div className="text-sm">
                     <div className="text-gray-500">User Type</div>

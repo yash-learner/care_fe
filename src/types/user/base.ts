@@ -7,4 +7,5 @@ export type UserBase = {
   user_type: number;
   last_login: string;
   profile_picture_url: string;
+  phone_number: string;
 };
