@@ -15,6 +15,7 @@ import routes from "@/Utils/request/api";
 import query from "@/Utils/request/query";
 import { BaseFacility } from "@/types/facility/facility";
 
+import AddFacilitySheet from "./components/AddFacilitySheet";
 import OrganizationLayout from "./components/OrganizationLayout";
 
 interface Props {
@@ -53,6 +54,7 @@ export default function OrganizationFacilities({
       <div className="space-y-6">
         <div className="flex justify-between items-center">
           <h2 className="text-lg font-semibold">Facilities</h2>
+          <AddFacilitySheet organizationId={id} />
         </div>
 
         <div className="flex gap-2">
