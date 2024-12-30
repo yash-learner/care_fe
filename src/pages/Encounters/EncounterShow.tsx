@@ -7,6 +7,7 @@ import Loading from "@/components/Common/Loading";
 import PageHeadTitle from "@/components/Common/PageHeadTitle";
 import PageTitle from "@/components/Common/PageTitle";
 import ErrorPage from "@/components/ErrorPages/DefaultErrorPage";
+import { EncounterProvider } from "@/components/Facility/ConsultationDetails/EncounterContext";
 import PatientInfoCard from "@/components/Patient/PatientInfoCard";
 
 import { useCareAppConsultationTabs } from "@/hooks/useCareApps";
@@ -178,7 +179,12 @@ export const EncounterShow = (props: Props) => {
     }`;
 
   return (
-    <div>
+    <EncounterProvider
+      initialContext={{
+        encounter: encounterData,
+        patient: encounterData.patient,
+      }}
+    >
       <nav className="relative flex flex-wrap items-start justify-between">
         <PageTitle
           title="Encounter"
@@ -345,7 +351,7 @@ export const EncounterShow = (props: Props) => {
           <SelectedTab {...encounterTabProps} />
         </div>
       </div>
-    </div>
+    </EncounterProvider>
 
     // <DoctorVideoSlideover
     //   facilityId={facilityId}
