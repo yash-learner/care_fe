@@ -50,9 +50,9 @@ export function FacilityDetailsPage({ id }: Props) {
   const { data: docResponse } = useQuery<
     RequestResult<PaginatedResponse<UserAssignedModel>>
   >({
-    queryKey: [routes.getFacilityUsers, id],
+    queryKey: [routes.getScheduleAbleFacilityUsers, id],
     queryFn: async () => {
-      const response = await request(routes.getFacilityUsers, {
+      const response = await request(routes.getScheduleAbleFacilityUsers, {
         pathParams: { facility_id: id },
         silent: true,
       });
