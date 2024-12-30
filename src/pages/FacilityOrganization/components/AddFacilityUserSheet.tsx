@@ -1,26 +1,10 @@
-import { CaretDownIcon } from "@radix-ui/react-icons";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { CheckIcon } from "lucide-react";
 import { useState } from "react";
-import { useTranslation } from "react-i18next";
 import { toast } from "sonner";
 
 import CareIcon from "@/CAREUI/icons/CareIcon";
 
 import { Button } from "@/components/ui/button";
-import {
-  Command,
-  CommandEmpty,
-  CommandGroup,
-  CommandInput,
-  CommandItem,
-  CommandList,
-} from "@/components/ui/command";
-import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from "@/components/ui/popover";
 import {
   Select,
   SelectContent,
@@ -38,6 +22,7 @@ import {
 } from "@/components/ui/sheet";
 
 import { Avatar } from "@/components/Common/Avatar";
+import UserSelect from "@/components/Common/UserSelect";
 
 import routes from "@/Utils/request/api";
 import mutate from "@/Utils/request/mutate";
@@ -59,10 +44,9 @@ export default function AddFacilityUserSheet({
   facilityId,
   organizationId,
 }: Props) {
-  const { t } = useTranslation();
-
   const queryClient = useQueryClient();
   const [open, setOpen] = useState(false);
+  const [search, setSearch] = useState("");
   const [selectedUser, setSelectedUser] = useState<UserBase>();
   const [selectedRole, setSelectedRole] = useState<string>("");
 
@@ -73,8 +57,10 @@ export default function AddFacilityUserSheet({
   });
 
   const { data: users } = useQuery<UserListResponse>({
-    queryKey: ["users", facilityId, organizationId],
-    queryFn: query(routes.user.list),
+    queryKey: ["users", facilityId, organizationId, search],
+    queryFn: query(routes.user.list, {
+      queryParams: { search },
+    }),
     enabled: open,
   });
 
@@ -134,69 +120,15 @@ export default function AddFacilityUserSheet({
           </SheetDescription>
         </SheetHeader>
         <div className="space-y-6 py-4 min-h-full">
-          <Popover modal>
-            <PopoverTrigger asChild>
-              <Button
-                variant="outline"
-                role="combobox"
-                className="min-w-60 justify-start"
-              >
-                {selectedUser ? (
-                  <div className="flex items-center gap-2">
-                    <Avatar
-                      imageUrl={selectedUser.profile_picture_url}
-                      name={formatName(selectedUser)}
-                      className="size-6 rounded-full"
-                    />
-                    <span>{formatName(selectedUser)}</span>
-                  </div>
-                ) : (
-                  <span>Select User</span>
-                )}
-                <CaretDownIcon className="ml-auto" />
-              </Button>
-            </PopoverTrigger>
-            <PopoverContent className="p-0" align="start">
-              <Command>
-                <CommandInput
-                  placeholder={t("search")}
-                  className="outline-none border-none ring-0 shadow-none"
-                />
-                <CommandList>
-                  <CommandEmpty>
-                    {users?.results?.length === 0
-                      ? t("no_results")
-                      : t("searching")}
-                  </CommandEmpty>
-                  <CommandGroup>
-                    {users?.results?.map((user: UserBase) => (
-                      <CommandItem
-                        key={user.id}
-                        value={formatName(user)}
-                        onSelect={() => handleUserChange(user)}
-                        className="cursor-pointer"
-                      >
-                        <div className="flex items-center gap-2">
-                          <Avatar
-                            imageUrl={user.profile_picture_url}
-                            name={formatName(user)}
-                            className="size-6 rounded-full"
-                          />
-                          <span>{formatName(user)}</span>
-                          <span className="text-xs text-gray-500 font-medium">
-                            {user.username}
-                          </span>
-                        </div>
-                        {selectedUser?.id === user.id && (
-                          <CheckIcon className="ml-auto" />
-                        )}
-                      </CommandItem>
-                    ))}
-                  </CommandGroup>
-                </CommandList>
-              </Command>
-            </PopoverContent>
-          </Popover>
+          <UserSelect
+            selected={selectedUser}
+            onChange={handleUserChange}
+            searchValue={search}
+            onSearchChange={setSearch}
+            options={users?.results || []}
+            placeholder="Search for a user"
+            noOptionsMessage="No users found"
+          />
           {selectedUser && (
             <div className="space-y-4">
               <div className="rounded-lg border p-4 space-y-4">

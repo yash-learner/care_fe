@@ -4,7 +4,6 @@ import { toast } from "sonner";
 
 import CareIcon from "@/CAREUI/icons/CareIcon";
 
-import Autocomplete from "@/components/ui/autocomplete";
 import { Button } from "@/components/ui/button";
 import {
   Select,
@@ -23,6 +22,7 @@ import {
 } from "@/components/ui/sheet";
 
 import { Avatar } from "@/components/Common/Avatar";
+import UserSelect from "@/components/Common/UserSelect";
 
 import routes from "@/Utils/request/api";
 import mutate from "@/Utils/request/mutate";
@@ -41,6 +41,7 @@ interface UserListResponse {
 export default function AddUserSheet({ organizationId }: Props) {
   const queryClient = useQueryClient();
   const [open, setOpen] = useState(false);
+  const [search, setSearch] = useState("");
   const [selectedUser, setSelectedUser] = useState<UserBase>();
   const [selectedRole, setSelectedRole] = useState<string>("");
 
@@ -51,8 +52,10 @@ export default function AddUserSheet({ organizationId }: Props) {
   });
 
   const { data: users } = useQuery<UserListResponse>({
-    queryKey: ["users"],
-    queryFn: query(routes.user.list),
+    queryKey: ["users", search],
+    queryFn: query(routes.user.list, {
+      queryParams: { search },
+    }),
     enabled: open,
   });
 
@@ -91,14 +94,7 @@ export default function AddUserSheet({ organizationId }: Props) {
     });
   };
 
-  const userOptions =
-    users?.results?.map((user: UserBase) => ({
-      label: `${user.first_name} ${user.last_name} (${user.username})`,
-      value: user.id,
-    })) || [];
-
-  const handleUserChange = (value: string) => {
-    const user = users?.results?.find((u: UserBase) => u.id === value);
+  const handleUserChange = (user: UserBase) => {
     setSelectedUser(user);
     setSelectedRole("");
   };
@@ -120,12 +116,13 @@ export default function AddUserSheet({ organizationId }: Props) {
         </SheetHeader>
         <div className="space-y-6 py-4">
           <div className="space-y-4">
-            <h3 className="text-sm font-medium">Search User</h3>
-            <Autocomplete
-              options={userOptions}
-              value={selectedUser?.id || ""}
+            <UserSelect
+              selected={selectedUser}
               onChange={handleUserChange}
-              placeholder="Search users..."
+              searchValue={search}
+              onSearchChange={setSearch}
+              options={users?.results || []}
+              placeholder="Search for a user"
               noOptionsMessage="No users found"
             />
           </div>
