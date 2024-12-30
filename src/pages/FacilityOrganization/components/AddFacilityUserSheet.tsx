@@ -38,12 +38,12 @@ import {
 } from "@/components/ui/sheet";
 
 import { Avatar } from "@/components/Common/Avatar";
-import { UserBareMinimum } from "@/components/Users/models";
 
 import routes from "@/Utils/request/api";
 import mutate from "@/Utils/request/mutate";
 import query from "@/Utils/request/query";
 import { formatName } from "@/Utils/utils";
+import { UserBase } from "@/types/user/base";
 
 interface Props {
   organizationId: string;
@@ -51,7 +51,7 @@ interface Props {
 }
 
 interface UserListResponse {
-  results: UserBareMinimum[];
+  results: UserBase[];
   count: number;
 }
 
@@ -63,7 +63,7 @@ export default function AddFacilityUserSheet({
 
   const queryClient = useQueryClient();
   const [open, setOpen] = useState(false);
-  const [selectedUser, setSelectedUser] = useState<UserBareMinimum>();
+  const [selectedUser, setSelectedUser] = useState<UserBase>();
   const [selectedRole, setSelectedRole] = useState<string>("");
 
   const { data: roles } = useQuery({
@@ -74,7 +74,7 @@ export default function AddFacilityUserSheet({
 
   const { data: users } = useQuery<UserListResponse>({
     queryKey: ["users", facilityId, organizationId],
-    queryFn: query(routes.userList),
+    queryFn: query(routes.user.list),
     enabled: open,
   });
 
@@ -108,12 +108,12 @@ export default function AddFacilityUserSheet({
     }
 
     assignUser({
-      user: selectedUser.external_id,
+      user: selectedUser.id,
       role: selectedRole,
     });
   };
 
-  const handleUserChange = (user: UserBareMinimum) => {
+  const handleUserChange = (user: UserBase) => {
     setSelectedUser(user);
     setSelectedRole("");
   };
@@ -144,7 +144,7 @@ export default function AddFacilityUserSheet({
                 {selectedUser ? (
                   <div className="flex items-center gap-2">
                     <Avatar
-                      imageUrl={selectedUser.read_profile_picture_url}
+                      imageUrl={selectedUser.profile_picture_url}
                       name={formatName(selectedUser)}
                       className="size-6 rounded-full"
                     />
@@ -169,7 +169,7 @@ export default function AddFacilityUserSheet({
                       : t("searching")}
                   </CommandEmpty>
                   <CommandGroup>
-                    {users?.results?.map((user) => (
+                    {users?.results?.map((user: UserBase) => (
                       <CommandItem
                         key={user.id}
                         value={formatName(user)}
@@ -178,7 +178,7 @@ export default function AddFacilityUserSheet({
                       >
                         <div className="flex items-center gap-2">
                           <Avatar
-                            imageUrl={user.read_profile_picture_url}
+                            imageUrl={user.profile_picture_url}
                             name={formatName(user)}
                             className="size-6 rounded-full"
                           />
@@ -202,7 +202,7 @@ export default function AddFacilityUserSheet({
               <div className="rounded-lg border p-4 space-y-4">
                 <div className="flex items-start gap-4">
                   <Avatar
-                    imageUrl={selectedUser.read_profile_picture_url}
+                    imageUrl={selectedUser.profile_picture_url}
                     name={formatName(selectedUser)}
                     className="h-12 w-12"
                   />
