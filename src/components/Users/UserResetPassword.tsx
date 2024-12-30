@@ -88,7 +88,7 @@ export default function UserResetPassword({
     });
 
     if (res?.ok) {
-      Notification.Success({ msg: data?.message });
+      Notification.Success({ msg: data?.message as string });
     } else {
       Notification.Error({
         msg: error?.message ?? t("password_update_error"),

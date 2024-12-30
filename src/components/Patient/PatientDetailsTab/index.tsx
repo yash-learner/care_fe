@@ -8,6 +8,7 @@ import { Updates } from "@/components/Patient/PatientDetailsTab/patientUpdates";
 import { Patient } from "@/types/emr/newPatient";
 
 import { Appointments } from "./Appointments";
+import { PatientUsers } from "./PatientUsers";
 import { ResourceRequests } from "./ResourceRequests";
 
 export interface PatientProps {
@@ -48,5 +49,9 @@ export const patientTabs = [
   {
     route: "patient-notes",
     component: PatientNotes,
+  },
+  {
+    route: "users",
+    component: PatientUsers,
   },
 ];

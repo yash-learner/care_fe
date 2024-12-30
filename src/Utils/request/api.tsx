@@ -118,6 +118,7 @@ import {
   ResourceRequest,
   UpdateResourceRequest,
 } from "@/types/resourceRequest/resourceRequest";
+import { UserBase } from "@/types/user/base";
 
 /**
  * A fake function that returns an empty object casted to type T
@@ -1644,6 +1645,24 @@ const routes = {
         path: "/api/v1/patient/:patientId/allergy_intolerance/",
       },
     },
+    users: {
+      addUser: {
+        method: "POST",
+        path: "/api/v1/patient/{patientId}/add_user/",
+        TRes: Type<UserBase>(),
+        TBody: Type<{ user: string; role: string }>(),
+      },
+      listUsers: {
+        method: "GET",
+        path: "/api/v1/patient/{patientId}/get_users/",
+        TRes: Type<PaginatedResponse<UserBase>>(),
+      },
+      removeUser: {
+        method: "DELETE",
+        path: "/api/v1/patient/{patientId}/delete_user/",
+        TRes: Type<{ user: string }>(),
+      },
+    },
     search_retrieve: {
       path: "/api/v1/patient/search_retrieve/",
       method: "POST",
@@ -1653,6 +1672,15 @@ const routes = {
         year_of_birth: string;
         partial_id: string;
       }>(),
+    },
+  },
+
+  // New user routes
+  user: {
+    list: {
+      path: "/api/v1/users/",
+      method: "GET",
+      TRes: Type<PaginatedResponse<UserBase>>(),
     },
   },
 

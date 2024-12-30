@@ -145,9 +145,9 @@ export default function MedicineAdministrationTableRow({
                   </span>
                 )}
 
-                {prescription.dosage_instruction[0].route && (
+                {prescription.dosage_instruction.route && (
                   <span className="hidden rounded-full border border-blue-500 bg-blue-100 px-1.5 text-xs font-medium text-blue-700 lg:block">
-                    {displayCode(prescription.dosage_instruction[0].route)}
+                    {displayCode(prescription.dosage_instruction.route)}
                   </span>
                 )}
               </div>
@@ -217,23 +217,21 @@ type DosageFrequencyInfoProps = {
 export function DosageFrequencyInfo({
   prescription,
 }: DosageFrequencyInfoProps) {
-  const dosageInstruction = prescription.dosage_instruction[0];
+  const dosageInstruction = prescription.dosage_instruction;
 
   return (
     <div className="flex justify-center">
       <div className="flex gap-1 text-xs font-semibold text-secondary-900 lg:flex-col lg:px-2 lg:text-center">
-        {dosageInstruction.dose_and_rate?.[0].dose_quantity && (
+        {dosageInstruction.dose_and_rate?.dose_quantity && (
           <p>
             {displayQuantity(
-              dosageInstruction.dose_and_rate?.[0].dose_quantity as Quantity,
+              dosageInstruction.dose_and_rate?.dose_quantity as Quantity,
             )}
           </p>
         )}
 
-        {dosageInstruction.dose_and_rate?.[0].dose_range && (
-          <p>
-            {displayDoseRange(dosageInstruction.dose_and_rate?.[0].dose_range)}
-          </p>
+        {dosageInstruction.dose_and_rate?.dose_range && (
+          <p>{displayDoseRange(dosageInstruction.dose_and_rate?.dose_range)}</p>
         )}
 
         <p className="max-w-[6rem] truncate">

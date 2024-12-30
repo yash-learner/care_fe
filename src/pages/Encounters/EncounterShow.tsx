@@ -17,10 +17,7 @@ import query from "@/Utils/request/query";
 import { keysOf } from "@/Utils/utils";
 import { EncounterFilesTab } from "@/pages/Encounters/tabs/EncounterFilesTab";
 import { EncounterMedicinesTab } from "@/pages/Encounters/tabs/EncounterMedicinesTab";
-import { EncounterNeurologicalMonitoringTab } from "@/pages/Encounters/tabs/EncounterNeurologicalMonitoringTab";
-import EncounterNursingTab from "@/pages/Encounters/tabs/EncounterNursingTab";
 import { EncounterPlotsTab } from "@/pages/Encounters/tabs/EncounterPlotsTab";
-import { EncounterPressureSoreTab } from "@/pages/Encounters/tabs/EncounterPressureSoreTab";
 import { EncounterUpdatesTab } from "@/pages/Encounters/tabs/EncounterUpdatesTab";
 import { Encounter } from "@/types/emr/encounter";
 import { Patient } from "@/types/emr/newPatient";
@@ -37,9 +34,9 @@ const defaultTabs = {
   plots: EncounterPlotsTab,
   medicines: EncounterMedicinesTab,
   files: EncounterFilesTab,
-  nursing: EncounterNursingTab,
-  neurological_monitoring: EncounterNeurologicalMonitoringTab,
-  pressure_sore: EncounterPressureSoreTab,
+  // nursing: EncounterNursingTab,
+  // neurological_monitoring: EncounterNeurologicalMonitoringTab,
+  // pressure_sore: EncounterPressureSoreTab,
 } as Record<string, React.FC<EncounterTabProps>>;
 
 interface Props {

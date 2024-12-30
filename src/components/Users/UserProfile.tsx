@@ -484,7 +484,7 @@ export default function UserProfile() {
         body: form,
       });
       if (res?.ok) {
-        Notification.Success({ msg: data?.message });
+        Notification.Success({ msg: data?.message as string });
       } else if (!error) {
         Notification.Error({
           msg: "There was some error. Please try again in some time.",
