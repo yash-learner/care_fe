@@ -22,7 +22,7 @@ import {
 } from "@/components/ui/sheet";
 
 import { Avatar } from "@/components/Common/Avatar";
-import UserSelect from "@/components/Common/UserSelect";
+import UserSelector from "@/components/Common/UserSelector";
 
 import routes from "@/Utils/request/api";
 import mutate from "@/Utils/request/mutate";
@@ -33,29 +33,15 @@ interface Props {
   organizationId: string;
 }
 
-interface UserListResponse {
-  results: UserBase[];
-  count: number;
-}
-
 export default function AddUserSheet({ organizationId }: Props) {
   const queryClient = useQueryClient();
   const [open, setOpen] = useState(false);
-  const [search, setSearch] = useState("");
   const [selectedUser, setSelectedUser] = useState<UserBase>();
   const [selectedRole, setSelectedRole] = useState<string>("");
 
   const { data: roles } = useQuery({
     queryKey: ["roles"],
     queryFn: query(routes.role.list),
-    enabled: open,
-  });
-
-  const { data: users } = useQuery<UserListResponse>({
-    queryKey: ["users", search],
-    queryFn: query(routes.user.list, {
-      queryParams: { search },
-    }),
     enabled: open,
   });
 
@@ -116,12 +102,9 @@ export default function AddUserSheet({ organizationId }: Props) {
         </SheetHeader>
         <div className="space-y-6 py-4">
           <div className="space-y-4">
-            <UserSelect
+            <UserSelector
               selected={selectedUser}
               onChange={handleUserChange}
-              searchValue={search}
-              onSearchChange={setSearch}
-              options={users?.results || []}
               placeholder="Search for a user"
               noOptionsMessage="No users found"
             />

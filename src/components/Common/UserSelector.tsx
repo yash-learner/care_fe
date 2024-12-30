@@ -1,4 +1,5 @@
 import { CaretDownIcon } from "@radix-ui/react-icons";
+import { useQuery } from "@tanstack/react-query";
 import { CheckIcon } from "lucide-react";
 import { useTranslation } from "react-i18next";
 
@@ -19,29 +20,37 @@ import {
 
 import { Avatar } from "@/components/Common/Avatar";
 
+import useDebouncedState from "@/hooks/useDebouncedState";
+
+import routes from "@/Utils/request/api";
+import query from "@/Utils/request/query";
 import { formatName } from "@/Utils/utils";
 import { UserBase } from "@/types/user/base";
 
 interface Props {
   selected?: UserBase;
   onChange: (user: UserBase) => void;
-  searchValue: string;
-  onSearchChange: (search: string) => void;
-  options: UserBase[];
   placeholder?: string;
   noOptionsMessage?: string;
 }
 
-export default function UserSelect({
+export default function UserSelector({
   selected,
   onChange,
-  searchValue,
-  onSearchChange,
-  options,
   placeholder,
   noOptionsMessage,
 }: Props) {
   const { t } = useTranslation();
+  const [search, setSearch] = useDebouncedState("", 500);
+
+  const { data, isFetching } = useQuery({
+    queryKey: ["users", search],
+    queryFn: query(routes.user.list, {
+      queryParams: { search },
+    }),
+  });
+
+  const users = data?.results || [];
 
   return (
     <Popover modal>
@@ -70,18 +79,17 @@ export default function UserSelect({
         <Command>
           <CommandInput
             placeholder={t("search")}
-            value={searchValue}
-            onValueChange={onSearchChange}
+            onValueChange={setSearch}
             className="outline-none border-none ring-0 shadow-none"
           />
           <CommandList>
             <CommandEmpty>
-              {options?.length === 0
-                ? noOptionsMessage || t("no_results")
-                : t("searching")}
+              {isFetching
+                ? t("searching")
+                : noOptionsMessage || t("no_results")}
             </CommandEmpty>
             <CommandGroup>
-              {options?.map((user: UserBase) => (
+              {users.map((user: UserBase) => (
                 <CommandItem
                   key={user.id}
                   value={formatName(user)}
