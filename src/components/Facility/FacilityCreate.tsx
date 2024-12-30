@@ -114,17 +114,13 @@ export const FacilityCreate = (props: FacilityProps) => {
   const authUser = useAuthUser();
   useEffect(() => {
     console.log("authUser", authUser.permissions);
-    if (
-      authUser &&
-      authUser.user_type !== "StateAdmin" &&
-      authUser.user_type !== "DistrictAdmin" &&
-      authUser.user_type !== "DistrictLabAdmin"
-    ) {
-      navigate("/facility");
-      Notification.Error({
-        msg: "You don't have permission to perform this action. Contact the admin",
-      });
-    }
+    //  Todo: Add permission check
+    // if (authUser.permissions.includes("facility_create")) {
+    //   navigate("/facility");
+    //   Notification.Error({
+    //     msg: "You don't have permission to perform this action. Contact the admin",
+    //   });
+    // }
   }, [authUser]);
 
   const handleChange = (e: FieldChangeEvent<unknown>) => {
