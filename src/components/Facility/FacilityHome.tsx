@@ -287,7 +287,7 @@ export const FacilityHome = ({ facilityId }: Props) => {
               </div>
             </div>
 
-            <div className="mt-2 space-y-6">
+            <div className="mt-2 space-y-2">
               <Card>
                 <CardContent>
                   <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:gap-12 mt-4">
