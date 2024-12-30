@@ -8,6 +8,14 @@ import { AppRoutes } from "@/Routers/AppRouter";
 const UserRoutes: AppRoutes = {
   "/users": () => <ManageUsers />,
   "/users/add": () => <UserAdd />,
+  "/facility/:facilityId/users/:username": ({ facilityId, username }) => (
+    <UserHome facilityId={facilityId} username={username} tab="profile" />
+  ),
+  "/facility/:facilityId/users/:username/:tab": ({
+    facilityId,
+    username,
+    tab,
+  }) => <UserHome facilityId={facilityId} username={username} tab={tab} />,
   "/users/:username": ({ username }) => (
     <UserHome username={username} tab="profile" />
   ),

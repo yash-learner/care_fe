@@ -4,12 +4,17 @@ import { validateNumber } from "@/common/validation";
 
 import { FacilityModel } from "../Facility/models";
 
+export type UserType = "doctor" | "nurse" | "staff" | "volunteer";
+
+export type Gender = "male" | "female" | "non_binary" | "transgender";
+
 export type UserForm = {
-  user_type?: string;
-  gender: string;
+  user_type?: UserType;
+  gender: Gender;
   password?: string;
   c_password?: string;
   facilities?: Array<string>;
+  geo_organization?: string;
   home_facility?: FacilityModel | null;
   username?: string;
   first_name: string;
@@ -50,6 +55,7 @@ export const newUserFields: Array<keyof UserForm> = [
   "qualification",
   "doctor_experience_commenced_on",
   "doctor_medical_council_registration",
+  "geo_organization",
 ];
 
 export const editUserFields: Array<keyof UserForm> = [
@@ -99,7 +105,7 @@ export const ValidateQualification = (
   translator: TFunction,
 ) => {
   if (
-    (formData.user_type === "Doctor" || formData.user_type === "Nurse") &&
+    (formData.user_type === "doctor" || formData.user_type === "nurse") &&
     !formData["qualification"]
   ) {
     return translator("qualification_required");
@@ -111,7 +117,7 @@ export const ValidateDoctorExperienceCommencedOn = (
   formData: UserForm,
   translator: TFunction,
 ) => {
-  if (formData.user_type === "Doctor") {
+  if (formData.user_type === "doctor") {
     if (!formData["doctor_experience_commenced_on"]) {
       return translator("doctor_experience_required");
     } else if (
@@ -130,7 +136,7 @@ export const ValidateDoctorMedicalCouncilRegistration = (
   translator: TFunction,
 ) => {
   if (
-    formData.user_type === "Doctor" &&
+    formData.user_type === "doctor" &&
     !formData["doctor_medical_council_registration"]
   ) {
     return translator("medical_council_registration_required");

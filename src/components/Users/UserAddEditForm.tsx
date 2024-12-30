@@ -50,6 +50,7 @@ import routes from "@/Utils/request/api";
 import request from "@/Utils/request/request";
 import useTanStackQueryInstead from "@/Utils/request/useQuery";
 import { classNames, dateQueryString, parsePhoneNumber } from "@/Utils/utils";
+import OrganizationSelector from "@/pages/Organization/components/OrganizationSelector";
 
 interface StateObj {
   id: number;
@@ -57,8 +58,8 @@ interface StateObj {
 }
 
 const initForm: UserForm = {
-  user_type: "",
-  gender: "",
+  user_type: "staff",
+  gender: "male",
   password: "",
   c_password: "",
   facilities: [],
@@ -79,6 +80,7 @@ const initForm: UserForm = {
   doctor_medical_council_registration: undefined,
   weekly_working_hours: undefined,
   video_connect_link: undefined,
+  geo_organization: "",
 };
 
 interface UserProps {
@@ -87,12 +89,7 @@ interface UserProps {
   onSubmitSuccess?: () => void;
 }
 
-const STAFF_OR_NURSE_USER = [
-  "Staff",
-  "StaffReadOnly",
-  "Nurse",
-  "NurseReadOnly",
-];
+const STAFF_OR_NURSE_USER = ["staff", "nurse"];
 
 const initError = Object.assign(
   {},
@@ -181,7 +178,12 @@ const UserAddEditForm = (props: UserProps) => {
         first_name: userData.first_name,
         last_name: userData.last_name,
         date_of_birth: userData.date_of_birth || null,
-        gender: userData.gender || "Male",
+        gender:
+          userData.gender === "Male"
+            ? "male"
+            : userData.gender === "Female"
+              ? "female"
+              : "non_binary",
         email: userData.email,
         video_connect_link: userData.video_connect_link,
         phone_number: userData.phone_number?.toString() || "",
@@ -190,7 +192,7 @@ const UserAddEditForm = (props: UserProps) => {
         phone_number_is_whatsapp:
           userData.phone_number?.toString() ===
           userData.alt_phone_number?.toString(),
-        user_type: userData.user_type,
+        user_type: userData.user_type === "Doctor" ? "doctor" : "staff",
         qualification: userData.qualification,
         doctor_experience_commenced_on: userData.doctor_experience_commenced_on
           ? dayjs()
@@ -226,14 +228,14 @@ const UserAddEditForm = (props: UserProps) => {
       video_connect_link: formData.video_connect_link,
       phone_number: phoneNumber,
       alt_phone_number: altPhoneNumber,
-      gender: formData.gender as GenderType,
+      gender: formData.gender,
       date_of_birth: dateQueryString(formData.date_of_birth),
       qualification:
-        formData.user_type === "Doctor" || formData.user_type === "Nurse"
+        formData.user_type === "doctor" || formData.user_type === "nurse"
           ? formData.qualification
           : undefined,
       doctor_experience_commenced_on:
-        formData.user_type === "Doctor"
+        formData.user_type === "doctor"
           ? dayjs()
               .subtract(
                 parseInt(
@@ -244,13 +246,14 @@ const UserAddEditForm = (props: UserProps) => {
               .format("YYYY-MM-DD")
           : undefined,
       doctor_medical_council_registration:
-        formData.user_type === "Doctor"
+        formData.user_type === "doctor"
           ? formData.doctor_medical_council_registration
           : undefined,
       weekly_working_hours:
         formData.weekly_working_hours && formData.weekly_working_hours !== ""
           ? formData.weekly_working_hours
           : undefined,
+      geo_organization: formData.geo_organization,
     };
 
     if (isCreate) {
@@ -699,6 +702,11 @@ const UserAddEditForm = (props: UserProps) => {
             errors[field] = currentError;
           }
           break;
+        case "geo_organization":
+          if (!formData[field]) {
+            errors[field] = t("please_select_geo_organization");
+          }
+          break;
         default:
           break;
       }
@@ -746,8 +754,8 @@ const UserAddEditForm = (props: UserProps) => {
   const renderDoctorOrNurseFields = (field: FormContextValue<UserForm>) => {
     return (
       <>
-        {(state.form.user_type === "Doctor" ||
-          state.form.user_type === "Nurse") &&
+        {(state.form.user_type === "doctor" ||
+          state.form.user_type === "nurse") &&
           includedFields?.includes("qualification") && (
             <TextFormField
               {...field("qualification")}
@@ -761,7 +769,7 @@ const UserAddEditForm = (props: UserProps) => {
               aria-label={t("qualification")}
             />
           )}
-        {state.form.user_type === "Doctor" && (
+        {state.form.user_type === "doctor" && (
           <div className="flex flex-col justify-between gap-x-3 sm:flex-row">
             {includedFields?.includes("doctor_experience_commenced_on") && (
               <TextFormField
@@ -1259,11 +1267,34 @@ const UserAddEditForm = (props: UserProps) => {
     );
   };
 
+  const renderOrganizationField = (field: FormContextValue<UserForm>) => {
+    return (
+      <>
+        {includedFields?.includes("geo_organization") && (
+          <div>
+            <OrganizationSelector
+              value={state.form.geo_organization}
+              onChange={(value) => {
+                handleFieldChange(
+                  {
+                    name: "geo_organization",
+                    value: value,
+                  },
+                  field,
+                );
+              }}
+              required
+            />
+          </div>
+        )}
+      </>
+    );
+  };
+
   return (
     <Form<UserForm>
       disabled={isLoading}
       defaults={userData ? state.form : initForm}
-      validate={validateForm}
       onCancel={editUser ? handleCancel : () => goBack()}
       onSubmit={editUser ? handleEditSubmit : handleSubmit}
       onDraftRestore={(newState) => {
@@ -1284,7 +1315,7 @@ const UserAddEditForm = (props: UserProps) => {
             {renderPasswordFields(field)}
             {renderPersonalInfoFields(field)}
             {renderHoursAndConferenceLinkFields(field)}
-            {renderStateDistrictLocalBodyFields(field)}
+            {renderOrganizationField(field)}
           </div>
         </>
       )}

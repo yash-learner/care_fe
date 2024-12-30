@@ -24,8 +24,9 @@ import { classNames, formatName, keysOf } from "@/Utils/utils";
 export interface UserHomeProps {
   username?: string;
   tab: string;
+  facilityId?: string;
 }
-export interface tabChildProp {
+export interface TabChildProp {
   body: (childProps: userChildProps) => JSX.Element | undefined;
   hidden?: boolean;
 }
@@ -81,9 +82,9 @@ export default function UserHome(props: UserHomeProps) {
     },
     AVAILABILITY: {
       body: UserAvailabilityTab,
-      hidden: !editPermissions || !userData.home_facility_object,
+      hidden: !editPermissions || !props.facilityId,
     },
-  } satisfies Record<string, tabChildProp>;
+  } satisfies Record<string, TabChildProp>;
 
   const normalizedTab = tab.toUpperCase();
   const isValidTab = (tab: string): tab is keyof typeof TABS =>
@@ -127,7 +128,7 @@ export default function UserHome(props: UserHomeProps) {
                                 ? "border-b-2 border-primary-500 text-primary-600 hover:border-secondary-300"
                                 : "text-secondary-700 hover:text-secondary-700",
                             )}
-                            href={`/users/${username}/${p.toLocaleLowerCase()}`}
+                            href={`/facility/${props.facilityId}/users/${username}/${p.toLocaleLowerCase()}`}
                           >
                             <div className="px-3 py-1.5" id={p.toLowerCase()}>
                               {t(`USERMANAGEMENT_TAB__${p}`)}

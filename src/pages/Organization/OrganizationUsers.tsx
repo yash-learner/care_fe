@@ -14,6 +14,7 @@ import { OrganizationUserRole } from "@/types/organization/organization";
 
 import AddUserSheet from "./components/AddUserSheet";
 import EditUserRoleSheet from "./components/EditUserRoleSheet";
+import LinkUserSheet from "./components/LinkUserSheet";
 import OrganizationLayout from "./components/OrganizationLayout";
 
 interface Props {
@@ -61,7 +62,10 @@ export default function OrganizationUsers({ id, navOrganizationId }: Props) {
       <div className="space-y-6">
         <div className="flex justify-between items-center">
           <h2 className="text-lg font-semibold">Users</h2>
-          <AddUserSheet organizationId={id} />
+          <div className="flex gap-2">
+            <AddUserSheet organizationId={id} />
+            <LinkUserSheet organizationId={id} />
+          </div>
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">

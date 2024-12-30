@@ -1,5 +1,6 @@
 import { AppRoutes } from "@/Routers/AppRouter";
 import OrganizationIndex from "@/pages/Organization/OrganizationIndex";
+import OrganizationPatients from "@/pages/Organization/OrganizationPatients";
 import OrganizationUsers from "@/pages/Organization/OrganizationUsers";
 import OrganizationView from "@/pages/Organization/OrganizationView";
 
@@ -7,6 +8,7 @@ const OrganizationRoutes: AppRoutes = {
   "/organization": () => <OrganizationIndex />,
   "/organization/:id": ({ id }) => <OrganizationView id={id} />,
   "/organization/:id/users": ({ id }) => <OrganizationUsers id={id} />,
+  "/organization/:id/patients": ({ id }) => <OrganizationPatients id={id} />,
   "/organization/:navOrganizationId/children/:id": ({
     navOrganizationId,
     id,
@@ -15,6 +17,10 @@ const OrganizationRoutes: AppRoutes = {
     navOrganizationId,
     id,
   }) => <OrganizationUsers id={id} navOrganizationId={navOrganizationId} />,
+  "/organization/:navOrganizationId/children/:id/patients": ({
+    navOrganizationId,
+    id,
+  }) => <OrganizationPatients id={id} navOrganizationId={navOrganizationId} />,
 };
 
 export default OrganizationRoutes;

@@ -11,6 +11,7 @@ import SearchInput from "@/components/Form/SearchInput";
 import { UserAssignedModel, UserModel } from "@/components/Users/models";
 
 import useAuthUser from "@/hooks/useAuthUser";
+import useSlug from "@/hooks/useSlug";
 import useWindowDimensions from "@/hooks/useWindowDimensions";
 
 import { USER_TYPES, USER_TYPE_OPTIONS } from "@/common/constants";
@@ -27,7 +28,7 @@ export const GetUserTypes = (editForm = false) => {
 
   const userIndex = USER_TYPES.indexOf(authUser.user_type);
   const readOnlyUsers = USER_TYPE_OPTIONS.filter((user) => user.readOnly);
-  const defaultAllowedUserTypes = USER_TYPE_OPTIONS.slice(0, userIndex + 1);
+  const defaultAllowedUserTypes = USER_TYPE_OPTIONS;
 
   // Superuser gets all options
   if (authUser.is_superuser) {
@@ -35,22 +36,22 @@ export const GetUserTypes = (editForm = false) => {
   }
 
   switch (authUser.user_type) {
-    case "StaffReadOnly":
-      return readOnlyUsers.slice(0, 1);
-    case "DistrictReadOnlyAdmin":
-      return readOnlyUsers.slice(0, 2);
-    case "StateReadOnlyAdmin":
-      return readOnlyUsers.slice(0, 3);
-    case "Pharmacist":
-      return USER_TYPE_OPTIONS.slice(0, 1);
-    case "Nurse":
-    case "Staff":
-      if (editForm) return [...defaultAllowedUserTypes];
-      // Temporarily allows creation of users with elevated permissions due to introduction of new roles.
-      return [...defaultAllowedUserTypes, USER_TYPE_OPTIONS[6]];
+    // case "StaffReadOnly":
+    //   return readOnlyUsers.slice(0, 1);
+    // case "DistrictReadOnlyAdmin":
+    //   return readOnlyUsers.slice(0, 2);
+    // case "StateReadOnlyAdmin":
+    //   return readOnlyUsers.slice(0, 3);
+    // case "Pharmacist":
+    //   return USER_TYPE_OPTIONS.slice(0, 1);
+    // case "Nurse":
+    // case "Staff":
+    //   if (editForm) return [...defaultAllowedUserTypes];
+    //   // Temporarily allows creation of users with elevated permissions due to introduction of new roles.
+    //   return [...defaultAllowedUserTypes, USER_TYPE_OPTIONS[6]];
     default:
-      return defaultAllowedUserTypes;
   }
+  return defaultAllowedUserTypes;
 };
 export const CanUserAccess = (user: UserModel | UserAssignedModel) => {
   const allowedTypes = GetUserTypes(true).map((type) => type.id);
@@ -58,11 +59,12 @@ export const CanUserAccess = (user: UserModel | UserAssignedModel) => {
 };
 const GetDetailsButton = (username: string) => {
   const { t } = useTranslation();
+  const facilityId = useSlug("facility");
   return (
     <div className="grow">
       <button
         id={`more-details-${username}`}
-        onClick={() => navigate(`/users/${username}`)}
+        onClick={() => navigate(`/facility/${facilityId}/users/${username}`)}
         className="flex flex-grow-0 items-center gap-2 rounded-lg bg-gray-100 px-3 py-2 text-xs hover:bg-gray-200"
       >
         <CareIcon icon="l-arrow-up-right" className="text-lg" />

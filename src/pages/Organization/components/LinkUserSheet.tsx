@@ -27,18 +27,13 @@ import UserSelector from "@/components/Common/UserSelector";
 import routes from "@/Utils/request/api";
 import mutate from "@/Utils/request/mutate";
 import query from "@/Utils/request/query";
-import { formatName } from "@/Utils/utils";
 import { UserBase } from "@/types/user/user";
 
 interface Props {
   organizationId: string;
-  facilityId: string;
 }
 
-export default function AddFacilityUserSheet({
-  facilityId,
-  organizationId,
-}: Props) {
+export default function LinkUserSheet({ organizationId }: Props) {
   const queryClient = useQueryClient();
   const [open, setOpen] = useState(false);
   const [selectedUser, setSelectedUser] = useState<UserBase>();
@@ -52,13 +47,13 @@ export default function AddFacilityUserSheet({
 
   const { mutate: assignUser } = useMutation({
     mutationFn: (body: { user: string; role: string }) =>
-      mutate(routes.facilityOrganization.assignUser, {
-        pathParams: { facilityId: facilityId, organizationId: organizationId },
+      mutate(routes.organization.assignUser, {
+        pathParams: { id: organizationId },
         body,
       })(body),
     onSuccess: () => {
       queryClient.invalidateQueries({
-        queryKey: ["facilityOrganizationUsers", facilityId, organizationId],
+        queryKey: ["organizationUsers", organizationId],
       });
       toast.success("User added to organization successfully");
       setOpen(false);
@@ -85,8 +80,8 @@ export default function AddFacilityUserSheet({
     });
   };
 
-  const handleUserChange = (user: UserBase) => {
-    setSelectedUser(user);
+  const handleUserChange = (value: UserBase) => {
+    setSelectedUser(value);
     setSelectedRole("");
   };
 
@@ -95,17 +90,18 @@ export default function AddFacilityUserSheet({
       <SheetTrigger asChild>
         <Button>
           <CareIcon icon="l-plus" className="mr-2 h-4 w-4" />
-          Add User
+          Link User
         </Button>
       </SheetTrigger>
       <SheetContent>
         <SheetHeader>
-          <SheetTitle>Add User to Organization</SheetTitle>
+          <SheetTitle>Link User to Organization</SheetTitle>
           <SheetDescription>
-            Search for a user and assign a role to add them to the organization.
+            Search for an existing user and assign a role to link them to the
+            organization.
           </SheetDescription>
         </SheetHeader>
-        <div className="space-y-6 py-4 min-h-full">
+        <div className="space-y-6 py-4">
           <UserSelector
             selected={selectedUser}
             onChange={handleUserChange}
@@ -117,8 +113,7 @@ export default function AddFacilityUserSheet({
               <div className="rounded-lg border p-4 space-y-4">
                 <div className="flex items-start gap-4">
                   <Avatar
-                    imageUrl={selectedUser.profile_picture_url}
-                    name={formatName(selectedUser)}
+                    name={`${selectedUser.first_name} ${selectedUser.last_name}`}
                     className="h-12 w-12"
                   />
                   <div className="flex flex-col flex-1">
@@ -175,7 +170,7 @@ export default function AddFacilityUserSheet({
                 onClick={handleAddUser}
                 disabled={!selectedRole}
               >
-                Add to Organization
+                Link to Organization
               </Button>
             </div>
           )}

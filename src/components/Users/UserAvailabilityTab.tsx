@@ -29,6 +29,8 @@ import {
 import { ScheduleAvailability } from "@/components/Schedule/types";
 import { UserModel } from "@/components/Users/models";
 
+import useSlug from "@/hooks/useSlug";
+
 import query from "@/Utils/request/query";
 import { formatTimeShort } from "@/Utils/utils";
 
@@ -40,8 +42,9 @@ export default function UserAvailabilityTab({ userData: user }: Props) {
   const [view, setView] = useState<"schedule" | "exceptions">("schedule");
   const [month, setMonth] = useState(new Date());
 
-  const facilityId = user.home_facility_object?.id;
+  const facilityId = useSlug("facility");
 
+  // TODO: remove this once we have a way to get the facilityId
   useEffect(() => {
     if (!facilityId) {
       toast.error("User needs to be linked to a home facility");
