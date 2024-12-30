@@ -63,7 +63,7 @@ export type SupportedPluginComponents = {
   AdditionalDischargeProcedures: AdditionalDischargeProceduresComponentType;
   Scribe: ScribeComponentType;
   ManageFacilityOptions: ManageFacilityOptionsComponentType;
-  ConsultationContextEnabler: React.FC;
+  EncounterContextEnabler: React.FC;
   ExtendFacilityConfigure: ExtendFacilityConfigureComponentType;
   ExtendPatientRegisterForm: ExtendPatientRegisterFormComponentType;
 };
