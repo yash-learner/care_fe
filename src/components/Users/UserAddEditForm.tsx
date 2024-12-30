@@ -4,14 +4,9 @@ import { useTranslation } from "react-i18next";
 
 import CareIcon from "@/CAREUI/icons/CareIcon";
 
-import CircularProgress from "@/components/Common/CircularProgress";
 import { FacilitySelect } from "@/components/Common/FacilitySelect";
 import Loading from "@/components/Common/Loading";
 import { FacilityModel } from "@/components/Facility/models";
-import {
-  FieldError,
-  PhoneNumberValidator,
-} from "@/components/Form/FieldValidators";
 import Form from "@/components/Form/Form";
 import { FormContextValue } from "@/components/Form/FormContext";
 import CheckBoxFormField from "@/components/Form/FormFields/CheckBoxFormField";
@@ -21,27 +16,15 @@ import PhoneNumberFormField from "@/components/Form/FormFields/PhoneNumberFormFi
 import { SelectFormField } from "@/components/Form/FormFields/SelectFormField";
 import TextFormField from "@/components/Form/FormFields/TextFormField";
 import { FieldChangeEvent } from "@/components/Form/FormFields/Utils";
-import {
-  UserForm,
-  ValidateDoctorExperienceCommencedOn,
-  ValidateDoctorMedicalCouncilRegistration,
-  ValidateQualification,
-  ValidateVideoLink,
-} from "@/components/Users/UserFormValidations";
+import { UserForm } from "@/components/Users/UserFormValidations";
 import { GetUserTypes } from "@/components/Users/UserListAndCard";
-import { GenderType, UserModel } from "@/components/Users/models";
+import { UserModel } from "@/components/Users/models";
 
 import useAppHistory from "@/hooks/useAppHistory";
 import useAuthUser from "@/hooks/useAuthUser";
 
-import { GENDER_TYPES, USER_TYPES } from "@/common/constants";
-import {
-  validateEmailAddress,
-  validateName,
-  validateNumber,
-  validatePassword,
-  validateUsername,
-} from "@/common/validation";
+import { GENDER_TYPES } from "@/common/constants";
+import { validateUsername } from "@/common/validation";
 
 import { useAutoSaveReducer } from "@/Utils/AutoSave";
 import * as Notification from "@/Utils/Notifications";
@@ -51,11 +34,6 @@ import request from "@/Utils/request/request";
 import useTanStackQueryInstead from "@/Utils/request/useQuery";
 import { classNames, dateQueryString, parsePhoneNumber } from "@/Utils/utils";
 import OrganizationSelector from "@/pages/Organization/components/OrganizationSelector";
-
-interface StateObj {
-  id: number;
-  name: string;
-}
 
 const initForm: UserForm = {
   user_type: "staff",
@@ -307,11 +285,6 @@ const UserAddEditForm = (props: UserProps) => {
     initialState,
   );
   const [isLoading, setIsLoading] = useState(false);
-  const [states, setStates] = useState<StateObj[]>([]);
-  const [selectedStateId, setSelectedStateId] = useState<number>(0);
-  const [selectedDistrictId, setSelectedDistrictId] = useState<number>(0);
-  const [districts, setDistricts] = useState<StateObj[]>([]);
-  const [localBodies, setLocalBodies] = useState<StateObj[]>([]);
   const [selectedFacility, setSelectedFacility] = useState<FacilityModel[]>([]);
   const [usernameInputInFocus, setUsernameInputInFocus] = useState(false);
   const [passwordInputInFocus, setPasswordInputInFocus] = useState(false);
@@ -356,7 +329,6 @@ const UserAddEditForm = (props: UserProps) => {
 
   const userTypes = GetUserTypes();
   const authUser = useAuthUser();
-  const userIndex = USER_TYPES.indexOf(authUser.user_type);
 
   const showLocalbody = ![
     "Pharmacist",
@@ -364,52 +336,6 @@ const UserAddEditForm = (props: UserProps) => {
     "Doctor",
     ...STAFF_OR_NURSE_USER,
   ].includes(state.form.user_type ?? "");
-
-  const { loading: isDistrictLoading } = useTanStackQueryInstead(
-    routes.getDistrictByState,
-    {
-      prefetch: !!(selectedStateId > 0),
-      pathParams: { id: selectedStateId.toString() },
-      onResponse: (result) => {
-        if (!result || !result.res || !result.data) return;
-        if (userIndex <= USER_TYPES.indexOf("DistrictAdmin")) {
-          setDistricts([authUser.district_object!]);
-        } else {
-          setDistricts(result.data);
-        }
-      },
-    },
-  );
-
-  const { loading: isLocalbodyLoading } = useTanStackQueryInstead(
-    routes.getAllLocalBodyByDistrict,
-    {
-      prefetch: !!(selectedDistrictId > 0),
-      pathParams: { id: selectedDistrictId.toString() },
-      onResponse: (result) => {
-        if (!result || !result.res || !result.data) return;
-        if (userIndex <= USER_TYPES.indexOf("LocalBodyAdmin")) {
-          setLocalBodies([authUser.local_body_object!]);
-        } else {
-          setLocalBodies(result.data);
-        }
-      },
-    },
-  );
-
-  const { loading: isStateLoading } = useTanStackQueryInstead(
-    routes.statesList,
-    {
-      onResponse: (result) => {
-        if (!result || !result.res || !result.data) return;
-        if (userIndex <= USER_TYPES.indexOf("StateAdmin")) {
-          setStates([authUser.state_object!]);
-        } else {
-          setStates(result.data.results);
-        }
-      },
-    },
-  );
 
   const handleDateChange = (
     event: FieldChangeEvent<Date>,
@@ -552,166 +478,6 @@ const UserAddEditForm = (props: UserProps) => {
     ) {
       return "Please select atleast one of the facilities you are linked to";
     }
-  };
-
-  const validatePhoneNumber = (phoneNumber: string) => {
-    const parsedPhoneNumber = parsePhoneNumber(phoneNumber);
-    if (!parsedPhoneNumber) return false;
-    return PhoneNumberValidator()(parsedPhoneNumber) === undefined;
-  };
-
-  const validateForm = (formData: UserForm) => {
-    const errors: Partial<Record<keyof UserForm, FieldError>> = {};
-    const fieldsToValidate = includedFields || Object.keys(formData);
-    const facilityError = fieldsToValidate.includes("facilities")
-      ? validateFacility(formData, selectedFacility)
-      : null;
-    if (facilityError) {
-      errors.facilities = facilityError;
-    }
-    let currentError = null;
-    fieldsToValidate.forEach((field) => {
-      switch (field) {
-        case "user_type":
-          if (!formData[field]) {
-            errors[field] = t("please_select_user_type");
-          }
-          break;
-        case "qualification":
-          currentError = ValidateQualification(formData, t);
-          if (currentError) {
-            errors[field] = currentError;
-          }
-          break;
-        case "doctor_experience_commenced_on":
-          currentError = ValidateDoctorExperienceCommencedOn(formData, t);
-          if (currentError) {
-            errors[field] = currentError;
-          }
-          break;
-        case "doctor_medical_council_registration":
-          currentError = ValidateDoctorMedicalCouncilRegistration(formData, t);
-          if (currentError) {
-            errors[field] = currentError;
-          }
-          break;
-        case "phone_number":
-          if (!formData[field] || !validatePhoneNumber(formData[field])) {
-            errors[field] = t("invalid_phone");
-          }
-          break;
-        case "alt_phone_number":
-          if (
-            formData[field] &&
-            formData[field] !== "+91" &&
-            !validatePhoneNumber(formData[field])
-          ) {
-            errors[field] = t("mobile_number_validation_error");
-          }
-          break;
-        case "username":
-          if (!formData[field]) {
-            errors[field] = t("please_enter_username");
-          } else if (!validateUsername(formData[field])) {
-            errors[field] = t("invalid_username");
-          } else if (usernameExists !== userExistsEnums.available) {
-            errors[field] = t("username_already_exists");
-          }
-          break;
-        case "password":
-          if (!formData[field]) {
-            errors[field] = t("password_required");
-          } else if (!validatePassword(formData[field])) {
-            errors.password = t("password_validation");
-          }
-          break;
-        case "c_password":
-          if (!formData.password) {
-            errors.c_password = t("confirm_password_required");
-          } else if (formData.password !== formData.c_password) {
-            errors.c_password = t("password_mismatch");
-          }
-          break;
-        case "first_name":
-        case "last_name":
-          formData[field] = formData[field].trim();
-          if (!formData[field]) {
-            errors[field] = t(`${field}_required`);
-          } else if (!validateName(formData[field])) {
-            errors[field] = t("min_char_length_error", { min_length: 3 });
-          }
-          break;
-        case "email":
-          formData[field] = formData[field].trim();
-          if (
-            formData[field].length === 0 ||
-            !validateEmailAddress(formData[field])
-          ) {
-            errors[field] = t("invalid_email");
-          }
-          break;
-        case "date_of_birth":
-          if (!formData[field]) {
-            errors[field] = t("dob_format");
-          } else if (
-            dayjs(formData[field]).isAfter(dayjs().subtract(1, "year"))
-          ) {
-            errors[field] = t("enter_valid_dob");
-          } else if (
-            dayjs(formData[field]).isAfter(dayjs().subtract(16, "year"))
-          ) {
-            errors[field] = t("enter_valid_dob_age");
-          }
-          break;
-        case "gender":
-          if (!formData[field]) {
-            errors[field] = t("please_select_gender");
-          }
-          break;
-        case "state":
-          if (!Number(formData[field])) {
-            errors[field] = t("please_select_state");
-          }
-          break;
-        case "district":
-          if (!Number(formData[field])) {
-            errors[field] = t("please_select_district");
-          }
-          break;
-        case "local_body":
-          if (showLocalbody && !Number(formData[field])) {
-            errors[field] = t("please_select_localbody");
-          }
-          break;
-        case "weekly_working_hours":
-          if (formData[field] !== null && formData[field] !== undefined) {
-            const hours = Number(formData[field]);
-            if (
-              Number.isNaN(hours) ||
-              hours < 0 ||
-              hours > 168 ||
-              !validateNumber(formData[field] ?? "")
-            ) {
-              errors[field] = t("weekly_working_hours_error");
-            }
-          }
-          break;
-        case "video_connect_link":
-          currentError = ValidateVideoLink(formData, t);
-          if (currentError) {
-            errors[field] = currentError;
-          }
-          break;
-        case "geo_organization":
-          if (!formData[field]) {
-            errors[field] = t("please_select_geo_organization");
-          }
-          break;
-        default:
-          break;
-      }
-    });
-    return errors;
   };
 
   const handleSubmit = async (formData: UserForm) => {
@@ -1134,81 +900,6 @@ const UserAddEditForm = (props: UserProps) => {
             />
           )}
         </div>
-      </>
-    );
-  };
-
-  const renderStateDistrictLocalBodyFields = (
-    field: FormContextValue<UserForm>,
-  ) => {
-    return (
-      <>
-        {includedFields?.includes("state") && (
-          <>
-            {isStateLoading ? (
-              <CircularProgress />
-            ) : (
-              <SelectFormField
-                {...field("state")}
-                label={t("state")}
-                required
-                placeholder={t("choose_state")}
-                options={states}
-                optionLabel={(o) => o.name}
-                optionValue={(o) => o.id}
-                onChange={(e) => {
-                  handleFieldChange(e, field);
-                  if (e) setSelectedStateId(e.value);
-                }}
-                aria-label={t("state")}
-              />
-            )}
-          </>
-        )}
-        {includedFields?.includes("district") && (
-          <>
-            {isDistrictLoading ? (
-              <CircularProgress />
-            ) : (
-              <SelectFormField
-                {...field("district")}
-                label={t("district")}
-                required
-                placeholder={t("choose_district")}
-                options={districts}
-                optionLabel={(o) => o.name}
-                optionValue={(o) => o.id}
-                onChange={(e) => {
-                  handleFieldChange(e, field);
-                  if (e) setSelectedDistrictId(e.value);
-                }}
-                aria-label={t("district")}
-              />
-            )}
-          </>
-        )}
-        {showLocalbody && includedFields?.includes("local_body") && (
-          <>
-            {isLocalbodyLoading ? (
-              <CircularProgress />
-            ) : (
-              <SelectFormField
-                {...field("local_body")}
-                label={t("local_body")}
-                required
-                position="above"
-                placeholder={t("choose_localbody")}
-                options={localBodies}
-                optionLabel={(o) => o.name}
-                optionValue={(o) => o.id}
-                onChange={(e) => {
-                  handleFieldChange(e, field);
-                }}
-                aria-label={t("local_body")}
-              />
-            )}
-          </>
-        )}
       </>
     );
   };

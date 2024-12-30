@@ -1,7 +1,6 @@
 import EncounterHistory from "@/components/Patient/PatientDetailsTab//EncounterHistory";
 import { HealthProfileSummary } from "@/components/Patient/PatientDetailsTab//HealthProfileSummary";
 import PatientNotes from "@/components/Patient/PatientDetailsTab//Notes";
-import ShiftingHistory from "@/components/Patient/PatientDetailsTab//ShiftingHistory";
 import { Demography } from "@/components/Patient/PatientDetailsTab/Demography";
 import { Updates } from "@/components/Patient/PatientDetailsTab/patientUpdates";
 
@@ -38,10 +37,10 @@ export const patientTabs = [
     route: "updates",
     component: Updates,
   },
-  {
-    route: "shift",
-    component: ShiftingHistory,
-  },
+  // {
+  //   route: "shift",
+  //   component: ShiftingHistory,
+  // },
   {
     route: "resource_requests",
     component: ResourceRequests,
