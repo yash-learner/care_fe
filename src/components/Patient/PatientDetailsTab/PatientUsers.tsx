@@ -143,6 +143,7 @@ function AddUserSheet({ patientId }: AddUserSheetProps) {
                 <div className="flex items-start gap-4">
                   <Avatar
                     name={`${selectedUser.first_name} ${selectedUser.last_name}`}
+                    imageUrl={selectedUser.profile_picture_url}
                     className="h-12 w-12"
                   />
                   <div className="flex flex-col flex-1">
