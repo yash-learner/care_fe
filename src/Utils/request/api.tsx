@@ -1706,7 +1706,7 @@ const routes = {
         TRes: Type<PaginatedResponse<UserBase>>(),
       },
       removeUser: {
-        method: "DELETE",
+        method: "POST",
         path: "/api/v1/patient/{patientId}/delete_user/",
         TRes: Type<{ user: string }>(),
       },
