@@ -111,6 +111,7 @@ export default function FacilityOrganizationUsers({ id, facilityId }: Props) {
                           <Avatar
                             name={`${userRole.user.first_name} ${userRole.user.last_name}`}
                             className="h-16 w-16 text-2xl"
+                            imageUrl={userRole.user.profile_picture_url}
                           />
                         </div>
                         <div className="flex flex-col w-full">

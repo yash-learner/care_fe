@@ -262,6 +262,7 @@ export const PatientUsers = (props: PatientProps) => {
                     <Avatar
                       name={`${user.first_name} ${user.last_name}`}
                       className="h-10 w-10"
+                      imageUrl={user.profile_picture_url}
                     />
                     <div>
                       <h3 className="text-sm font-medium text-gray-900">

@@ -109,6 +109,7 @@ export default function OrganizationUsers({ id, navOrganizationId }: Props) {
                         <div className="flex flex-col items-center gap-4 min-[400px]:flex-row sm:items-start">
                           <Avatar
                             name={`${userRole.user.first_name} ${userRole.user.last_name}`}
+                            imageUrl={userRole.user.profile_picture_url}
                             className="h-16 w-16 text-2xl"
                           />
                         </div>
