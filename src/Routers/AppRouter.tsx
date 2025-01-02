@@ -27,7 +27,7 @@ import OrganizationRoutes from "./routes/OrganizationRoutes";
 import QuestionnaireRoutes from "./routes/questionnaireRoutes";
 
 // List of paths where the sidebar should be hidden
-const PATHS_WITHOUT_SIDEBAR = ["/"];
+const PATHS_WITHOUT_SIDEBAR = ["/", "/session-expired"];
 
 export type RouteParams<T extends string> =
   T extends `${string}:${infer Param}/${infer Rest}`
