@@ -3,6 +3,7 @@ import { useMutation, useQuery } from "@tanstack/react-query";
 import { navigate } from "raviger";
 import { Fragment, useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
+import { toast } from "sonner";
 
 import CareIcon from "@/CAREUI/icons/CareIcon";
 import SectionNavigator from "@/CAREUI/misc/SectionNavigator";
@@ -48,6 +49,7 @@ import {
 } from "@/Utils/utils";
 import OrganizationSelector from "@/pages/Organization/components/OrganizationSelector";
 import { PatientModel, validatePatient } from "@/types/emr/patient";
+import organizationApi from "@/types/organization/organizationApi";
 
 import Autocomplete from "../ui/autocomplete";
 import InputWithError from "../ui/input-with-error";
@@ -79,6 +81,7 @@ export default function PatientRegistration(
   const [suppressDuplicateWarning, setSuppressDuplicateWarning] =
     useState(!!patientId);
   const [debouncedNumber, setDebouncedNumber] = useState<string>();
+  const [selectedLevels, setSelectedLevels] = useState<any[]>([]);
 
   const sidebarItems = [
     { label: t("patient__general-info"), id: "general-info" },
@@ -201,6 +204,21 @@ export default function PatientRegistration(
     const { statename: _stateName, districtname: _districtName } =
       pincodeDetails;
 
+    const stateOrg = await fetchOrganizationByName(_stateName);
+    if (!stateOrg) {
+      setSelectedLevels([]);
+      return;
+    }
+
+    console.log("stateOrg", stateOrg);
+
+    const districtOrg = await fetchOrganizationByName(
+      _districtName,
+      stateOrg.id,
+    );
+
+    setSelectedLevels([stateOrg, districtOrg]);
+
     setShowAutoFilledPincode(true);
     setTimeout(() => {
       setShowAutoFilledPincode(false);
@@ -302,6 +320,24 @@ export default function PatientRegistration(
   );
   if (patientId && patientQuery.isLoading) {
     return <Loading />;
+  }
+
+  async function fetchOrganizationByName(name: string, parentId?: string) {
+    try {
+      const data = await query(organizationApi.list, {
+        queryParams: {
+          org_type: "govt",
+          parent: parentId || "",
+          name,
+        },
+      })({ signal: new AbortController().signal });
+      console.log("data", data.results);
+      return data.results?.[0];
+    } catch (error) {
+      console.error("Error fetching org:", error);
+      toast.error("Error fetching organization");
+      return undefined;
+    }
   }
 
   return (
@@ -637,6 +673,7 @@ export default function PatientRegistration(
                 <>
                   <OrganizationSelector
                     required={true}
+                    parentSelectedLevels={selectedLevels}
                     onChange={(value) =>
                       setForm((f) => ({
                         ...f,

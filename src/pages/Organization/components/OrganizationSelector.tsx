@@ -1,5 +1,5 @@
 import { useQuery } from "@tanstack/react-query";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 import CareIcon from "@/CAREUI/icons/CareIcon";
 
@@ -20,6 +20,7 @@ interface OrganizationSelectorProps {
   onChange: (value: string) => void;
   required?: boolean;
   authToken?: string;
+  parentSelectedLevels?: Organization[];
 }
 
 interface AutoCompleteOption {
@@ -28,8 +29,10 @@ interface AutoCompleteOption {
 }
 
 export default function OrganizationSelector(props: OrganizationSelectorProps) {
-  const { onChange, required } = props;
-  const [selectedLevels, setSelectedLevels] = useState<Organization[]>([]);
+  const { onChange, required, parentSelectedLevels } = props;
+  const [selectedLevels, setSelectedLevels] = useState<Organization[]>(
+    parentSelectedLevels || [],
+  );
   const [searchQuery, setSearchQuery] = useDebouncedState("", 500);
 
   const headers = props.authToken
@@ -107,6 +110,12 @@ export default function OrganizationSelector(props: OrganizationSelectorProps) {
   const handleEdit = (level: number) => {
     setSelectedLevels((prev) => prev.slice(0, level));
   };
+
+  useEffect(() => {
+    if (parentSelectedLevels) {
+      setSelectedLevels(parentSelectedLevels);
+    }
+  }, [parentSelectedLevels]);
 
   return (
     <>
