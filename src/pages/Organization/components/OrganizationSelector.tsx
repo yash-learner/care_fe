@@ -109,7 +109,19 @@ export default function OrganizationSelector(props: OrganizationSelectorProps) {
   };
 
   const handleEdit = (level: number) => {
-    setSelectedLevels((prev) => prev.slice(0, level));
+    const newLevels = selectedLevels.slice(0, level);
+    setSelectedLevels(newLevels);
+
+    if (!newLevels.length) {
+      onChange("");
+    } else {
+      const lastOrg = newLevels[newLevels.length - 1];
+      if (!lastOrg.has_children) {
+        onChange(lastOrg.id);
+      } else {
+        onChange("");
+      }
+    }
   };
 
   useEffect(() => {
