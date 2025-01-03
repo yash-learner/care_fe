@@ -48,6 +48,7 @@ import {
 } from "@/Utils/utils";
 import OrganizationSelector from "@/pages/Organization/components/OrganizationSelector";
 import { PatientModel, validatePatient } from "@/types/emr/patient";
+import { Organization } from "@/types/organization/organization";
 import organizationApi from "@/types/organization/organizationApi";
 
 import Autocomplete from "../ui/autocomplete";
@@ -81,7 +82,7 @@ export default function PatientRegistration(
   const [suppressDuplicateWarning, setSuppressDuplicateWarning] =
     useState(!!patientId);
   const [debouncedNumber, setDebouncedNumber] = useState<string>();
-  const [selectedLevels, setSelectedLevels] = useState<any[]>([]);
+  const [selectedLevels, setSelectedLevels] = useState<Organization[]>([]);
 
   const sidebarItems = [
     { label: t("patient__general-info"), id: "general-info" },
@@ -215,7 +216,9 @@ export default function PatientRegistration(
       stateOrg.id,
     );
 
-    setSelectedLevels([stateOrg, districtOrg]);
+    if (stateOrg && districtOrg) {
+      setSelectedLevels([stateOrg, districtOrg]);
+    }
 
     setShowAutoFilledPincode(true);
     setTimeout(() => {
