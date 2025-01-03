@@ -210,8 +210,6 @@ export default function PatientRegistration(
       return;
     }
 
-    console.log("stateOrg", stateOrg);
-
     const districtOrg = await fetchOrganizationByName(
       _districtName,
       stateOrg.id,
@@ -331,10 +329,8 @@ export default function PatientRegistration(
           name,
         },
       })({ signal: new AbortController().signal });
-      console.log("data", data.results);
       return data.results?.[0];
     } catch (error) {
-      console.error("Error fetching org:", error);
       toast.error("Error fetching organization");
       return undefined;
     }
