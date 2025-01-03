@@ -21,6 +21,7 @@ interface OrganizationSelectorProps {
   required?: boolean;
   authToken?: string;
   parentSelectedLevels?: Organization[];
+  errorMessage?: string;
 }
 
 interface AutoCompleteOption {
@@ -154,7 +155,8 @@ export default function OrganizationSelector(props: OrganizationSelectorProps) {
         <div>
           <InputWithError
             label={ORGANIZATION_LEVELS.govt[selectedLevels.length]}
-            required={selectedLevels.length === 0 && required}
+            required={!!required}
+            errors={[props.errorMessage || ""]}
           >
             <Autocomplete
               value=""

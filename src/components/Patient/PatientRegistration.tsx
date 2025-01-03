@@ -680,6 +680,7 @@ export default function PatientRegistration(
                         geo_organization: value,
                       }))
                     }
+                    errorMessage={errors.geo_organization?.[0]}
                   />
                 </>
               )}
