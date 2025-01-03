@@ -619,6 +619,7 @@ export default function PatientRegistration(
                   setForm((f) => ({ ...f, permanent_address: e.target.value }))
                 }
                 disabled={sameAddress}
+                className={sameAddress ? "cursor-not-allowed" : ""}
               />
             </InputWithError>
             {/* <br />
