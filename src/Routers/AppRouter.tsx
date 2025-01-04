@@ -16,6 +16,7 @@ import { usePluginRoutes } from "@/hooks/useCareApps";
 
 import ConsultationRoutes from "@/Routers/routes/ConsultationRoutes";
 import FacilityRoutes from "@/Routers/routes/FacilityRoutes";
+import LabRoutes from "@/Routers/routes/LabRoutes";
 import PatientRoutes from "@/Routers/routes/PatientRoutes";
 import ResourceRoutes from "@/Routers/routes/ResourceRoutes";
 import UserRoutes from "@/Routers/routes/UserRoutes";
@@ -55,6 +56,7 @@ const Routes: AppRoutes = {
   ...UserRoutes,
   ...OrganizationRoutes,
   ...QuestionnaireRoutes,
+  ...LabRoutes,
 
   "/session-expired": () => <SessionExpired />,
   "/not-found": () => <ErrorPage />,

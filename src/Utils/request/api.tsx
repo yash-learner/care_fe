@@ -22,6 +22,8 @@ import {
   AppointmentPatient,
   AppointmentPatientRegister,
 } from "@/pages/Patient/Utils";
+import { Annotation } from "@/types/emr/base";
+import { DiagnosticReport } from "@/types/emr/diagnosticReport";
 import { Encounter, EncounterEditRequest } from "@/types/emr/encounter";
 import { MedicationAdministration } from "@/types/emr/medicationAdministration";
 import { MedicationRequest } from "@/types/emr/medicationRequest";
@@ -32,6 +34,11 @@ import {
   ObservationAnalyzeResponse,
 } from "@/types/emr/observation";
 import { PatientModel } from "@/types/emr/patient";
+import {
+  ServiceRequest,
+  ServiceRequestPriority,
+} from "@/types/emr/serviceRequest";
+import { Specimen } from "@/types/emr/specimen";
 import {
   BaseFacility,
   CreateFacility,
@@ -809,6 +816,133 @@ const routes = {
       path: "/api/v1/patient/{patientId}/medication/statement/",
       method: "GET",
       TRes: Type<PaginatedResponse<MedicationStatement>>(),
+    },
+  },
+
+  labs: {
+    serviceRequest: {
+      create: {
+        method: "POST",
+        path: "/api/v1/service_request/",
+        TBody: Type<{
+          code: Code;
+          subject: string;
+          encounter: string;
+          priority?: ServiceRequestPriority;
+          note?: Annotation[];
+        }>(),
+        TRes: Type<ServiceRequest>(),
+      },
+      list: {
+        method: "GET",
+        path: "/api/v1/service_request/",
+        TRes: Type<PaginatedResponse<ServiceRequest>>(),
+      },
+    },
+
+    specimen: {
+      list: {
+        method: "GET",
+        path: "/api/v1/specimen/",
+        TRes: Type<PaginatedResponse<Specimen>>(),
+      },
+      get: {
+        method: "GET",
+        path: "/api/v1/specimen/{id}/",
+        TRes: Type<Specimen>(),
+      },
+      collect: {
+        method: "POST",
+        path: "/api/v1/specimen/{id}/collect/",
+        TBody: Type<{
+          identifier?: string;
+        }>(),
+        TRes: Type<Specimen>(),
+      },
+      sendToLab: {
+        method: "POST",
+        path: "/api/v1/specimen/{id}/send_to_lab/",
+        TBody: Type<{
+          lab?: string;
+        }>(),
+        TRes: Type<Specimen>(),
+      },
+      ReceiveAtLab: {
+        method: "POST",
+        path: "/api/v1/specimen/{id}/receive_at_lab/",
+        TBody: Type<{
+          accession_identifier?: string;
+          note?: Annotation;
+          condition?: Code;
+        }>(),
+        TRes: Type<Specimen>(),
+      },
+      process: {
+        method: "POST",
+        path: "/api/v1/specimen/{id}/process/",
+        TBody: Type<{
+          process: {
+            description?: string;
+            method?: Code;
+          }[];
+        }>(),
+        TRes: Type<Specimen>(),
+      },
+    },
+
+    diagnosticReport: {
+      create: {
+        method: "POST",
+        path: "/api/v1/diagnostic_report/",
+        TBody: Type<{
+          based_on: string;
+          specimen: string[];
+        }>(),
+        TRes: Type<DiagnosticReport>(),
+      },
+      observations: {
+        method: "POST",
+        path: "/api/v1/diagnostic_report/{id}/observations/",
+        TBody: Type<{
+          observations: {
+            id: string;
+            status: Observation["status"];
+            main_code: Code;
+            value: string;
+            subject_type: "patient";
+            effective_datetime: string;
+            data_entered_by_id: number;
+          }[];
+        }>(),
+        TRes: Type<DiagnosticReport>(),
+      },
+      get: {
+        method: "GET",
+        path: "/api/v1/diagnostic_report/{id}/",
+        TRes: Type<DiagnosticReport>(),
+      },
+      list: {
+        method: "GET",
+        path: "/api/v1/diagnostic_report/",
+        TRes: Type<PaginatedResponse<DiagnosticReport>>(),
+      },
+      verify: {
+        method: "POST",
+        path: "/api/v1/diagnostic_report/{id}/verify/",
+        TBody: Type<{
+          is_approved: boolean;
+        }>(),
+        TRes: Type<DiagnosticReport>(),
+      },
+      review: {
+        method: "POST",
+        path: "/api/v1/diagnostic_report/{id}/review/",
+        TBody: Type<{
+          is_approved: boolean;
+          conclusion?: string;
+        }>(),
+        TRes: Type<DiagnosticReport>(),
+      },
     },
   },
 } as const;
