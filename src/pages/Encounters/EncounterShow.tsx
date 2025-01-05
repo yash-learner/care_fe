@@ -15,6 +15,7 @@ import routes from "@/Utils/request/api";
 import query from "@/Utils/request/query";
 import { formatDateTime, keysOf } from "@/Utils/utils";
 import { EncounterFilesTab } from "@/pages/Encounters/tabs/EncounterFilesTab";
+import { EncounterLabOrdersTab } from "@/pages/Encounters/tabs/EncounterLabOrdersTab";
 import { EncounterMedicinesTab } from "@/pages/Encounters/tabs/EncounterMedicinesTab";
 import { EncounterPlotsTab } from "@/pages/Encounters/tabs/EncounterPlotsTab";
 import { EncounterUpdatesTab } from "@/pages/Encounters/tabs/EncounterUpdatesTab";
@@ -33,6 +34,7 @@ const defaultTabs = {
   plots: EncounterPlotsTab,
   medicines: EncounterMedicinesTab,
   files: EncounterFilesTab,
+  lab_orders: EncounterLabOrdersTab,
   // nursing: EncounterNursingTab,
   // neurological_monitoring: EncounterNeurologicalMonitoringTab,
   // pressure_sore: EncounterPressureSoreTab,
