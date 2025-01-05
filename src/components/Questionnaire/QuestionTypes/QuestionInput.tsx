@@ -17,6 +17,7 @@ import { ChoiceQuestion } from "./ChoiceQuestion";
 import { DateTimeQuestion } from "./DateTimeQuestion";
 import { DiagnosisQuestion } from "./DiagnosisQuestion";
 import { EncounterQuestion } from "./EncounterQuestion";
+import { LabOrderQuestion } from "./LabOrderQuestion";
 import { MedicationRequestQuestion } from "./MedicationRequestQuestion";
 import { MedicationStatementQuestion } from "./MedicationStatementQuestion";
 import { NotesInput } from "./NotesInput";
@@ -157,6 +158,8 @@ export function QuestionInput({
             return <MedicationRequestQuestion {...commonProps} />;
           case "medication_statement":
             return <MedicationStatementQuestion {...commonProps} />;
+          case "lab_order":
+            return <LabOrderQuestion {...commonProps} />;
           case "allergy_intolerance":
             return <AllergyQuestion {...commonProps} />;
           case "symptom":

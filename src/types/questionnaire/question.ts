@@ -20,6 +20,7 @@ export type StructuredQuestionType =
   | "allergy_intolerance"
   | "medication_request"
   | "medication_statement"
+  | "lab_order"
   | "symptom"
   | "diagnosis"
   | "encounter"

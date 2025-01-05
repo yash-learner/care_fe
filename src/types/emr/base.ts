@@ -19,3 +19,8 @@ export type Annotation = {
   time?: string;
   text: string;
 };
+
+export type CodeableConcept = {
+  coding: Code[];
+  text?: string;
+};

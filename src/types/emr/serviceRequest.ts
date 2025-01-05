@@ -1,6 +1,6 @@
 import { UserBareMinimum } from "@/components/Users/models";
 
-import { Annotation, Timing } from "@/types/emr/base";
+import { Timing } from "@/types/emr/base";
 import { Encounter } from "@/types/emr/encounter";
 import { Patient } from "@/types/emr/newPatient";
 import { Code } from "@/types/questionnaire/code";
@@ -35,6 +35,16 @@ export const SERVICE_REQUEST_PRIORITY = [
 
 export type ServiceRequestPriority = (typeof SERVICE_REQUEST_PRIORITY)[number];
 
+export const SERVICE_REQUEST_CATEGORY = [
+  "laboratory_procedure",
+  "imaging",
+  "counselling",
+  "education",
+  "surgical_procedure",
+] as const;
+
+export type ServiceRequestCategory = (typeof SERVICE_REQUEST_CATEGORY)[number];
+
 export type ServiceRequest = {
   id: string;
 
@@ -42,7 +52,7 @@ export type ServiceRequest = {
   intent?: ServiceRequestIntent;
   priority?: ServiceRequestPriority;
 
-  category?: Code;
+  category?: ServiceRequestCategory;
   code: Code;
 
   do_not_perform?: boolean;
@@ -58,11 +68,25 @@ export type ServiceRequest = {
   authored_on: string;
   requester: UserBareMinimum;
 
-  location: string | null;
+  location?: string | null;
 
-  note: Annotation[];
+  note?: string | null;
 
   patient_instruction?: string;
 
   replaces?: ServiceRequest | null;
+};
+
+export type ServiceRequestCreate = Omit<
+  ServiceRequest,
+  | "id"
+  | "requester"
+  | "location"
+  | "replaces"
+  | "do_not_perform"
+  | "encounter"
+  | "subject"
+> & {
+  encounter: string; // uuid
+  subject: string; // uuid
 };

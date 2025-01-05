@@ -5,6 +5,7 @@ import { Diagnosis } from "@/types/emr/diagnosis/diagnosis";
 import { Encounter } from "@/types/emr/encounter";
 import { MedicationRequest } from "@/types/emr/medicationRequest";
 import { MedicationStatement } from "@/types/emr/medicationStatement";
+import { ServiceRequestCreate } from "@/types/emr/serviceRequest";
 import { Symptom } from "@/types/emr/symptom/symptom";
 import { Code } from "@/types/questionnaire/code";
 import { Quantity } from "@/types/questionnaire/quantity";
@@ -19,6 +20,7 @@ export type ResponseValue = {
     | "allergy_intolerance"
     | "medication_request"
     | "medication_statement"
+    | "lab_order"
     | "symptom"
     | "diagnosis"
     | "encounter"
@@ -32,6 +34,7 @@ export type ResponseValue = {
     | AllergyIntolerance[]
     | MedicationRequest[]
     | MedicationStatement[]
+    | ServiceRequestCreate[]
     | Symptom[]
     | Diagnosis[]
     | Encounter

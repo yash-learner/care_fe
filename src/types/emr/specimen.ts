@@ -1,6 +1,6 @@
 import { UserBareMinimum } from "@/components/Users/models";
 
-import { Annotation } from "@/types/emr/base";
+import { CodeableConcept } from "@/types/emr/base";
 import { Patient } from "@/types/emr/newPatient";
 import { ServiceRequest } from "@/types/emr/serviceRequest";
 import { Code } from "@/types/questionnaire/code";
@@ -35,7 +35,7 @@ export type Specimen = {
   received_by?: UserBareMinimum | null;
   received_at?: string | null;
 
-  condition?: Code | null;
+  condition?: CodeableConcept[] | null;
 
   processing: {
     description?: string | null;
@@ -44,7 +44,7 @@ export type Specimen = {
     performer?: string | null;
   }[];
 
-  note: Annotation[];
+  note?: string | null;
 
   parent?: Specimen | null;
 };

@@ -1,6 +1,5 @@
 import { UserBareMinimum } from "@/components/Users/models";
 
-import { Annotation } from "@/types/emr/base";
 import { Encounter } from "@/types/emr/encounter";
 import { Patient } from "@/types/emr/newPatient";
 import { Observation } from "@/types/emr/observation";
@@ -48,6 +47,6 @@ export type DiagnosticReport = {
     link: string;
   }[];
 
-  note: Annotation[];
+  note?: string | null;
   conclusion?: string | null;
 };

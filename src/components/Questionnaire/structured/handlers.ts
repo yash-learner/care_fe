@@ -85,6 +85,24 @@ const handlers: {
       ];
     },
   },
+  lab_order: {
+    getRequests: (requests, { patientId, encounterId }) => {
+      return [
+        {
+          url: `/api/v1/service_request/upsert/`,
+          method: "POST",
+          body: {
+            datapoints: requests.map((request) => ({
+              ...request,
+              encounter: encounterId,
+              subject: patientId,
+            })),
+          },
+          reference_id: "service_request",
+        },
+      ];
+    },
+  },
   symptom: {
     getRequests: (symptoms, { patientId, encounterId }) =>
       symptoms.map((symptom) => {
