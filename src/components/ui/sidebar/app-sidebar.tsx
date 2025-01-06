@@ -60,6 +60,11 @@ function generateFacilityLinks(
       icon: "d-patient",
     },
     { name: t("encounters"), url: `${baseUrl}/encounters`, icon: "d-patient" },
+    {
+      name: t("lab_tests"),
+      url: "/lab_orders",
+      icon: "d-microscope",
+    },
     // { name: t("assets"), url: `${baseUrl}/assets`, icon: "d-folder" },
     // { name: t("shifting"), url: "/shifting", icon: "d-ambulance" },
     { name: t("resource"), url: "/resource", icon: "d-book-open" },
