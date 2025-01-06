@@ -1,5 +1,7 @@
 import careConfig from "@careConfig";
 import { useQuery } from "@tanstack/react-query";
+import { useTranslation } from "react-i18next";
+import { toast } from "sonner";
 
 import { validatePincode } from "@/common/validation";
 
@@ -23,6 +25,8 @@ export function useStateAndDistrictFromPincode({
     queryFn: () => getPincodeDetails(pincode, careConfig.govDataApiKey),
     enabled: validatePincode(pincode),
   });
+
+  const { t } = useTranslation();
 
   const stateName = pincodeDetails?.statename || "";
   const districtName = pincodeDetails?.districtname || "";
@@ -50,6 +54,12 @@ export function useStateAndDistrictFromPincode({
     name: districtName,
     enabled: !!stateOrg?.id && !!districtName,
   });
+
+  isStateError && toast.info(t("pincode_state_auto_fill_error"));
+
+  isDistrictError &&
+    !isStateError &&
+    toast.info(t("pincode_district_auto_fill_error"));
 
   const districtOrg = districtOrgs[0];
 
