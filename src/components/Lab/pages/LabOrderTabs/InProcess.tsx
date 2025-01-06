@@ -3,6 +3,8 @@ import { ColumnDef } from "@tanstack/react-table";
 import { useNavigate } from "raviger";
 import { useTranslation } from "react-i18next";
 
+import { cn } from "@/lib/utils";
+
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 
@@ -13,7 +15,11 @@ import query from "@/Utils/request/query";
 import { displayCode } from "@/Utils/utils";
 import { Specimen } from "@/types/emr/specimen";
 
-import { displayServiceRequestId, displaySpecimenId } from "../../utils";
+import {
+  displayServiceRequestId,
+  displaySpecimenId,
+  getPriorityColor,
+} from "../../utils";
 
 export default function InProcess() {
   const { t } = useTranslation();
@@ -49,7 +55,17 @@ export default function InProcess() {
     },
     {
       header: "Priority",
-      cell: ({ row }) => <Badge>{row.original.request.priority}</Badge>,
+      cell: ({ row }) => (
+        <Badge
+          className={cn(
+            "capitalize text-sm font-semibold",
+            getPriorityColor(row.original.request.priority),
+          )}
+          variant="outline"
+        >
+          {row.original.request.priority}
+        </Badge>
+      ),
     },
     {
       header: "Action",

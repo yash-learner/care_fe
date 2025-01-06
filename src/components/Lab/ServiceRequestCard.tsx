@@ -1,9 +1,12 @@
+import { cn } from "@/lib/utils";
+
 import { Badge } from "@/components/ui/badge";
 
 import { displayCode, displayUserName, formatDateTime } from "@/Utils/utils";
 import { ServiceRequest } from "@/types/emr/serviceRequest";
 
 import { Card, CardContent } from "../ui/card";
+import { getPriorityColor } from "./utils";
 
 export const ServiceRequestCard: React.FC<{
   serviceRequest: ServiceRequest;
@@ -38,7 +41,13 @@ export const ServiceRequestCard: React.FC<{
 
             <div>
               <h3 className="text-sm font-semibold text-gray-500">Priority</h3>
-              <Badge className="capitalize text-sm font-semibold">
+              <Badge
+                className={cn(
+                  "capitalize text-sm font-semibold",
+                  getPriorityColor(serviceRequest.priority),
+                )}
+                variant="outline"
+              >
                 {serviceRequest.priority}
               </Badge>
             </div>

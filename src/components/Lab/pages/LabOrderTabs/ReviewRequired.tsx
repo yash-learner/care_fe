@@ -3,6 +3,8 @@ import { ColumnDef } from "@tanstack/react-table";
 import { useNavigate } from "raviger";
 import { useTranslation } from "react-i18next";
 
+import { cn } from "@/lib/utils";
+
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 
@@ -13,7 +15,7 @@ import query from "@/Utils/request/query";
 import { displayCode } from "@/Utils/utils";
 import { DiagnosticReport } from "@/types/emr/diagnosticReport";
 
-import { displayServiceRequestId } from "../../utils";
+import { displayServiceRequestId, getPriorityColor } from "../../utils";
 
 export default function ReviewRequired() {
   const { t } = useTranslation();
@@ -46,7 +48,17 @@ export default function ReviewRequired() {
     },
     {
       header: "Priority",
-      cell: ({ row }) => <Badge>{row.original.based_on.priority}</Badge>,
+      cell: ({ row }) => (
+        <Badge
+          className={cn(
+            "capitalize text-sm font-semibold",
+            getPriorityColor(row.original.based_on.priority),
+          )}
+          variant="outline"
+        >
+          {row.original.based_on.priority}
+        </Badge>
+      ),
     },
     {
       header: "Action",
