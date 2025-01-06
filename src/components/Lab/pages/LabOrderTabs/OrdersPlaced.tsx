@@ -14,6 +14,7 @@ import { displayCode } from "@/Utils/utils";
 import { Specimen } from "@/types/emr/specimen";
 
 import { displayServiceRequestId, displaySpecimenId } from "../../utils";
+import { getPriorityColor } from "./index";
 
 export default function OrdersPlaced() {
   const { t } = useTranslation();
@@ -49,7 +50,14 @@ export default function OrdersPlaced() {
     },
     {
       header: "Priority",
-      cell: ({ row }) => <Badge>{row.original.request.priority}</Badge>,
+      cell: ({ row }) => (
+        <Badge
+          className={getPriorityColor(row.original.request.priority)}
+          variant="outline"
+        >
+          {row.original.request.priority}
+        </Badge>
+      ),
     },
     {
       header: "Action",
@@ -58,7 +66,7 @@ export default function OrdersPlaced() {
           onClick={() =>
             navigate(`/lab_orders/${row.original.request.encounter.id}/collect`)
           }
-          variant="secondary"
+          variant="outline_primary"
         >
           {t("collect_specimen")}
         </Button>
