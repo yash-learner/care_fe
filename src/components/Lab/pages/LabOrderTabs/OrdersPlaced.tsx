@@ -6,7 +6,7 @@ import { useTranslation } from "react-i18next";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 
-import TableAbstract from "@/components/Lab/LabOrderTabs/TableAbstract";
+import TableAbstract from "@/components/Lab/pages/LabOrderTabs/TableAbstract";
 
 import routes from "@/Utils/request/api";
 import query from "@/Utils/request/query";
@@ -53,7 +53,9 @@ export default function OrdersPlaced() {
       header: "Action",
       cell: ({ row }) => (
         <Button
-          onClick={() => navigate(`/lab_orders/${row.id}/collect`)}
+          onClick={() =>
+            navigate(`/lab_orders/${row.original.request.encounter.id}/collect`)
+          }
           variant="secondary"
         >
           {t("collect_specimen")}

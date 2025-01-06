@@ -1,6 +1,8 @@
 import { differenceInMinutes, format } from "date-fns";
 import html2canvas from "html2canvas";
 
+import { UserBareMinimum } from "@/components/Users/models";
+
 import { AREACODES, IN_LANDLINE_AREA_CODES } from "@/common/constants";
 import phoneCodesJson from "@/common/static/countryPhoneAndFlags.json";
 
@@ -392,9 +394,11 @@ export const patientAgeInYears = (obj: PatientModel) => {
 };
 
 export const formatPatientAge = (
-  obj: PatientModel | Patient,
+  obj?: PatientModel | Patient,
   abbreviated = false,
 ) => {
+  if (!obj) return "N/A";
+
   if (obj.age != null) return `${obj.age} Y`;
   const suffixes = getRelativeDateSuffix(abbreviated);
   const start = dayjs(
@@ -604,6 +608,14 @@ export const displayTiming = (timing?: Timing) => {
   if (!timing || !timing.repeat) return "N/A";
 
   return `${timing.repeat.frequency} every ${timing.repeat.period} ${timing.repeat.period_unit}`;
+};
+
+export const displayUserName = (user?: UserBareMinimum) => {
+  if (!user) return "N/A";
+
+  return (
+    [user.first_name, user.last_name].filter(Boolean).join(" ") || user.username
+  );
 };
 
 /**

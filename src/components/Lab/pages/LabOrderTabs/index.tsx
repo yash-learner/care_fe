@@ -4,14 +4,14 @@ import { useTranslation } from "react-i18next";
 
 import { cn } from "@/lib/utils";
 
-import InProcess from "@/components/Lab/LabOrderTabs/InProcess";
-import OrdersPlaced from "@/components/Lab/LabOrderTabs/OrdersPlaced";
-import ReceivedAtLab from "@/components/Lab/LabOrderTabs/ReceivedAtLab";
-import Results from "@/components/Lab/LabOrderTabs/Results";
-import ReviewRequired from "@/components/Lab/LabOrderTabs/ReviewRequired";
-import SentToLab from "@/components/Lab/LabOrderTabs/SentToLab";
-import SpecimenCollected from "@/components/Lab/LabOrderTabs/SpecimenCollected";
 import { LABS_BASE_ROUTE } from "@/components/Lab/constants";
+import InProcess from "@/components/Lab/pages/LabOrderTabs/InProcess";
+import OrdersPlaced from "@/components/Lab/pages/LabOrderTabs/OrdersPlaced";
+import ReceivedAtLab from "@/components/Lab/pages/LabOrderTabs/ReceivedAtLab";
+import Results from "@/components/Lab/pages/LabOrderTabs/Results";
+import ReviewRequired from "@/components/Lab/pages/LabOrderTabs/ReviewRequired";
+import SentToLab from "@/components/Lab/pages/LabOrderTabs/SentToLab";
+import SpecimenCollected from "@/components/Lab/pages/LabOrderTabs/SpecimenCollected";
 
 const labOrderTabs = [
   {
