@@ -1,10 +1,9 @@
-import careConfig from "@careConfig";
 import { useMutation, useQuery } from "@tanstack/react-query";
 import { navigate, useQueryParams } from "raviger";
 import { Fragment, useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
-import { toast } from "sonner";
 
+import CareIcon from "@/CAREUI/icons/CareIcon";
 import SectionNavigator from "@/CAREUI/misc/SectionNavigator";
 
 import { Button } from "@/components/ui/button";
@@ -28,6 +27,7 @@ import Page from "@/components/Common/Page";
 import DuplicatePatientDialog from "@/components/Facility/DuplicatePatientDialog";
 
 import useAppHistory from "@/hooks/useAppHistory";
+import { useStateAndDistrictFromPincode } from "@/hooks/useStateAndDistrictFromPincode";
 
 import {
   BLOOD_GROUP_CHOICES, // DOMESTIC_HEALTHCARE_SUPPORT_CHOICES,
@@ -35,21 +35,15 @@ import {
   //RATION_CARD_CATEGORY, // SOCIOECONOMIC_STATUS_CHOICES ,
 } from "@/common/constants";
 import countryList from "@/common/static/countries.json";
-import { validatePincode } from "@/common/validation";
 
 import * as Notification from "@/Utils/Notifications";
 import routes from "@/Utils/request/api";
 import mutate from "@/Utils/request/mutate";
 import query from "@/Utils/request/query";
-import {
-  dateQueryString,
-  getPincodeDetails,
-  parsePhoneNumber,
-} from "@/Utils/utils";
+import { dateQueryString, parsePhoneNumber } from "@/Utils/utils";
 import OrganizationSelector from "@/pages/Organization/components/OrganizationSelector";
 import { PatientModel, validatePatient } from "@/types/emr/patient";
 import { Organization } from "@/types/organization/organization";
-import organizationApi from "@/types/organization/organizationApi";
 
 import Autocomplete from "../ui/autocomplete";
 import InputWithError from "../ui/input-with-error";
@@ -192,47 +186,24 @@ export default function PatientRegistration(
     }
   }, [patientQuery.data]);
 
-  const handlePincodeChange = async (value: string) => {
-    if (!validatePincode(value)) return;
-    if (form.state && form.district) return;
-
-    const pincodeDetails = await getPincodeDetails(
-      value,
-      careConfig.govDataApiKey,
-    );
-    if (!pincodeDetails) return;
-
-    const { statename: _stateName, districtname: _districtName } =
-      pincodeDetails;
-
-    const stateOrg = await fetchOrganizationByName(_stateName);
-    if (!stateOrg) {
-      setSelectedLevels([]);
-      return;
-    }
-
-    const districtOrg = await fetchOrganizationByName(
-      _districtName,
-      stateOrg.id,
-    );
-
-    if (stateOrg && districtOrg) {
-      setSelectedLevels([stateOrg, districtOrg]);
-    }
-
-    setShowAutoFilledPincode(true);
-    setTimeout(() => {
-      setShowAutoFilledPincode(false);
-    }, 2000);
-  };
+  const { stateOrg, districtOrg } = useStateAndDistrictFromPincode({
+    pincode: form.pincode?.toString() || "",
+  });
 
   useEffect(() => {
-    const timeout = setTimeout(
-      () => handlePincodeChange(form.pincode?.toString() || ""),
-      1000,
-    );
-    return () => clearTimeout(timeout);
-  }, [form.pincode]);
+    const levels: Organization[] = [];
+    if (stateOrg) levels.push(stateOrg);
+    if (districtOrg) levels.push(districtOrg);
+    setSelectedLevels(levels);
+
+    if (levels.length > 0) {
+      setShowAutoFilledPincode(true);
+      const timer = setTimeout(() => {
+        setShowAutoFilledPincode(false);
+      }, 2000);
+      return () => clearTimeout(timer);
+    }
+  }, [stateOrg, districtOrg]);
 
   const title = !patientId
     ? t("add_details_of_patient")
@@ -321,22 +292,6 @@ export default function PatientRegistration(
   );
   if (patientId && patientQuery.isLoading) {
     return <Loading />;
-  }
-
-  async function fetchOrganizationByName(name: string, parentId?: string) {
-    try {
-      const data = await query(organizationApi.list, {
-        queryParams: {
-          org_type: "govt",
-          parent: parentId || "",
-          name,
-        },
-      })({ signal: new AbortController().signal });
-      return data.results?.[0];
-    } catch (error) {
-      toast.error("Error fetching organization");
-      return undefined;
-    }
   }
 
   return (
@@ -638,7 +593,7 @@ export default function PatientRegistration(
             >
               <Input {...fieldProps("pincode")} type="number" />
             </InputWithError>
-            {/* {showAutoFilledPincode && (
+            {_showAutoFilledPincode && (
               <div>
                 <CareIcon
                   icon="l-check-circle"
@@ -648,7 +603,7 @@ export default function PatientRegistration(
                   {t("pincode_autofill")}
                 </span>
               </div>
-            )} */}
+            )}
             <br />
             <div className="grid grid-cols-2 gap-4">
               <div>
