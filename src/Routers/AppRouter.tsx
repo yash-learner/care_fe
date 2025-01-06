@@ -49,7 +49,6 @@ const Routes: AppRoutes = {
   "/": () => <UserDashboard />,
   // ...AssetRoutes,
   ...ConsultationRoutes,
-  ...LabTestRoutes,
   ...FacilityRoutes,
   ...PatientRoutes,
   ...ResourceRoutes,

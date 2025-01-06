@@ -361,12 +361,11 @@ const routes = {
     TRes: Type<PaginatedResponse<UserAssignedModel>>(),
   },
 
-  // FileUpload Create
-  createUpload: {
-    path: "/api/v1/files/",
-    method: "POST",
-    TBody: Type<CreateFileRequest>(),
-    TRes: Type<CreateFileResponse>(),
+  // Download Api
+  deleteFacility: {
+    path: "/api/v1/facility/{id}/",
+    method: "DELETE",
+    TRes: Type<Record<string, never>>(),
   },
 
   // Patient
