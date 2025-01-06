@@ -196,7 +196,7 @@ export default function PatientRegistration(
     if (districtOrg) levels.push(districtOrg);
     setSelectedLevels(levels);
 
-    if (levels.length > 0) {
+    if (levels.length == 2) {
       setShowAutoFilledPincode(true);
       const timer = setTimeout(() => {
         setShowAutoFilledPincode(false);
