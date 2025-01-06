@@ -13,17 +13,19 @@ import query from "@/Utils/request/query";
 import { displayCode } from "@/Utils/utils";
 import { Specimen } from "@/types/emr/specimen";
 
+import { displayServiceRequestId, displaySpecimenId } from "../../utils";
+
 export default function OrdersPlaced() {
   const { t } = useTranslation();
   const navigate = useNavigate();
 
   const columns: ColumnDef<Specimen>[] = [
     {
-      accessorFn: (row) => row.id.slice(0, 8),
+      accessorFn: (row) => displaySpecimenId(row),
       header: "Specimen ID",
     },
     {
-      accessorFn: (row) => row.request.id,
+      accessorFn: (row) => displayServiceRequestId(row.request),
       header: "Order ID",
     },
     {
