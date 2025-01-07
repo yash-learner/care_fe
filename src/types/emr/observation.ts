@@ -25,7 +25,12 @@ export interface Observation {
   note: string;
   body_site: Record<string, unknown>;
   method: Record<string, unknown>;
-  reference_range: unknown[];
+  reference_range: {
+    low: number | null;
+    high: number | null;
+    text: string | null;
+    unit: string | null;
+  };
   interpretation: string;
   parent: string | null;
   questionnaire_response: string | null;
