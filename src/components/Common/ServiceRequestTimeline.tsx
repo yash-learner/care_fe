@@ -3,12 +3,30 @@ import React from "react";
 
 export interface ProgressBarSubStep {
   label: string;
-  status: "completed" | "active" | "pending" | "notStarted";
+  status?:
+    | "completed"
+    | "active"
+    | "pending"
+    | "collected"
+    | "received"
+    | "dispatched"
+    | "processed"
+    | "reviewed"
+    | "notStarted";
 }
 
 export interface ProgressBarStep {
   label: string;
-  status: "completed" | "active" | "pending" | "notStarted";
+  status?:
+    | "completed"
+    | "active"
+    | "pending"
+    | "collected"
+    | "received"
+    | "dispatched"
+    | "processed"
+    | "reviewed"
+    | "notStarted";
   subSteps?: ProgressBarSubStep[];
 }
 
@@ -36,7 +54,11 @@ export const ServiceRequestTimeline: React.FC<ServiceRequestTimelineProps> = ({
 
             case "active":
               stepIcon = (
-                <div className="relative z-10 h-4 w-4 rounded-full bg-blue-600" />
+                <img
+                  src="/images/half_circle.svg"
+                  alt="Pending clock icon"
+                  className="w-4 h-4 z-10 relative"
+                />
               );
               stepLabelColor = "text-blue-600";
               break;
@@ -53,7 +75,6 @@ export const ServiceRequestTimeline: React.FC<ServiceRequestTimelineProps> = ({
               break;
 
             case "notStarted":
-            default:
               stepIcon = (
                 <div className="relative z-10 h-4 w-4 rounded-full bg-gray-300" />
               );
@@ -87,24 +108,17 @@ export const ServiceRequestTimeline: React.FC<ServiceRequestTimelineProps> = ({
                 {!!step.subSteps?.length && (
                   <div className="flex flex-col">
                     {step.subSteps.map((sub, subIdx) => {
-                      let subStepColor = "text-gray-500";
-                      if (sub.status === "completed") {
-                        subStepColor = "text-green-500";
-                      } else if (sub.status === "active") {
-                        subStepColor = "text-blue-500";
-                      } else if (sub.status === "pending") {
-                        subStepColor = "text-blue-600";
-                      } else {
-                        subStepColor = "text-gray-400";
-                      }
-
                       return (
-                        <span
-                          key={subIdx}
-                          className={`text-sm ${subStepColor}`}
-                        >
-                          {sub.label}
-                        </span>
+                        <div key={subIdx} className="flex gap-1">
+                          <span className="text-sm text-gray-500">
+                            {sub.label}
+                          </span>
+                          {sub.status && (
+                            <span className="text-sm capitalize text-gray-500">
+                              : {sub.status}
+                            </span>
+                          )}
+                        </div>
                       );
                     })}
                   </div>

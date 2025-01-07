@@ -35,6 +35,7 @@ import { displaySpecimenId } from "./utils";
 
 type CollectSpecimenFormCardProps = {
   specimen: Specimen;
+  onBarcodeSuccess: (specimenId: string) => void;
 };
 
 const formSchema = z.object({
@@ -44,7 +45,7 @@ const formSchema = z.object({
 
 export const CollectSpecimenFormCard: React.FC<
   CollectSpecimenFormCardProps
-> = ({ specimen }) => {
+> = ({ specimen, onBarcodeSuccess }) => {
   const queryClient = useQueryClient();
 
   const form = useForm<z.infer<typeof formSchema>>({
@@ -63,6 +64,7 @@ export const CollectSpecimenFormCard: React.FC<
       queryClient.invalidateQueries({
         queryKey: ["specimen"],
       });
+      onBarcodeSuccess(specimen.id);
     },
   });
 

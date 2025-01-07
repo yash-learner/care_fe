@@ -4,7 +4,7 @@ import {
   ChevronUpIcon,
 } from "@radix-ui/react-icons";
 import { useQuery } from "@tanstack/react-query";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 
 import { Button } from "@/components/ui/button";
 import {
@@ -13,14 +13,27 @@ import {
   CollapsibleTrigger,
 } from "@/components/ui/collapsible";
 
+import {
+  ProgressBarStep,
+  ProgressBarSubStep,
+  ServiceRequestTimeline,
+} from "@/components/Common/ServiceRequestTimeline";
+
 import routes from "@/Utils/request/api";
 import query from "@/Utils/request/query";
 import { formatPatientAge } from "@/Utils/utils";
 import { ServiceRequest } from "@/types/emr/serviceRequest";
+import { Specimen } from "@/types/emr/specimen";
 
 import { CollectSpecimenFormCard } from "../CollectSpecimenFormCard";
 import { ServiceRequestCard } from "../ServiceRequestCard";
-import { displayServiceRequestId } from "../utils";
+import {
+  displayServiceRequestId,
+  getOverallStepStatus,
+  getSpecimenCollectedStatus,
+  getSpecimenDispatchedStatus,
+  getSpecimenReceivedStatus,
+} from "../utils";
 
 export const CollectSpecimen: React.FC<{
   encounterId: string;
@@ -34,13 +47,128 @@ export const CollectSpecimen: React.FC<{
     }),
   });
 
+  const [specimens, setSpecimens] = useState<Specimen[]>([]);
+  const [previousStepStatus, setPreviousStepStatus] =
+    useState<ProgressBarStep["status"]>("notStarted");
+
+  const handleSpecimensChange = (newSpecimens: Specimen[]) => {
+    setSpecimens((prevSpecimens) => {
+      const specimenIds = new Set(prevSpecimens.map((s) => s.id));
+      const filteredNewSpecimens = newSpecimens.filter(
+        (s) => !specimenIds.has(s.id),
+      );
+      return [...prevSpecimens, ...filteredNewSpecimens];
+    });
+  };
+
+  const handleBarcodeSuccess = (specimenId: string) => {
+    setSpecimens((prevSpecimens) =>
+      prevSpecimens.map((specimen) =>
+        specimen.id === specimenId
+          ? {
+              ...specimen,
+              collected_at: new Date().toISOString(),
+            }
+          : specimen,
+      ),
+    );
+  };
+
+  const steps: ProgressBarStep[] = useMemo(() => {
+    const stepLabels = [
+      "Order Placed",
+      "Specimen Collection",
+      "Sent to Lab",
+      "Received at Lab",
+      "Test Ongoing",
+      "Under Review",
+      "Completed",
+    ];
+
+    return stepLabels.map((label) => {
+      let status: ProgressBarStep["status"] = "notStarted";
+      let subSteps: ProgressBarSubStep[] = [];
+
+      switch (label) {
+        case "Order Placed":
+          status = "completed";
+          subSteps =
+            labOrdersResponse?.results.map((labOrder) => ({
+              label: displayServiceRequestId(labOrder),
+            })) || [];
+          break;
+
+        case "Specimen Collection":
+          subSteps = specimens.map((specimen) => ({
+            label: displayServiceRequestId(specimen.request),
+            status: getSpecimenCollectedStatus(specimen),
+          }));
+          status = getOverallStepStatus(subSteps, "completed");
+          setPreviousStepStatus(status);
+          break;
+
+        case "Sent to Lab":
+          subSteps = specimens.map((specimen) => ({
+            label: displayServiceRequestId(specimen.request),
+            status: getSpecimenDispatchedStatus(specimen),
+          }));
+          status = getOverallStepStatus(subSteps, previousStepStatus);
+          setPreviousStepStatus(status);
+          break;
+
+        case "Received at Lab":
+          subSteps = specimens.map((specimen) => ({
+            label: displayServiceRequestId(specimen.request),
+            status: getSpecimenReceivedStatus(specimen),
+          }));
+          status = getOverallStepStatus(subSteps, previousStepStatus);
+          break;
+
+        // case "Test Ongoing":
+        //   subSteps = allSpecimens.map((specimen) => ({
+        //     label: `Order ${displayServiceRequestId(specimen.request)}: ${
+        //       specimen.status === "preliminary" ? "In Process" : "Pending"
+        //     }`,
+        //     status: getSpecimenTestInProcessStatus(specimen),
+        //   }));
+        //   break;
+
+        // case "Under Review":
+        //   subSteps = allSpecimens.map((specimen) => ({
+        //     label: `Order ${displayServiceRequestId(specimen.request)}: ${
+        //       specimen.status === "final" ? "Reviewed" : "Pending"
+        //     }`,
+        //     status: getSpecimenUnderReviewStatus(specimen),
+        //   }));
+        //   break;
+
+        // case "Completed":
+        //   subSteps = allSpecimens.map((specimen) => ({
+        //     label: `Order ${displayServiceRequestId(specimen.request)}: Completed`,
+        //     status: specimen.status === "final" ? "completed" : "notStarted",
+        //   }));
+        //   break;
+
+        default:
+          break;
+      }
+
+      return {
+        label,
+        status,
+        subSteps,
+      };
+    });
+  }, [labOrdersResponse, specimens]);
+
   const patient = useMemo(() => {
     return labOrdersResponse?.results[0].subject;
   }, [labOrdersResponse]);
 
   return (
     <div className="flex flex-col-reverse lg:flex-row min-h-screen">
-      <div>hello there</div>
+      {/* <ServiceRequestTimeline steps={steps(specimens[0])} /> */}
+      <ServiceRequestTimeline steps={steps} />
 
       <main className="flex-1 p-6 lg:p-8 max-w-5xl mx-auto">
         <Button
@@ -84,9 +212,17 @@ export const CollectSpecimen: React.FC<{
             </div>
           </div>
         </div>
-        <div className="mb-4 space-y-4">
+        <div>
           {labOrdersResponse?.results.map((labOrder) => (
-            <LabOrderCollapsible key={labOrder.id} labOrder={labOrder} />
+            <>
+              <LabOrderCollapsible
+                key={labOrder.id}
+                labOrder={labOrder}
+                onSpecimensChange={handleSpecimensChange}
+                onBarcodeSuccess={handleBarcodeSuccess}
+              />
+              <div className="border-l-[2.5px] border-gray-300 w-5 h-12 ms-8 last:hidden" />
+            </>
           ))}
         </div>
       </main>
@@ -96,7 +232,9 @@ export const CollectSpecimen: React.FC<{
 
 const LabOrderCollapsible: React.FC<{
   labOrder: ServiceRequest;
-}> = ({ labOrder }) => {
+  onSpecimensChange: (specimens: Specimen[]) => void;
+  onBarcodeSuccess: (specimenId: string) => void;
+}> = ({ labOrder, onSpecimensChange, onBarcodeSuccess }) => {
   const [isOpen, setIsOpen] = useState(false);
 
   const { data: specimenResponse } = useQuery({
@@ -107,6 +245,12 @@ const LabOrderCollapsible: React.FC<{
       },
     }),
   });
+
+  useEffect(() => {
+    if (specimenResponse?.results) {
+      onSpecimensChange(specimenResponse.results);
+    }
+  }, [specimenResponse]);
 
   return (
     <Collapsible open={isOpen} onOpenChange={setIsOpen}>
@@ -156,7 +300,10 @@ const LabOrderCollapsible: React.FC<{
             <div className="space-y-4">
               <ServiceRequestCard serviceRequest={labOrder} />
               {specimenResponse?.results.map((specimen) => (
-                <CollectSpecimenFormCard specimen={specimen} />
+                <CollectSpecimenFormCard
+                  specimen={specimen}
+                  onBarcodeSuccess={onBarcodeSuccess}
+                />
               ))}
             </div>
           </CollapsibleContent>
