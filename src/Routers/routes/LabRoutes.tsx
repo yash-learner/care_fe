@@ -16,6 +16,9 @@ const LabRoutes: AppRoutes = {
   [`${LABS_BASE_ROUTE}/:encounterId/collect`]: ({ encounterId }) => (
     <CollectSpecimen encounterId={encounterId} />
   ),
+  [`${LABS_BASE_ROUTE}/:specimenId/process`]: ({ specimenId }) => (
+    <ProcessSpecimen specimenId={specimenId} />
+  ),
 };
 
 export default LabRoutes;

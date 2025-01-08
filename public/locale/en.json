@@ -1800,6 +1800,7 @@
   "unassign": "Unassign",
   "unconfirmed": "Unconfirmed",
   "unique_id": "Unique Id",
+  "unit": "Unit",
   "unknown": "Unknown",
   "unlink_asset_bed_and_presets": "Delete linked presets and unlink bed",
   "unlink_asset_bed_caution": "This action will also delete all presets that are associated to this camera and bed.",

@@ -50,3 +50,12 @@ export interface ObservationAnalyzeGroup {
 export interface ObservationAnalyzeResponse {
   results: ObservationAnalyzeGroup[];
 }
+
+export interface LabObservation {
+  code?: Code;
+  result: {
+    value: string;
+  };
+  unit: string;
+  note: string;
+}

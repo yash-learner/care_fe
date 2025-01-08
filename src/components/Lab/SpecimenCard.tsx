@@ -8,7 +8,6 @@ import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 
 import { Specimen } from "@/types/emr/specimen";
-import { Code } from "@/types/questionnaire/code";
 
 import { getPriorityColor } from "./utils";
 
@@ -16,30 +15,12 @@ interface SpecimenProps {
   specimen: Specimen;
   onRemove: () => void;
   onStartProcessing: () => void;
-  observations: {
-    code?: Code;
-    result: string;
-    unit: string;
-    note: string;
-  }[];
-  setObservations: React.Dispatch<
-    React.SetStateAction<
-      {
-        code?: Code;
-        result: string;
-        unit: string;
-        note: string;
-      }[]
-    >
-  >;
 }
 
 export const SpecimenCard: React.FC<SpecimenProps> = ({
   specimen,
   onRemove,
   onStartProcessing,
-  observations,
-  setObservations,
 }) => {
   return (
     <div className="space-y-4 bg-white shadow-sm rounded-sm p-4 gap-5">

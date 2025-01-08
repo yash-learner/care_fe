@@ -17,7 +17,7 @@ export const displaySpecimenId = (specimen?: Specimen) => {
 export const displayServiceRequestId = (serviceRequest?: ServiceRequest) => {
   if (!serviceRequest) return "N/A";
 
-  return "ORD " + serviceRequest.id.slice(0, 8);
+  return "ORD " + serviceRequest?.id?.slice(0, 8);
 };
 
 export const getPriorityColor = (priority: string | undefined) => {

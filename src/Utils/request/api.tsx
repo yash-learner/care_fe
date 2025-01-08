@@ -939,7 +939,9 @@ const routes = {
             id: string;
             status: Observation["status"];
             main_code: Code;
-            value: string;
+            value: {
+              value: string;
+            };
             subject_type: "patient";
             effective_datetime: string;
             data_entered_by_id: number;
