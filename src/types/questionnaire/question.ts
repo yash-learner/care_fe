@@ -61,6 +61,7 @@ export interface Question {
   structured_type?: StructuredQuestionType;
   styling_metadata?: {
     classes?: string;
+    containerClasses?: string;
   };
   required?: boolean;
   collect_time?: boolean;
