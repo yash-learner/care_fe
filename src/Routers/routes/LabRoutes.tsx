@@ -4,6 +4,7 @@ import LabOrderTabs from "@/components/Lab/pages/LabOrderTabs";
 import ReviewRequired from "@/components/Lab/pages/LabOrderTabs/ReviewRequired";
 import { ProcessSpecimen } from "@/components/Lab/pages/ProcessSpecimen";
 import { ReceiveSpecimen } from "@/components/Lab/pages/ReceiveSpecimen";
+import { ReviewResult } from "@/components/Lab/pages/ReviewResult";
 import SendSpecimen from "@/components/Lab/pages/SendSpecimen";
 
 import { AppRoutes } from "@/Routers/AppRouter";
@@ -20,9 +21,9 @@ const LabRoutes: AppRoutes = {
   [`${LABS_BASE_ROUTE}/:specimenId/process`]: ({ specimenId }) => (
     <ProcessSpecimen specimenId={specimenId} />
   ),
-  // [`${LABS_BASE_ROUTE}/:diagnosticReportId /review`]: ({
-  //   diagnosticReportId,
-  // }) => <ReviewResult diagnosticReportId={diagnosticReportId} />,
+  [`${LABS_BASE_ROUTE}/:diagnosticReportId/review`]: ({
+    diagnosticReportId,
+  }) => <ReviewResult diagnosticReportId={diagnosticReportId} />,
 };
 
 export default LabRoutes;

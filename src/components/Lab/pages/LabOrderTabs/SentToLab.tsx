@@ -38,7 +38,7 @@ export default function SentToLab() {
       header: "Patient Name",
       cell: ({ row }) => (
         <div>
-          <p>{row.original.subject.name}</p>
+          <p className="capitalize">{row.original.subject.name}</p>
           <p className="text-sm text-gray-400">
             {row.original.subject.id?.slice(0, 8)}
           </p>

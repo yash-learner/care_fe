@@ -22,7 +22,7 @@ import {
   AppointmentPatient,
   AppointmentPatientRegister,
 } from "@/pages/Patient/Utils";
-import { Annotation } from "@/types/emr/base";
+import { Annotation, CodeableConcept } from "@/types/emr/base";
 import { DiagnosticReport } from "@/types/emr/diagnosticReport";
 import { Encounter, EncounterEditRequest } from "@/types/emr/encounter";
 import { MedicationAdministration } from "@/types/emr/medicationAdministration";
@@ -904,7 +904,7 @@ const routes = {
         TBody: Type<{
           accession_identifier?: string;
           note?: Annotation;
-          condition?: Code;
+          condition?: CodeableConcept[];
         }>(),
         TRes: Type<Specimen>(),
       },
