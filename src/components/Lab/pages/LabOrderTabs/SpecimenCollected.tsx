@@ -69,7 +69,7 @@ export default function SpecimenCollected() {
     },
   ];
 
-  const { data } = useQuery({
+  const { data, isLoading } = useQuery({
     queryKey: ["specimens", "collected"],
     queryFn: query(routes.labs.specimen.list, {
       queryParams: {
@@ -88,7 +88,11 @@ export default function SpecimenCollected() {
           {t("send_to_lab")}
         </Button>
       </div>
-      <TableAbstract columns={columns} data={data?.results ?? []} />
+      <TableAbstract
+        columns={columns}
+        data={data?.results ?? []}
+        isLoading={isLoading}
+      />
     </div>
   );
 }

@@ -64,7 +64,7 @@ export default function ReviewRequired() {
       header: "Action",
       cell: ({ row }) => (
         <Button
-          onClick={() => navigate(`/lab_orders/${row.id}/review`)}
+          onClick={() => navigate(`/lab_orders/${row.original.id}/review`)}
           variant="secondary"
         >
           {t("review")}
@@ -73,7 +73,7 @@ export default function ReviewRequired() {
     },
   ];
 
-  const { data } = useQuery({
+  const { data, isLoading } = useQuery({
     queryKey: ["diagnostic_reports", "review_required"],
     queryFn: query(routes.labs.diagnosticReport.list, {
       queryParams: {
@@ -84,7 +84,11 @@ export default function ReviewRequired() {
 
   return (
     <div className="container px-4 py-2">
-      <TableAbstract columns={columns} data={data?.results ?? []} />
+      <TableAbstract
+        columns={columns}
+        data={data?.results ?? []}
+        isLoading={isLoading}
+      />
     </div>
   );
 }

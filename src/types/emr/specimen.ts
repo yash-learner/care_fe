@@ -35,6 +35,12 @@ export type Specimen = {
   received_by?: UserBareMinimum | null;
   received_at?: string | null;
 
+  report?: [
+    {
+      id: string;
+    }
+  ];
+
   condition?: CodeableConcept[] | null;
 
   processing: {

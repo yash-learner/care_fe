@@ -69,7 +69,7 @@ export default function ReceivedAtLab() {
     },
   ];
 
-  const { data } = useQuery({
+  const { data, isLoading } = useQuery({
     queryKey: ["specimens", "received"],
     queryFn: query(routes.labs.specimen.list, {
       queryParams: {
@@ -88,7 +88,11 @@ export default function ReceivedAtLab() {
           {t("start_processing")}
         </Button>
       </div>
-      <TableAbstract columns={columns} data={data?.results ?? []} />
+      <TableAbstract
+        columns={columns}
+        data={data?.results ?? []}
+        isLoading={isLoading}
+      />
     </div>
   );
 }

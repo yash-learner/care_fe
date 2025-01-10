@@ -1,3 +1,4 @@
+// TableAbstract.tsx
 import {
   ColumnDef,
   flexRender,
@@ -7,6 +8,7 @@ import {
 
 import { cn } from "@/lib/utils";
 
+import { Skeleton } from "@/components/ui/skeleton";
 import {
   Table,
   TableBody,
@@ -19,11 +21,15 @@ import {
 type TableAbstractProps<TData, TValue> = {
   columns: ColumnDef<TData, TValue>[];
   data: TData[];
+  isLoading?: boolean;
+  skeletonRows?: number;
 };
 
 export default function TableAbstract<TData, TValue>({
   columns,
   data,
+  isLoading = false,
+  skeletonRows = 5,
 }: TableAbstractProps<TData, TValue>) {
   const table = useReactTable({
     data,
@@ -36,24 +42,22 @@ export default function TableAbstract<TData, TValue>({
       <TableHeader className="bg-gray-100">
         {table.getHeaderGroups().map((headerGroup) => (
           <TableRow key={headerGroup.id}>
-            {headerGroup.headers.map((header, index) => {
-              return (
-                <TableHead
-                  key={header.id}
-                  className={cn(
-                    index === 0 && "rounded-tl",
-                    index === headerGroup.headers.length - 1 && "rounded-tr",
-                  )}
-                >
-                  {header.isPlaceholder
-                    ? null
-                    : flexRender(
-                        header.column.columnDef.header,
-                        header.getContext(),
-                      )}
-                </TableHead>
-              );
-            })}
+            {headerGroup.headers.map((header, index) => (
+              <TableHead
+                key={header.id}
+                className={cn(
+                  index === 0 && "rounded-tl",
+                  index === headerGroup.headers.length - 1 && "rounded-tr",
+                )}
+              >
+                {header.isPlaceholder
+                  ? null
+                  : flexRender(
+                      header.column.columnDef.header,
+                      header.getContext(),
+                    )}
+              </TableHead>
+            ))}
           </TableRow>
         ))}
       </TableHeader>
@@ -61,7 +65,25 @@ export default function TableAbstract<TData, TValue>({
       <div className="h-1" />
 
       <TableBody className="bg-white">
-        {table.getRowModel().rows?.length ? (
+        {isLoading ? (
+          // Render skeleton rows
+          Array.from({ length: skeletonRows }).map((_, rowIndex) => (
+            <TableRow key={rowIndex}>
+              {columns.map((_, colIndex) => (
+                <TableCell
+                  key={colIndex}
+                  className={cn(
+                    colIndex === 0 && "rounded-bl",
+                    colIndex === columns.length - 1 && "rounded-br",
+                  )}
+                >
+                  <Skeleton className="w-full h-4" />
+                </TableCell>
+              ))}
+            </TableRow>
+          ))
+        ) : table.getRowModel().rows.length ? (
+          // Render actual data rows
           table.getRowModel().rows.map((row, rowIndex) => (
             <TableRow
               key={row.id}
@@ -90,6 +112,7 @@ export default function TableAbstract<TData, TValue>({
             </TableRow>
           ))
         ) : (
+          // Render "No results" row
           <TableRow>
             <TableCell
               colSpan={columns.length}

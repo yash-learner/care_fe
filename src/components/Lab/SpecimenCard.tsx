@@ -1,12 +1,20 @@
 import { CrossCircledIcon } from "@radix-ui/react-icons";
+import { useMutation } from "@tanstack/react-query";
 import React from "react";
+import { useTranslation } from "react-i18next";
+import { toast } from "sonner";
 
 import { cn } from "@/lib/utils";
+
+import CareIcon from "@/CAREUI/icons/CareIcon";
 
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 
+import routes from "@/Utils/request/api";
+import mutate from "@/Utils/request/mutate";
+import { formatDateTime } from "@/Utils/utils";
 import { Specimen } from "@/types/emr/specimen";
 
 import { getPriorityColor } from "./utils";
@@ -14,7 +22,7 @@ import { getPriorityColor } from "./utils";
 interface SpecimenProps {
   specimen: Specimen;
   onRemove: () => void;
-  onStartProcessing: () => void;
+  onStartProcessing: (updatedSpecimen: Specimen) => void;
 }
 
 export const SpecimenCard: React.FC<SpecimenProps> = ({
@@ -22,6 +30,20 @@ export const SpecimenCard: React.FC<SpecimenProps> = ({
   onRemove,
   onStartProcessing,
 }) => {
+  const { t } = useTranslation();
+  const { mutate: startProcessing, isPending } = useMutation({
+    mutationFn: mutate(routes.labs.specimen.process, {
+      pathParams: { id: specimen.id },
+    }),
+    onSuccess: (data: Specimen) => {
+      onStartProcessing(data);
+      toast.success(t("processing_started_successfully"));
+    },
+    onError: () => {
+      toast.error(t("failed_to_start_processing"));
+    },
+  });
+
   return (
     <div className="space-y-4 bg-white shadow-sm rounded-sm p-4 gap-5">
       {/* Specimen ID and Status */}
@@ -88,7 +110,7 @@ export const SpecimenCard: React.FC<SpecimenProps> = ({
             Date of Collection
           </Label>
           <span className="block text-gray-900 font-semibold mt-1">
-            {specimen.collected_at}
+            {formatDateTime(specimen?.collected_at)}
           </span>
         </div>
 
@@ -97,7 +119,7 @@ export const SpecimenCard: React.FC<SpecimenProps> = ({
           <Label className="text-sm font-medium text-gray-600">
             Patient Name, ID
           </Label>
-          <span className="block text-gray-900 font-semibold mt-1">
+          <span className="block text-gray-900 font-semibold mt-1 capitalize">
             {specimen.subject.name}
           </span>
           <span className="block text-gray-500 text-sm">T105690908240017</span>
@@ -148,8 +170,35 @@ export const SpecimenCard: React.FC<SpecimenProps> = ({
           <Button disabled variant="outline" size="sm" className="px-8 py-2">
             Cancel
           </Button>
-          <Button variant="primary" size="sm" onClick={onStartProcessing}>
-            Start Processing
+          <Button
+            variant="primary"
+            size="sm"
+            onClick={() =>
+              startProcessing({
+                process: [
+                  {
+                    description:
+                      "This step is an internal indication of status change from received to processing",
+                    method: {
+                      system: "http://snomed.info/sct",
+                      code: "56245008",
+                    },
+                  },
+                ],
+              })
+            }
+            disabled={isPending}
+          >
+            {isPending ? (
+              <>
+                <CareIcon
+                  icon="l-spinner"
+                  className="mr-2 h-4 w-4 animate-spin"
+                />
+              </>
+            ) : (
+              "Start Processing"
+            )}
           </Button>
         </div>
       )}

@@ -6,6 +6,7 @@ import {
 import { useQuery } from "@tanstack/react-query";
 import { useEffect, useMemo, useState } from "react";
 
+import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
   Collapsible,
@@ -211,7 +212,27 @@ export const CollectSpecimen: React.FC<{
               </p>
             </div>
           </div>
+          <div className="mb-4 flex space-x-2">
+            {specimens.length === 0 ? null : specimens.every(
+                (s) => s.collected_at,
+              ) ? (
+              <Badge variant="outline" className="bg-green-100 text-green-900">
+                Collected: {specimens.length}/{specimens.length}
+              </Badge>
+            ) : (
+              <Badge
+                variant="outline"
+                className="bg-orange-100 text-orange-900"
+              >
+                Pending:{" "}
+                {specimens.length -
+                  specimens.filter((s) => s.collected_at).length}
+                /{specimens.length}
+              </Badge>
+            )}
+          </div>
         </div>
+
         <div>
           {labOrdersResponse?.results.map((labOrder) => (
             <>
@@ -270,7 +291,8 @@ const LabOrderCollapsible: React.FC<{
                   {displayServiceRequestId(labOrder)}
                 </span>
                 <span className="px-2 py-1 text-xs font-medium bg-orange-100 text-orange-900 rounded capitalize">
-                  {labOrder.status}
+                  Active
+                  {/* {labOrder.status} // use this once we get the status correctly from the API */}
                 </span>
               </div>
             </div>

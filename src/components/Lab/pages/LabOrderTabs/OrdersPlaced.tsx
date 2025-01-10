@@ -76,13 +76,13 @@ export default function OrdersPlaced() {
           }
           variant="outline_primary"
         >
-          {t("collect_specimen")}
+          {t("collect")}
         </Button>
       ),
     },
   ];
 
-  const { data } = useQuery({
+  const { data, isLoading } = useQuery({
     queryKey: ["specimens", "ordered"],
     queryFn: query(routes.labs.specimen.list, {
       queryParams: {
@@ -93,7 +93,11 @@ export default function OrdersPlaced() {
 
   return (
     <div className="container px-4 py-2">
-      <TableAbstract columns={columns} data={data?.results ?? []} />
+      <TableAbstract
+        columns={columns}
+        data={data?.results ?? []}
+        isLoading={isLoading}
+      />
     </div>
   );
 }

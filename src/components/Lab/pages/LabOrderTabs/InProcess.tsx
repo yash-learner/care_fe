@@ -71,8 +71,8 @@ export default function InProcess() {
       header: "Action",
       cell: ({ row }) => (
         <Button
-          onClick={() => navigate(`/lab_orders/${row.id}/process`)}
-          variant="secondary"
+          onClick={() => navigate(`/lab_orders/${row.original.id}/process`)}
+          variant="outline_primary"
         >
           {t("process")}
         </Button>
@@ -80,7 +80,7 @@ export default function InProcess() {
     },
   ];
 
-  const { data } = useQuery({
+  const { data, isLoading } = useQuery({
     queryKey: ["specimens", "in_process"],
     queryFn: query(routes.labs.specimen.list, {
       queryParams: {
@@ -91,7 +91,11 @@ export default function InProcess() {
 
   return (
     <div className="container px-4 py-2">
-      <TableAbstract columns={columns} data={data?.results ?? []} />
+      <TableAbstract
+        columns={columns}
+        data={data?.results ?? []}
+        isLoading={isLoading}
+      />
     </div>
   );
 }

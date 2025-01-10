@@ -103,6 +103,7 @@ export const CollectSpecimenFormCard: React.FC<
                         <div className="flex justify-between items-center gap-8">
                           <div className="flex items-center gap-2">
                             <Button
+                              type="button"
                               variant="outline"
                               size="sm"
                               className="border p-4"
@@ -117,6 +118,7 @@ export const CollectSpecimenFormCard: React.FC<
                               variant="outline"
                               size="sm"
                               className="border p-4"
+                              type="button"
                               onClick={() => {
                                 form.setValue("quantity", field.value + 1);
                               }}
