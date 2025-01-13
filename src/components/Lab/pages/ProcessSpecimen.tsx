@@ -107,7 +107,7 @@ export const ProcessSpecimen = ({ specimenId }: { specimenId?: string }) => {
 
   const { mutate: verifyDiagnosticReport } = useMutation({
     mutationFn: mutate(routes.labs.diagnosticReport.verify, {
-      pathParams: { id: specimen?.report?.[0]?.id ?? "" },
+      pathParams: { id: diagnosticReport?.id ?? "" },
     }),
     onSuccess: (data: DiagnosticReport) => {
       toast.success(t("verify_diagnostic_report_success"));
@@ -141,6 +141,8 @@ export const ProcessSpecimen = ({ specimenId }: { specimenId?: string }) => {
         if (!reportData) {
           throw new Error("Failed to create diagnostic report.");
         }
+
+        setDiagnosticReport(reportData);
 
         const submitObs = mutate(routes.labs.diagnosticReport.observations, {
           pathParams: { id: reportData.id },
@@ -221,7 +223,6 @@ export const ProcessSpecimen = ({ specimenId }: { specimenId?: string }) => {
                     );
 
                     if (!res?.ok || !data) {
-                      // Handle error accordingly
                       return;
                     }
 

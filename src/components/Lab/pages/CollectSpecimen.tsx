@@ -86,6 +86,8 @@ export const CollectSpecimen: React.FC<{
       "Completed",
     ];
 
+    let computedPreviousStatus: ProgressBarStep["status"] = "completed"; // Initial value from the Order Placed step
+
     return stepLabels.map((label) => {
       let status: ProgressBarStep["status"] = "notStarted";
       let subSteps: ProgressBarSubStep[] = [];
@@ -105,7 +107,7 @@ export const CollectSpecimen: React.FC<{
             status: getSpecimenCollectedStatus(specimen),
           }));
           status = getOverallStepStatus(subSteps, "completed");
-          setPreviousStepStatus(status);
+          computedPreviousStatus = status;
           break;
 
         case "Sent to Lab":
@@ -113,8 +115,8 @@ export const CollectSpecimen: React.FC<{
             label: displayServiceRequestId(specimen.request),
             status: getSpecimenDispatchedStatus(specimen),
           }));
-          status = getOverallStepStatus(subSteps, previousStepStatus);
-          setPreviousStepStatus(status);
+          status = getOverallStepStatus(subSteps, computedPreviousStatus);
+          computedPreviousStatus = status;
           break;
 
         case "Received at Lab":
@@ -122,43 +124,16 @@ export const CollectSpecimen: React.FC<{
             label: displayServiceRequestId(specimen.request),
             status: getSpecimenReceivedStatus(specimen),
           }));
-          status = getOverallStepStatus(subSteps, previousStepStatus);
+          status = getOverallStepStatus(subSteps, computedPreviousStatus);
+          computedPreviousStatus = status;
           break;
 
-        // case "Test Ongoing":
-        //   subSteps = allSpecimens.map((specimen) => ({
-        //     label: `Order ${displayServiceRequestId(specimen.request)}: ${
-        //       specimen.status === "preliminary" ? "In Process" : "Pending"
-        //     }`,
-        //     status: getSpecimenTestInProcessStatus(specimen),
-        //   }));
-        //   break;
-
-        // case "Under Review":
-        //   subSteps = allSpecimens.map((specimen) => ({
-        //     label: `Order ${displayServiceRequestId(specimen.request)}: ${
-        //       specimen.status === "final" ? "Reviewed" : "Pending"
-        //     }`,
-        //     status: getSpecimenUnderReviewStatus(specimen),
-        //   }));
-        //   break;
-
-        // case "Completed":
-        //   subSteps = allSpecimens.map((specimen) => ({
-        //     label: `Order ${displayServiceRequestId(specimen.request)}: Completed`,
-        //     status: specimen.status === "final" ? "completed" : "notStarted",
-        //   }));
-        //   break;
-
+        // Add other cases as needed.
         default:
           break;
       }
 
-      return {
-        label,
-        status,
-        subSteps,
-      };
+      return { label, status, subSteps };
     });
   }, [labOrdersResponse, specimens]);
 

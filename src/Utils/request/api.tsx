@@ -903,7 +903,7 @@ const routes = {
         path: "/api/v1/specimen/{id}/receive_at_lab/",
         TBody: Type<{
           accession_identifier?: string;
-          note?: Annotation;
+          note?: string;
           condition?: CodeableConcept[];
         }>(),
         TRes: Type<Specimen>(),

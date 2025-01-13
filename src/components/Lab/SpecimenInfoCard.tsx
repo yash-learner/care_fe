@@ -80,10 +80,10 @@ export const SpecimenInfoCard: React.FC<SpecimenInfoCardProps> = ({
         <div className="mt-6">
           <h3 className="text-sm font-semibold text-gray-600">Notes:</h3>
           <p className="text-gray-700 whitespace-pre-line">
-            {/* {requestNotes} */}
+            {specimen.request?.note || "No note provided for the lab order"}
             <br />
             <br />
-            {/* {specimenNotes} */}
+            {specimen.note || "No note provided"}
           </p>
         </div>
       </CardContent>

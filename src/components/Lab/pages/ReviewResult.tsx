@@ -5,7 +5,8 @@ import {
   ChevronDownIcon,
   ChevronUpIcon,
 } from "@radix-ui/react-icons";
-import { Link } from "raviger";
+import { t } from "i18next";
+import { Link, usePath } from "raviger";
 import React, { useState } from "react";
 
 import CareIcon from "@/CAREUI/icons/CareIcon";
@@ -52,6 +53,7 @@ export const ReviewResult: React.FC<{
 }> = ({ diagnosticReportId }) => {
   const [open, setOpen] = useState(false);
   const [conclusion, setConclusion] = useState("");
+  const path = usePath() ?? "";
 
   const {
     data: diagnosticReport,
@@ -121,12 +123,9 @@ export const ReviewResult: React.FC<{
 
   return (
     <div className="flex flex-col-reverse lg:flex-row min-h-screen">
-      {/* Left - Progress Bar */}
       <ServiceRequestTimeline steps={steps} />
 
-      {/* Right - Main Content */}
       <main className="flex-1 p-6 lg:p-8 max-w-5xl mx-auto">
-        {/* Header Section */}
         <Button
           variant="outline"
           onClick={() => {
@@ -137,7 +136,9 @@ export const ReviewResult: React.FC<{
         </Button>
 
         <div className="flex flex-col lg:flex-row items-center justify-between mb-8 mt-4">
-          <h2 className="text-2xl leading-tight">Review Result</h2>
+          <h2 className="text-2xl leading-tight">
+            {path.includes("/result") ? t("results") : t("review_result")}
+          </h2>
           <div className="space-x-4 flex mt-4 lg:mt-0">
             <Button variant="secondary" className="flex items-center gap-1">
               Next Order
@@ -186,13 +187,14 @@ export const ReviewResult: React.FC<{
             </Link>
           </div>
         </div>
-        {diagnosticReport?.status === "final" && (
-          <ConsolidatedResults
-            orderId={diagnosticReport?.based_on.id.slice(0, 8)}
-            columns={columns}
-            resultsData={resultsData}
-          />
-        )}
+        {path.includes("/result") &&
+          diagnosticReport?.conclusion === "final" && (
+            <ConsolidatedResults
+              orderId={diagnosticReport?.based_on.id.slice(0, 8)}
+              columns={columns}
+              resultsData={resultsData}
+            />
+          )}
 
         <div className="mb-4">
           <Collapsible open={open} onOpenChange={setOpen}>

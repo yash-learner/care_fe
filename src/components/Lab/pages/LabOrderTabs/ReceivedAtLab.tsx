@@ -73,7 +73,7 @@ export default function ReceivedAtLab() {
     queryKey: ["specimens", "received"],
     queryFn: query(routes.labs.specimen.list, {
       queryParams: {
-        phase: "received",
+        phase: "sample_received_at_lab",
       },
     }),
   });

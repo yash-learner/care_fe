@@ -77,7 +77,7 @@ export default function ReviewRequired() {
     queryKey: ["diagnostic_reports", "review_required"],
     queryFn: query(routes.labs.diagnosticReport.list, {
       queryParams: {
-        phase: "review_required",
+        phase: "result_under_review",
       },
     }),
   });

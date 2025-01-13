@@ -58,7 +58,9 @@ export const CollectSpecimenFormCard: React.FC<
 
   const { mutate: collectSpecimen } = useMutation({
     mutationFn: mutate(routes.labs.specimen.collect, {
-      pathParams: { id: specimen.id },
+      pathParams: {
+        id: specimen.id,
+      },
     }),
     onSuccess: () => {
       queryClient.invalidateQueries({

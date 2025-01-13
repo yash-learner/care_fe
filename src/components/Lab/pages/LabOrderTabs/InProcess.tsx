@@ -84,7 +84,7 @@ export default function InProcess() {
     queryKey: ["specimens", "in_process"],
     queryFn: query(routes.labs.specimen.list, {
       queryParams: {
-        phase: "in_process",
+        phase: "sample_in_process",
       },
     }),
   });

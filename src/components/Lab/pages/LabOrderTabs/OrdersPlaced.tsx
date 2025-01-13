@@ -86,7 +86,7 @@ export default function OrdersPlaced() {
     queryKey: ["specimens", "ordered"],
     queryFn: query(routes.labs.specimen.list, {
       queryParams: {
-        phase: "ordered",
+        phase: "order_placed",
       },
     }),
   });

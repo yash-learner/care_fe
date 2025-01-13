@@ -73,7 +73,7 @@ export default function SpecimenCollected() {
     queryKey: ["specimens", "collected"],
     queryFn: query(routes.labs.specimen.list, {
       queryParams: {
-        phase: "collected",
+        phase: "sample_collected",
       },
     }),
   });

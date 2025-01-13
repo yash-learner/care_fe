@@ -1,11 +1,7 @@
 import { zodResolver } from "@hookform/resolvers/zod";
-import {
-  CheckCircledIcon,
-  ChevronDownIcon,
-  CrossCircledIcon,
-} from "@radix-ui/react-icons";
+import { ChevronDownIcon, ChevronUpIcon } from "@radix-ui/react-icons";
 import { useMutation } from "@tanstack/react-query";
-import React from "react";
+import React, { useState } from "react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 
@@ -47,25 +43,19 @@ export const ReceiveSpecimen: React.FC = () => {
     [],
   );
 
-  const {
-    mutate: receiveAtLab,
-    isPending,
-    isError,
-    error,
-  } = useMutation({
+  const { mutate: receiveAtLab } = useMutation({
     mutationFn: mutate(routes.labs.specimen.ReceiveAtLab, {
       pathParams: {
         id: scannedSpecimen?.id ?? "",
       },
     }),
     onSuccess: (data: Specimen) => {
-      // data is the updated specimen from server
       setApprovedSpecimens((prev) => [...prev, data]);
       setScannedSpecimen(undefined);
       setNote(undefined);
+      form.reset();
     },
     onError: (err: any) => {
-      // handle error, show toast, etc.
       console.error("Error receiving specimen:", err);
     },
   });
@@ -157,11 +147,8 @@ export const ReceiveSpecimen: React.FC = () => {
     // 1) Convert “Yes” answers to Specimen.condition
     const newConditions = createSpecimenConditionArray(data);
 
-    // 2) Optionally store the note
-    // FHIR Specimen has “note” as an array of Annotation. We'll store text only for simplicity:
     const newNote = data.note?.trim() || undefined;
 
-    // 3) Merge into your existing Specimen object
     const updated: Specimen = {
       ...scannedSpecimen!,
       condition: newConditions,
@@ -169,15 +156,9 @@ export const ReceiveSpecimen: React.FC = () => {
     };
 
     receiveAtLab({
-      note: data.note
-        ? {
-            text: data.note,
-          }
-        : undefined,
+      note: data.note,
       condition: newConditions,
     });
-
-    setScannedSpecimen(updated);
   };
 
   return (
@@ -195,7 +176,6 @@ export const ReceiveSpecimen: React.FC = () => {
       <div className="flex flex-col bg-white shadow-sm rounded-sm p-4 gap-5">
         {scannedSpecimen ? (
           <div className="space-y-4">
-            {/* Barcode Success Message */}
             <div className="flex items-center justify-between p-4 bg-green-50 rounded-md">
               <div className="flex items-center gap-2">
                 <span className="px-3 py-1 text-sm font-medium text-green-900 border border-green-300 rounded-full bg-white">
@@ -208,7 +188,6 @@ export const ReceiveSpecimen: React.FC = () => {
             </div>
 
             <div className="grid grid-cols-5 gap-4 bg-white">
-              {/* Specimen ID */}
               <div>
                 <h3 className="text-sm font-medium text-gray-600">
                   Specimen id
@@ -218,7 +197,6 @@ export const ReceiveSpecimen: React.FC = () => {
                 </p>
               </div>
 
-              {/* Specimen Type */}
               <div>
                 <h3 className="text-sm font-medium text-gray-600">
                   Specimen type
@@ -228,7 +206,6 @@ export const ReceiveSpecimen: React.FC = () => {
                 </p>
               </div>
 
-              {/* Date of Collection */}
               <div>
                 <h3 className="text-sm font-medium text-gray-600">
                   Date of collection
@@ -238,7 +215,6 @@ export const ReceiveSpecimen: React.FC = () => {
                 </p>
               </div>
 
-              {/* Patient Name & ID */}
               <div>
                 <h3 className="text-sm font-medium text-gray-600">
                   Patient Name, ID
@@ -251,7 +227,6 @@ export const ReceiveSpecimen: React.FC = () => {
                 </p>
               </div>
 
-              {/* Order ID */}
               <div>
                 <h3 className="text-sm font-medium text-gray-600">Order ID</h3>
                 <p className="text-base font-semibold text-gray-900">
@@ -260,12 +235,9 @@ export const ReceiveSpecimen: React.FC = () => {
               </div>
             </div>
 
-            {/* Specimen Information */}
             <div className="mt-4 bg-white rounded-md">
-              {/* Specimen Integrity Check */}
               <div className="mt-4 bg-gray-50 rounded-sm p-4 flex flex-col gap-4">
                 <div className="rounded-md space-y-4">
-                  {/* Test and Tube Type */}
                   <div className="flex space-x-8">
                     <div>
                       <h3 className="text-sm font-normal text-gray-600">
@@ -286,7 +258,6 @@ export const ReceiveSpecimen: React.FC = () => {
                     </div>
                   </div>
 
-                  {/* Instruction Box */}
                   <div className="flex items-center p-4 bg-blue-50 border border-blue-200 rounded-md">
                     <div className="flex-shrink-0 p-2 bg-blue-100 rounded-md">
                       <CareIcon
@@ -295,9 +266,7 @@ export const ReceiveSpecimen: React.FC = () => {
                       />
                     </div>
                     <p className="ml-4 text-sm font-medium text-blue-800">
-                      {/* {scannedSpecimen.request.note
-                        .map((note) => note.text)
-                        .join("\n") || "No note provided"} */}
+                      {scannedSpecimen.request?.note || "No note provided"}
                     </p>
                   </div>
                 </div>
@@ -387,65 +356,6 @@ export const ReceiveSpecimen: React.FC = () => {
                     </div>
                   </form>
                 </Form>
-
-                {/* Action Buttons */}
-                <div className="flex justify-between mt-4">
-                  {note === undefined ? (
-                    <Button
-                      onClick={() => setNote("")}
-                      variant="link"
-                      size="sm"
-                    >
-                      + Add Notes
-                    </Button>
-                  ) : (
-                    <div />
-                  )}
-                  <div className="flex gap-2">
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      className="border-gray-300 font-medium gap-2"
-                      disabled
-                    >
-                      <CrossCircledIcon className="h-4 w-4 text-red-500" />
-                      <span>Reject Specimen</span>
-                    </Button>
-                    <Button
-                      onClick={async () => {
-                        const { res, data } = await request(
-                          routes.labs.specimen.ReceiveAtLab,
-                          {
-                            pathParams: {
-                              id: scannedSpecimen.id,
-                            },
-                            body: {
-                              note: note
-                                ? {
-                                    text: note,
-                                  }
-                                : undefined,
-                            },
-                          },
-                        );
-
-                        if (!res?.ok || !data) {
-                          return;
-                        }
-
-                        setApprovedSpecimens((prev) => [...prev, data]);
-                        setScannedSpecimen(undefined);
-                        setNote(undefined);
-                      }}
-                      variant="primary"
-                      size="sm"
-                      className="gap-2"
-                    >
-                      <CheckCircledIcon className="h-4 w-4 text-white" />
-                      Accept Specimen
-                    </Button>
-                  </div>
-                </div>
               </div>
             </div>
           </div>
@@ -487,52 +397,61 @@ export const ReceiveSpecimen: React.FC = () => {
 
         <div className="flex flex-col gap-4 mt-6">
           {approvedSpecimens.map((specimen) => (
-            <Collapsible>
-              <div className="relative before:content-[''] before:absolute before:top-0 before:left-0 before:h-7 before:w-1 before:bg-gray-400 before:mt-3.5 before:rounded-r-sm">
-                <div
-                  className={`items-center px-4 py-3 border rounded-lg shadow-sm max-w-5xl mx-auto space-y-4`}
-                >
-                  <div className="flex items-center gap-4 justify-between">
-                    <div>
-                      <span className="text-sm font-medium text-gray-600">
-                        Specimen id
-                      </span>
-                      <div className="flex items-center gap-2">
-                        <span className="text-lg font-semibold text-gray-900">
-                          {specimen.identifier ?? specimen.id}
-                        </span>
-                        <span className="px-2 py-1 text-xs font-medium bg-pink-100 text-pink-900 rounded">
-                          Received at Lab
-                        </span>
-                      </div>
-                    </div>
-                    <div className="flex items-center">
-                      <div className="flex items-center gap-4">
-                        <CollapsibleTrigger asChild>
-                          <Button variant="ghost" size="sm">
-                            <div className="">
-                              {/* {openOrders[order.orderId] ? (
-                            <ChevronUpIcon className="h-6 w-8" />
-                          ) : ( */}
-                              <ChevronDownIcon className="h-6 w-8" />
-                              {/* )} */}
-                            </div>
-                          </Button>
-                        </CollapsibleTrigger>
-                      </div>
-                    </div>
-                  </div>
-
-                  {/* Expanded Content */}
-                  <CollapsibleContent>
-                    <SpecimenInfoCard specimen={specimen} />
-                  </CollapsibleContent>
-                </div>
-              </div>
-            </Collapsible>
+            <ReceiveSpecimenCollapsible key={specimen.id} specimen={specimen} />
           ))}
         </div>
       </div>
     </div>
+  );
+};
+
+const ReceiveSpecimenCollapsible: React.FC<{
+  specimen: Specimen;
+}> = ({ specimen }) => {
+  const [isOpen, setIsOpen] = useState(false);
+
+  return (
+    <Collapsible open={isOpen} onOpenChange={setIsOpen}>
+      <div className="relative before:content-[''] before:absolute before:top-0 before:left-0 before:h-7 before:w-1 before:bg-gray-400 before:mt-3.5 before:rounded-r-sm">
+        <div
+          className={`items-center px-4 py-3 border rounded-lg shadow-sm max-w-5xl mx-auto space-y-4`}
+        >
+          <div className="flex items-center gap-4 justify-between">
+            <div>
+              <span className="text-sm font-medium text-gray-600">
+                Specimen id
+              </span>
+              <div className="flex items-center gap-2">
+                <span className="text-lg font-semibold text-gray-900">
+                  {specimen.identifier ?? specimen.id}
+                </span>
+                <span className="px-2 py-1 text-xs font-medium bg-pink-100 text-pink-900 rounded">
+                  Received at Lab
+                </span>
+              </div>
+            </div>
+            <div className="flex items-center">
+              <div className="flex items-center gap-4">
+                <CollapsibleTrigger asChild>
+                  <Button variant="ghost" size="sm">
+                    <div className="">
+                      {isOpen ? (
+                        <ChevronUpIcon className="h-6 w-8" />
+                      ) : (
+                        <ChevronDownIcon className="h-6 w-8" />
+                      )}
+                    </div>
+                  </Button>
+                </CollapsibleTrigger>
+              </div>
+            </div>
+          </div>
+          {/* Expanded Content */}
+          <CollapsibleContent>
+            <SpecimenInfoCard specimen={specimen} />
+          </CollapsibleContent>
+        </div>
+      </div>
+    </Collapsible>
   );
 };

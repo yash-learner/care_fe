@@ -64,7 +64,7 @@ export default function Results() {
       header: "Action",
       cell: ({ row }) => (
         <Button
-          onClick={() => navigate(`/lab_orders/${row.id}/result`)}
+          onClick={() => navigate(`/lab_orders/${row.original.id}/result`)}
           variant="secondary"
         >
           {t("view")}
@@ -77,7 +77,7 @@ export default function Results() {
     queryKey: ["diagnostic_reports", "reviewed"],
     queryFn: query(routes.labs.diagnosticReport.list, {
       queryParams: {
-        phase: "reviewed",
+        phase: "order_completed",
       },
     }),
   });

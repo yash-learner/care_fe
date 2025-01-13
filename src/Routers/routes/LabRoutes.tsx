@@ -24,6 +24,10 @@ const LabRoutes: AppRoutes = {
   [`${LABS_BASE_ROUTE}/:diagnosticReportId/review`]: ({
     diagnosticReportId,
   }) => <ReviewResult diagnosticReportId={diagnosticReportId} />,
+
+  [`${LABS_BASE_ROUTE}/:diagnosticReportId/result`]: ({
+    diagnosticReportId,
+  }) => <ReviewResult diagnosticReportId={diagnosticReportId} />,
 };
 
 export default LabRoutes;

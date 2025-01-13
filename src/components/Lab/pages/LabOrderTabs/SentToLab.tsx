@@ -73,7 +73,7 @@ export default function SentToLab() {
     queryKey: ["specimens", "sent"],
     queryFn: query(routes.labs.specimen.list, {
       queryParams: {
-        phase: "sent",
+        phase: "sample_sent_to_lab",
       },
     }),
   });
