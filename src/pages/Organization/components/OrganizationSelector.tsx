@@ -43,11 +43,11 @@ export default function OrganizationSelector(props: OrganizationSelectorProps) {
   useEffect(() => {
     if (selected && selected.length > 0) {
       let currentOrg = selected[0];
-      if (currentOrg.level_cache === 1) {
+      if (currentOrg.level_cache === 0) {
         setSelectedLevels(selected);
       } else {
         const levels: Organization[] = [];
-        while (currentOrg.parent) {
+        while (currentOrg && currentOrg.level_cache >= 0) {
           levels.unshift(currentOrg);
           currentOrg = currentOrg.parent as unknown as Organization;
         }
