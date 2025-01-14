@@ -1,7 +1,6 @@
 import { LABS_BASE_ROUTE } from "@/components/Lab/constants";
 import { CollectSpecimen } from "@/components/Lab/pages/CollectSpecimen";
 import LabOrderTabs from "@/components/Lab/pages/LabOrderTabs";
-import ReviewRequired from "@/components/Lab/pages/LabOrderTabs/ReviewRequired";
 import { ProcessSpecimen } from "@/components/Lab/pages/ProcessSpecimen";
 import { ReceiveSpecimen } from "@/components/Lab/pages/ReceiveSpecimen";
 import { ReviewResult } from "@/components/Lab/pages/ReviewResult";

@@ -50,7 +50,6 @@ export const LabObservationQuestion: React.FC<LabObservationQuestionProps> = ({
       <Label className="text-base font-medium">{question}</Label>
       {observations.length > 0 && (
         <div className="rounded-lg border space-y-4 flex flex-col">
-          {/* <ul className="space-y-2 divide-y-2 divide-gray-200 divide-dashed"> */}
           {observations.map((observation, index) => (
             <>
               <div className="">
@@ -68,15 +67,12 @@ export const LabObservationQuestion: React.FC<LabObservationQuestionProps> = ({
               <div className="border-l-[2.5px] border-gray-300 w-5 h-12 ms-8 last:hidden" />
             </>
           ))}
-          {/* </ul> */}
         </div>
       )}
       <ValueSetSelect
         system="system-observation"
         placeholder={t("search_lab_observation_code")}
         onSelect={handleAddObservation}
-        // You can pass a selected value if needed
-        // value={...}
         disabled={disabled}
       />
     </div>

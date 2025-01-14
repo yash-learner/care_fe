@@ -7,7 +7,6 @@ import { toast } from "sonner";
 import { v4 as uuid } from "uuid";
 
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 
 import { ResultTable } from "@/components/Common/ResultTable";
@@ -26,6 +25,7 @@ import { DiagnosticReport } from "@/types/emr/diagnosticReport";
 import { LabObservation } from "@/types/emr/observation";
 import { Specimen } from "@/types/emr/specimen";
 
+import { BarcodeInput } from "../BarcodeInput";
 import { LabObservationQuestion } from "../LabObservationQuestion";
 import { SpecimenCard } from "../SpecimenCard";
 
@@ -70,11 +70,7 @@ export const ProcessSpecimen = ({ specimenId }: { specimenId?: string }) => {
     },
   ];
 
-  const {
-    data: specimenData,
-    isLoading,
-    error,
-  } = useQuery({
+  const { data: specimenData } = useQuery({
     queryKey: ["specimen", specimenId],
     queryFn: query(routes.labs.specimen.get, {
       pathParams: {
@@ -90,18 +86,9 @@ export const ProcessSpecimen = ({ specimenId }: { specimenId?: string }) => {
     }
   }, [specimenData]);
 
-  const { data: diagnosticReportData } = useQuery({
-    queryKey: ["diagnosticReport", specimen?.report?.[0]?.id],
-    queryFn: query(routes.labs.diagnosticReport.get, {
-      pathParams: {
-        id: specimen?.report?.[0]?.id ?? "",
-      },
-    }),
-    enabled: !!specimen?.report?.[0]?.id,
-  });
+  // Todo: We need to set the diagnostic report when specimen is in state of approval
 
   const handleRemoveSpecimen = () => {
-    // Implement specimen removal logic here
     setSpecimen(undefined);
   };
 
@@ -119,65 +106,58 @@ export const ProcessSpecimen = ({ specimenId }: { specimenId?: string }) => {
     setSpecimen(updatedSpecimen);
   };
 
-  useEffect(() => {
-    if (diagnosticReportData) {
-      setDiagnosticReport(diagnosticReportData);
-    }
-  }, [diagnosticReportData]);
+  const { mutate: submitObservations } = useMutation({
+    mutationFn: async () => {
+      if (!specimen || observations.length === 0) {
+        throw new Error("Specimen or observations are missing.");
+      }
 
-  const { mutate: submitObservations, isPending: isSubmittingObservations } =
-    useMutation({
-      mutationFn: async () => {
-        if (!specimen || observations.length === 0) {
-          throw new Error("Specimen or observations are missing.");
-        }
+      const createReport = mutate(routes.labs.diagnosticReport.create);
+      const reportData = await createReport({
+        based_on: specimen.request.id,
+        specimen: [specimen.id],
+      });
 
-        const createReport = mutate(routes.labs.diagnosticReport.create);
-        const reportData = await createReport({
-          based_on: specimen.request.id,
-          specimen: [specimen.id],
-        });
+      if (!reportData) {
+        throw new Error("Failed to create diagnostic report.");
+      }
 
-        if (!reportData) {
-          throw new Error("Failed to create diagnostic report.");
-        }
+      setDiagnosticReport(reportData);
 
-        setDiagnosticReport(reportData);
+      const submitObs = mutate(routes.labs.diagnosticReport.observations, {
+        pathParams: { id: reportData.id },
+      });
 
-        const submitObs = mutate(routes.labs.diagnosticReport.observations, {
-          pathParams: { id: reportData.id },
-        });
+      const observationsData = await submitObs({
+        observations: observations.map((observation) => ({
+          id: uuid(),
+          main_code: observation.code!,
+          value_type: "quantity",
+          value: observation.result,
+          status: "final" as const,
+          effective_datetime: new Date().toISOString(),
+          data_entered_by_id: currentUserId,
+          subject_type: "patient" as const,
+          note: observation.note,
+          created_by_id: currentUserId,
+          updated_by_id: currentUserId,
+        })),
+      });
 
-        const observationsData = await submitObs({
-          observations: observations.map((observation) => ({
-            id: uuid(),
-            main_code: observation.code!,
-            value_type: "quantity",
-            value: observation.result,
-            status: "final" as const,
-            effective_datetime: new Date().toISOString(),
-            data_entered_by_id: currentUserId,
-            subject_type: "patient" as const,
-            note: observation.note,
-            created_by_id: currentUserId,
-            updated_by_id: currentUserId,
-          })),
-        });
+      if (!observationsData) {
+        throw new Error("Failed to submit observations.");
+      }
 
-        if (!observationsData) {
-          throw new Error("Failed to submit observations.");
-        }
-
-        return observationsData;
-      },
-      onSuccess: (data: DiagnosticReport) => {
-        setDiagnosticReport(data);
-        toast.success(t("observations_submitted_successfully"));
-      },
-      onError: (error: any) => {
-        toast.error(error.message || t("submit_observations_failed"));
-      },
-    });
+      return observationsData;
+    },
+    onSuccess: (data: DiagnosticReport) => {
+      setDiagnosticReport(data);
+      toast.success(t("observations_submitted_successfully"));
+    },
+    onError: (error: any) => {
+      toast.error(error.message || t("submit_observations_failed"));
+    },
+  });
 
   return (
     <div className="flex flex-col-reverse lg:flex-row min-h-screen">
@@ -205,9 +185,7 @@ export const ProcessSpecimen = ({ specimenId }: { specimenId?: string }) => {
               <Label className="text-sm font-normal text-gray-900">
                 Barcode
               </Label>
-              <Input
-                type="text"
-                placeholder="Scan Barcode/Enter number"
+              <BarcodeInput
                 className="text-center"
                 onKeyDown={async (e) => {
                   if (e.key === "Enter") {
@@ -216,9 +194,7 @@ export const ProcessSpecimen = ({ specimenId }: { specimenId?: string }) => {
                     const { res, data } = await request(
                       routes.labs.specimen.get,
                       {
-                        pathParams: {
-                          id: barcode,
-                        },
+                        pathParams: { id: barcode },
                       },
                     );
 
@@ -234,14 +210,12 @@ export const ProcessSpecimen = ({ specimenId }: { specimenId?: string }) => {
           )}
         </div>
 
-        {/* Observations Section */}
         {!!specimen?.processing.length && !diagnosticReport && (
           <>
             <LabObservationQuestion
               question="Lab Observations"
               observations={observations}
               setObservations={setObservations}
-              // disabled={!specimen || specimen?.processing.length > 0}
             />
 
             {/* Footer Buttons */}
@@ -296,8 +270,8 @@ export const ProcessSpecimen = ({ specimenId }: { specimenId?: string }) => {
                 parameter:
                   observation.main_code?.display ?? observation.main_code?.code,
                 result: String(observation.value.value),
-                unit: "x10³/μL", // observation.reference_range?.unit, Replace with actual unit if available
-                referenceRange: "4.0 - 11.0", // Replace with actual reference range if available
+                unit: "x10³/μL",
+                referenceRange: "4.0 - 11.0",
                 remark: observation.note,
               }))}
             />
