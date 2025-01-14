@@ -10,13 +10,13 @@ import { Code } from "@/types/questionnaire/code";
 
 import { LabObservationItem } from "./LabObservationItem";
 
-interface LabObservationQuestionProps {
+interface DiagnosticReportFormProps {
   question: string;
   observations: LabObservation[];
   setObservations: React.Dispatch<React.SetStateAction<LabObservation[]>>;
   disabled?: boolean;
 }
-export const LabObservationQuestion: React.FC<LabObservationQuestionProps> = ({
+export const DiagnosticReportForm: React.FC<DiagnosticReportFormProps> = ({
   question,
   observations,
   setObservations,

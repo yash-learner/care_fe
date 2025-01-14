@@ -26,7 +26,7 @@ import { LabObservation } from "@/types/emr/observation";
 import { Specimen } from "@/types/emr/specimen";
 
 import { BarcodeInput } from "../BarcodeInput";
-import { LabObservationQuestion } from "../LabObservationQuestion";
+import { DiagnosticReportForm } from "../DiagnosticReportForm";
 import { SpecimenCard } from "../SpecimenCard";
 
 export const ProcessSpecimen = ({ specimenId }: { specimenId?: string }) => {
@@ -212,7 +212,7 @@ export const ProcessSpecimen = ({ specimenId }: { specimenId?: string }) => {
 
         {!!specimen?.processing.length && !diagnosticReport && (
           <>
-            <LabObservationQuestion
+            <DiagnosticReportForm
               question="Lab Observations"
               observations={observations}
               setObservations={setObservations}
