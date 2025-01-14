@@ -112,7 +112,6 @@ export default function TableAbstract<TData, TValue>({
             </TableRow>
           ))
         ) : (
-          // Render "No results" row
           <TableRow>
             <TableCell
               colSpan={columns.length}

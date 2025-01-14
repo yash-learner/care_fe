@@ -141,7 +141,6 @@ export const SpecimenCard: React.FC<SpecimenProps> = ({
           </span>
         </div>
 
-        {/* Test */}
         <div>
           <Label className="text-sm font-medium text-gray-600">Test</Label>
           <span className="block text-gray-900 font-semibold mt-1">
@@ -149,7 +148,6 @@ export const SpecimenCard: React.FC<SpecimenProps> = ({
           </span>
         </div>
 
-        {/* Priority */}
         <div>
           <Label className="text-sm font-medium text-gray-600">Priority</Label>
           <Badge
@@ -164,7 +162,6 @@ export const SpecimenCard: React.FC<SpecimenProps> = ({
         </div>
       </div>
 
-      {/* Footer Buttons */}
       {!specimen?.processing.length && (
         <div className="flex items-center justify-end gap-4">
           <Button disabled variant="outline" size="sm" className="px-8 py-2">

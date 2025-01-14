@@ -14,13 +14,6 @@ export const SpecimenInfoCard: React.FC<SpecimenInfoCardProps> = ({
 }) => {
   const daysSinceCollection = dayjs().diff(dayjs(specimen.collected_at), "day");
 
-  // Extract notes from specimen and request if available
-  // const requestNotes =
-  //   specimen.request?.note?.map((note) => note.text).join("\n") ||
-  //   "No note provided for the lab order";
-  // const specimenNotes =
-  //   specimen.note?.map((note) => note.text).join("\n") || "No note provided";
-
   return (
     <Card>
       <CardContent className="p-6">

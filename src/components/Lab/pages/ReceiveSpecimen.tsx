@@ -92,7 +92,7 @@ export const ReceiveSpecimen: React.FC = () => {
     const newConditions = createSpecimenConditionArray(data);
 
     receiveAtLab({
-      note: data.additionalNote, // The top-level note is now additionalNote
+      note: data.additionalNote,
       condition: newConditions,
     });
   };

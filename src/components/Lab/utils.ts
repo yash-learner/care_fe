@@ -62,8 +62,6 @@ export const getOverallStepStatus = (
   subSteps: ProgressBarStep["subSteps"],
   previousStepStatus?: ProgressBarStep["status"],
 ): SpecimenStatus => {
-  console.log(subSteps, previousStepStatus, "subSteps");
-
   if (
     subSteps?.every(
       (subStep) =>
