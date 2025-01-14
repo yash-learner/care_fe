@@ -81,7 +81,6 @@ export default function PatientRegistration(
 
   const [suppressDuplicateWarning, setSuppressDuplicateWarning] =
     useState(!!patientId);
-  const [debouncedNumber, setDebouncedNumber] = useState<string>();
   const [selectedLevels, setSelectedLevels] = useState<Organization[]>([]);
   const [showAutoFilledPincode, setShowAutoFilledPincode] = useState(false);
 
@@ -251,13 +250,13 @@ export default function PatientRegistration(
   };
 
   const patientPhoneSearch = useQuery({
-    queryKey: ["patients", "phone-number", debouncedNumber],
-    queryFn: query(routes.searchPatient, {
+    queryKey: ["patients", "phone-number", form.watch("phone_number")],
+    queryFn: query.debounced(routes.searchPatient, {
       body: {
-        phone_number: parsePhoneNumber(debouncedNumber || "") || "",
+        phone_number: parsePhoneNumber(form.watch("phone_number") || "") || "",
       },
     }),
-    enabled: !!parsePhoneNumber(debouncedNumber || ""),
+    enabled: !!parsePhoneNumber(form.watch("phone_number") || ""),
   });
 
   const duplicatePatients = useMemo(() => {
@@ -297,20 +296,6 @@ export default function PatientRegistration(
       } as unknown as z.infer<typeof formSchema>);
     }
   }, [patientQuery.data]); // eslint-disable-line react-hooks/exhaustive-deps
-
-  useEffect(() => {
-    const handler = setTimeout(() => {
-      const phoneNumber = form.getValues("phone_number");
-      if (!patientId || patientQuery.data?.phone_number !== phoneNumber) {
-        setSuppressDuplicateWarning(false);
-      }
-      setDebouncedNumber(phoneNumber);
-    }, 500);
-
-    return () => {
-      clearTimeout(handler);
-    };
-  }, [form.watch("phone_number")]); // eslint-disable-line react-hooks/exhaustive-deps
 
   if (patientId && patientQuery.isLoading) {
     return <Loading />;
@@ -803,7 +788,7 @@ export default function PatientRegistration(
       </div>
       {!patientPhoneSearch.isLoading &&
         !!duplicatePatients?.length &&
-        !!parsePhoneNumber(debouncedNumber || "") &&
+        !!parsePhoneNumber(form.watch("phone_number") || "") &&
         !suppressDuplicateWarning && (
           <DuplicatePatientDialog
             patientList={duplicatePatients}
