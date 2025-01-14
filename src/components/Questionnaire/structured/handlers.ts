@@ -165,9 +165,9 @@ const handlers: {
       });
     },
   },
-  follow_up_appointment: {
-    getRequests: (followUpAppointment, { facilityId, patientId }) => {
-      const { reason_for_visit, slot_id } = followUpAppointment[0];
+  appointment: {
+    getRequests: (appointment, { facilityId, patientId }) => {
+      const { reason_for_visit, slot_id } = appointment[0];
       return [
         {
           url: `/api/v1/facility/${facilityId}/slots/${slot_id}/create_appointment/`,
@@ -176,7 +176,7 @@ const handlers: {
             reason_for_visit,
             patient: patientId,
           },
-          reference_id: "follow_up_appointment",
+          reference_id: "appointment",
         },
       ];
     },

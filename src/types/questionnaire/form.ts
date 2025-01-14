@@ -1,5 +1,3 @@
-import { FollowUpAppointmentRequest } from "@/components/Schedule/types";
-
 import { AllergyIntoleranceRequest } from "@/types/emr/allergyIntolerance/allergyIntolerance";
 import { Diagnosis } from "@/types/emr/diagnosis/diagnosis";
 import { Encounter } from "@/types/emr/encounter";
@@ -10,6 +8,7 @@ import { Symptom } from "@/types/emr/symptom/symptom";
 import { Code } from "@/types/questionnaire/code";
 import { Quantity } from "@/types/questionnaire/quantity";
 import { StructuredQuestionType } from "@/types/questionnaire/question";
+import { CreateAppointmentQuestion } from "@/types/scheduling/schedule";
 
 export type ResponseValue = {
   type:
@@ -24,7 +23,7 @@ export type ResponseValue = {
     | "symptom"
     | "diagnosis"
     | "encounter"
-    | "follow_up_appointment";
+    | "appointment";
 
   value?:
     | string
@@ -38,7 +37,7 @@ export type ResponseValue = {
     | Symptom[]
     | Diagnosis[]
     | Encounter
-    | FollowUpAppointmentRequest;
+    | CreateAppointmentQuestion;
   value_code?: Code;
   value_quantity?: Quantity;
 };
