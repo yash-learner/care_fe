@@ -1,7 +1,6 @@
 import { ChevronDownIcon, ChevronUpIcon } from "@radix-ui/react-icons";
 import { useMutation } from "@tanstack/react-query";
 import React, { useState } from "react";
-import { z } from "zod";
 
 import { Button } from "@/components/ui/button";
 import {
@@ -18,8 +17,10 @@ import { CodeableConcept } from "@/types/emr/base";
 import { Specimen } from "@/types/emr/specimen";
 
 import { BarcodeInput } from "../BarcodeInput";
-import { ReceiveSpecimenForm } from "../ReceiveSpecimenForm";
-import { SpecimenIntegrityFormSchema } from "../ReceiveSpecimenForm";
+import {
+  ReceiveSpecimenForm,
+  SpecimenIntegrityFormData,
+} from "../ReceiveSpecimenForm";
 import { ReceiveSpecimenCard } from "../ReceivedSpecimenCard";
 import { SpecimenInfoCard } from "../SpecimenInfoCard";
 
@@ -61,20 +62,15 @@ export const ReceiveSpecimen: React.FC = () => {
     "Sample not received": { code: "SNR", display: "Sample not received" },
     Centrifuged: { code: "CFU", display: "Centrifuged" },
   };
-
-  type SpecimenIntegrityFormData = z.infer<typeof SpecimenIntegrityFormSchema>;
-
   function createSpecimenConditionArray(
     formData: SpecimenIntegrityFormData,
   ): CodeableConcept[] {
     const condition: CodeableConcept[] = [];
 
-    // For each property of the form data...
-    Object.entries(formData).forEach(([param, value]) => {
-      if (param === "note") return; // skip the note field
-      if (value === "Yes") {
+    for (const [param, paramData] of Object.entries(formData.parameters)) {
+      if (paramData.value === "Yes") {
         const { code, display } = specimenConditionMap[param] ?? {};
-        if (!code) return;
+        if (!code) continue;
 
         condition.push({
           coding: [
@@ -84,10 +80,10 @@ export const ReceiveSpecimen: React.FC = () => {
               display,
             },
           ],
-          text: display, // e.g., "Clotted"
+          text: display,
         });
       }
-    });
+    }
 
     return condition;
   }
@@ -96,7 +92,7 @@ export const ReceiveSpecimen: React.FC = () => {
     const newConditions = createSpecimenConditionArray(data);
 
     receiveAtLab({
-      note: data.note,
+      note: data.additionalNote, // The top-level note is now additionalNote
       condition: newConditions,
     });
   };
@@ -117,7 +113,6 @@ export const ReceiveSpecimen: React.FC = () => {
         {scannedSpecimen ? (
           <div className="space-y-4">
             <ReceiveSpecimenCard specimen={scannedSpecimen} />
-
             <div className="mt-4 bg-white rounded-md">
               <div className="mt-4 bg-gray-50 rounded-sm p-4 flex flex-col gap-4">
                 <ReceiveSpecimenForm onSubmit={onSubmit} />
@@ -152,11 +147,11 @@ export const ReceiveSpecimen: React.FC = () => {
           </div>
         )}
       </div>
+
       <div>
         <Label className="text-xl font-medium text-gray-900">
           Received at Lab
         </Label>
-
         <div className="flex flex-col gap-4 mt-6">
           {approvedSpecimens.map((specimen) => (
             <ReceiveSpecimenCollapsible key={specimen.id} specimen={specimen} />
@@ -196,13 +191,11 @@ const ReceiveSpecimenCollapsible: React.FC<{
               <div className="flex items-center gap-4">
                 <CollapsibleTrigger asChild>
                   <Button variant="ghost" size="sm">
-                    <div className="">
-                      {isOpen ? (
-                        <ChevronUpIcon className="h-6 w-8" />
-                      ) : (
-                        <ChevronDownIcon className="h-6 w-8" />
-                      )}
-                    </div>
+                    {isOpen ? (
+                      <ChevronUpIcon className="h-6 w-8" />
+                    ) : (
+                      <ChevronDownIcon className="h-6 w-8" />
+                    )}
                   </Button>
                 </CollapsibleTrigger>
               </div>

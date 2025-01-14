@@ -16,47 +16,63 @@ import { Label } from "@/components/ui/label";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Textarea } from "@/components/ui/textarea";
 
-export const SpecimenIntegrityFormSchema = z.object({
-  Autolyzed: z.enum(["Yes", "No"]),
-  Clotted: z.enum(["Yes", "No"]),
-  Contaminated: z.enum(["Yes", "No"]),
-  Cool: z.enum(["Yes", "No"]),
-  Frozen: z.enum(["Yes", "No"]),
-  Hemolyzed: z.enum(["Yes", "No"]),
-  Live: z.enum(["Yes", "No"]),
-  "Room temperature": z.enum(["Yes", "No"]),
-  "Sample not received": z.enum(["Yes", "No"]),
-  Centrifuged: z.enum(["Yes", "No"]),
-  note: z.string().optional(),
+export const specimenIntegrityChecks = [
+  "Autolyzed",
+  "Clotted",
+  "Contaminated",
+  "Cool",
+  "Frozen",
+  "Hemolyzed",
+  "Live",
+  "Room temperature",
+  "Sample not received",
+  "Centrifuged",
+].map((parameter) => ({ parameter, options: ["Yes", "No"], note: "" }));
+
+const specimenConditionSchema = specimenIntegrityChecks.reduce(
+  (schema, { parameter }) => {
+    schema[parameter] = z.object({
+      value: z.enum(["Yes", "No"]),
+      note: z.string().optional(),
+    });
+    return schema;
+  },
+  {} as Record<
+    string,
+    z.ZodObject<{
+      value: z.ZodEnum<["Yes", "No"]>;
+      note: z.ZodOptional<z.ZodString>;
+    }>
+  >,
+);
+
+export const specimenIntegrityFormSchema = z.object({
+  parameters: z.object(specimenConditionSchema),
+  additionalNote: z.string().optional(),
 });
 
-type SpecimenIntegrityFormData = z.infer<typeof SpecimenIntegrityFormSchema>;
+export type SpecimenIntegrityFormData = z.infer<
+  typeof specimenIntegrityFormSchema
+>;
 
 interface ReceiveSpecimenFormProps {
   onSubmit: SubmitHandler<SpecimenIntegrityFormData>;
 }
 
-const specimenIntegrityChecks = [
-  { parameter: "Autolyzed", options: ["Yes", "No"] },
-  { parameter: "Clotted", options: ["Yes", "No"] },
-  { parameter: "Contaminated", options: ["Yes", "No"] },
-  { parameter: "Cool", options: ["Yes", "No"] },
-  { parameter: "Frozen", options: ["Yes", "No"] },
-  { parameter: "Hemolyzed", options: ["Yes", "No"] },
-  { parameter: "Live", options: ["Yes", "No"] },
-  { parameter: "Room temperature", options: ["Yes", "No"] },
-  { parameter: "Sample not received", options: ["Yes", "No"] },
-  { parameter: "Centrifuged", options: ["Yes", "No"] },
-];
-
 export const ReceiveSpecimenForm: React.FC<ReceiveSpecimenFormProps> = ({
   onSubmit,
 }) => {
   const form = useForm<SpecimenIntegrityFormData>({
-    resolver: zodResolver(SpecimenIntegrityFormSchema),
-    defaultValues: Object.fromEntries(
-      specimenIntegrityChecks.map((check) => [check.parameter, "No"]),
-    ) as SpecimenIntegrityFormData,
+    resolver: zodResolver(specimenIntegrityFormSchema),
+    defaultValues: {
+      parameters: Object.fromEntries(
+        specimenIntegrityChecks.map((check) => [
+          check.parameter,
+          { value: "No", note: "" },
+        ]),
+      ) as Record<string, { value: "Yes" | "No"; note: string }>,
+      additionalNote: "",
+    },
   });
 
   return (
@@ -72,7 +88,7 @@ export const ReceiveSpecimenForm: React.FC<ReceiveSpecimenFormProps> = ({
           <FormField
             key={parameter}
             control={form.control}
-            name={parameter as keyof SpecimenIntegrityFormData}
+            name={`parameters.${parameter}`}
             render={({ field }) => (
               <FormItem className="table-row">
                 <div className="table-cell py-2 pr-4 align-top">
@@ -81,8 +97,10 @@ export const ReceiveSpecimenForm: React.FC<ReceiveSpecimenFormProps> = ({
                 <div className="table-cell px-4 py-2 align-top">
                   <FormControl>
                     <RadioGroup
-                      value={field.value}
-                      onValueChange={field.onChange}
+                      value={field.value?.value || "No"} // "No" by default
+                      onValueChange={(value) =>
+                        field.onChange({ ...field.value, value })
+                      }
                       className="flex gap-4 mt-1 space-x-4"
                     >
                       {options.map((option) => (
@@ -112,7 +130,7 @@ export const ReceiveSpecimenForm: React.FC<ReceiveSpecimenFormProps> = ({
 
         <FormField
           control={form.control}
-          name="note"
+          name="additionalNote"
           render={({ field }) => (
             <FormItem>
               <FormLabel className="font-medium">Note (optional)</FormLabel>
