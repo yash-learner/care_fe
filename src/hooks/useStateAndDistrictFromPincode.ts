@@ -23,7 +23,7 @@ export function useStateAndDistrictFromPincode({
   } = useQuery({
     queryKey: ["pincode-details", pincode],
     queryFn: () => getPincodeDetails(pincode, careConfig.govDataApiKey),
-    enabled: validatePincode(pincode),
+    enabled: pincode !== "" && validatePincode(pincode),
   });
 
   const { t } = useTranslation();
