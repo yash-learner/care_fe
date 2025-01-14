@@ -211,9 +211,10 @@ export default function PatientRegistration(
       setShowAutoFilledPincode(true);
       const timer = setTimeout(() => {
         setShowAutoFilledPincode(false);
-      }, 2000);
+      }, 5000);
       return () => clearTimeout(timer);
     }
+    return () => setShowAutoFilledPincode(false);
   }, [stateOrg, districtOrg, patientId]);
 
   function onSubmit(values: z.infer<typeof formSchema>) {
@@ -703,10 +704,15 @@ export default function PatientRegistration(
                     </FormControl>
                     <FormMessage />
                     {showAutoFilledPincode && (
-                      <div>
+                      <div
+                        role="status"
+                        aria-live="polite"
+                        className="flex items-center"
+                      >
                         <CareIcon
                           icon="l-check-circle"
                           className="mr-2 text-sm text-green-500"
+                          aria-hidden="true"
                         />
                         <span className="text-sm text-primary-500">
                           {t("pincode_autofill")}
