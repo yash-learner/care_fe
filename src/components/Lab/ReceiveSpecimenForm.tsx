@@ -12,6 +12,7 @@ import {
   FormLabel,
   FormMessage,
 } from "@/components/ui/form";
+import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Textarea } from "@/components/ui/textarea";
@@ -81,9 +82,15 @@ export const ReceiveSpecimenForm: React.FC<ReceiveSpecimenFormProps> = ({
         onSubmit={form.handleSubmit(onSubmit)}
         className="p-4 border rounded-md space-y-4"
       >
-        <Label className="text-base font-medium text-gray-600">
-          Specimen Integrity Check
-        </Label>
+        <div className="flex space-x-36">
+          <Label className="text-base font-medium text-gray-600">
+            Specimen Integrity Check
+          </Label>
+
+          <Label className="text-base font-medium text-gray-600">
+            Note (optional)
+          </Label>
+        </div>
         {specimenIntegrityChecks.map(({ parameter, options }) => (
           <FormField
             key={parameter}
@@ -97,7 +104,7 @@ export const ReceiveSpecimenForm: React.FC<ReceiveSpecimenFormProps> = ({
                 <div className="table-cell px-4 py-2 align-top">
                   <FormControl>
                     <RadioGroup
-                      value={field.value?.value || "No"} // "No" by default
+                      value={field.value?.value || "No"}
                       onValueChange={(value) =>
                         field.onChange({ ...field.value, value })
                       }
@@ -118,6 +125,16 @@ export const ReceiveSpecimenForm: React.FC<ReceiveSpecimenFormProps> = ({
                         </div>
                       ))}
                     </RadioGroup>
+                  </FormControl>
+                </div>
+                <div className="table-cell px-4 py-2 align-top">
+                  <FormControl>
+                    <Input
+                      value={field.value?.note || ""}
+                      onChange={(e) =>
+                        field.onChange({ ...field.value, note: e.target.value })
+                      }
+                    />
                   </FormControl>
                 </div>
                 <div className="table-cell px-4 py-2 align-top">

@@ -80,7 +80,7 @@ export const ReceiveSpecimen: React.FC = () => {
               display,
             },
           ],
-          text: display,
+          text: paramData.note,
         });
       }
     }
