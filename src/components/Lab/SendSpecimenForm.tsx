@@ -1,6 +1,7 @@
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useMutation } from "@tanstack/react-query";
+import { useMutation, useQuery } from "@tanstack/react-query";
 import { useForm } from "react-hook-form";
+import { toast } from "sonner";
 import { z } from "zod";
 
 import { Card, CardContent } from "@/components/ui/card";
@@ -24,6 +25,7 @@ import {
 
 import routes from "@/Utils/request/api";
 import mutate from "@/Utils/request/mutate";
+import query from "@/Utils/request/query";
 import { Specimen } from "@/types/emr/specimen";
 
 import { Button } from "../ui/button";
@@ -39,15 +41,6 @@ const formSchema = z.object({
   lab: z.string().uuid(),
 });
 
-// Mock Labs Data
-const labs = [
-  { id: "b5d3c589-79ad-4c28-a070-bb795ca75ce4", name: "Central Lab" },
-  { id: "e9be65c3-70e7-406c-909d-dffd84501460", name: "Northside Lab" },
-  { id: "20f6958a-d0b4-4fdb-bd3c-1a3bedc728a8", name: "Southside Lab" },
-  { id: "c0b60fd1-cb5e-4265-aab4-03b08f8c69f6", name: "Eastside Lab" },
-  { id: "c713add3-e558-4fb6-a311-dd0c1c3558d5", name: "Westside Lab" },
-];
-
 export const SendSpecimenForm: React.FC<SendSpecimenFormProps> = ({
   onSuccess,
 }) => {
@@ -59,12 +52,40 @@ export const SendSpecimenForm: React.FC<SendSpecimenFormProps> = ({
     },
   });
 
+  const { watch } = form;
+  const searchQuery = watch("barcode");
+
+  const {
+    data: specimen,
+    isLoading,
+    error,
+  } = useQuery({
+    queryKey: ["get-specimen", searchQuery],
+    queryFn: query.debounced(routes.labs.specimen.get, {
+      pathParams: { id: searchQuery || "" },
+    }),
+    enabled: !!searchQuery,
+  });
+
+  if (error) {
+    toast.error("Specimen not found");
+  }
+
+  const { data: labs } = useQuery({
+    queryKey: ["labs"],
+    queryFn: query(routes.facilityOrganization.list, {
+      pathParams: { facilityId: specimen?.request.encounter.facility.id ?? "" },
+    }),
+    enabled: !!specimen,
+  });
+
   const { mutate: sendSpecimen } = useMutation({
     mutationFn: mutate(routes.labs.specimen.sendToLab, {
       pathParams: { id: form.watch("barcode") },
     }),
     onSuccess: (data: Specimen) => {
       form.reset();
+      toast.success("Specimen is ready for dispatch");
       onSuccess(data);
     },
   });
@@ -107,14 +128,23 @@ export const SendSpecimenForm: React.FC<SendSpecimenFormProps> = ({
                         <Select
                           value={field.value}
                           onValueChange={field.onChange}
+                          disabled={
+                            isLoading || !!error || form.watch("barcode") === ""
+                          }
                         >
                           <SelectTrigger>
-                            <SelectValue placeholder="Select a Lab" />
+                            <SelectValue
+                              placeholder={
+                                isLoading && !error
+                                  ? "Loading labs..."
+                                  : "Select a Lab"
+                              }
+                            />
                           </SelectTrigger>
                           <SelectContent>
                             <SelectGroup>
                               <SelectLabel>Labs</SelectLabel>
-                              {labs.map((lab) => (
+                              {labs?.results.map((lab) => (
                                 <SelectItem key={lab.id} value={lab.id}>
                                   {lab.name}
                                 </SelectItem>
