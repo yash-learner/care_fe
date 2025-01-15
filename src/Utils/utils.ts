@@ -10,6 +10,7 @@ import dayjs from "@/Utils/dayjs";
 import { Time } from "@/Utils/types";
 import { Patient } from "@/types/emr/newPatient";
 import { PatientModel } from "@/types/emr/patient";
+import { Code } from "@/types/questionnaire/code";
 import { Quantity } from "@/types/questionnaire/quantity";
 
 const DATE_FORMAT = "DD/MM/YYYY";
@@ -413,4 +414,10 @@ export const conditionalAttribute = <T>(
   attributes: Record<string, T>,
 ) => {
   return condition ? attributes : {};
+};
+
+export const displayCode = (code?: Code) => {
+  if (!code) return "N/A";
+
+  return code.display ?? code.code;
 };
