@@ -29,7 +29,6 @@ export function useOrganization({
       },
     }),
     enabled: enabled && !!name,
-    select: (res) => ({ results: res.results }),
   });
 
   isError && toast.error(t("organizations_fetch_error"));
