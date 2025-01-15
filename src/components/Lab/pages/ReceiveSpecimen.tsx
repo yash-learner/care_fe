@@ -201,7 +201,6 @@ const ReceiveSpecimenCollapsible: React.FC<{
               </div>
             </div>
           </div>
-          {/* Expanded Content */}
           <CollapsibleContent>
             <SpecimenInfoCard specimen={specimen} />
           </CollapsibleContent>

@@ -44,7 +44,6 @@ export function QuestionnaireSearch({
       queryFn: query.debounced(questionnaireApi.list, {
         queryParams: {
           title: search,
-          limit: 100,
           ...conditionalAttribute(!!subjectType, {
             subject_type: subjectType,
           }),

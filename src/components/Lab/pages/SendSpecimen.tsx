@@ -93,7 +93,6 @@ const SpecimenCollapsible = ({ specimen }: { specimen: Specimen }) => {
             </div>
           </div>
 
-          {/* Expanded Content */}
           <CollapsibleContent>
             <ServiceRequestCard serviceRequest={specimen.request} />
           </CollapsibleContent>
