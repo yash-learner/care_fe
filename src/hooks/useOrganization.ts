@@ -3,7 +3,6 @@ import { t } from "i18next";
 import { toast } from "sonner";
 
 import query from "@/Utils/request/query";
-import { Organization } from "@/types/organization/organization";
 import organizationApi from "@/types/organization/organizationApi";
 
 interface UseOrganizationParams {
@@ -19,7 +18,7 @@ export function useOrganization({
   name = "",
   enabled = true,
 }: UseOrganizationParams) {
-  const { data, isLoading, isError } = useQuery<{ results: Organization[] }>({
+  const { data, isLoading, isError } = useQuery({
     queryKey: ["organization", orgType, name, parentId],
     queryFn: query(organizationApi.list, {
       queryParams: {
