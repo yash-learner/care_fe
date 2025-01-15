@@ -1,6 +1,7 @@
 import careConfig from "@careConfig";
 import { useQuery } from "@tanstack/react-query";
 import { t } from "i18next";
+import { useEffect } from "react";
 import { toast } from "sonner";
 
 import { validatePincode } from "@/common/validation";
@@ -58,12 +59,14 @@ export function useStateAndDistrictFromPincode({
     enabled: !!stateOrg?.id && !!districtName,
   });
 
-  if (isStateError || isPincodeError) {
-    toast.info(t("pincode_state_auto_fill_error"));
-  }
-  if (isDistrictError && !isStateError) {
-    toast.info(t("pincode_district_auto_fill_error"));
-  }
+  useEffect(() => {
+    if (isStateError || isPincodeError) {
+      toast.info(t("pincode_state_auto_fill_error"));
+    }
+    if (isDistrictError && !isStateError) {
+      toast.info(t("pincode_district_auto_fill_error"));
+    }
+  }, [isStateError, isPincodeError, isDistrictError]);
 
   const districtOrg = districtOrgs[0];
 
