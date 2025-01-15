@@ -1,5 +1,5 @@
 import { useQuery } from "@tanstack/react-query";
-import { useTranslation } from "react-i18next";
+import { t } from "i18next";
 import { toast } from "sonner";
 
 import query from "@/Utils/request/query";
@@ -31,8 +31,6 @@ export function useOrganization({
     enabled: enabled && !!name,
     select: (res) => ({ results: res.results }),
   });
-
-  const { t } = useTranslation();
 
   isError && toast.error(t("organizations_fetch_error"));
 
