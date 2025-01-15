@@ -1,6 +1,7 @@
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useMutation, useQuery } from "@tanstack/react-query";
 import { useForm } from "react-hook-form";
+import { useTranslation } from "react-i18next";
 import { toast } from "sonner";
 import { z } from "zod";
 
@@ -29,21 +30,24 @@ import query from "@/Utils/request/query";
 import { Specimen } from "@/types/emr/specimen";
 
 import { Button } from "../ui/button";
-import { Label } from "../ui/label";
 import { BarcodeInput } from "./BarcodeInput";
 
 type SendSpecimenFormProps = {
   onSuccess: (specimen: Specimen) => void;
 };
 
-const formSchema = z.object({
-  barcode: z.string(),
-  lab: z.string().uuid(),
-});
+const createFormSchema = (t: (key: string) => string) =>
+  z.object({
+    barcode: z.string().nonempty(t("required")),
+    lab: z.string().nonempty(t("required")),
+  });
 
 export const SendSpecimenForm: React.FC<SendSpecimenFormProps> = ({
   onSuccess,
 }) => {
+  const { t } = useTranslation();
+  const formSchema = createFormSchema(t);
+
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
@@ -116,9 +120,7 @@ export const SendSpecimenForm: React.FC<SendSpecimenFormProps> = ({
                 )}
               />
               <div className="space-y-2">
-                <Label className="text-sm font-normal text-gray-900">
-                  Select Lab
-                </Label>
+                <FormLabel>Lab</FormLabel>
                 <FormField
                   control={form.control}
                   name="lab"
