@@ -5,6 +5,8 @@ import { useTranslation } from "react-i18next";
 import { toast } from "sonner";
 import { v4 as uuid } from "uuid";
 
+import CareIcon from "@/CAREUI/icons/CareIcon";
+
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 
@@ -91,7 +93,7 @@ export const ProcessSpecimen = ({ specimenId }: { specimenId?: string }) => {
     setSpecimen(undefined);
   };
 
-  const { mutate: verifyDiagnosticReport } = useMutation({
+  const { mutate: verifyDiagnosticReport, isPending } = useMutation({
     mutationFn: mutate(routes.labs.diagnosticReport.verify, {
       pathParams: { id: diagnosticReport?.id ?? "" },
     }),
@@ -154,8 +156,8 @@ export const ProcessSpecimen = ({ specimenId }: { specimenId?: string }) => {
       setDiagnosticReport(data);
       toast.success(t("observations_submitted_successfully"));
     },
-    onError: (error: any) => {
-      toast.error(error.message || t("submit_observations_failed"));
+    onError: () => {
+      toast.error(t("submit_observations_failed"));
     },
   });
 
@@ -221,7 +223,6 @@ export const ProcessSpecimen = ({ specimenId }: { specimenId?: string }) => {
           )}
         </div>
 
-        {/* Show the form if there's a specimen with processing started, but no diagnostic report yet */}
         {!!specimen?.processing.length && !diagnosticReport && (
           <DiagnosticReportForm
             question={t("lab_observations")}
@@ -229,8 +230,8 @@ export const ProcessSpecimen = ({ specimenId }: { specimenId?: string }) => {
             onSubmit={handleDiagnosticReportFormSubmit}
           />
         )}
+        <div className="border-l-[2.5px] border-gray-300 w-5 h-12 ms-8 last:hidden" />
 
-        {/* If the report exists, display results */}
         {diagnosticReport && (
           <div className="bg-gray-50 border border-gray-300 rounded-sm shadow-sm p-2 space-y-2">
             <h2 className="text-base font-semibold text-gray-900">
@@ -278,7 +279,7 @@ export const ProcessSpecimen = ({ specimenId }: { specimenId?: string }) => {
                   disabled
                 >
                   <CrossCircledIcon className="h-4 w-4 text-red-500" />
-                  <span>{t("reject_result")}</span>
+                  <span>{t("reject")}</span>
                 </Button>
                 <Button
                   onClick={() => {
@@ -288,8 +289,19 @@ export const ProcessSpecimen = ({ specimenId }: { specimenId?: string }) => {
                   size="sm"
                   className="gap-2"
                 >
-                  <CheckCircledIcon className="h-4 w-4 text-white" />
-                  {t("approve_result")}
+                  {isPending ? (
+                    <>
+                      <CareIcon
+                        icon="l-spinner"
+                        className="mr-2 h-4 w-4 animate-spin"
+                      />
+                    </>
+                  ) : (
+                    <>
+                      <CheckCircledIcon className="h-4 w-4 text-white" />
+                      {t("approve")}
+                    </>
+                  )}
                 </Button>
               </div>
             )}
