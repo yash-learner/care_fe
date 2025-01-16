@@ -1,5 +1,7 @@
 import React from "react";
 
+import { cn } from "@/lib/utils";
+
 import {
   Table,
   TableBody,
@@ -12,7 +14,7 @@ import {
 interface Column {
   key: string;
   label: string;
-  headerClass?: string; // Optional
+  headerClass?: string;
 }
 
 interface ResultTableProps {
@@ -29,7 +31,10 @@ export const ResultTable: React.FC<ResultTableProps> = ({ columns, data }) => {
             {columns.map((col) => (
               <TableHead
                 key={col.key}
-                className={`${col.headerClass || "text-sm text-gray-900"}`}
+                className={cn(
+                  "text-sm text-gray-900 capitalize",
+                  col.headerClass,
+                )}
               >
                 {col.label}
               </TableHead>
