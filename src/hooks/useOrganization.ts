@@ -1,5 +1,6 @@
 import { useQuery } from "@tanstack/react-query";
 import { t } from "i18next";
+import { useEffect } from "react";
 import { toast } from "sonner";
 
 import query from "@/Utils/request/query";
@@ -30,7 +31,11 @@ export function useOrganization({
     enabled: enabled && !!name,
   });
 
-  isError && toast.error(t("organizations_fetch_error"));
+  useEffect(() => {
+    if (isError) {
+      toast.error(t("organizations_fetch_error"));
+    }
+  }, [isError]);
 
   return {
     organizations: data?.results || [],
