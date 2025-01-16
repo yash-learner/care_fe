@@ -218,7 +218,6 @@ export default function CreateFacilityForm({
                     {...field}
                     data-cy="facility-description"
                     placeholder="Describe your facility (Markdown supported)"
-                    className="h-24"
                   />
                 </FormControl>
                 <FormMessage />
@@ -263,6 +262,7 @@ export default function CreateFacilityForm({
                   <FormLabel required>Phone Number</FormLabel>
                   <FormControl>
                     <Input
+                      type="tel"
                       data-cy="facility-phone"
                       placeholder="+91XXXXXXXXXX"
                       maxLength={13}
@@ -304,7 +304,6 @@ export default function CreateFacilityForm({
                     {...field}
                     data-cy="facility-address"
                     placeholder="Enter complete address"
-                    className="h-20"
                   />
                 </FormControl>
                 <FormMessage />
