@@ -32,18 +32,28 @@ export const specimenIntegrityChecks = [
 
 const specimenConditionSchema = specimenIntegrityChecks.reduce(
   (schema, { parameter }) => {
-    schema[parameter] = z.object({
-      value: z.enum(["Yes", "No"]),
-      note: z.string().optional(),
-    });
+    schema[parameter] = z
+      .object({
+        value: z.enum(["Yes", "No"]),
+        note: z.string().optional(),
+      })
+      .refine(
+        (data) => data.value === "No" || (data.note && data.note.trim() !== ""),
+        {
+          message: "Note is required when value is Yes",
+          path: ["note"],
+        },
+      );
     return schema;
   },
   {} as Record<
     string,
-    z.ZodObject<{
-      value: z.ZodEnum<["Yes", "No"]>;
-      note: z.ZodOptional<z.ZodString>;
-    }>
+    z.ZodEffects<
+      z.ZodObject<{
+        value: z.ZodEnum<["Yes", "No"]>;
+        note: z.ZodOptional<z.ZodString>;
+      }>
+    >
   >,
 );
 
@@ -82,14 +92,12 @@ export const ReceiveSpecimenForm: React.FC<ReceiveSpecimenFormProps> = ({
         onSubmit={form.handleSubmit(onSubmit)}
         className="p-4 border rounded-md space-y-4"
       >
-        <div className="flex space-x-36">
+        <div className="flex space-x-32">
           <Label className="text-base font-medium text-gray-600">
             Specimen Integrity Check
           </Label>
 
-          <Label className="text-base font-medium text-gray-600">
-            Note (optional)
-          </Label>
+          <Label className="text-base font-medium text-gray-600">Note</Label>
         </div>
         {specimenIntegrityChecks.map(({ parameter, options }) => (
           <FormField
@@ -128,17 +136,21 @@ export const ReceiveSpecimenForm: React.FC<ReceiveSpecimenFormProps> = ({
                   </FormControl>
                 </div>
                 <div className="table-cell px-4 py-2 align-top">
-                  <FormControl>
-                    <Input
-                      value={field.value?.note || ""}
-                      onChange={(e) =>
-                        field.onChange({ ...field.value, note: e.target.value })
-                      }
-                    />
-                  </FormControl>
-                </div>
-                <div className="table-cell px-4 py-2 align-top">
-                  <FormMessage />
+                  <FormField
+                    control={form.control}
+                    name={`parameters.${parameter}.note`}
+                    render={({ field: noteField }) => (
+                      <FormItem>
+                        <FormControl>
+                          <Input
+                            value={noteField.value}
+                            onChange={noteField.onChange}
+                          />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
                 </div>
               </FormItem>
             )}
