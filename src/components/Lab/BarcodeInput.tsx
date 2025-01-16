@@ -14,7 +14,7 @@ export const BarcodeInput = forwardRef<HTMLInputElement, BarcodeInputProps>(
     return (
       <div className="relative w-full">
         <Input
-          placeholder="Enter barcode"
+          placeholder="Scan or Enter the barcode"
           className={cn("w-full", className)}
           ref={ref}
           {...props}
