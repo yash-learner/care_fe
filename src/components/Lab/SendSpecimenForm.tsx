@@ -113,7 +113,7 @@ export const SendSpecimenForm: React.FC<SendSpecimenFormProps> = ({
                   <FormItem>
                     <FormLabel>Barcode:</FormLabel>
                     <FormControl>
-                      <BarcodeInput {...field} />
+                      <BarcodeInput className="text-center" {...field} />
                     </FormControl>
                     <FormMessage />
                   </FormItem>

@@ -81,7 +81,7 @@ export const DiagnosticReportForm: React.FC<DiagnosticReportFormProps> = ({
     <Form {...form}>
       <form
         onSubmit={form.handleSubmit(handleFormSubmit)}
-        className="space-y-4"
+        className="space-y-4 mt-4"
       >
         <h2 className="text-lg font-semibold">{question}</h2>
 
@@ -100,7 +100,7 @@ export const DiagnosticReportForm: React.FC<DiagnosticReportFormProps> = ({
 
         <ValueSetSelect
           system="system-observation"
-          placeholder={t("search_lab_observation_code")}
+          placeholder={t("search_lab_observation")}
           onSelect={(code) => handleAddObservation(code)}
           disabled={disabled}
         />

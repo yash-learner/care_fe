@@ -228,6 +228,7 @@ export const CollectSpecimenFormCard: React.FC<
                             <FormLabel>Barcode:</FormLabel>
                             <FormControl>
                               <BarcodeInput
+                                className="text-center"
                                 {...field}
                                 onKeyDown={(event) => {
                                   if (event.key === "Enter") {

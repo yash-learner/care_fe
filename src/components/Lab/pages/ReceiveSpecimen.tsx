@@ -123,6 +123,7 @@ export const ReceiveSpecimen: React.FC = () => {
           <div className="space-y-2">
             <Label className="text-sm font-normal text-gray-900">Barcode</Label>
             <BarcodeInput
+              className="text-center"
               onKeyDown={async (e) => {
                 if (e.key === "Enter") {
                   const barcode = e.currentTarget.value;
