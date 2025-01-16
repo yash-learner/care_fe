@@ -421,3 +421,12 @@ export const displayCode = (code?: Code) => {
 
   return code.display ?? code.code;
 };
+
+export const displayPatientName = (patient?: PatientModel | Patient) => {
+  if (!patient) return "N/A";
+  return patient.name;
+};
+
+export const displayPatientId = (patient?: PatientModel | Patient) => {
+  return patient?.id?.slice(0, 8) ?? "N/A";
+};
