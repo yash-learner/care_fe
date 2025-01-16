@@ -14,10 +14,20 @@ import { Label } from "@/components/ui/label";
 
 import routes from "@/Utils/request/api";
 import mutate from "@/Utils/request/mutate";
-import { formatDateTime } from "@/Utils/utils";
+import {
+  displayCode,
+  displayPatientId,
+  displayPatientName,
+  formatDateTime,
+} from "@/Utils/utils";
 import { Specimen } from "@/types/emr/specimen";
 
 import { getPriorityColor } from "./utils";
+import {
+  displayPriority,
+  displayServiceRequestId,
+  displaySpecimenId,
+} from "./utils";
 
 interface SpecimenProps {
   specimen: Specimen;
@@ -54,9 +64,7 @@ export const SpecimenCard: React.FC<SpecimenProps> = ({
           </Label>
           <div className="flex items-center gap-2">
             <span className="text-base font-semibold leading-tight text-gray-900">
-              {specimen.accession_identifier ??
-                specimen.identifier ??
-                specimen.id.slice(0, 8)}
+              {displaySpecimenId(specimen)}
             </span>
             <Badge
               variant="outline"
@@ -77,7 +85,6 @@ export const SpecimenCard: React.FC<SpecimenProps> = ({
         </Button>
       </div>
 
-      {/* Barcode Success Message */}
       <div className="space-y-1">
         <Label className="text-sm font-normal text-gray-900">Barcode</Label>
         <div className="flex items-center justify-between p-2 bg-green-50 rounded-md">
@@ -92,19 +99,16 @@ export const SpecimenCard: React.FC<SpecimenProps> = ({
         </div>
       </div>
 
-      {/* Specimen Details Grid */}
       <div className="grid grid-cols-4 gap-4">
-        {/* Specimen Type */}
         <div>
           <Label className="text-sm font-medium text-gray-600">
             Specimen Type
           </Label>
           <span className="block text-gray-900 font-semibold mt-1">
-            {specimen.type.display ?? specimen.type.code}
+            {displayCode(specimen.type)}
           </span>
         </div>
 
-        {/* Date of Collection */}
         <div>
           <Label className="text-sm font-medium text-gray-600">
             Date of Collection
@@ -114,26 +118,25 @@ export const SpecimenCard: React.FC<SpecimenProps> = ({
           </span>
         </div>
 
-        {/* Patient Name & ID */}
         <div>
           <Label className="text-sm font-medium text-gray-600">
             Patient Name, ID
           </Label>
           <span className="block text-gray-900 font-semibold mt-1 capitalize">
-            {specimen.subject.name}
+            {displayPatientName(specimen.subject)}
           </span>
-          <span className="block text-gray-500 text-sm">T105690908240017</span>
+          <span className="block text-gray-500 text-sm">
+            {displayPatientId(specimen.subject)}
+          </span>
         </div>
 
-        {/* Order ID */}
         <div>
           <Label className="text-sm font-medium text-gray-600">Order ID</Label>
           <span className="block text-gray-900 font-semibold mt-1">
-            {specimen.request.id.slice(0, 8)}
+            {displayServiceRequestId(specimen.request)}
           </span>
         </div>
 
-        {/* Tube Type */}
         <div>
           <Label className="text-sm font-medium text-gray-600">Tube Type</Label>
           <span className="block text-gray-900 font-semibold mt-1">
@@ -144,7 +147,7 @@ export const SpecimenCard: React.FC<SpecimenProps> = ({
         <div>
           <Label className="text-sm font-medium text-gray-600">Test</Label>
           <span className="block text-gray-900 font-semibold mt-1">
-            {specimen.request.code.display ?? specimen.request.code.code}
+            {displayCode(specimen.request.code)}
           </span>
         </div>
 
@@ -157,16 +160,13 @@ export const SpecimenCard: React.FC<SpecimenProps> = ({
             )}
             variant="outline"
           >
-            {specimen.request.priority ?? "Routine"}
+            {displayPriority(specimen.request.priority)}
           </Badge>
         </div>
       </div>
 
       {!specimen?.processing.length && (
         <div className="flex items-center justify-end gap-4">
-          <Button disabled variant="outline" size="sm" className="px-8 py-2">
-            Cancel
-          </Button>
           <Button
             variant="primary"
             size="sm"
@@ -194,7 +194,7 @@ export const SpecimenCard: React.FC<SpecimenProps> = ({
                 />
               </>
             ) : (
-              "Start Processing"
+              t("start_processing")
             )}
           </Button>
         </div>

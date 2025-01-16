@@ -2,10 +2,15 @@ import React from "react";
 
 import CareIcon from "@/CAREUI/icons/CareIcon";
 
-import { displayCode, formatDateTime } from "@/Utils/utils";
+import {
+  displayCode,
+  displayPatientId,
+  displayPatientName,
+  formatDateTime,
+} from "@/Utils/utils";
 import { Specimen } from "@/types/emr/specimen";
 
-import { displaySpecimenId } from "./utils";
+import { displayServiceRequestId, displaySpecimenId } from "./utils";
 
 interface ReceiveSpecimenCardProps {
   specimen: Specimen;
@@ -56,17 +61,17 @@ export const ReceiveSpecimenCard: React.FC<ReceiveSpecimenCardProps> = ({
             Patient Name, ID
           </h3>
           <p className="text-base font-semibold text-gray-900">
-            {specimen.subject.name}
+            {displayPatientName(specimen.subject)}
           </p>
           <p className="text-sm text-gray-600">
-            {specimen.subject.id || "T105690908240017"}
+            {displayPatientId(specimen.subject)}
           </p>
         </div>
 
         <div>
           <h3 className="text-sm font-medium text-gray-600">Order ID</h3>
           <p className="text-base font-semibold text-gray-900">
-            {specimen.request.id.slice(0, 8)}
+            {displayServiceRequestId(specimen.request)}
           </p>
         </div>
       </div>
@@ -78,7 +83,7 @@ export const ReceiveSpecimenCard: React.FC<ReceiveSpecimenCardProps> = ({
               <div>
                 <h3 className="text-sm font-normal text-gray-600">Test</h3>
                 <p className="text-base font-medium text-gray-900">
-                  {specimen.type.display ?? specimen.type.code}
+                  {displayCode(specimen.request?.code)}
                 </p>
               </div>
               <div>

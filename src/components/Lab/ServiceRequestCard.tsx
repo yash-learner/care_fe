@@ -6,7 +6,7 @@ import { displayCode, displayUserName, formatDateTime } from "@/Utils/utils";
 import { ServiceRequest } from "@/types/emr/serviceRequest";
 
 import { Card, CardContent } from "../ui/card";
-import { getPriorityColor } from "./utils";
+import { displayPriority, getPriorityColor } from "./utils";
 
 export const ServiceRequestCard: React.FC<{
   serviceRequest: ServiceRequest;
@@ -48,7 +48,7 @@ export const ServiceRequestCard: React.FC<{
                 )}
                 variant="outline"
               >
-                {serviceRequest.priority}
+                {displayPriority(serviceRequest.priority)}
               </Badge>
             </div>
           </div>
