@@ -56,11 +56,12 @@ export const ProcessSpecimen = ({ specimenId }: { specimenId?: string }) => {
     },
     {
       label: "Under Review",
-      status: specimen?.report?.[0]?.id
-        ? "completed"
-        : (specimen?.processing?.length ?? 0) > 0
-          ? "pending"
-          : "notStarted",
+      status:
+        specimen?.report?.[0]?.id || diagnosticReport?.status === "preliminary"
+          ? "completed"
+          : (specimen?.processing?.length ?? 0) > 0
+            ? "pending"
+            : "notStarted",
     },
     {
       label: "Completed",
@@ -91,6 +92,7 @@ export const ProcessSpecimen = ({ specimenId }: { specimenId?: string }) => {
 
   const handleRemoveSpecimen = () => {
     setSpecimen(undefined);
+    setDiagnosticReport(undefined);
   };
 
   const { mutate: verifyDiagnosticReport, isPending } = useMutation({
@@ -100,6 +102,7 @@ export const ProcessSpecimen = ({ specimenId }: { specimenId?: string }) => {
     onSuccess: (data: DiagnosticReport) => {
       toast.success(t("verify_diagnostic_report_success"));
       setDiagnosticReport(data);
+      setSpecimen(data.specimen[0]);
     },
   });
 
