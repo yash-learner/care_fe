@@ -65,7 +65,7 @@ export default function Results() {
       cell: ({ row }) => (
         <Button
           onClick={() => navigate(`/lab_orders/${row.original.id}/result`)}
-          variant="secondary"
+          variant="outline_primary"
         >
           {t("view")}
         </Button>

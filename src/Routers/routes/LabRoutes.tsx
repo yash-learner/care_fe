@@ -3,6 +3,7 @@ import { CollectSpecimen } from "@/components/Lab/pages/CollectSpecimen";
 import LabOrderTabs from "@/components/Lab/pages/LabOrderTabs";
 import { ProcessSpecimen } from "@/components/Lab/pages/ProcessSpecimen";
 import { ReceiveSpecimen } from "@/components/Lab/pages/ReceiveSpecimen";
+import { Results } from "@/components/Lab/pages/Results";
 import { ReviewResult } from "@/components/Lab/pages/ReviewResult";
 import SendSpecimen from "@/components/Lab/pages/SendSpecimen";
 
@@ -26,7 +27,7 @@ const LabRoutes: AppRoutes = {
 
   [`${LABS_BASE_ROUTE}/:diagnosticReportId/result`]: ({
     diagnosticReportId,
-  }) => <ReviewResult diagnosticReportId={diagnosticReportId} />,
+  }) => <Results diagnosticReportId={diagnosticReportId} />,
 };
 
 export default LabRoutes;

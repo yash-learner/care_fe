@@ -32,6 +32,7 @@ import {
   ServiceRequestTimeline,
 } from "../../Common/ServiceRequestTimeline";
 import { Badge } from "../../ui/badge";
+import { ConsolidatedResults } from "../ConsolidatedResults";
 import { ServiceRequestCard } from "../ServiceRequestCard";
 
 const columns = [
@@ -48,7 +49,7 @@ const columns = [
   { key: "remark", label: "Remark" },
 ];
 
-export const ReviewResult: React.FC<{
+export const Results: React.FC<{
   diagnosticReportId: string;
 }> = ({ diagnosticReportId }) => {
   const [open, setOpen] = useState(false);
@@ -124,32 +125,65 @@ export const ReviewResult: React.FC<{
   if (isLoading) {
     return (
       <div className="flex flex-col-reverse lg:flex-row min-h-screen">
-        <div className="w-80 border-r p-4">
-          <Skeleton className="h-[600px] w-full" />
+        <div className="w-64 border-r">
+          <Skeleton className="h-screen" />
         </div>
         <main className="flex-1 p-6 lg:p-8 max-w-5xl mx-auto">
-          <Skeleton className="h-10 w-20 mb-8" />
-          <div className="space-y-4">
-            <div className="flex gap-4">
-              <Skeleton className="h-16 w-32" />
-              <Skeleton className="h-16 w-32" />
-              <Skeleton className="h-16 w-32" />
+          <Skeleton className="h-10 w-20 mb-8" /> {/* Back button */}
+          <div className="flex justify-between mb-8">
+            <Skeleton className="h-8 w-32" /> {/* Title */}
+            <Skeleton className="h-10 w-32" /> {/* Next Order button */}
+          </div>
+          {/* Patient Details */}
+          <div className="flex justify-between mb-4">
+            <div className="flex gap-8">
+              <div className="space-y-2">
+                <Skeleton className="h-4 w-24" />
+                <Skeleton className="h-6 w-32" />
+              </div>
+              <div className="space-y-2">
+                <Skeleton className="h-4 w-24" />
+                <Skeleton className="h-6 w-32" />
+              </div>
+              <div className="space-y-2">
+                <Skeleton className="h-4 w-24" />
+                <Skeleton className="h-6 w-32" />
+              </div>
             </div>
-            <div className="mb-4">
-              <Collapsible>
-                <div className="relative before:content-[''] before:absolute before:top-0 before:left-0 before:h-7 before:w-1 before:bg-gray-400 before:mt-3.5 before:rounded-r-sm">
-                  <div className="px-4 py-3 border rounded-lg shadow-sm">
-                    <div className="flex items-center gap-4 justify-between mb-4">
-                      <div className="space-y-2">
-                        <Skeleton className="h-4 w-24" />
-                        <Skeleton className="h-6 w-32" />
-                      </div>
+            <Skeleton className="h-6 w-36" />
+          </div>
+          <div className="mb-4">
+            <Collapsible>
+              <div className="">
+                <div className="px-4 py-3 border rounded-lg shadow-sm">
+                  <div className="flex items-end gap-4 justify-between px-1 py-2">
+                    <div className="space-y-2">
+                      <Skeleton className="h-4 w-24" />
+                      <Skeleton className="h-6 w-32" />
+                    </div>
+                    <div className="flex items-center gap-4">
+                      <Skeleton className="h-8 w-32" />
                       <Skeleton className="h-8 w-32" />
                     </div>
                   </div>
                 </div>
-              </Collapsible>
-            </div>
+              </div>
+            </Collapsible>
+          </div>
+          <div className="mb-4">
+            <Collapsible>
+              <div className="relative before:content-[''] before:absolute before:top-0 before:left-0 before:h-7 before:w-1 before:bg-gray-400 before:mt-3.5 before:rounded-r-sm">
+                <div className="px-4 py-3 border rounded-lg shadow-sm">
+                  <div className="flex items-center gap-4 justify-between mb-4">
+                    <div className="space-y-2">
+                      <Skeleton className="h-4 w-24" />
+                      <Skeleton className="h-6 w-32" />
+                    </div>
+                    <Skeleton className="h-8 w-32" />
+                  </div>
+                </div>
+              </div>
+            </Collapsible>
           </div>
         </main>
       </div>
@@ -171,7 +205,7 @@ export const ReviewResult: React.FC<{
         </Button>
 
         <div className="flex flex-col lg:flex-row items-center justify-between mb-8 mt-4">
-          <h2 className="text-2xl leading-tight">{t("review_result")}</h2>
+          <h2 className="text-2xl leading-tight">{t("results")}</h2>
           <div className="space-x-4 flex mt-4 lg:mt-0">
             <Button variant="secondary" className="flex items-center gap-1">
               Next Order
@@ -220,6 +254,12 @@ export const ReviewResult: React.FC<{
             </Link>
           </div>
         </div>
+
+        <ConsolidatedResults
+          orderId={diagnosticReport?.based_on?.id?.slice(0, 8) ?? ""}
+          columns={columns}
+          resultsData={resultsData}
+        />
 
         <div className="mb-4">
           <Collapsible open={open} onOpenChange={setOpen}>
