@@ -20,6 +20,10 @@ export const displayServiceRequestId = (serviceRequest?: ServiceRequest) => {
   return "ORD " + serviceRequest?.id?.slice(0, 8);
 };
 
+export const displayPriority = (priority: string | undefined) => {
+  return priority ?? "Routine";
+};
+
 export const getPriorityColor = (priority: string | undefined) => {
   switch (priority) {
     case "routine":
