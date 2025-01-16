@@ -1,6 +1,5 @@
 import { CheckCircledIcon, CrossCircledIcon } from "@radix-ui/react-icons";
-import { useQuery } from "@tanstack/react-query";
-import { useMutation } from "@tanstack/react-query";
+import { useMutation, useQuery } from "@tanstack/react-query";
 import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { toast } from "sonner";
@@ -26,7 +25,10 @@ import { LabObservation } from "@/types/emr/observation";
 import { Specimen } from "@/types/emr/specimen";
 
 import { BarcodeInput } from "../BarcodeInput";
-import { DiagnosticReportForm } from "../DiagnosticReportForm";
+import {
+  DiagnosticReportForm,
+  DiagnosticReportFormValues,
+} from "../DiagnosticReportForm";
 import { SpecimenCard } from "../SpecimenCard";
 
 export const ProcessSpecimen = ({ specimenId }: { specimenId?: string }) => {
@@ -35,7 +37,6 @@ export const ProcessSpecimen = ({ specimenId }: { specimenId?: string }) => {
 
   const [specimen, setSpecimen] = useState<Specimen>();
   const [diagnosticReport, setDiagnosticReport] = useState<DiagnosticReport>();
-  const [observations, setObservations] = useState<LabObservation[]>([]);
 
   const steps: ProgressBarStep[] = [
     {
@@ -86,8 +87,6 @@ export const ProcessSpecimen = ({ specimenId }: { specimenId?: string }) => {
     }
   }, [specimenData]);
 
-  // Todo: We need to set the diagnostic report when specimen is in state of approval
-
   const handleRemoveSpecimen = () => {
     setSpecimen(undefined);
   };
@@ -107,7 +106,7 @@ export const ProcessSpecimen = ({ specimenId }: { specimenId?: string }) => {
   };
 
   const { mutate: submitObservations } = useMutation({
-    mutationFn: async () => {
+    mutationFn: async (observations: LabObservation[]) => {
       if (!specimen || observations.length === 0) {
         throw new Error("Specimen or observations are missing.");
       }
@@ -121,7 +120,6 @@ export const ProcessSpecimen = ({ specimenId }: { specimenId?: string }) => {
       if (!reportData) {
         throw new Error("Failed to create diagnostic report.");
       }
-
       setDiagnosticReport(reportData);
 
       const submitObs = mutate(routes.labs.diagnosticReport.observations, {
@@ -131,14 +129,16 @@ export const ProcessSpecimen = ({ specimenId }: { specimenId?: string }) => {
       const observationsData = await submitObs({
         observations: observations.map((observation) => ({
           id: uuid(),
-          main_code: observation.code!,
-          value_type: "quantity",
-          value: observation.result,
+          main_code: { ...observation.code!, system: "http://loinc.org" },
+          value: {
+            value: observation.result.value,
+          },
           status: "final" as const,
           effective_datetime: new Date().toISOString(),
           data_entered_by_id: currentUserId,
           subject_type: "patient" as const,
           note: observation.note,
+          value_type: "quantity",
           created_by_id: currentUserId,
           updated_by_id: currentUserId,
         })),
@@ -159,6 +159,18 @@ export const ProcessSpecimen = ({ specimenId }: { specimenId?: string }) => {
     },
   });
 
+  const handleDiagnosticReportFormSubmit = (
+    values: DiagnosticReportFormValues,
+  ) => {
+    submitObservations(
+      values.observations.map((obs) => ({
+        ...obs,
+        code: { ...obs.code, system: "http://loinc.org" },
+        note: obs.note || "",
+      })),
+    );
+  };
+
   return (
     <div className="flex flex-col-reverse lg:flex-row min-h-screen">
       <ServiceRequestTimeline steps={steps} />
@@ -170,9 +182,9 @@ export const ProcessSpecimen = ({ specimenId }: { specimenId?: string }) => {
           }}
           className="w-fit"
         >
-          Back
+          {t("back")}
         </Button>
-        <h2 className="text-2xl leading-tight my-5">Start Processing</h2>
+        <h2 className="text-2xl leading-tight my-5">{t("start_processing")}</h2>
         <div className="flex flex-col">
           {specimen ? (
             <SpecimenCard
@@ -183,7 +195,7 @@ export const ProcessSpecimen = ({ specimenId }: { specimenId?: string }) => {
           ) : (
             <div className="space-y-2">
               <Label className="text-sm font-normal text-gray-900">
-                Barcode
+                {t("barcode")}
               </Label>
               <BarcodeInput
                 className="text-center"
@@ -201,7 +213,6 @@ export const ProcessSpecimen = ({ specimenId }: { specimenId?: string }) => {
                     if (!res?.ok || !data) {
                       return;
                     }
-
                     setSpecimen(data);
                   }
                 }}
@@ -210,61 +221,44 @@ export const ProcessSpecimen = ({ specimenId }: { specimenId?: string }) => {
           )}
         </div>
 
+        {/* Show the form if there's a specimen with processing started, but no diagnostic report yet */}
         {!!specimen?.processing.length && !diagnosticReport && (
-          <>
-            <DiagnosticReportForm
-              question="Lab Observations"
-              observations={observations}
-              setObservations={setObservations}
-            />
-
-            {/* Footer Buttons */}
-            <div className="flex items-center justify-end gap-4">
-              <Button variant="outline" size="lg">
-                Cancel
-              </Button>
-              <Button
-                variant="primary"
-                size="lg"
-                disabled={observations.length === 0}
-                onClick={() => submitObservations()}
-              >
-                Submit
-              </Button>
-            </div>
-          </>
+          <DiagnosticReportForm
+            question={t("lab_observations")}
+            disabled={false}
+            onSubmit={handleDiagnosticReportFormSubmit}
+          />
         )}
-        <div className="border-l-[2.5px] border-gray-300 w-5 h-12 ms-8 last:hidden" />
 
-        {/* Diagnostic Report Section */}
+        {/* If the report exists, display results */}
         {diagnosticReport && (
           <div className="bg-gray-50 border border-gray-300 rounded-sm shadow-sm p-2 space-y-2">
             <h2 className="text-base font-semibold text-gray-900">
-              Test Results:
+              {t("test_results")}
             </h2>
             <ResultTable
               columns={[
                 {
                   key: "parameter",
-                  label: "Parameter",
+                  label: t("parameter"),
                   headerClass: "border-r border-gray-300",
                 },
                 {
                   key: "result",
-                  label: "Result",
+                  label: t("result"),
                   headerClass: "border-r border-gray-300",
                 },
                 {
                   key: "unit",
-                  label: "Unit",
+                  label: t("unit"),
                   headerClass: "border-r border-gray-300",
                 },
                 {
                   key: "referenceRange",
-                  label: "Reference Range",
+                  label: t("reference_range"),
                   headerClass: "border-r border-gray-300",
                 },
-                { key: "remark", label: "Remark" },
+                { key: "remark", label: t("remark") },
               ]}
               data={diagnosticReport.result.map((observation) => ({
                 parameter:
@@ -284,7 +278,7 @@ export const ProcessSpecimen = ({ specimenId }: { specimenId?: string }) => {
                   disabled
                 >
                   <CrossCircledIcon className="h-4 w-4 text-red-500" />
-                  <span>Reject Result</span>
+                  <span>{t("reject_result")}</span>
                 </Button>
                 <Button
                   onClick={() => {
@@ -295,7 +289,7 @@ export const ProcessSpecimen = ({ specimenId }: { specimenId?: string }) => {
                   className="gap-2"
                 >
                   <CheckCircledIcon className="h-4 w-4 text-white" />
-                  Approve Result
+                  {t("approve_result")}
                 </Button>
               </div>
             )}
