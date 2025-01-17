@@ -174,7 +174,10 @@ export const ReviewResult: React.FC<{
         <div className="flex flex-col lg:flex-row items-center justify-between mb-8 mt-4">
           <h2 className="text-2xl leading-tight">{t("review_result")}</h2>
           <div className="space-x-4 flex mt-4 lg:mt-0">
-            <Button variant="secondary" className="flex items-center gap-1">
+            <Button
+              variant="secondary"
+              className="flex items-center gap-1 border-[2px] border-gray-300"
+            >
               Next Order
               <ArrowRightIcon className="h-4 w-4" />
             </Button>
