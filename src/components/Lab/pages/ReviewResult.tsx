@@ -32,6 +32,7 @@ import {
   ServiceRequestTimeline,
 } from "../../Common/ServiceRequestTimeline";
 import { Badge } from "../../ui/badge";
+import { PatientDetails } from "../PatientDetails";
 import { ServiceRequestCard } from "../ServiceRequestCard";
 
 const columns = [
@@ -180,40 +181,13 @@ export const ReviewResult: React.FC<{
           </div>
         </div>
 
-        {/* Patient Details Section */}
         <div className="flex items-center justify-between">
-          <div className="flex flex-col md:flex-row gap-8 mb-4">
-            <div>
-              <p className="text-gray-600">Patient Name</p>
-              <p className="font-semibold ">{diagnosticReport?.subject.name}</p>
-            </div>
-            <div>
-              <p className="">UHID</p>
-              <p className="font-semibold">T105690908240017</p>
-            </div>
-            <div>
-              <p className="">
-                {diagnosticReport?.subject.age ? "Age" : "YOB"}/Sex
-              </p>
-              <p className="font-semibold ">
-                {diagnosticReport?.subject.age ??
-                  diagnosticReport?.subject.year_of_birth}
-                /
-                {
-                  {
-                    male: "Male",
-                    female: "Female",
-                    non_binary: "Non-Binary",
-                    transgender: "Transgender",
-                    notMentioned: "Not Mentioned",
-                  }[diagnosticReport?.subject.gender || "notMentioned"]
-                }
-              </p>
-            </div>
-          </div>
+          {diagnosticReport?.subject && (
+            <PatientDetails patient={diagnosticReport.subject} />
+          )}
           <div>
             <Link
-              href={`/patients/${diagnosticReport?.subject.id}`}
+              href={`/facility/${diagnosticReport?.encounter?.facility.id}/patient/${diagnosticReport?.subject.id}/health-profile`}
               className="text-blue-700"
             >
               Patient Health Profile

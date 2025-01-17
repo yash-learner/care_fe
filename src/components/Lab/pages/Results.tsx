@@ -33,6 +33,7 @@ import {
 } from "../../Common/ServiceRequestTimeline";
 import { Badge } from "../../ui/badge";
 import { ConsolidatedResults } from "../ConsolidatedResults";
+import { PatientDetails } from "../PatientDetails";
 import { ServiceRequestCard } from "../ServiceRequestCard";
 
 const columns = [
@@ -129,12 +130,11 @@ export const Results: React.FC<{
           <Skeleton className="h-screen" />
         </div>
         <main className="flex-1 p-6 lg:p-8 max-w-5xl mx-auto">
-          <Skeleton className="h-10 w-20 mb-8" /> {/* Back button */}
+          <Skeleton className="h-10 w-20 mb-8" />
           <div className="flex justify-between mb-8">
-            <Skeleton className="h-8 w-32" /> {/* Title */}
-            <Skeleton className="h-10 w-32" /> {/* Next Order button */}
+            <Skeleton className="h-8 w-32" />
+            <Skeleton className="h-10 w-32" />
           </div>
-          {/* Patient Details */}
           <div className="flex justify-between mb-4">
             <div className="flex gap-8">
               <div className="space-y-2">
@@ -214,40 +214,13 @@ export const Results: React.FC<{
           </div>
         </div>
 
-        {/* Patient Details Section */}
         <div className="flex items-center justify-between">
-          <div className="flex flex-col md:flex-row gap-8 mb-4">
-            <div>
-              <p className="text-gray-600">Patient Name</p>
-              <p className="font-semibold ">{diagnosticReport?.subject.name}</p>
-            </div>
-            <div>
-              <p className="">UHID</p>
-              <p className="font-semibold">T105690908240017</p>
-            </div>
-            <div>
-              <p className="">
-                {diagnosticReport?.subject.age ? "Age" : "YOB"}/Sex
-              </p>
-              <p className="font-semibold ">
-                {diagnosticReport?.subject.age ??
-                  diagnosticReport?.subject.year_of_birth}
-                /
-                {
-                  {
-                    male: "Male",
-                    female: "Female",
-                    non_binary: "Non-Binary",
-                    transgender: "Transgender",
-                    notMentioned: "Not Mentioned",
-                  }[diagnosticReport?.subject.gender || "notMentioned"]
-                }
-              </p>
-            </div>
-          </div>
+          {diagnosticReport?.subject && (
+            <PatientDetails patient={diagnosticReport.subject} />
+          )}
           <div>
             <Link
-              href={`/patients/${diagnosticReport?.subject.id}`}
+              href={`/facility/${diagnosticReport?.encounter?.facility.id}/patient/${diagnosticReport?.subject.id}/health-profile`}
               className="text-blue-700"
             >
               Patient Health Profile
