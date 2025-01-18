@@ -1,15 +1,13 @@
 import {
   ArrowRightIcon,
-  CheckCircledIcon,
   CheckIcon,
   ChevronDownIcon,
   ChevronUpIcon,
 } from "@radix-ui/react-icons";
+import { useQuery } from "@tanstack/react-query";
 import { t } from "i18next";
 import { Link } from "raviger";
 import React, { useState } from "react";
-
-import CareIcon from "@/CAREUI/icons/CareIcon";
 
 import { Button } from "@/components/ui/button";
 import {
@@ -18,13 +16,11 @@ import {
   CollapsibleTrigger,
 } from "@/components/ui/collapsible";
 import { Skeleton } from "@/components/ui/skeleton";
-import { Textarea } from "@/components/ui/textarea";
 
 import { ResultTable } from "@/components/Common/ResultTable";
 
 import routes from "@/Utils/request/api";
-import request from "@/Utils/request/request";
-import useQuery from "@/Utils/request/useQuery";
+import query from "@/Utils/request/query";
 import { formatDateTime } from "@/Utils/utils";
 
 import {
@@ -54,16 +50,12 @@ export const Results: React.FC<{
   diagnosticReportId: string;
 }> = ({ diagnosticReportId }) => {
   const [open, setOpen] = useState(false);
-  const [conclusion, setConclusion] = useState("");
 
-  const {
-    data: diagnosticReport,
-    refetch,
-    loading: isLoading,
-  } = useQuery(routes.labs.diagnosticReport.get, {
-    pathParams: {
-      id: diagnosticReportId,
-    },
+  const { data: diagnosticReport, isLoading } = useQuery({
+    queryKey: ["get-diagnostic-report", diagnosticReportId],
+    queryFn: query(routes.labs.diagnosticReport.get, {
+      pathParams: { id: diagnosticReportId },
+    }),
   });
 
   const resultsData =
@@ -72,7 +64,7 @@ export const Results: React.FC<{
       result: observation.value.value,
       unit: "x10³/μL", // observation.reference_range?.unit, Replace with actual unit if available
       referenceRange: "4.0 - 11.0", // Replace with actual reference range if available
-      remark: "Dummy Note",
+      remark: observation.note,
     })) ?? [];
 
   const specimenDispatchedStatus = diagnosticReport?.specimen?.[0]
@@ -190,7 +182,7 @@ export const Results: React.FC<{
     );
   }
 
-  // Todo: If need render all the recent orders of patient
+  // Todo: render all the recent orders of patient
   return (
     <div className="flex flex-col-reverse lg:flex-row min-h-screen">
       <ServiceRequestTimeline steps={steps} />
@@ -416,21 +408,12 @@ export const Results: React.FC<{
 
                         <div className="flex flex-col gap-2 p-4 bg-gray-60">
                           <h3 className="text-sm font-medium text-gray-600">
-                            Note
+                            Conclusion Note
                           </h3>
-                          {diagnosticReport?.conclusion ? (
+                          {diagnosticReport?.conclusion && (
                             <p className="text-sm text-gray-800">
                               {diagnosticReport?.conclusion}
                             </p>
-                          ) : (
-                            <Textarea
-                              value={conclusion}
-                              onChange={(e) =>
-                                setConclusion(e.currentTarget.value)
-                              }
-                              placeholder="Type your notes"
-                              className="bg-white border border-gray-300 rounded-sm"
-                            />
                           )}
                         </div>
                         {diagnosticReport?.conclusion && (
@@ -448,47 +431,6 @@ export const Results: React.FC<{
                                 Verified
                               </span>
                             </div>
-                          </div>
-                        )}
-                        {!diagnosticReport?.conclusion && (
-                          <div className="flex gap-2 justify-end p-4">
-                            <Button
-                              variant="link"
-                              disabled
-                              size="sm"
-                              className="border-gray-300 font-medium gap-2"
-                            >
-                              <CareIcon icon="l-sync" className="size-4" />
-                              <span>Re-run Tests</span>
-                            </Button>
-                            <Button
-                              variant="primary"
-                              size="sm"
-                              className="gap-2"
-                              onClick={async () => {
-                                const { res, data } = await request(
-                                  routes.labs.diagnosticReport.review,
-                                  {
-                                    pathParams: {
-                                      id: diagnosticReportId,
-                                    },
-                                    body: {
-                                      is_approved: true,
-                                      conclusion,
-                                    },
-                                  },
-                                );
-
-                                if (!res?.ok || !data) {
-                                  return;
-                                }
-
-                                refetch();
-                              }}
-                            >
-                              <CheckCircledIcon className="h-4 w-4 text-white" />
-                              Approve Results
-                            </Button>
                           </div>
                         )}
                       </div>
