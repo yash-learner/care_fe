@@ -30,7 +30,7 @@ export const ReceiveSpecimen: React.FC = () => {
     [],
   );
 
-  const { mutate: receiveAtLab } = useMutation({
+  const { mutate: receiveAtLab, isPending } = useMutation({
     mutationFn: mutate(routes.labs.specimen.ReceiveAtLab, {
       pathParams: {
         id: scannedSpecimen?.id ?? "",
@@ -115,7 +115,10 @@ export const ReceiveSpecimen: React.FC = () => {
             <ReceiveSpecimenCard specimen={scannedSpecimen} />
             <div className="mt-4 bg-white rounded-md">
               <div className="mt-4 bg-gray-50 rounded-sm p-4 flex flex-col gap-4">
-                <ReceiveSpecimenForm onSubmit={onSubmit} />
+                <ReceiveSpecimenForm
+                  onSubmit={onSubmit}
+                  acceptSpecimen={isPending}
+                />
               </div>
             </div>
           </div>

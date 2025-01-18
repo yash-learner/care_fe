@@ -110,59 +110,60 @@ export const ProcessSpecimen = ({ specimenId }: { specimenId?: string }) => {
     setSpecimen(updatedSpecimen);
   };
 
-  const { mutate: submitObservations } = useMutation({
-    mutationFn: async (observations: LabObservation[]) => {
-      if (!specimen || observations.length === 0) {
-        throw new Error("Specimen or observations are missing.");
-      }
+  const { mutate: submitObservations, isPending: isPendingObservations } =
+    useMutation({
+      mutationFn: async (observations: LabObservation[]) => {
+        if (!specimen || observations.length === 0) {
+          throw new Error("Specimen or observations are missing.");
+        }
 
-      const createReport = mutate(routes.labs.diagnosticReport.create);
-      const reportData = await createReport({
-        based_on: specimen.request.id,
-        specimen: [specimen.id],
-      });
+        const createReport = mutate(routes.labs.diagnosticReport.create);
+        const reportData = await createReport({
+          based_on: specimen.request.id,
+          specimen: [specimen.id],
+        });
 
-      if (!reportData) {
-        throw new Error("Failed to create diagnostic report.");
-      }
-      setDiagnosticReport(reportData);
+        if (!reportData) {
+          throw new Error("Failed to create diagnostic report.");
+        }
+        setDiagnosticReport(reportData);
 
-      const submitObs = mutate(routes.labs.diagnosticReport.observations, {
-        pathParams: { id: reportData.id },
-      });
+        const submitObs = mutate(routes.labs.diagnosticReport.observations, {
+          pathParams: { id: reportData.id },
+        });
 
-      const observationsData = await submitObs({
-        observations: observations.map((observation) => ({
-          id: uuid(),
-          main_code: { ...observation.code!, system: "http://loinc.org" },
-          value: {
-            value: observation.result.value,
-          },
-          status: "final" as const,
-          effective_datetime: new Date().toISOString(),
-          data_entered_by_id: currentUserId,
-          subject_type: "patient" as const,
-          note: observation.note,
-          value_type: "quantity",
-          created_by_id: currentUserId,
-          updated_by_id: currentUserId,
-        })),
-      });
+        const observationsData = await submitObs({
+          observations: observations.map((observation) => ({
+            id: uuid(),
+            main_code: { ...observation.code!, system: "http://loinc.org" },
+            value: {
+              value: observation.result.value,
+            },
+            status: "final" as const,
+            effective_datetime: new Date().toISOString(),
+            data_entered_by_id: currentUserId,
+            subject_type: "patient" as const,
+            note: observation.note,
+            value_type: "quantity",
+            created_by_id: currentUserId,
+            updated_by_id: currentUserId,
+          })),
+        });
 
-      if (!observationsData) {
-        throw new Error("Failed to submit observations.");
-      }
+        if (!observationsData) {
+          throw new Error("Failed to submit observations.");
+        }
 
-      return observationsData;
-    },
-    onSuccess: (data: DiagnosticReport) => {
-      setDiagnosticReport(data);
-      toast.success(t("observations_submitted_successfully"));
-    },
-    onError: () => {
-      toast.error(t("submit_observations_failed"));
-    },
-  });
+        return observationsData;
+      },
+      onSuccess: (data: DiagnosticReport) => {
+        setDiagnosticReport(data);
+        toast.success(t("observations_submitted_successfully"));
+      },
+      onError: () => {
+        toast.error(t("submit_observations_failed"));
+      },
+    });
 
   const handleDiagnosticReportFormSubmit = (
     values: DiagnosticReportFormValues,
@@ -231,6 +232,7 @@ export const ProcessSpecimen = ({ specimenId }: { specimenId?: string }) => {
             question={t("lab_observations")}
             disabled={false}
             onSubmit={handleDiagnosticReportFormSubmit}
+            isPending={isPendingObservations}
           />
         )}
         <div className="border-l-[2.5px] border-gray-300 w-5 h-12 ms-8 last:hidden" />
@@ -298,6 +300,7 @@ export const ProcessSpecimen = ({ specimenId }: { specimenId?: string }) => {
                         icon="l-spinner"
                         className="mr-2 h-4 w-4 animate-spin"
                       />
+                      Approving...
                     </>
                   ) : (
                     <>

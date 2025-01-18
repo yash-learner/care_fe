@@ -3,6 +3,8 @@ import React from "react";
 import { SubmitHandler, useForm } from "react-hook-form";
 import { z } from "zod";
 
+import CareIcon from "@/CAREUI/icons/CareIcon";
+
 import { Button } from "@/components/ui/button";
 import {
   Form,
@@ -68,10 +70,12 @@ export type SpecimenIntegrityFormData = z.infer<
 
 interface ReceiveSpecimenFormProps {
   onSubmit: SubmitHandler<SpecimenIntegrityFormData>;
+  acceptSpecimen?: boolean;
 }
 
 export const ReceiveSpecimenForm: React.FC<ReceiveSpecimenFormProps> = ({
   onSubmit,
+  acceptSpecimen,
 }) => {
   const form = useForm<SpecimenIntegrityFormData>({
     resolver: zodResolver(specimenIntegrityFormSchema),
@@ -180,7 +184,17 @@ export const ReceiveSpecimenForm: React.FC<ReceiveSpecimenFormProps> = ({
             Reject Specimen
           </Button>
           <Button variant="primary" type="submit">
-            Accept Specimen
+            {acceptSpecimen ? (
+              <>
+                <CareIcon
+                  icon="l-spinner"
+                  className="mr-2 h-4 w-4 animate-spin"
+                />
+                Accepting Specimen...
+              </>
+            ) : (
+              "Accept Specimen"
+            )}
           </Button>
         </div>
       </form>

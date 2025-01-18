@@ -192,6 +192,7 @@ export const SpecimenCard: React.FC<SpecimenProps> = ({
                   icon="l-spinner"
                   className="mr-2 h-4 w-4 animate-spin"
                 />
+                Processing...
               </>
             ) : (
               t("start_processing")

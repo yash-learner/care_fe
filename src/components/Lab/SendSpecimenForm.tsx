@@ -5,6 +5,8 @@ import { useTranslation } from "react-i18next";
 import { toast } from "sonner";
 import { z } from "zod";
 
+import CareIcon from "@/CAREUI/icons/CareIcon";
+
 import { Card, CardContent } from "@/components/ui/card";
 import {
   Form,
@@ -83,7 +85,7 @@ export const SendSpecimenForm: React.FC<SendSpecimenFormProps> = ({
     enabled: !!specimen,
   });
 
-  const { mutate: sendSpecimen } = useMutation({
+  const { mutate: sendSpecimen, isPending } = useMutation({
     mutationFn: mutate(routes.labs.specimen.sendToLab, {
       pathParams: { id: form.watch("barcode") },
     }),
@@ -166,7 +168,17 @@ export const SendSpecimenForm: React.FC<SendSpecimenFormProps> = ({
                 size={"lg"}
                 className="self-end"
               >
-                Save
+                {isPending ? (
+                  <>
+                    <CareIcon
+                      icon="l-spinner"
+                      className="mr-2 h-4 w-4 animate-spin"
+                    />
+                    Saving...
+                  </>
+                ) : (
+                  "Save"
+                )}
               </Button>
             </form>
           </Form>

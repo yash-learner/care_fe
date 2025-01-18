@@ -4,6 +4,8 @@ import { useFieldArray, useForm } from "react-hook-form";
 import { useTranslation } from "react-i18next";
 import { z } from "zod";
 
+import CareIcon from "@/CAREUI/icons/CareIcon";
+
 import { Button } from "@/components/ui/button";
 import { Form, FormMessage } from "@/components/ui/form";
 
@@ -35,6 +37,7 @@ interface DiagnosticReportFormProps {
   question: string;
   defaultValues?: DiagnosticReportFormValues;
   disabled?: boolean;
+  isPending?: boolean;
   onSubmit?: (data: DiagnosticReportFormValues) => void;
   onCancel?: () => void;
 }
@@ -43,6 +46,7 @@ export const DiagnosticReportForm: React.FC<DiagnosticReportFormProps> = ({
   question,
   defaultValues,
   disabled,
+  isPending,
   onSubmit,
   onCancel,
 }) => {
@@ -120,7 +124,14 @@ export const DiagnosticReportForm: React.FC<DiagnosticReportFormProps> = ({
             </Button>
           )}
           <Button variant="primary" size="lg" type="submit" disabled={disabled}>
-            {t("submit")}
+            {isPending ? (
+              <>
+                <span className="mr-2">{t("submitting")}</span>
+                <CareIcon icon="l-spinner" className="h-4 w-4 animate-spin" />
+              </>
+            ) : (
+              t("submit")
+            )}
           </Button>
         </div>
       </form>
