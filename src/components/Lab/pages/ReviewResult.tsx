@@ -1,3 +1,4 @@
+import { zodResolver } from "@hookform/resolvers/zod";
 import {
   ArrowRightIcon,
   CheckCircledIcon,
@@ -5,9 +6,12 @@ import {
   ChevronDownIcon,
   ChevronUpIcon,
 } from "@radix-ui/react-icons";
-import { t } from "i18next";
+import { useMutation, useQuery } from "@tanstack/react-query";
 import { Link } from "raviger";
 import React, { useState } from "react";
+import { useForm } from "react-hook-form";
+import { useTranslation } from "react-i18next";
+import { z } from "zod";
 
 import CareIcon from "@/CAREUI/icons/CareIcon";
 
@@ -17,14 +21,22 @@ import {
   CollapsibleContent,
   CollapsibleTrigger,
 } from "@/components/ui/collapsible";
+import {
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from "@/components/ui/form";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Textarea } from "@/components/ui/textarea";
 
 import { ResultTable } from "@/components/Common/ResultTable";
 
 import routes from "@/Utils/request/api";
-import request from "@/Utils/request/request";
-import useQuery from "@/Utils/request/useQuery";
+import mutate from "@/Utils/request/mutate";
+import query from "@/Utils/request/query";
 import { formatDateTime } from "@/Utils/utils";
 
 import {
@@ -53,17 +65,51 @@ export const ReviewResult: React.FC<{
   diagnosticReportId: string;
 }> = ({ diagnosticReportId }) => {
   const [open, setOpen] = useState(false);
-  const [conclusion, setConclusion] = useState("");
+  const { t } = useTranslation();
+
+  const noteSchema = z.object({
+    conclusion: z.string().min(1, t("required")),
+  });
+
+  type NoteFormValues = z.infer<typeof noteSchema>;
 
   const {
     data: diagnosticReport,
+    isLoading,
     refetch,
-    loading: isLoading,
-  } = useQuery(routes.labs.diagnosticReport.get, {
-    pathParams: {
-      id: diagnosticReportId,
+  } = useQuery({
+    queryKey: ["get-diagnostic-report", diagnosticReportId],
+    queryFn: query(routes.labs.diagnosticReport.get, {
+      pathParams: { id: diagnosticReportId },
+    }),
+  });
+
+  const { mutate: reviewResult, isPending } = useMutation({
+    mutationFn: mutate(routes.labs.diagnosticReport.review, {
+      pathParams: { id: diagnosticReportId },
+    }),
+  });
+
+  const form = useForm<NoteFormValues>({
+    resolver: zodResolver(noteSchema),
+    defaultValues: {
+      conclusion: diagnosticReport?.conclusion || "",
     },
   });
+
+  const onSubmit = async (data: NoteFormValues) => {
+    await reviewResult(
+      {
+        is_approved: true,
+        conclusion: data.conclusion,
+      },
+      {
+        onSuccess: () => {
+          refetch();
+        },
+      },
+    );
+  };
 
   const resultsData =
     diagnosticReport?.result.map((observation) => ({
@@ -71,7 +117,7 @@ export const ReviewResult: React.FC<{
       result: observation.value.value,
       unit: "x10³/μL", // observation.reference_range?.unit, Replace with actual unit if available
       referenceRange: "4.0 - 11.0", // Replace with actual reference range if available
-      remark: "Dummy Note",
+      remark: observation.note,
     })) ?? [];
 
   const specimenDispatchedStatus = diagnosticReport?.specimen?.[0]
@@ -374,25 +420,74 @@ export const ReviewResult: React.FC<{
                         </h2>
                         <ResultTable columns={columns} data={resultsData} />
 
-                        <div className="flex flex-col gap-2 p-4 bg-gray-60">
-                          <h3 className="text-sm font-medium text-gray-600">
-                            Note
-                          </h3>
-                          {diagnosticReport?.conclusion ? (
-                            <p className="text-sm text-gray-800">
-                              {diagnosticReport?.conclusion}
-                            </p>
-                          ) : (
-                            <Textarea
-                              value={conclusion}
-                              onChange={(e) =>
-                                setConclusion(e.currentTarget.value)
-                              }
-                              placeholder="Type your notes"
-                              className="bg-white border border-gray-300 rounded-sm"
-                            />
-                          )}
-                        </div>
+                        {diagnosticReport?.conclusion ? (
+                          <p className="text-sm text-gray-800 gap-2 p-4 ">
+                            {diagnosticReport?.conclusion}
+                          </p>
+                        ) : (
+                          <Form {...form}>
+                            <form
+                              onSubmit={form.handleSubmit(onSubmit)}
+                              className="flex flex-col gap-2 p-4 bg-gray-60"
+                            >
+                              <FormField
+                                control={form.control}
+                                name="conclusion"
+                                render={({ field }) => (
+                                  <FormItem>
+                                    <FormLabel>Conclusion Note</FormLabel>
+                                    <FormControl>
+                                      <Textarea
+                                        placeholder="Type your notes"
+                                        className="resize-none bg-white border border-gray-300 rounded-sm"
+                                        {...field}
+                                      />
+                                    </FormControl>
+                                    <FormMessage />
+                                  </FormItem>
+                                )}
+                              />
+                              {!diagnosticReport?.conclusion && (
+                                <div className="flex gap-2 justify-end">
+                                  <Button
+                                    variant="link"
+                                    disabled
+                                    size="sm"
+                                    className="border-gray-300 font-medium gap-2"
+                                  >
+                                    <CareIcon
+                                      icon="l-sync"
+                                      className="size-4"
+                                    />
+                                    <span>Re-run Tests</span>
+                                  </Button>
+                                  <Button
+                                    type="submit"
+                                    variant="primary"
+                                    size="sm"
+                                    className="gap-2 w-fit"
+                                  >
+                                    {isPending ? (
+                                      <>
+                                        <CareIcon
+                                          icon="l-spinner"
+                                          className="mr-2 h-4 w-4 animate-spin"
+                                        />
+                                        Approving...
+                                      </>
+                                    ) : (
+                                      <>
+                                        <CheckCircledIcon className="h-4 w-4 text-white" />
+                                        Approve Results
+                                      </>
+                                    )}
+                                  </Button>
+                                </div>
+                              )}
+                            </form>
+                          </Form>
+                        )}
+
                         {diagnosticReport?.conclusion && (
                           <div className="bg-white p-2">
                             <div className="flex items-center justify-between bg-green-50 rounded-lg px-4 py-2 shadow-sm">
@@ -408,47 +503,6 @@ export const ReviewResult: React.FC<{
                                 Verified
                               </span>
                             </div>
-                          </div>
-                        )}
-                        {!diagnosticReport?.conclusion && (
-                          <div className="flex gap-2 justify-end p-4">
-                            <Button
-                              variant="link"
-                              disabled
-                              size="sm"
-                              className="border-gray-300 font-medium gap-2"
-                            >
-                              <CareIcon icon="l-sync" className="size-4" />
-                              <span>Re-run Tests</span>
-                            </Button>
-                            <Button
-                              variant="primary"
-                              size="sm"
-                              className="gap-2"
-                              onClick={async () => {
-                                const { res, data } = await request(
-                                  routes.labs.diagnosticReport.review,
-                                  {
-                                    pathParams: {
-                                      id: diagnosticReportId,
-                                    },
-                                    body: {
-                                      is_approved: true,
-                                      conclusion,
-                                    },
-                                  },
-                                );
-
-                                if (!res?.ok || !data) {
-                                  return;
-                                }
-
-                                refetch();
-                              }}
-                            >
-                              <CheckCircledIcon className="h-4 w-4 text-white" />
-                              Approve Results
-                            </Button>
                           </div>
                         )}
                       </div>
