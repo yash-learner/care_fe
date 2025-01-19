@@ -49,8 +49,6 @@ export const CollectSpecimen: React.FC<{
   });
 
   const [specimens, setSpecimens] = useState<Specimen[]>([]);
-  const [previousStepStatus, setPreviousStepStatus] =
-    useState<ProgressBarStep["status"]>("notStarted");
 
   const handleSpecimensChange = (newSpecimens: Specimen[]) => {
     setSpecimens((prevSpecimens) => {

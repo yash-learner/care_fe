@@ -38,7 +38,7 @@ export type Specimen = {
   report?: [
     {
       id: string;
-    }
+    },
   ];
 
   condition?: CodeableConcept[] | null;
