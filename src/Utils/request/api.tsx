@@ -22,7 +22,7 @@ import {
 import { Annotation, CodeableConcept } from "@/types/emr/base";
 import { DiagnosticReport } from "@/types/emr/diagnosticReport";
 import { Encounter, EncounterEditRequest } from "@/types/emr/encounter";
-import { MedicationRequest } from "@/types/emr/medicationRequest";
+import { MedicationRequestRead } from "@/types/emr/medicationRequest";
 import { MedicationStatement } from "@/types/emr/medicationStatement";
 import { PartialPatientModel, Patient } from "@/types/emr/newPatient";
 import {
@@ -203,7 +203,7 @@ const routes = {
   getPermittedFacility: {
     path: "/api/v1/facility/{id}/",
     method: "GET",
-    TRes: Type<FacilityModel>(),
+    TRes: Type<FacilityData>(),
   },
 
   getAnyFacility: {
@@ -424,6 +424,7 @@ const routes = {
       path: "/api/v1/plug_config/{slug}/",
       method: "DELETE",
       TRes: Type<Record<string, never>>(),
+      TBody: Type<void>(),
     },
   },
   getQuestionnaireResponses: {
@@ -657,7 +658,7 @@ const routes = {
     list: {
       path: "/api/v1/patient/{patientId}/medication/request/",
       method: "GET",
-      TRes: Type<PaginatedResponse<MedicationRequest>>(),
+      TRes: Type<PaginatedResponse<MedicationRequestRead>>(),
     },
   },
 
