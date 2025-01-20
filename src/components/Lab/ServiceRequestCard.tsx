@@ -43,7 +43,7 @@ export const ServiceRequestCard: React.FC<{
               <h3 className="text-sm font-semibold text-gray-500">Priority</h3>
               <Badge
                 className={cn(
-                  "capitalize text-sm font-semibold",
+                  "capitalize",
                   getPriorityColor(serviceRequest.priority),
                 )}
                 variant="outline"

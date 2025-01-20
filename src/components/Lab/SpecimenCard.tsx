@@ -155,7 +155,7 @@ export const SpecimenCard: React.FC<SpecimenProps> = ({
           <Label className="text-sm font-medium text-gray-600">Priority</Label>
           <Badge
             className={cn(
-              "capitalize text-sm font-semibold",
+              "capitalize",
               getPriorityColor(specimen.request.priority),
             )}
             variant="outline"

@@ -58,7 +58,7 @@ export default function SentToLab() {
       cell: ({ row }) => (
         <Badge
           className={cn(
-            "capitalize text-sm font-semibold",
+            "capitalize",
             getPriorityColor(row.original.request.priority),
           )}
           variant="outline"

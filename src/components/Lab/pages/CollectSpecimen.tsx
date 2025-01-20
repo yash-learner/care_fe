@@ -6,6 +6,8 @@ import {
 import { useQuery } from "@tanstack/react-query";
 import { useEffect, useMemo, useState } from "react";
 
+import { cn } from "@/lib/utils";
+
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
@@ -23,7 +25,11 @@ import {
 import routes from "@/Utils/request/api";
 import query from "@/Utils/request/query";
 import { formatPatientAge } from "@/Utils/utils";
-import { ServiceRequest } from "@/types/emr/serviceRequest";
+import {
+  SERVICE_REQUEST_PHASE_COLORS,
+  SERVICE_REQUEST_PHASE_DISPLAY,
+  ServiceRequest,
+} from "@/types/emr/serviceRequest";
 import { Specimen } from "@/types/emr/specimen";
 
 import { CollectSpecimenFormCard } from "../CollectSpecimenFormCard";
@@ -263,10 +269,20 @@ const LabOrderCollapsible: React.FC<{
                 <span className="text-lg font-semibold text-gray-900">
                   {displayServiceRequestId(labOrder)}
                 </span>
-                <span className="px-2 py-1 text-xs font-medium bg-orange-100 text-orange-900 rounded capitalize">
-                  Active
-                  {/* {labOrder.status} // use this once we get the status correctly from the API */}
-                </span>
+                <Badge
+                  className={cn(
+                    SERVICE_REQUEST_PHASE_COLORS[
+                      labOrder.phase ?? "not_available"
+                    ],
+                  )}
+                  variant="outline"
+                >
+                  {
+                    SERVICE_REQUEST_PHASE_DISPLAY[
+                      labOrder.phase ?? "not_available"
+                    ]
+                  }
+                </Badge>
               </div>
             </div>
             <div className="flex items-center">

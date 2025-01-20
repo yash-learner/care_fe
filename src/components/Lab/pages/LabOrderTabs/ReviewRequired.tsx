@@ -51,7 +51,7 @@ export default function ReviewRequired() {
       cell: ({ row }) => (
         <Badge
           className={cn(
-            "capitalize text-sm font-semibold",
+            "capitalize",
             getPriorityColor(row.original.based_on.priority),
           )}
           variant="outline"
