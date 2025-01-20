@@ -133,7 +133,6 @@ export const CollectSpecimen: React.FC<{
           computedPreviousStatus = status;
           break;
 
-        // Add other cases as needed.
         default:
           break;
       }

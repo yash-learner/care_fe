@@ -44,7 +44,6 @@ const LAB_ORDER_INITIAL_VALUE: Omit<LabOrderFormItem, "code"> = {
 };
 
 export function LabOrderQuestion({
-  question,
   questionnaireResponse,
   updateQuestionnaireResponseCB,
   disabled,
@@ -99,10 +98,6 @@ export function LabOrderQuestion({
 
   return (
     <div className="space-y-4">
-      <Label className="text-base font-medium">
-        {question.text}
-        {question.required && <span className="ml-1 text-red-500">*</span>}
-      </Label>
       {requests.length > 0 && (
         <div className="rounded-lg border space-y-4">
           <ul className="space-y-2 divide-y-2 divide-gray-200 divide-dashed">
