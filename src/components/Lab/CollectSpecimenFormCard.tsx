@@ -30,6 +30,7 @@ import { Specimen } from "@/types/emr/specimen";
 
 import { Card, CardContent } from "../ui/card";
 import { Label } from "../ui/label";
+import { Skeleton } from "../ui/skeleton";
 import { BarcodeInput } from "./BarcodeInput";
 import { displaySpecimenId } from "./utils";
 
@@ -56,7 +57,7 @@ export const CollectSpecimenFormCard: React.FC<
     },
   });
 
-  const { mutate: collectSpecimen } = useMutation({
+  const { mutate: collectSpecimen, isPending } = useMutation({
     mutationFn: mutate(routes.labs.specimen.collect, {
       pathParams: {
         id: specimen.id,
@@ -74,6 +75,22 @@ export const CollectSpecimenFormCard: React.FC<
     collectSpecimen({
       identifier: values.identifier,
     });
+  }
+
+  if (isPending) {
+    return (
+      <Card>
+        <CardContent className="p-6">
+          <div className="flex-col justify-between items-center pb-4 mb-4 space-y-4">
+            <div className="flex items-center justify-between flex-wrap gap-4">
+              <Skeleton className="h-12 w-48 rounded-md" />
+              <Skeleton className="h-12 w-48 rounded-md" />
+            </div>
+            <Skeleton className="h-48 w-full rounded-lg" />
+          </div>
+        </CardContent>
+      </Card>
+    );
   }
 
   return (
@@ -187,6 +204,7 @@ export const CollectSpecimenFormCard: React.FC<
                               className="flex items-center justify-between gap-2 bg-white px-2 py-2 rounded-md shadow-sm"
                               variant="outline"
                               type="button"
+                              disabled={true}
                               onClick={() => {
                                 form.setValue("identifier", undefined);
                                 form.handleSubmit(onSubmit)();
