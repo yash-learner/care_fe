@@ -15,6 +15,7 @@ import {
   CollapsibleContent,
   CollapsibleTrigger,
 } from "@/components/ui/collapsible";
+import { Skeleton } from "@/components/ui/skeleton";
 
 import {
   ProgressBarStep,
@@ -45,7 +46,9 @@ import {
 export const CollectSpecimen: React.FC<{
   encounterId: string;
 }> = ({ encounterId }) => {
-  const { data: labOrdersResponse } = useQuery({
+  const [specimens, setSpecimens] = useState<Specimen[]>([]);
+
+  const { data: labOrdersResponse, isLoading } = useQuery({
     queryKey: ["lab_orders", encounterId],
     queryFn: query(routes.labs.serviceRequest.list, {
       queryParams: {
@@ -53,8 +56,6 @@ export const CollectSpecimen: React.FC<{
       },
     }),
   });
-
-  const [specimens, setSpecimens] = useState<Specimen[]>([]);
 
   const handleSpecimensChange = (newSpecimens: Specimen[]) => {
     setSpecimens((prevSpecimens) => {
@@ -90,7 +91,7 @@ export const CollectSpecimen: React.FC<{
       "Completed",
     ];
 
-    let computedPreviousStatus: ProgressBarStep["status"] = "completed"; // Initial value from the Order Placed step
+    let computedPreviousStatus: ProgressBarStep["status"] = "completed";
 
     return stepLabels.map((label) => {
       let status: ProgressBarStep["status"] = "notStarted";
@@ -144,6 +145,43 @@ export const CollectSpecimen: React.FC<{
   const patient = useMemo(() => {
     return labOrdersResponse?.results[0].subject;
   }, [labOrdersResponse]);
+
+  if (isLoading) {
+    return (
+      <div className="flex flex-col-reverse lg:flex-row min-h-screen">
+        <div className="w-72 border-r bg-gray-50 hidden lg:block">
+          <Skeleton className="h-screen" />
+        </div>
+        <main className="flex-1 p-6 lg:p-8 max-w-5xl mx-auto">
+          <Skeleton className="h-10 w-20 mb-8" />
+          <div className="flex flex-col lg:flex-row items-center justify-between mb-8">
+            <Skeleton className="h-8 w-48" />
+            <div className="space-x-4 flex mt-4 lg:mt-0">
+              <Skeleton className="h-10 w-32" />
+              <Skeleton className="h-10 w-32" />
+            </div>
+          </div>
+          <div className="flex items-center justify-between mb-4">
+            <div className="flex flex-col md:flex-row gap-8">
+              {[1, 2, 3].map((i) => (
+                <div key={i}>
+                  <Skeleton className="h-4 w-24 mb-2" />
+                  <Skeleton className="h-6 w-32" />
+                </div>
+              ))}
+            </div>
+            <Skeleton className="h-6 w-32" />
+          </div>
+          {[1, 2].map((i) => (
+            <>
+              <Skeleton key={i} className="h-20 w-full rounded-lg" />
+              <div className="border-l-[2.5px] border-gray-300 w-5 h-12 ms-8 last:hidden" />
+            </>
+          ))}
+        </main>
+      </div>
+    );
+  }
 
   return (
     <div className="flex flex-col-reverse lg:flex-row min-h-screen">
@@ -253,7 +291,7 @@ const LabOrderCollapsible: React.FC<{
   }, [specimenResponse]);
 
   return (
-    <Collapsible open={isOpen} onOpenChange={setIsOpen}>
+    <Collapsible open={isOpen} onOpenChange={setIsOpen} key={labOrder.id}>
       <div className="relative before:content-[''] before:absolute before:top-0 before:left-0 before:h-7 before:w-1 before:bg-gray-400 before:mt-3.5 before:rounded-r-sm">
         <div
           className={`items-center px-4 py-3 border rounded-lg shadow-sm max-w-5xl mx-auto space-y-4 ${
@@ -306,7 +344,6 @@ const LabOrderCollapsible: React.FC<{
             </div>
           </div>
 
-          {/* Expanded Content */}
           <CollapsibleContent>
             <div className="space-y-4">
               <ServiceRequestCard serviceRequest={labOrder} />
