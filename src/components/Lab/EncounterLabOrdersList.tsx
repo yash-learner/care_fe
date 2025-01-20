@@ -1,5 +1,7 @@
 import { useQuery } from "@tanstack/react-query";
 
+import { cn } from "@/lib/utils";
+
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -15,6 +17,12 @@ import {
 import routes from "@/Utils/request/api";
 import query from "@/Utils/request/query";
 import { displayCode } from "@/Utils/utils";
+import {
+  SERVICE_REQUEST_PHASE_COLORS,
+  SERVICE_REQUEST_PHASE_DISPLAY,
+} from "@/types/emr/serviceRequest";
+
+import { getPriorityColor } from "./utils";
 
 type ListEncounterLabOrdersListProps = {
   encounterId: string;
@@ -86,7 +94,13 @@ export default function EncounterLabOrdersList({
                   </TableCell>
 
                   <TableCell className="p-4">
-                    <Badge className="rounded-sm capitalize shadow-none">
+                    <Badge
+                      className={cn(
+                        getPriorityColor(request.priority),
+                        "capitalize font-semibold",
+                      )}
+                      variant="outline"
+                    >
                       {request.priority}
                     </Badge>
                   </TableCell>
@@ -96,8 +110,20 @@ export default function EncounterLabOrdersList({
                   <TableCell className="p-4">One-time</TableCell>
 
                   <TableCell className="rounded-r-md p-4">
-                    <Badge className="rounded-sm capitalize shadow-none">
-                      Pending
+                    <Badge
+                      className={cn(
+                        SERVICE_REQUEST_PHASE_COLORS[
+                          request.phase ?? "not_available"
+                        ],
+                        "rounded-sm shadow-none",
+                      )}
+                      variant="outline"
+                    >
+                      {
+                        SERVICE_REQUEST_PHASE_DISPLAY[
+                          request.phase ?? "not_available"
+                        ]
+                      }
                     </Badge>
                   </TableCell>
                 </TableRow>
