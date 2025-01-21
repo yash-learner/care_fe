@@ -20,9 +20,50 @@ interface Column {
 interface ResultTableProps {
   columns: Column[];
   data: Array<{ [key: string]: React.ReactNode }>;
+  isPending?: boolean;
 }
 
-export const ResultTable: React.FC<ResultTableProps> = ({ columns, data }) => {
+const LoadingSkeleton = () => (
+  <div className="w-full">
+    <div className="bg-gray-100 rounded-lg">
+      <div className="flex divide-x-[1.5px] divide-solid divide-gray-300">
+        {Array(3)
+          .fill(0)
+          .map((_, i) => (
+            <div key={i} className="p-3 w-full">
+              <div className="h-4 bg-gray-200 rounded animate-pulse" />
+            </div>
+          ))}
+      </div>
+    </div>
+    {Array(3)
+      .fill(0)
+      .map((_, i) => (
+        <div
+          key={i}
+          className="flex divide-x-[1.5px] divide-solid divide-gray-300"
+        >
+          {Array(3)
+            .fill(0)
+            .map((_, j) => (
+              <div key={j} className="p-3 w-full">
+                <div className="h-4 bg-gray-100 rounded animate-pulse" />
+              </div>
+            ))}
+        </div>
+      ))}
+  </div>
+);
+
+export const ResultTable: React.FC<ResultTableProps> = ({
+  columns,
+  data,
+  isPending,
+}) => {
+  if (isPending) {
+    return <LoadingSkeleton />;
+  }
+
   return (
     <div className="overflow-x-auto w-full rounded-md border-[1.5px] border-gray-300">
       <Table className="w-full border-separate border-spacing-0 bg-white shadow-sm">

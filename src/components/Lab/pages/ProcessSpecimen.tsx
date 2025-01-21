@@ -285,6 +285,7 @@ export const ProcessSpecimen = ({ specimenId }: { specimenId?: string }) => {
                 referenceRange: "4.0 - 11.0",
                 remark: observation.note,
               }))}
+              isPending={isPendingObservations}
             />
             {diagnosticReport.status !== "preliminary" && (
               <div className="flex gap-2 justify-end">
