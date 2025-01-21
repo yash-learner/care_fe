@@ -22,8 +22,14 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 
 import type { DiagnosticReportFormValues } from "./DiagnosticReportForm";
+import { COMMON_LAB_UNITS } from "./constants";
 
 interface LabObservationItemProps {
   index: number;
@@ -49,8 +55,8 @@ export const LabObservationItem: React.FC<LabObservationItemProps> = ({
       <div className="flex items-center justify-between">
         <h4 className="text-base font-semibold">
           {index + 1}.{" "}
-          {currentObservation?.code?.display ||
-            currentObservation?.code?.code ||
+          {currentObservation?.main_code?.display ||
+            currentObservation?.main_code?.code ||
             "Select Code"}
         </h4>
         <div className="flex items-center gap-2">
@@ -66,40 +72,61 @@ export const LabObservationItem: React.FC<LabObservationItemProps> = ({
       </div>
 
       <div className="flex flex-col md:flex-row md:items-center md:space-x-4">
-        <FormField
-          control={control}
-          name={`observations.${index}.unit`}
-          render={({ field }) => (
-            <FormItem className="w-full md:w-1/4">
-              <FormLabel>{t("unit")}</FormLabel>
-              <FormControl>
-                <Select
-                  value={field.value ?? ""}
-                  onValueChange={field.onChange}
-                  disabled={disabled}
-                >
-                  <SelectTrigger className="capitalize w-full">
-                    <SelectValue placeholder="Select Unit" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="x10⁶/μL">x10⁶/μL</SelectItem>
-                    <SelectItem value="x10³/μL">x10³/μL</SelectItem>
-                  </SelectContent>
-                </Select>
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-
         <div className="flex space-x-2 mt-4 md:mt-0">
           <FormField
             control={control}
-            name={`observations.${index}.result.value`}
+            name={`observations.${index}.value.value_quantity.code`}
+            render={({ field }) => (
+              <FormItem className="w-full md:w-1/4">
+                <FormLabel>{t("unit")}</FormLabel>
+                <FormControl>
+                  <Select
+                    value={field.value}
+                    onValueChange={field.onChange}
+                    disabled={disabled}
+                  >
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <SelectTrigger className="capitalize w-full">
+                          <SelectValue placeholder="Select Unit" />
+                        </SelectTrigger>
+                      </TooltipTrigger>
+                      <TooltipContent className="capitalize">
+                        {
+                          COMMON_LAB_UNITS.find(
+                            (unit) => unit.code === field.value,
+                          )?.display
+                        }
+                      </TooltipContent>
+                    </Tooltip>
+                    <SelectContent>
+                      {COMMON_LAB_UNITS.map((unit) => (
+                        <Tooltip key={unit.code}>
+                          <TooltipTrigger asChild>
+                            <SelectItem value={unit.code}>
+                              {unit.code}
+                            </SelectItem>
+                          </TooltipTrigger>
+                          <TooltipContent className="capitalize">
+                            {unit.display}
+                          </TooltipContent>
+                        </Tooltip>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+
+          <FormField
+            control={control}
+            name={`observations.${index}.value.value_quantity.value`}
             render={({ field }) => (
               <FormItem>
                 <FormLabel className="text-sm font-medium text-gray-600">
-                  {t("result")} (Ref. Interval: 4.0 - 11.0 x10³/μL)
+                  {t("result")} (Ref. Interval: 4.0 - 11.0{" "}
                 </FormLabel>
                 <FormControl>
                   <input
