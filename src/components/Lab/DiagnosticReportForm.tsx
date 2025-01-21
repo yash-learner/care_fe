@@ -27,11 +27,15 @@ const observationSchema = z.object({
   value: z.object({
     value_quantity: z.object({
       value: z.string().nonempty("Result is required"),
-      code: z.object({
-        code: z.string().nonempty("Unit code is required"),
-        display: z.string().optional(),
-        system: z.string().default("http://unitsofmeasure.org"),
-      }),
+      code: z
+        .object({
+          code: z.string().nonempty("Unit code is required"),
+          display: z.string().optional(),
+          system: z.string().default("http://unitsofmeasure.org"),
+        })
+        .refine((value) => value.code !== "Select Unit", {
+          message: "Unit is required",
+        }),
     }),
   }),
   note: z.string().optional(),
