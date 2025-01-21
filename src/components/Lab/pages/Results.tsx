@@ -61,8 +61,8 @@ export const Results: React.FC<{
   const resultsData =
     diagnosticReport?.result.map((observation) => ({
       parameter: observation.main_code?.display ?? observation.main_code?.code,
-      result: observation.value.value,
-      unit: "x10³/μL", // observation.reference_range?.unit, Replace with actual unit if available
+      result: observation.value.value_quantity?.value,
+      unit: observation.value.value_quantity?.code.code,
       referenceRange: "4.0 - 11.0", // Replace with actual reference range if available
       remark: observation.note,
     })) ?? [];
