@@ -16,14 +16,24 @@ import { Code } from "@/types/questionnaire/code";
 import { LabObservationItem } from "./LabObservationItem";
 
 const observationSchema = z.object({
-  code: z.object({
+  main_code: z.object({
     code: z.string().nonempty("Code is required"),
+    system: z
+      .string()
+      .nonempty("System is required")
+      .default("http://loinc.org"),
     display: z.string().optional(),
   }),
-  result: z.object({
-    value: z.string().nonempty("Result is required"),
+  value: z.object({
+    value_quantity: z.object({
+      value: z.string().nonempty("Result is required"),
+      code: z.object({
+        code: z.string().nonempty("Unit code is required"),
+        display: z.string().optional(),
+        system: z.string().default("http://unitsofmeasure.org"),
+      }),
+    }),
   }),
-  unit: z.string().nonempty({ message: "Unit is required" }),
   note: z.string().optional(),
 });
 
@@ -67,12 +77,20 @@ export const DiagnosticReportForm: React.FC<DiagnosticReportFormProps> = ({
 
   const handleAddObservation = (code: Code) => {
     append({
-      code: {
+      main_code: {
         code: code.code,
+        system: code.system || "http://loinc.org",
         display: code.display,
       },
-      result: { value: "" },
-      unit: "x10³/μL",
+      value: {
+        value_quantity: {
+          value: "",
+          code: {
+            code: "Select Unit",
+            system: "http://unitsofmeasure.org",
+          },
+        },
+      },
       note: "",
     });
   };

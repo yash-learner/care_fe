@@ -28,6 +28,7 @@ import { PartialPatientModel, Patient } from "@/types/emr/newPatient";
 import {
   Observation,
   ObservationAnalyzeResponse,
+  ObservationValue,
 } from "@/types/emr/observation";
 import { PatientModel } from "@/types/emr/patient";
 import {
@@ -759,12 +760,13 @@ const routes = {
             id: string;
             status: Observation["status"];
             main_code: Code;
-            value: {
-              value: string;
-            };
+            value: ObservationValue;
             subject_type: "patient";
+            value_type: "quantity";
             effective_datetime: string;
             data_entered_by_id: number;
+            created_by_id: number;
+            updated_by_id: number;
           }[];
         }>(),
         TRes: Type<DiagnosticReport>(),

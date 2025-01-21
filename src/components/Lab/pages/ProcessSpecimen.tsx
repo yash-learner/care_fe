@@ -23,7 +23,6 @@ import mutate from "@/Utils/request/mutate";
 import query from "@/Utils/request/query";
 import request from "@/Utils/request/request";
 import { DiagnosticReport } from "@/types/emr/diagnosticReport";
-import { LabObservation } from "@/types/emr/observation";
 import { Specimen } from "@/types/emr/specimen";
 
 import { BarcodeInput } from "../BarcodeInput";
@@ -112,7 +111,8 @@ export const ProcessSpecimen = ({ specimenId }: { specimenId?: string }) => {
 
   const { mutate: submitObservations, isPending: isPendingObservations } =
     useMutation({
-      mutationFn: async (observations: LabObservation[]) => {
+      mutationFn: async (formData: DiagnosticReportFormValues) => {
+        const observations = formData.observations;
         if (!specimen || observations.length === 0) {
           throw new Error("Specimen or observations are missing.");
         }
@@ -133,21 +133,38 @@ export const ProcessSpecimen = ({ specimenId }: { specimenId?: string }) => {
         });
 
         const observationsData = await submitObs({
-          observations: observations.map((observation) => ({
-            id: uuid(),
-            main_code: { ...observation.code!, system: "http://loinc.org" },
-            value: {
-              value: observation.result.value,
-            },
-            status: "final" as const,
-            effective_datetime: new Date().toISOString(),
-            data_entered_by_id: currentUserId,
-            subject_type: "patient" as const,
-            note: observation.note,
-            value_type: "quantity",
-            created_by_id: currentUserId,
-            updated_by_id: currentUserId,
-          })),
+          observations: observations.map((obs) => {
+            const numericValue = parseFloat(
+              obs.value.value_quantity.value || "0",
+            );
+
+            const codeSystem =
+              obs.value.value_quantity.code.system ||
+              "http://unitsofmeasure.org";
+
+            return {
+              id: uuid(),
+              main_code: obs.main_code,
+              status: "final" as const,
+              effective_datetime: new Date().toISOString(),
+              data_entered_by_id: currentUserId,
+              subject_type: "patient" as const,
+              value: {
+                value_quantity: {
+                  code: {
+                    code: obs.value.value_quantity.code.code,
+                    system: codeSystem,
+                    display: obs.value.value_quantity.code.display,
+                  },
+                  value: numericValue,
+                },
+              },
+              value_type: "quantity",
+              note: obs.note ?? "",
+              created_by_id: currentUserId,
+              updated_by_id: currentUserId,
+            };
+          }),
         });
 
         if (!observationsData) {
@@ -168,13 +185,7 @@ export const ProcessSpecimen = ({ specimenId }: { specimenId?: string }) => {
   const handleDiagnosticReportFormSubmit = (
     values: DiagnosticReportFormValues,
   ) => {
-    submitObservations(
-      values.observations.map((obs) => ({
-        ...obs,
-        code: { ...obs.code, system: "http://loinc.org" },
-        note: obs.note || "",
-      })),
-    );
+    submitObservations(values);
   };
 
   return (
@@ -269,8 +280,8 @@ export const ProcessSpecimen = ({ specimenId }: { specimenId?: string }) => {
               data={diagnosticReport.result.map((observation) => ({
                 parameter:
                   observation.main_code?.display ?? observation.main_code?.code,
-                result: String(observation.value.value),
-                unit: "x10³/μL",
+                result: String(observation.value.value_quantity?.value ?? ""),
+                unit: String(observation.value.value_quantity?.code.code ?? ""),
                 referenceRange: "4.0 - 11.0",
                 remark: observation.note,
               }))}

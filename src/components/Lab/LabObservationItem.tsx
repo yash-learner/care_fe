@@ -71,88 +71,91 @@ export const LabObservationItem: React.FC<LabObservationItemProps> = ({
         </div>
       </div>
 
-      <div className="flex flex-col md:flex-row md:items-center md:space-x-4">
-        <div className="flex space-x-2 mt-4 md:mt-0">
-          <FormField
-            control={control}
-            name={`observations.${index}.value.value_quantity.code`}
-            render={({ field }) => (
-              <FormItem className="w-full md:w-1/4">
-                <FormLabel>{t("unit")}</FormLabel>
-                <FormControl>
-                  <Select
-                    value={field.value}
-                    onValueChange={field.onChange}
-                    disabled={disabled}
-                  >
-                    <Tooltip>
-                      <TooltipTrigger asChild>
-                        <SelectTrigger className="capitalize w-full">
-                          <SelectValue placeholder="Select Unit" />
-                        </SelectTrigger>
-                      </TooltipTrigger>
-                      <TooltipContent className="capitalize">
-                        {
-                          COMMON_LAB_UNITS.find(
-                            (unit) => unit.code === field.value,
-                          )?.display
-                        }
-                      </TooltipContent>
-                    </Tooltip>
-                    <SelectContent>
-                      {COMMON_LAB_UNITS.map((unit) => (
-                        <Tooltip key={unit.code}>
-                          <TooltipTrigger asChild>
-                            <SelectItem value={unit.code}>
-                              {unit.code}
-                            </SelectItem>
-                          </TooltipTrigger>
-                          <TooltipContent className="capitalize">
-                            {unit.display}
-                          </TooltipContent>
-                        </Tooltip>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
+      <div className="flex flex-col space-y-4 md:space-y-0 md:flex-row md:items-end md:space-x-4">
+        <FormField
+          control={control}
+          name={`observations.${index}.value.value_quantity.code`}
+          render={({ field }) => (
+            <FormItem className="w-full md:w-[200px]">
+              <FormLabel>{t("unit")}</FormLabel>
+              <FormControl>
+                <Select
+                  value={field.value?.code}
+                  onValueChange={(value) => {
+                    const selectedUnit = COMMON_LAB_UNITS.find(
+                      (unit) => unit.code === value,
+                    );
+                    field.onChange({
+                      code: selectedUnit?.code,
+                      display: selectedUnit?.display,
+                      system: "http://unitsofmeasure.org",
+                    });
+                  }}
+                  disabled={disabled}
+                >
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <SelectTrigger className="w-full">
+                        <SelectValue>
+                          {field.value?.code || "Select Unit"}
+                        </SelectValue>
+                      </SelectTrigger>
+                    </TooltipTrigger>
+                    <TooltipContent className="capitalize">
+                      {COMMON_LAB_UNITS.find(
+                        (unit) => unit.code === field.value?.code,
+                      )?.display || "Select Unit"}
+                    </TooltipContent>
+                  </Tooltip>
+                  <SelectContent>
+                    {COMMON_LAB_UNITS.map((unit) => (
+                      <Tooltip key={unit.code}>
+                        <TooltipTrigger asChild>
+                          <SelectItem value={unit.code}>{unit.code}</SelectItem>
+                        </TooltipTrigger>
+                        <TooltipContent className="capitalize">
+                          {unit.display}
+                        </TooltipContent>
+                      </Tooltip>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
 
-          <FormField
-            control={control}
-            name={`observations.${index}.value.value_quantity.value`}
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel className="text-sm font-medium text-gray-600">
-                  {t("result")} (Ref. Interval: 4.0 - 11.0{" "}
-                </FormLabel>
-                <FormControl>
-                  <input
-                    type="text"
-                    className="mt-1 p-2 border rounded-md w-full"
-                    disabled={disabled}
-                    {...field}
-                  />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
+        <FormField
+          control={control}
+          name={`observations.${index}.value.value_quantity.value`}
+          render={({ field }) => (
+            <FormItem className="flex-1">
+              <FormLabel>{t("result")} (Ref. Interval: 4.0 - 11.0)</FormLabel>
+              <FormControl>
+                <input
+                  type="text"
+                  className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+                  disabled={disabled}
+                  {...field}
+                />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
 
-          <div className="pt-7">
-            <Badge
-              className={
-                isNormal
-                  ? "bg-green-100 text-green-600"
-                  : "bg-red-100 text-red-600"
-              }
-              variant="outline"
-            >
-              {isNormal ? "Normal" : "Abnormal"}
-            </Badge>
-          </div>
+        <div className="flex items-end">
+          <Badge
+            className={
+              isNormal
+                ? "bg-green-100 text-green-600"
+                : "bg-red-100 text-red-600"
+            }
+            variant="outline"
+          >
+            {isNormal ? "Normal" : "Abnormal"}
+          </Badge>
         </div>
       </div>
 
