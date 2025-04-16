@@ -35,11 +35,31 @@ export const UCUM_TIME_UNITS = [
   // "ms",
   // "s,
   // "min",
-  "d",
-  "h",
-  "wk",
-  "mo",
-  "a",
+  {
+    code: "h",
+    display: "time_unit_h",
+    system: "http://unitsofmeasure.org",
+  },
+  {
+    code: "d",
+    display: "time_unit_d",
+    system: "http://unitsofmeasure.org",
+  },
+  {
+    code: "wk",
+    display: "time_unit_wk",
+    system: "http://unitsofmeasure.org",
+  },
+  {
+    code: "mo",
+    display: "time_unit_mo",
+    system: "http://unitsofmeasure.org",
+  },
+  {
+    code: "a",
+    display: "time_unit_a",
+    system: "http://unitsofmeasure.org",
+  },
 ] as const;
 
 export const ACTIVE_MEDICATION_STATUSES = [
@@ -101,9 +121,11 @@ export interface DosageQuantity {
   unit: Code;
 }
 
+export type UcumTimeUnitCode = (typeof UCUM_TIME_UNITS)[number]["code"];
+
 export interface BoundsDuration {
   value: number;
-  unit: (typeof UCUM_TIME_UNITS)[number];
+  unit: UcumTimeUnitCode;
 }
 
 export interface DoseRange {
@@ -115,7 +137,7 @@ export interface Timing {
   repeat: {
     frequency: number;
     period: number;
-    period_unit: (typeof UCUM_TIME_UNITS)[number];
+    period_unit: UcumTimeUnitCode;
     bounds_duration: BoundsDuration;
   };
   code: Code;
@@ -189,6 +211,19 @@ export interface MedicationRequestRead {
   updated_by: UserBareMinimum;
   authored_on: string;
 }
+
+/**
+ * Find a time unit object by its code
+ * @param code - The time unit code to look up
+ * @returns The matching time unit object, or the default "hour" unit if not found
+ */
+export const getTimeUnit = (
+  code: UcumTimeUnitCode | string,
+): (typeof UCUM_TIME_UNITS)[number] => {
+  return (
+    UCUM_TIME_UNITS.find((unit) => unit.code === code) || UCUM_TIME_UNITS[0]
+  );
+};
 
 export const MEDICATION_REQUEST_TIMING_OPTIONS: Record<
   string,

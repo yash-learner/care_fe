@@ -12,8 +12,6 @@ import { toast } from "sonner";
 
 import { cn } from "@/lib/utils";
 
-import CareIcon from "@/CAREUI/icons/CareIcon";
-
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
@@ -22,7 +20,6 @@ import {
   CollapsibleTrigger,
 } from "@/components/ui/collapsible";
 import { CombinedDatePicker } from "@/components/ui/combined-date-picker";
-import { Command, CommandList } from "@/components/ui/command";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -38,7 +35,6 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Sheet, SheetContent } from "@/components/ui/sheet";
 import {
   Table,
   TableBody,
@@ -48,6 +44,7 @@ import {
   TableRow,
 } from "@/components/ui/table";
 
+import { EntitySelectionDrawer } from "@/components/Questionnaire/EntitySelectionDrawer";
 import ValueSetSelect from "@/components/Questionnaire/ValueSetSelect";
 
 import useBreakpoints from "@/hooks/useBreakpoints";
@@ -568,17 +565,16 @@ export function SymptomQuestion({
     addNewSymptom(selectedCode);
   };
 
-  const handleCloseDrawer = () => {
-    setShowSymptomSelection(false);
-    handleBackToValueSet();
-  };
-
-  const handleBackToValueSet = () => {
-    setSelectedCode(null);
-    setNewSymptom({
-      ...SYMPTOM_INITIAL_VALUE,
-      onset: { onset_datetime: new Date().toISOString().split("T")[0] },
-    });
+  const handleBack = () => {
+    if (selectedCode) {
+      setSelectedCode(null);
+      setNewSymptom({
+        ...SYMPTOM_INITIAL_VALUE,
+        onset: { onset_datetime: new Date().toISOString().split("T")[0] },
+      });
+    } else {
+      setShowSymptomSelection(false);
+    }
   };
 
   const handleRemoveSymptom = (index: number) => {
@@ -704,18 +700,15 @@ export function SymptomQuestion({
           />
         </div>
       </div>
-
-      <div className="flex justify-between space-x-2">
-        <Button type="button" variant="outline" onClick={handleBackToValueSet}>
-          {t("cancel")}
-        </Button>
-        <Button onClick={handleConfirmSymptom}>{t("add_symptom")}</Button>
-      </div>
     </div>
   );
 
+  const addSymptomPlaceholder = t("add_symptom", {
+    count: symptoms.length + 1,
+  });
+
   return (
-    <div className="space-y-2">
+    <div className="space-y-4">
       {symptoms.length > 0 && (
         <>
           {/* Desktop View - Table */}
@@ -769,88 +762,25 @@ export function SymptomQuestion({
         </>
       )}
 
-      {isMobile && showSymptomSelection ? (
-        <>
-          <ValueSetSelect
-            system="system-condition-code"
-            placeholder={t("add_another_symptom")}
-            onSelect={handleCodeSelect}
-            disabled={disabled}
-          />
-          <Sheet
-            open={showSymptomSelection}
-            onOpenChange={setShowSymptomSelection}
-          >
-            <Command className="px-0">
-              {selectedCode ? (
-                <>
-                  <div className="py-3 px-4 border-b border-gray-200 flex justify-between items-center">
-                    <h3 className="text-lg font-semibold">
-                      {selectedCode.display}
-                    </h3>
-                    <Button
-                      size="icon"
-                      variant="ghost"
-                      className="h-8 w-8"
-                      onClick={handleBackToValueSet}
-                    >
-                      <CareIcon icon="l-times" className="size-5" />
-                    </Button>
-                  </div>
-                  <SheetContent
-                    side="bottom"
-                    className="px-0 pt-2 pb-0 rounded-t-lg"
-                  >
-                    <div className="absolute inset-x-0 top-0 h-1.5 w-12 mx-auto rounded-full bg-gray-300 mt-2" />
-                    <div className="mt-6 h-full">
-                      <CommandList className="max-h-[calc(80vh-2rem)] overflow-y-auto">
-                        {symptomDetailsContent}
-                      </CommandList>
-                    </div>
-                  </SheetContent>
-                </>
-              ) : (
-                <>
-                  <div className="py-3 px-4 border-b border-gray-200 flex justify-between items-center">
-                    <h3 className="text-lg font-semibold">
-                      {t("select_symptom")}
-                    </h3>
-                    <Button
-                      size="icon"
-                      variant="ghost"
-                      className="h-8 w-8"
-                      onClick={handleCloseDrawer}
-                    >
-                      <CareIcon icon="l-times" className="size-5" />
-                    </Button>
-                  </div>
-                  <SheetContent
-                    side="bottom"
-                    className=" px-0 pt-2 pb-0 rounded-t-lg"
-                  >
-                    <div className="absolute inset-x-0 top-0 h-1.5 w-12 mx-auto rounded-full bg-gray-300 mt-2" />
-                    <div className="mt-6 h-full">
-                      <CommandList className="overflow-y-auto">
-                        <ValueSetSelect
-                          system="system-condition-code"
-                          placeholder={t("search_symptom")}
-                          onSelect={handleCodeSelect}
-                          disabled={disabled}
-                          hideTrigger={true}
-                          controlledOpen={true}
-                        />
-                      </CommandList>
-                    </div>
-                  </SheetContent>
-                </>
-              )}
-            </Command>
-          </Sheet>
-        </>
+      {isMobile ? (
+        <EntitySelectionDrawer
+          open={showSymptomSelection}
+          onOpenChange={setShowSymptomSelection}
+          selectedEntity={selectedCode}
+          system="system-condition-code"
+          entityType="symptom"
+          disabled={disabled}
+          onSelect={handleCodeSelect}
+          onBack={handleBack}
+          onConfirm={handleConfirmSymptom}
+          addPlaceholder={addSymptomPlaceholder}
+        >
+          {symptomDetailsContent}
+        </EntitySelectionDrawer>
       ) : (
         <ValueSetSelect
           system="system-condition-code"
-          placeholder={t("add_another_symptom")}
+          placeholder={addSymptomPlaceholder}
           onSelect={handleCodeSelect}
           disabled={disabled}
         />

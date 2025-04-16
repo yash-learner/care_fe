@@ -6,19 +6,11 @@ import {
 import { useQuery } from "@tanstack/react-query";
 import { format } from "date-fns";
 import { ChevronsDownUp, ChevronsUpDown } from "lucide-react";
-import React, {
-  Dispatch,
-  SetStateAction,
-  useEffect,
-  useMemo,
-  useState,
-} from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { toast } from "sonner";
 
 import { cn } from "@/lib/utils";
-
-import CareIcon from "@/CAREUI/icons/CareIcon";
 
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -28,7 +20,6 @@ import {
   CollapsibleTrigger,
 } from "@/components/ui/collapsible";
 import { CombinedDatePicker } from "@/components/ui/combined-date-picker";
-import { Command, CommandList } from "@/components/ui/command";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -45,7 +36,6 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Sheet, SheetContent } from "@/components/ui/sheet";
 import {
   Table,
   TableBody,
@@ -55,6 +45,7 @@ import {
   TableRow,
 } from "@/components/ui/table";
 
+import { EntitySelectionDrawer } from "@/components/Questionnaire/EntitySelectionDrawer";
 import ValueSetSelect from "@/components/Questionnaire/ValueSetSelect";
 
 import useBreakpoints from "@/hooks/useBreakpoints";
@@ -62,8 +53,6 @@ import useBreakpoints from "@/hooks/useBreakpoints";
 import query from "@/Utils/request/query";
 import { dateQueryString } from "@/Utils/utils";
 import {
-  ACTIVE_DIAGNOSIS_CLINICAL_STATUS,
-  DIAGNOSIS_CATEGORY,
   DIAGNOSIS_CLINICAL_STATUS,
   DIAGNOSIS_VERIFICATION_STATUS,
   Diagnosis,
@@ -140,24 +129,11 @@ export function DiagnosisQuestion({
   });
   const isMobile = useBreakpoints({ default: true, md: false });
 
-  // Sort diagnoses: chronic conditions first, then by date
+  // Sort diagnoses by date
   const sortedDiagnoses = useMemo(() => {
     const diagnoses =
       (questionnaireResponse.values?.[0]?.value as DiagnosisRequest[]) || [];
     return [...diagnoses].sort((a, b) => {
-      // First sort by category (chronic conditions first)
-      if (
-        a.category === "chronic_condition" &&
-        b.category !== "chronic_condition"
-      )
-        return -1;
-      if (
-        a.category !== "chronic_condition" &&
-        b.category === "chronic_condition"
-      )
-        return 1;
-
-      // Then sort by date within each category
       const dateA = a.onset?.onset_datetime
         ? new Date(a.onset.onset_datetime)
         : new Date();
@@ -175,21 +151,7 @@ export function DiagnosisQuestion({
       queryParams: {
         encounter: encounterId,
         limit: 100,
-        category: "encounter_diagnosis",
-        exclude_verification_status: "entered_in_error",
-      },
-    }),
-    enabled: !isPreview,
-  });
-
-  const { data: patientChronicConditions } = useQuery({
-    queryKey: ["chronic_condition", patientId],
-    queryFn: query(diagnosisApi.listDiagnosis, {
-      pathParams: { patientId },
-      queryParams: {
-        category: "chronic_condition",
-        limit: 100,
-        clinical_status: ACTIVE_DIAGNOSIS_CLINICAL_STATUS.join(","),
+        category: "encounter_diagnosis,chronic_condition",
         exclude_verification_status: "entered_in_error",
       },
     }),
@@ -197,21 +159,18 @@ export function DiagnosisQuestion({
   });
 
   useEffect(() => {
-    if (patientDiagnoses?.results && patientChronicConditions?.results) {
+    if (patientDiagnoses?.results) {
       updateQuestionnaireResponseCB(
         [
           {
             type: "diagnosis",
-            value: [
-              ...patientChronicConditions.results,
-              ...patientDiagnoses.results,
-            ].map(convertToDiagnosisRequest),
+            value: patientDiagnoses.results.map(convertToDiagnosisRequest),
           },
         ],
         questionnaireResponse.question_id,
       );
     }
-  }, [patientDiagnoses, patientChronicConditions]);
+  }, [patientDiagnoses]);
 
   const handleCodeSelect = (code: Code) => {
     setSelectedCode(code);
@@ -312,30 +271,25 @@ export function DiagnosisQuestion({
     );
   };
 
-  const handleCloseDrawer = () => {
-    setShowCategorySelection(false);
-    handleBackToValueSet();
-  };
-
-  const handleBackToValueSet = () => {
-    setSelectedCode(null);
-    setSelectedCategory("encounter_diagnosis");
-    setNewDiagnosis({
-      ...DIAGNOSIS_INITIAL_VALUE,
-      onset: {
-        onset_datetime: new Date().toISOString().split("T")[0],
-      },
-    });
+  const handleBack = () => {
+    if (selectedCode) {
+      // If a diagnosis is selected, go back to search
+      setSelectedCode(null);
+      setSelectedCategory("encounter_diagnosis");
+      setNewDiagnosis({
+        ...DIAGNOSIS_INITIAL_VALUE,
+        onset: {
+          onset_datetime: new Date().toISOString().split("T")[0],
+        },
+      });
+    } else {
+      // Otherwise close the drawer
+      setShowCategorySelection(false);
+    }
   };
 
   const diagnosisDetailsContent = (
     <div className="space-y-4 p-4">
-      <CategorySelector
-        categories={DIAGNOSIS_CATEGORY}
-        selectedCategory={selectedCategory}
-        onCategorySelect={setSelectedCategory}
-      />
-
       <div className="grid grid-cols-1 gap-4">
         <div className="space-y-2">
           <Label className="text-sm">{t("date")}</Label>
@@ -430,13 +384,6 @@ export function DiagnosisQuestion({
           />
         </div>
       </div>
-
-      <div className="flex justify-between space-x-2">
-        <Button type="button" variant="outline" onClick={handleBackToValueSet}>
-          {t("cancel")}
-        </Button>
-        <Button onClick={handleCategoryConfirm}>{t("add_diagnosis")}</Button>
-      </div>
     </div>
   );
 
@@ -445,21 +392,15 @@ export function DiagnosisQuestion({
       <div className="flex items-center justify-between">
         <div className="flex items-center space-x-2">
           {selectedCode && (
-            <Label className="text-sm font-medium">
+            <Label className="text-md font-medium">
               {selectedCode.display}
             </Label>
           )}
         </div>
-        <Button variant="ghost" size="sm" onClick={handleCloseDrawer}>
+        <Button variant="ghost" size="sm" onClick={handleBack}>
           {t("cancel")}
         </Button>
       </div>
-      <CategorySelector
-        categories={DIAGNOSIS_CATEGORY}
-        selectedCategory={selectedCategory}
-        onCategorySelect={setSelectedCategory}
-        gridCols="grid-cols-1 md:grid-cols-2"
-      />
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
         <div className="space-y-2">
           <Label className="text-sm">{t("date")}</Label>
@@ -547,6 +488,10 @@ export function DiagnosisQuestion({
     </div>
   );
 
+  const addDiagnosisPlaceholder = t("add_diagnosis", {
+    count: sortedDiagnoses.length + 1,
+  });
+
   return (
     <div className="space-y-4">
       {sortedDiagnoses.length > 0 && (
@@ -607,90 +552,27 @@ export function DiagnosisQuestion({
         </div>
       )}
 
-      {isMobile && showCategorySelection ? (
-        <>
-          <ValueSetSelect
-            system="system-condition-code"
-            placeholder={t("add_another_diagnosis")}
-            onSelect={handleCodeSelect}
-            disabled={disabled}
-          />
-          <Sheet
-            open={showCategorySelection}
-            onOpenChange={setShowCategorySelection}
-          >
-            <Command className="px-0">
-              {selectedCode ? (
-                <>
-                  <div className="py-3 px-4 border-b border-gray-200 flex justify-between items-center">
-                    <h3 className="text-lg font-semibold">
-                      {selectedCode.display}
-                    </h3>
-                    <Button
-                      size="icon"
-                      variant="ghost"
-                      className="h-8 w-8"
-                      onClick={handleBackToValueSet}
-                    >
-                      <CareIcon icon="l-times" className="size-5" />
-                    </Button>
-                  </div>
-                  <SheetContent
-                    side="bottom"
-                    className="h-[80vh] px-0 pt-2 pb-0 rounded-t-lg"
-                  >
-                    <div className="absolute inset-x-0 top-0 h-1.5 w-12 mx-auto rounded-full bg-gray-300 mt-2" />
-                    <div className="mt-6 h-full">
-                      <CommandList className="max-h-[calc(80vh-2rem)] overflow-y-auto">
-                        {diagnosisDetailsContent}
-                      </CommandList>
-                    </div>
-                  </SheetContent>
-                </>
-              ) : (
-                <>
-                  <div className="py-3 px-4 border-b border-gray-200 flex justify-between items-center">
-                    <h3 className="text-lg font-semibold">
-                      {t("select_diagnosis")}
-                    </h3>
-                    <Button
-                      size="icon"
-                      variant="ghost"
-                      className="h-8 w-8"
-                      onClick={handleCloseDrawer}
-                    >
-                      <CareIcon icon="l-times" className="size-5" />
-                    </Button>
-                  </div>
-                  <SheetContent
-                    side="bottom"
-                    className="h-[80vh] px-0 pt-2 pb-0 rounded-t-lg"
-                  >
-                    <div className="absolute inset-x-0 top-0 h-1.5 w-12 mx-auto rounded-full bg-gray-300 mt-2" />
-                    <div className="mt-6 h-full">
-                      <CommandList className="max-h-[calc(80vh-2rem)] overflow-y-auto">
-                        <ValueSetSelect
-                          system="system-condition-code"
-                          placeholder={t("add_another_diagnosis")}
-                          onSelect={handleCodeSelect}
-                          disabled={disabled}
-                          hideTrigger={true}
-                          controlledOpen={true}
-                        />
-                      </CommandList>
-                    </div>
-                  </SheetContent>
-                </>
-              )}
-            </Command>
-          </Sheet>
-        </>
+      {isMobile ? (
+        <EntitySelectionDrawer
+          open={showCategorySelection}
+          onOpenChange={setShowCategorySelection}
+          selectedEntity={selectedCode}
+          system="system-condition-code"
+          entityType="diagnosis"
+          disabled={disabled}
+          onSelect={handleCodeSelect}
+          onBack={handleBack}
+          onConfirm={handleCategoryConfirm}
+          addPlaceholder={addDiagnosisPlaceholder}
+        >
+          {diagnosisDetailsContent}
+        </EntitySelectionDrawer>
       ) : showCategorySelection ? (
         desktopDiagnosisContent
       ) : (
         <ValueSetSelect
           system="system-condition-code"
-          placeholder={t("add_another_diagnosis")}
+          placeholder={addDiagnosisPlaceholder}
           onSelect={handleCodeSelect}
           disabled={disabled}
         />
@@ -720,7 +602,6 @@ const DiagnosisTableRow = ({
         className={cn(
           diagnosis.verification_status === "entered_in_error" &&
             "opacity-40 pointer-events-none",
-          diagnosis.category === "chronic_condition" && "bg-yellow-50/50",
         )}
       >
         <TableCell className="py-1">
@@ -731,14 +612,7 @@ const DiagnosisTableRow = ({
             >
               {diagnosis.code.display}
             </div>
-            <div
-              className={cn(
-                "text-xs px-2 py-0.5 rounded-full shrink-0",
-                diagnosis.category === "chronic_condition"
-                  ? "bg-yellow-100 text-yellow-700"
-                  : "bg-gray-100 text-gray-700",
-              )}
-            >
+            <div className="text-xs px-2 py-0.5 rounded-full shrink-0 bg-gray-100 text-gray-700">
               {t(`Diagnosis_${diagnosis.category}__title`)}
             </div>
           </div>
@@ -881,7 +755,6 @@ const DiagnosisItem: React.FC<DiagnosisItemProps> = ({
       className={cn("group hover:bg-gray-50", {
         "opacity-40 pointer-events-none":
           diagnosis.verification_status === "entered_in_error",
-        "bg-yellow-50/50": diagnosis.category === "chronic_condition",
       })}
     >
       {/* Mobile View - Card Layout */}
@@ -916,10 +789,7 @@ const DiagnosisItem: React.FC<DiagnosisItemProps> = ({
                         <span className="mr-2">{diagnosis.code.display}</span>
                         <div
                           className={cn(
-                            "inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium whitespace-nowrap",
-                            diagnosis.category === "chronic_condition"
-                              ? "bg-yellow-100 text-yellow-700"
-                              : "bg-gray-100 text-gray-700",
+                            "inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium whitespace-nowrap bg-gray-100 text-gray-700",
                           )}
                         >
                           {t(`Diagnosis_${diagnosis.category}__title`)}
@@ -940,20 +810,20 @@ const DiagnosisItem: React.FC<DiagnosisItemProps> = ({
                           e.stopPropagation();
                           onRemove?.();
                         }}
-                        className="h-10 w-10 p-4 border border-gray-400 bg-white shadow text-destructive"
+                        className="size-10 p-4 border border-gray-400 bg-white shadow text-destructive"
                       >
-                        <MinusCircledIcon className="h-5 w-5" />
+                        <MinusCircledIcon className="size-5" />
                       </Button>
                     )}
                     <Button
                       variant="ghost"
                       size="icon"
-                      className="h-10 w-10 border border-gray-400 bg-white shadow p-4"
+                      className="size-10 border border-gray-400 bg-white shadow p-4"
                     >
                       {isOpen ? (
-                        <ChevronsDownUp className="h-5 w-5" />
+                        <ChevronsDownUp className="size-5" />
                       ) : (
-                        <ChevronsUpDown className="h-5 w-5" />
+                        <ChevronsUpDown className="size-5" />
                       )}
                     </Button>
                   </div>
@@ -1077,50 +947,3 @@ const DiagnosisItem: React.FC<DiagnosisItemProps> = ({
     </div>
   );
 };
-
-function CategorySelector({
-  categories,
-  selectedCategory,
-  onCategorySelect,
-  gridCols = "grid-cols-1",
-}: {
-  categories: readonly string[];
-  selectedCategory: DiagnosisRequest["category"];
-  onCategorySelect: Dispatch<SetStateAction<DiagnosisRequest["category"]>>;
-  gridCols?: string;
-}) {
-  const { t } = useTranslation();
-
-  return (
-    <div className={cn("grid gap-4", gridCols)}>
-      {categories.map((category) => (
-        <div
-          key={category}
-          className={cn(
-            "relative flex flex-col p-4 rounded-lg border cursor-pointer transition-colors",
-            selectedCategory === category
-              ? "border-primary bg-primary/5"
-              : "border-border hover:border-primary/50",
-          )}
-          onClick={() =>
-            onCategorySelect(category as DiagnosisRequest["category"])
-          }
-        >
-          <div className="flex items-center space-x-2">
-            <div className="flex-1">
-              <div className="font-medium">
-                {t(`Diagnosis_${category}__title`)}
-              </div>
-              <div className="flex-1 text-sm text-muted-foreground">
-                {t(`Diagnosis_${category}__description`)}
-              </div>
-            </div>
-            {selectedCategory === category && (
-              <div className="size-4 rounded-full bg-primary" />
-            )}
-          </div>
-        </div>
-      ))}
-    </div>
-  );
-}
