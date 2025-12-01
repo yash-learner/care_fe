@@ -1,6 +1,6 @@
-import { Priority } from "src/types/emr/serviceRequest/serviceRequest";
 import { faker } from "@faker-js/faker";
 import type { Page } from "@playwright/test";
+import { Priority } from "src/types/emr/serviceRequest/serviceRequest";
 import {
   expectToast,
   selectFromDefinitionCategoryPicker,
@@ -49,6 +49,29 @@ export const COMMON_BODY_SITES = {
   LEG: "Leg",
   CHEST: "Chest",
 } as const;
+
+/**
+ * Status options for testing
+ * These are the UI display strings (from i18n translations), not enum values.
+ * Used with Playwright's getByRole("option", { name: ... }) to match visible text in dropdowns.
+ */
+export const STATUS_OPTIONS = [
+  "Draft",
+  "Active",
+  "On Hold",
+  "Entered in Error",
+  "Ended",
+  "Completed",
+  "Revoked",
+  "Unknown",
+];
+
+/**
+ * Priority options for testing
+ * These are the UI display strings (from i18n translations), not enum values.
+ * Used with Playwright's getByRole("option", { name: ... }) to match visible text in dropdowns.
+ */
+export const PRIORITY_OPTIONS = ["Routine", "Urgent", "ASAP", "STAT"];
 
 /**
  * Generates dynamic test data for service request fields.
