@@ -52,6 +52,8 @@ export const COMMON_BODY_SITES = {
 
 /**
  * Status options for testing
+ * These are the UI display strings (from i18n translations), not enum values.
+ * Used with Playwright's getByRole("option", { name: ... }) to match visible text in dropdowns.
  */
 export const STATUS_OPTIONS = [
   "Draft",
@@ -66,6 +68,8 @@ export const STATUS_OPTIONS = [
 
 /**
  * Priority options for testing
+ * These are the UI display strings (from i18n translations), not enum values.
+ * Used with Playwright's getByRole("option", { name: ... }) to match visible text in dropdowns.
  */
 export const PRIORITY_OPTIONS = ["Routine", "Urgent", "ASAP", "STAT"];
 
