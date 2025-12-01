@@ -31,14 +31,14 @@ export const SERVICE_REQUEST_STATUS_COLORS = {
   completed: "green",
   revoked: "purple",
   unknown: "secondary",
-} as const;
+} as const satisfies Record<Status, string>;
 
 export const SERVICE_REQUEST_PRIORITY_COLORS = {
   stat: "secondary",
   urgent: "yellow",
   asap: "destructive",
   routine: "indigo",
-} as const;
+} as const satisfies Record<Priority, string>;
 
 export enum Intent {
   order = "order",
