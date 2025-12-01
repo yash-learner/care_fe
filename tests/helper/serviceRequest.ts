@@ -57,7 +57,7 @@ export const STATUS_OPTIONS = [
   "Draft",
   "Active",
   "On Hold",
-  "Entered In Error",
+  "Entered in Error",
   "Ended",
   "Completed",
   "Revoked",
