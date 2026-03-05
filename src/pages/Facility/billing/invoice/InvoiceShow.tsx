@@ -394,7 +394,7 @@ export function InvoiceShow({
             <BackButton
               variant="link"
               className="px-0 justify-start"
-              to={`/facility/${facilityId}/billing/account/${invoice.account.id}?from=invoice`}
+              to={`/facility/${facilityId}/billing/account/${invoice.account.id}`}
             >
               <ChevronLeft />
               <span>{t("back")}</span>

@@ -1,4 +1,4 @@
-import { Link } from "raviger";
+import { navigate } from "raviger";
 
 import { Button } from "@/components/ui/button";
 
@@ -7,14 +7,14 @@ import useAppHistory from "@/hooks/useAppHistory";
 type BackButtonProps = {
   to?: string;
   fallbackUrl?: string;
-} & React.ComponentProps<typeof Button>;
+} & Omit<React.ComponentProps<typeof Button>, "onClick">;
 
 export default function BackButton({
   to,
   fallbackUrl,
   ...props
 }: BackButtonProps) {
-  const { history } = useAppHistory();
+  const { history, signalBackNavigation } = useAppHistory();
 
   to ??= history[1] ?? fallbackUrl;
 
@@ -22,11 +22,19 @@ export default function BackButton({
     return null;
   }
 
+  const handleClick = () => {
+    signalBackNavigation();
+    navigate(to!, { replace: true });
+  };
+
   return (
-    <Button variant="outline" data-shortcut-id="go-back" asChild {...props}>
-      <Link basePath="/" href={to}>
-        {props.children}
-      </Link>
+    <Button
+      variant="outline"
+      data-shortcut-id="go-back"
+      onClick={handleClick}
+      {...props}
+    >
+      {props.children}
     </Button>
   );
 }
