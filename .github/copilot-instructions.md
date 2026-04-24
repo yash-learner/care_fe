@@ -258,3 +258,8 @@ Refer to specific instruction files in `.github/instructions/` for detailed guid
 ## Trust and Validation
 
 Always ensure changes maintain the existing code quality standards and follow the established patterns in the codebase. Trust these instructions and only perform additional searches if the information here is incomplete or found to be in error.
+
+<!-- SPECKIT START -->
+For additional context about technologies to be used, project structure,
+shell commands, and other important information, read the current plan
+<!-- SPECKIT END -->
