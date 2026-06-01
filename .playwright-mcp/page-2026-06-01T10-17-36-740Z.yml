@@ -1,0 +1,126 @@
+- generic:
+  - generic:
+    - generic:
+      - generic:
+        - generic:
+          - generic:
+            - generic:
+              - list:
+                - listitem:
+                  - button:
+                    - generic:
+                      - img
+                    - img
+            - generic:
+              - generic:
+                - list:
+                  - listitem:
+                    - link:
+                      - /url: /facility/6ecdd614-48a5-4ebb-b63c-a11a7cdd7b35/overview
+                      - img
+                  - listitem:
+                    - link:
+                      - /url: /facility/6ecdd614-48a5-4ebb-b63c-a11a7cdd7b35/appointments
+                      - img
+                  - listitem:
+                    - link:
+                      - /url: /facility/6ecdd614-48a5-4ebb-b63c-a11a7cdd7b35/queues
+                      - img
+                  - button:
+                    - img
+                  - listitem:
+                    - link:
+                      - /url: /facility/6ecdd614-48a5-4ebb-b63c-a11a7cdd7b35/services
+                      - img
+                  - listitem:
+                    - link:
+                      - /url: /facility/6ecdd614-48a5-4ebb-b63c-a11a7cdd7b35/resource
+                      - img
+                  - listitem:
+                    - link:
+                      - /url: /facility/6ecdd614-48a5-4ebb-b63c-a11a7cdd7b35/users
+                      - img
+                  - button:
+                    - img
+                  - button:
+                    - img
+                  - listitem:
+                    - link:
+                      - /url: /facility/6ecdd614-48a5-4ebb-b63c-a11a7cdd7b35/analytics
+                      - img
+            - generic:
+              - list:
+                - listitem:
+                  - button:
+                    - generic:
+                      - generic:
+                        - img:
+                          - generic: AA
+            - button
+      - main:
+        - generic:
+          - heading [level=2]: Command Palette
+          - paragraph: Search for a command to run...
+        - generic:
+          - generic:
+            - generic:
+              - generic:
+                - generic:
+                  - heading [level=1]: Observation Definitions
+                  - generic:
+                    - generic:
+                      - paragraph: Manage and view observation definitions
+                    - button:
+                      - img
+                      - text: Add Definition
+                  - generic:
+                    - generic:
+                      - generic:
+                        - generic:
+                          - img
+                        - textbox:
+                          - /placeholder: Search definitions
+                    - generic:
+                      - generic:
+                        - generic:
+                          - combobox:
+                            - generic:
+                              - img
+                              - generic: Status is
+                              - generic: Draft
+                            - img
+                          - button:
+                            - img
+                      - generic:
+                        - generic:
+                          - combobox [expanded]:
+                            - generic:
+                              - img
+                              - generic: Category
+                            - img
+                - generic:
+                  - generic:
+                    - img
+                  - heading [level=3]: No observation definitions found
+                  - paragraph: Adjust observation definition filters to find what you're looking for
+    - region "Notifications alt+T"
+  - listbox [ref=e229]:
+    - option "Social History" [active] [ref=e230]:
+      - generic [ref=e232]: Social History
+    - option "Vital Signs" [ref=e233]:
+      - generic [ref=e235]: Vital Signs
+    - option "Imaging" [ref=e236]:
+      - generic [ref=e238]: Imaging
+    - option "Laboratory" [ref=e239]:
+      - generic [ref=e241]: Laboratory
+    - option "Procedure" [ref=e242]:
+      - generic [ref=e244]: Procedure
+    - option "Survey" [ref=e245]:
+      - generic [ref=e247]: Survey
+    - option "Exam" [ref=e248]:
+      - generic [ref=e250]: Exam
+    - option "Therapy" [ref=e251]:
+      - generic [ref=e253]: Therapy
+    - option "Activity" [ref=e254]:
+      - generic [ref=e256]: Activity
+    - img [ref=e258]

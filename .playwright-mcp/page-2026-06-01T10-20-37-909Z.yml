@@ -1,0 +1,112 @@
+- generic [ref=e2]:
+  - generic [ref=e4]:
+    - generic [ref=e8]:
+      - list [ref=e10]:
+        - listitem [ref=e11]:
+          - button "CHC Muvattupuzha" [ref=e12] [cursor=pointer]:
+            - img [ref=e14]
+            - generic:
+              - generic: CHC Muvattupuzha
+            - img [ref=e18]
+      - list [ref=e22]:
+        - listitem [ref=e23]:
+          - link [ref=e24] [cursor=pointer]:
+            - /url: /facility/6ecdd614-48a5-4ebb-b63c-a11a7cdd7b35/overview
+            - img [ref=e25]
+        - listitem [ref=e28]:
+          - link [ref=e29] [cursor=pointer]:
+            - /url: /facility/6ecdd614-48a5-4ebb-b63c-a11a7cdd7b35/appointments
+            - img [ref=e30]
+        - listitem [ref=e33]:
+          - link [ref=e34] [cursor=pointer]:
+            - /url: /facility/6ecdd614-48a5-4ebb-b63c-a11a7cdd7b35/queues
+            - img [ref=e35]
+        - button [ref=e36] [cursor=pointer]:
+          - img [ref=e37]
+        - listitem [ref=e40]:
+          - link [ref=e41] [cursor=pointer]:
+            - /url: /facility/6ecdd614-48a5-4ebb-b63c-a11a7cdd7b35/services
+            - img [ref=e42]
+        - listitem [ref=e45]:
+          - link [ref=e46] [cursor=pointer]:
+            - /url: /facility/6ecdd614-48a5-4ebb-b63c-a11a7cdd7b35/resource
+            - img [ref=e47]
+        - listitem [ref=e50]:
+          - link [ref=e51] [cursor=pointer]:
+            - /url: /facility/6ecdd614-48a5-4ebb-b63c-a11a7cdd7b35/users
+            - img [ref=e52]
+        - button [ref=e55] [cursor=pointer]:
+          - img [ref=e56]
+        - button [ref=e59] [cursor=pointer]:
+          - img [ref=e60]
+        - listitem [ref=e62]:
+          - link [ref=e63] [cursor=pointer]:
+            - /url: /facility/6ecdd614-48a5-4ebb-b63c-a11a7cdd7b35/analytics
+            - img [ref=e64]
+      - list [ref=e68]:
+        - listitem [ref=e69]:
+          - button [ref=e70] [cursor=pointer]:
+            - img [ref=e73]:
+              - generic [ref=e74]: AA
+      - button "Toggle Sidebar" [ref=e75]
+    - main [ref=e76]:
+      - generic [ref=e77]:
+        - heading "Command Palette" [level=2] [ref=e78]
+        - paragraph [ref=e79]: Search for a command to run...
+      - generic [ref=e428]:
+        - button "Back" [ref=e429] [cursor=pointer]:
+          - img
+          - text: Back
+        - generic [ref=e430]:
+          - generic [ref=e431]:
+            - generic [ref=e432]:
+              - heading "QA Test Observation Edited" [level=1] [ref=e433]
+              - generic [ref=e434]: Active
+            - paragraph [ref=e435]: http://loinc.org | LP14635-4
+          - generic [ref=e436]:
+            - button "Delete" [ref=e437] [cursor=pointer]:
+              - img
+              - text: Delete
+            - button "Edit" [ref=e438] [cursor=pointer]:
+              - img
+              - text: Edit
+        - generic [ref=e439]:
+          - generic [ref=e441]: Overview
+          - generic [ref=e442]:
+            - generic [ref=e443]:
+              - paragraph [ref=e444]: Category
+              - paragraph [ref=e445]: Laboratory
+            - generic [ref=e446]:
+              - paragraph [ref=e447]: Description
+              - paragraph [ref=e448]: Observation definition created during automated QA testing.
+        - generic [ref=e449]:
+          - generic [ref=e451]: Technical Details
+          - generic [ref=e453]:
+            - generic [ref=e454]:
+              - paragraph [ref=e455]: Code
+              - generic [ref=e457]:
+                - paragraph [ref=e458]: Glucose
+                - paragraph [ref=e459]: http://loinc.org
+                - paragraph [ref=e460]: LP14635-4
+            - generic [ref=e461]:
+              - paragraph [ref=e462]: Permitted Data Type
+              - paragraph [ref=e463]: quantity
+        - generic [ref=e464]:
+          - generic [ref=e465]:
+            - generic [ref=e466]: Components
+            - generic [ref=e467]: List of components that make up this observation definition
+          - generic [ref=e471]:
+            - generic [ref=e472]:
+              - paragraph [ref=e473]: Hemoglobin
+              - paragraph [ref=e474]: http://loinc.org
+              - paragraph [ref=e475]: LP32067-8
+            - generic [ref=e477]:
+              - paragraph [ref=e478]: Data Type
+              - paragraph [ref=e479]: quantity
+  - region "Notifications alt+T":
+    - list:
+      - listitem [ref=e480]:
+        - button "Close toast" [ref=e481] [cursor=pointer]:
+          - img [ref=e482]
+        - img [ref=e486]
+        - generic [ref=e489]: Observation definition updated successfully

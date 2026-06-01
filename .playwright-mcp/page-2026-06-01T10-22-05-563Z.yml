@@ -1,0 +1,201 @@
+- generic:
+  - generic:
+    - generic:
+      - generic:
+        - generic:
+          - generic:
+            - generic:
+              - list:
+                - listitem:
+                  - button:
+                    - generic:
+                      - img
+                    - img
+            - generic:
+              - generic:
+                - list:
+                  - listitem:
+                    - link:
+                      - /url: /facility/6ecdd614-48a5-4ebb-b63c-a11a7cdd7b35/overview
+                      - img
+                  - listitem:
+                    - link:
+                      - /url: /facility/6ecdd614-48a5-4ebb-b63c-a11a7cdd7b35/appointments
+                      - img
+                  - listitem:
+                    - link:
+                      - /url: /facility/6ecdd614-48a5-4ebb-b63c-a11a7cdd7b35/queues
+                      - img
+                  - button:
+                    - img
+                  - listitem:
+                    - link:
+                      - /url: /facility/6ecdd614-48a5-4ebb-b63c-a11a7cdd7b35/services
+                      - img
+                  - listitem:
+                    - link:
+                      - /url: /facility/6ecdd614-48a5-4ebb-b63c-a11a7cdd7b35/resource
+                      - img
+                  - listitem:
+                    - link:
+                      - /url: /facility/6ecdd614-48a5-4ebb-b63c-a11a7cdd7b35/users
+                      - img
+                  - button:
+                    - img
+                  - button:
+                    - img
+                  - listitem:
+                    - link:
+                      - /url: /facility/6ecdd614-48a5-4ebb-b63c-a11a7cdd7b35/analytics
+                      - img
+            - generic:
+              - list:
+                - listitem:
+                  - button:
+                    - generic:
+                      - generic:
+                        - img:
+                          - generic: AA
+            - button
+      - main:
+        - generic:
+          - heading [level=2]: Command Palette
+          - paragraph: Search for a command to run...
+        - generic:
+          - generic:
+            - generic:
+              - generic:
+                - generic:
+                  - heading [level=1]: Edit Observation Definition
+                - generic:
+                  - generic:
+                    - generic:
+                      - generic:
+                        - heading [level=2]: Basic Information
+                        - paragraph: Enter the basic details and type of the observation
+                      - generic:
+                        - generic:
+                          - generic: Title *
+                          - textbox: QA Test Observation Edited
+                        - generic:
+                          - generic: Slug *
+                          - textbox: qa-test-observation
+                          - paragraph: Slug must only contain letters, numbers, underscores, and hyphens
+                      - generic:
+                        - generic: Description *
+                        - textbox: Observation definition created during automated QA testing.
+                      - generic:
+                        - generic:
+                          - generic: Status
+                          - combobox [expanded]:
+                            - generic: Active
+                            - img
+                          - combobox
+                        - generic:
+                          - generic: Category *
+                          - combobox:
+                            - generic: Laboratory
+                            - img
+                          - combobox
+                      - generic:
+                        - generic:
+                          - generic: Data Type *
+                          - combobox:
+                            - generic: Quantity
+                            - img
+                          - combobox
+                        - generic:
+                          - generic: LOINC Code *
+                          - combobox:
+                            - generic:
+                              - text: Glucose
+                              - generic: (LP14635-4)
+                            - img
+                  - generic:
+                    - generic:
+                      - heading [level=3]: Observation Interpretation (0)
+                      - button: Add Interpretation
+                    - generic:
+                      - generic:
+                        - img
+                      - paragraph: No interpretations configured
+                  - generic:
+                    - generic:
+                      - generic:
+                        - heading [level=2]:
+                          - text: Additional Details
+                          - generic: (Optional)
+                        - paragraph: Specify additional details about how and where this observation is performed
+                      - generic:
+                        - generic:
+                          - generic: Body Site
+                          - combobox:
+                            - generic: Select Body Site
+                            - img
+                        - generic:
+                          - generic: Method
+                          - combobox:
+                            - generic: Select Method
+                            - img
+                        - generic:
+                          - generic: Unit
+                          - combobox:
+                            - generic: Select Unit
+                            - img
+                  - generic:
+                    - generic:
+                      - generic:
+                        - heading [level=2]: Components Optional
+                        - paragraph: Add components if this observation needs to collect multiple related values
+                      - generic:
+                        - generic:
+                          - generic:
+                            - button:
+                              - img
+                          - generic: Component 1
+                          - generic:
+                            - generic:
+                              - generic: Code *
+                              - combobox:
+                                - generic:
+                                  - text: Hemoglobin
+                                  - generic: (LP32067-8)
+                                - img
+                            - generic:
+                              - generic:
+                                - generic: Data Type
+                                - combobox:
+                                  - generic: Quantity
+                                  - img
+                                - combobox
+                              - generic:
+                                - generic: Unit
+                                - combobox:
+                                  - generic: Search for units
+                                  - img
+                            - generic:
+                              - generic:
+                                - heading [level=3]: Observation Interpretation (0)
+                                - button: Add Interpretation
+                              - generic:
+                                - generic:
+                                  - img
+                                - paragraph: No interpretations configured
+                        - button:
+                          - img
+                          - text: Add component
+                  - generic:
+                    - button: Cancel
+                    - button: Save
+    - region "Notifications alt+T"
+  - listbox [ref=e197]:
+    - option "Draft" [ref=e198]:
+      - generic [ref=e200]: Draft
+    - option "Active" [active] [selected] [ref=e201]:
+      - generic [ref=e203]:
+        - img
+      - generic [ref=e204]: Active
+    - option "Retired" [ref=e205]:
+      - generic [ref=e207]: Retired
+    - option "Unknown" [ref=e208]:
+      - generic [ref=e210]: Unknown

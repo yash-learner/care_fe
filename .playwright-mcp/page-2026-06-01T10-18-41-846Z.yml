@@ -1,0 +1,216 @@
+- generic:
+  - generic:
+    - generic:
+      - generic:
+        - generic:
+          - generic:
+            - generic:
+              - list:
+                - listitem:
+                  - button:
+                    - generic:
+                      - img
+                    - img
+            - generic:
+              - generic:
+                - list:
+                  - listitem:
+                    - link:
+                      - /url: /facility/6ecdd614-48a5-4ebb-b63c-a11a7cdd7b35/overview
+                      - img
+                  - listitem:
+                    - link:
+                      - /url: /facility/6ecdd614-48a5-4ebb-b63c-a11a7cdd7b35/appointments
+                      - img
+                  - listitem:
+                    - link:
+                      - /url: /facility/6ecdd614-48a5-4ebb-b63c-a11a7cdd7b35/queues
+                      - img
+                  - button:
+                    - img
+                  - listitem:
+                    - link:
+                      - /url: /facility/6ecdd614-48a5-4ebb-b63c-a11a7cdd7b35/services
+                      - img
+                  - listitem:
+                    - link:
+                      - /url: /facility/6ecdd614-48a5-4ebb-b63c-a11a7cdd7b35/resource
+                      - img
+                  - listitem:
+                    - link:
+                      - /url: /facility/6ecdd614-48a5-4ebb-b63c-a11a7cdd7b35/users
+                      - img
+                  - button:
+                    - img
+                  - button:
+                    - img
+                  - listitem:
+                    - link:
+                      - /url: /facility/6ecdd614-48a5-4ebb-b63c-a11a7cdd7b35/analytics
+                      - img
+            - generic:
+              - list:
+                - listitem:
+                  - button:
+                    - generic:
+                      - generic:
+                        - img:
+                          - generic: AA
+            - button
+      - main:
+        - generic:
+          - heading [level=2]: Command Palette
+          - paragraph: Search for a command to run...
+        - generic:
+          - generic:
+            - generic:
+              - generic:
+                - generic:
+                  - heading [level=1]: Create Observation Definition
+                - generic:
+                  - generic:
+                    - generic:
+                      - generic:
+                        - heading [level=2]: Basic Information
+                        - paragraph: Enter the basic details and type of the observation
+                      - generic:
+                        - generic:
+                          - generic: Title *
+                          - textbox: QA Test Observation
+                        - generic:
+                          - generic: Slug *
+                          - textbox: qa-test-observation
+                          - paragraph: Slug must only contain letters, numbers, underscores, and hyphens
+                      - generic:
+                        - generic: Description *
+                        - textbox: Observation definition created during automated QA testing.
+                      - generic:
+                        - generic:
+                          - generic: Status
+                          - combobox:
+                            - generic: Active
+                            - img
+                          - combobox
+                        - generic:
+                          - generic: Category *
+                          - combobox:
+                            - generic: Laboratory
+                            - img
+                          - combobox
+                      - generic:
+                        - generic:
+                          - generic: Data Type *
+                          - combobox:
+                            - generic: Quantity
+                            - img
+                          - combobox
+                        - generic:
+                          - generic: LOINC Code *
+                          - combobox [expanded]:
+                            - generic: Search for observation codes
+                            - img
+                  - generic:
+                    - generic:
+                      - heading [level=3]: Observation Interpretation (0)
+                      - button: Add Interpretation
+                    - generic:
+                      - generic:
+                        - img
+                      - paragraph: No interpretations configured
+                  - generic:
+                    - generic:
+                      - generic:
+                        - heading [level=2]:
+                          - text: Additional Details
+                          - generic: (Optional)
+                        - paragraph: Specify additional details about how and where this observation is performed
+                      - generic:
+                        - generic:
+                          - generic: Body Site
+                          - combobox:
+                            - generic: Select Body Site
+                            - img
+                        - generic:
+                          - generic: Method
+                          - combobox:
+                            - generic: Select Method
+                            - img
+                        - generic:
+                          - generic: Unit
+                          - combobox:
+                            - generic: Select Unit
+                            - img
+                  - generic:
+                    - generic:
+                      - generic:
+                        - heading [level=2]: Components Optional
+                        - paragraph: Add components if this observation needs to collect multiple related values
+                      - generic:
+                        - paragraph: Add components if this observation needs to collect multiple related values
+                        - list:
+                          - listitem: • Blood Pressure (Systolic + Diastolic)
+                          - listitem: • Complete Blood Count (RBC + WBC + Platelets)
+                        - button:
+                          - img
+                          - text: Add your first component
+                  - generic:
+                    - button: Cancel
+                    - button: Create
+    - region "Notifications alt+T"
+  - dialog [ref=e221]:
+    - generic [ref=e222]:
+      - generic [ref=e225]:
+        - img [ref=e226]
+        - combobox [expanded] [active] [ref=e229]: glucose
+      - listbox "Suggestions" [ref=e388]:
+        - group [ref=e392]:
+          - option "Glucose (LP14635-4)" [selected] [ref=e393] [cursor=pointer]:
+            - generic [ref=e394]:
+              - generic [ref=e396]: Glucose (LP14635-4)
+              - button [ref=e397]:
+                - img
+          - option "Glucose (LP32534-7)" [ref=e398] [cursor=pointer]:
+            - generic [ref=e399]:
+              - generic [ref=e401]: Glucose (LP32534-7)
+              - button [ref=e402]:
+                - img
+          - option "Glucose.PO (LP63076-1)" [ref=e403] [cursor=pointer]:
+            - generic [ref=e404]:
+              - generic [ref=e406]: Glucose.PO (LP63076-1)
+              - button [ref=e407]:
+                - img
+          - option "Glucose.IV (LP63075-3)" [ref=e408] [cursor=pointer]:
+            - generic [ref=e409]:
+              - generic [ref=e411]: Glucose.IV (LP63075-3)
+              - button [ref=e412]:
+                - img
+          - option "glucose IV (LP94815-5)" [ref=e413] [cursor=pointer]:
+            - generic [ref=e414]:
+              - generic [ref=e416]: glucose IV (LP94815-5)
+              - button [ref=e417]:
+                - img
+          - option "glucose PO (LP63004-3)" [ref=e418] [cursor=pointer]:
+            - generic [ref=e419]:
+              - generic [ref=e421]: glucose PO (LP63004-3)
+              - button [ref=e422]:
+                - img
+          - option "Glucose CSF (LP69206-8)" [ref=e423] [cursor=pointer]:
+            - generic [ref=e424]:
+              - generic [ref=e426]: Glucose CSF (LP69206-8)
+              - button [ref=e427]:
+                - img
+          - option "Glucose plas (LP32058-7)" [ref=e428] [cursor=pointer]:
+            - generic [ref=e429]:
+              - generic [ref=e431]: Glucose plas (LP32058-7)
+              - button [ref=e432]:
+                - img
+          - option "Glucose^1.5H (LP435979-2)" [ref=e433] [cursor=pointer]:
+            - generic [ref=e434]:
+              - generic [ref=e436]: Glucose^1.5H (LP435979-2)
+              - button [ref=e437]:
+                - img
+          - option "2.5% Glucose (LA33091-2)" [ref=e438] [cursor=pointer]:
+            - generic [ref=e439]:
+              - generic [ref=e441]: 2.5% Glucose (LA33091-2)
+              - button [ref=e442]:
+                - img

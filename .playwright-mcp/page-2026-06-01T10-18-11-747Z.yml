@@ -1,0 +1,178 @@
+- generic:
+  - generic:
+    - generic:
+      - generic:
+        - generic:
+          - generic:
+            - generic:
+              - list:
+                - listitem:
+                  - button:
+                    - generic:
+                      - img
+                    - img
+            - generic:
+              - generic:
+                - list:
+                  - listitem:
+                    - link:
+                      - /url: /facility/6ecdd614-48a5-4ebb-b63c-a11a7cdd7b35/overview
+                      - img
+                  - listitem:
+                    - link:
+                      - /url: /facility/6ecdd614-48a5-4ebb-b63c-a11a7cdd7b35/appointments
+                      - img
+                  - listitem:
+                    - link:
+                      - /url: /facility/6ecdd614-48a5-4ebb-b63c-a11a7cdd7b35/queues
+                      - img
+                  - button:
+                    - img
+                  - listitem:
+                    - link:
+                      - /url: /facility/6ecdd614-48a5-4ebb-b63c-a11a7cdd7b35/services
+                      - img
+                  - listitem:
+                    - link:
+                      - /url: /facility/6ecdd614-48a5-4ebb-b63c-a11a7cdd7b35/resource
+                      - img
+                  - listitem:
+                    - link:
+                      - /url: /facility/6ecdd614-48a5-4ebb-b63c-a11a7cdd7b35/users
+                      - img
+                  - button:
+                    - img
+                  - button:
+                    - img
+                  - listitem:
+                    - link:
+                      - /url: /facility/6ecdd614-48a5-4ebb-b63c-a11a7cdd7b35/analytics
+                      - img
+            - generic:
+              - list:
+                - listitem:
+                  - button:
+                    - generic:
+                      - generic:
+                        - img:
+                          - generic: AA
+            - button
+      - main:
+        - generic:
+          - heading [level=2]: Command Palette
+          - paragraph: Search for a command to run...
+        - generic:
+          - generic:
+            - generic:
+              - generic:
+                - generic:
+                  - heading [level=1]: Create Observation Definition
+                - generic:
+                  - generic:
+                    - generic:
+                      - generic:
+                        - heading [level=2]: Basic Information
+                        - paragraph: Enter the basic details and type of the observation
+                      - generic:
+                        - generic:
+                          - generic: Title *
+                          - textbox: QA Test Observation
+                        - generic:
+                          - generic: Slug *
+                          - textbox: qa-test-observation
+                          - paragraph: Slug must only contain letters, numbers, underscores, and hyphens
+                      - generic:
+                        - generic: Description *
+                        - textbox: Observation definition created during automated QA testing.
+                      - generic:
+                        - generic:
+                          - generic: Status
+                          - combobox:
+                            - generic: Active
+                            - img
+                          - combobox
+                        - generic:
+                          - generic: Category *
+                          - combobox [expanded]:
+                            - generic: Select a category
+                            - img
+                          - combobox
+                      - generic:
+                        - generic:
+                          - generic: Data Type *
+                          - combobox:
+                            - generic: Select Data Type
+                            - img
+                          - combobox
+                        - generic:
+                          - generic: LOINC Code *
+                          - combobox:
+                            - generic: Search for observation codes
+                            - img
+                  - generic:
+                    - generic:
+                      - heading [level=3]: Observation Interpretation (0)
+                      - button: Add Interpretation
+                    - generic:
+                      - generic:
+                        - img
+                      - paragraph: No interpretations configured
+                  - generic:
+                    - generic:
+                      - generic:
+                        - heading [level=2]:
+                          - text: Additional Details
+                          - generic: (Optional)
+                        - paragraph: Specify additional details about how and where this observation is performed
+                      - generic:
+                        - generic:
+                          - generic: Body Site
+                          - combobox:
+                            - generic: Select Body Site
+                            - img
+                        - generic:
+                          - generic: Method
+                          - combobox:
+                            - generic: Select Method
+                            - img
+                        - generic:
+                          - generic: Unit
+                          - combobox:
+                            - generic: Select Unit
+                            - img
+                  - generic:
+                    - generic:
+                      - generic:
+                        - heading [level=2]: Components Optional
+                        - paragraph: Add components if this observation needs to collect multiple related values
+                      - generic:
+                        - paragraph: Add components if this observation needs to collect multiple related values
+                        - list:
+                          - listitem: • Blood Pressure (Systolic + Diastolic)
+                          - listitem: • Complete Blood Count (RBC + WBC + Platelets)
+                        - button:
+                          - img
+                          - text: Add your first component
+                  - generic:
+                    - button: Cancel
+                    - button: Create
+    - region "Notifications alt+T"
+  - listbox [ref=e168]:
+    - option "Social History" [active] [ref=e169]:
+      - generic [ref=e171]: Social History
+    - option "Vital Signs" [ref=e172]:
+      - generic [ref=e174]: Vital Signs
+    - option "Imaging" [ref=e175]:
+      - generic [ref=e177]: Imaging
+    - option "Laboratory" [ref=e178]:
+      - generic [ref=e180]: Laboratory
+    - option "Procedure" [ref=e181]:
+      - generic [ref=e183]: Procedure
+    - option "Survey" [ref=e184]:
+      - generic [ref=e186]: Survey
+    - option "Exam" [ref=e187]:
+      - generic [ref=e189]: Exam
+    - option "Therapy" [ref=e190]:
+      - generic [ref=e192]: Therapy
+    - option "Activity" [ref=e193]:
+      - generic [ref=e195]: Activity

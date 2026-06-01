@@ -1,0 +1,35 @@
+[     537ms] [ERROR] Failed to load resource: net::ERR_NAME_NOT_RESOLVED @ https://care-imports-fe.pages.dev/locale/en.json:0
+[     538ms] [ERROR] Failed to load translations for en/care_imports_fe: TypeError: Failed to fetch (care-imports-fe.pages.dev)
+    at https://copilot-fix-observation-defi.care-preview-a7w.pages.dev/assets/index-DoNou9AO.js:16:5123
+    at https://copilot-fix-observation-defi.care-preview-a7w.pages.dev/assets/index-DoNou9AO.js:258:62612
+    at Object.read (https://copilot-fix-observation-defi.care-preview-a7w.pages.dev/assets/index-DoNou9AO.js:258:61170)
+    at iU.read (https://copilot-fix-observation-defi.care-preview-a7w.pages.dev/assets/index-DoNou9AO.js:166:68470)
+    at iU.loadOne (https://copilot-fix-observation-defi.care-preview-a7w.pages.dev/assets/index-DoNou9AO.js:166:68963)
+    at https://copilot-fix-observation-defi.care-preview-a7w.pages.dev/assets/index-DoNou9AO.js:166:68799
+    at Array.forEach (<anonymous>)
+    at iU.prepareLoading (https://copilot-fix-observation-defi.care-preview-a7w.pages.dev/assets/index-DoNou9AO.js:166:68782)
+    at iU.load (https://copilot-fix-observation-defi.care-preview-a7w.pages.dev/assets/index-DoNou9AO.js:166:68829)
+    at F1.loadResources (https://copilot-fix-observation-defi.care-preview-a7w.pages.dev/assets/index-DoNou9AO.js:166:75838)
+    at l (https://copilot-fix-observation-defi.care-preview-a7w.pages.dev/assets/index-DoNou9AO.js:166:78109)
+    at F1.changeLanguage (https://copilot-fix-observation-defi.care-preview-a7w.pages.dev/assets/index-DoNou9AO.js:166:78219)
+    at f (https://copilot-fix-observation-defi.care-preview-a7w.pages.dev/assets/index-DoNou9AO.js:166:75155)
+    at r (https://copilot-fix-observation-defi.care-preview-a7w.pages.dev/assets/index-DoNou9AO.js:16:7075) @ https://copilot-fix-observation-defi.care-preview-a7w.pages.dev/assets/index-DoNou9AO.js:15
+[     588ms] [LOG] %c══════════════════════════════════════════════════════════════════════════════════════════
+%c                            WELCOME TO OPEN HEALTHCARE NETWORK
+%c══════════════════════════════════════════════════════════════════════════════════════════ color: #4B9CD3; font-weight: bold; color: #4B9CD3; font-weight: bold; color: #4B9CD3; font-weight: bold; @ https://copilot-fix-observation-defi.care-preview-a7w.pages.dev/assets/index-DoNou9AO.js:15
+[     588ms] [LOG] %c
+          +++++   ++++++                                                            
+          +++++   ++++++            ######     ##### ###  #########   #####         
+     +++++++++#####+++++++++      ########## ###########  ######### #########       
+     ++++++   #####    +++++     #####   ## #####  #####  #####    ####   ####      
+      ++++#############+++++     ####       ####     ###  ####    ############      
+          ##############         #####   ## #####   ####  ####     ####    #        
+          ##############          ########## ###########  ####      #########       
+              #####                  #####     ##### ###  ####       #######        
+              #####                                                                 
+ color: #2ECC71; font-weight: bold; @ https://copilot-fix-observation-defi.care-preview-a7w.pages.dev/assets/index-DoNou9AO.js:15
+[     588ms] [LOG] %c══════════════════════════════════════════════════════════════════════════════════════════ color: #4B9CD3; font-weight: bold; @ https://copilot-fix-observation-defi.care-preview-a7w.pages.dev/assets/index-DoNou9AO.js:15
+[     917ms] [ERROR] Failed to load resource: the server responded with a status of 404 () @ https://eng-279-update-env-read-from.care-kutumba-fe.pages.dev/assets/remoteEntry:0
+[     917ms] [ERROR] There was an error enabling the app care_kutumba_fe TypeError: Failed to fetch dynamically imported module: https://eng-279-update-env-read-from.care-kutumba-fe.pages.dev/assets/remoteEntry @ https://copilot-fix-observation-defi.care-preview-a7w.pages.dev/assets/index-DoNou9AO.js:15
+[     960ms] [ERROR] Failed to load resource: net::ERR_NAME_NOT_RESOLVED @ https://care-imports-fe.pages.dev/assets/remoteEntry.js:0
+[     961ms] [ERROR] There was an error enabling the app care_imports_fe TypeError: Failed to fetch dynamically imported module: https://care-imports-fe.pages.dev/assets/remoteEntry.js @ https://copilot-fix-observation-defi.care-preview-a7w.pages.dev/assets/index-DoNou9AO.js:15

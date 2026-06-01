@@ -1,0 +1,87 @@
+- generic [ref=e2]:
+  - generic [ref=e4]:
+    - generic [ref=e8]:
+      - list [ref=e10]:
+        - listitem [ref=e11]:
+          - button "CHC Muvattupuzha" [ref=e12] [cursor=pointer]:
+            - img [ref=e14]
+            - generic:
+              - generic: CHC Muvattupuzha
+            - img [ref=e18]
+      - list [ref=e22]:
+        - listitem [ref=e23]:
+          - link [ref=e24] [cursor=pointer]:
+            - /url: /facility/6ecdd614-48a5-4ebb-b63c-a11a7cdd7b35/overview
+            - img [ref=e25]
+        - listitem [ref=e28]:
+          - link [ref=e29] [cursor=pointer]:
+            - /url: /facility/6ecdd614-48a5-4ebb-b63c-a11a7cdd7b35/appointments
+            - img [ref=e30]
+        - listitem [ref=e33]:
+          - link [ref=e34] [cursor=pointer]:
+            - /url: /facility/6ecdd614-48a5-4ebb-b63c-a11a7cdd7b35/queues
+            - img [ref=e35]
+        - button [ref=e36] [cursor=pointer]:
+          - img [ref=e37]
+        - listitem [ref=e40]:
+          - link [ref=e41] [cursor=pointer]:
+            - /url: /facility/6ecdd614-48a5-4ebb-b63c-a11a7cdd7b35/services
+            - img [ref=e42]
+        - listitem [ref=e45]:
+          - link [ref=e46] [cursor=pointer]:
+            - /url: /facility/6ecdd614-48a5-4ebb-b63c-a11a7cdd7b35/resource
+            - img [ref=e47]
+        - listitem [ref=e50]:
+          - link [ref=e51] [cursor=pointer]:
+            - /url: /facility/6ecdd614-48a5-4ebb-b63c-a11a7cdd7b35/users
+            - img [ref=e52]
+        - button [ref=e55] [cursor=pointer]:
+          - img [ref=e56]
+        - button [ref=e59] [cursor=pointer]:
+          - img [ref=e60]
+        - listitem [ref=e62]:
+          - link [ref=e63] [cursor=pointer]:
+            - /url: /facility/6ecdd614-48a5-4ebb-b63c-a11a7cdd7b35/analytics
+            - img [ref=e64]
+      - list [ref=e68]:
+        - listitem [ref=e69]:
+          - button [ref=e70] [cursor=pointer]:
+            - img [ref=e73]:
+              - generic [ref=e74]: AA
+      - button "Toggle Sidebar" [ref=e75]
+    - main [ref=e76]:
+      - generic [ref=e77]:
+        - heading "Command Palette" [level=2] [ref=e78]
+        - paragraph [ref=e79]: Search for a command to run...
+      - generic [ref=e84]:
+        - generic [ref=e85]:
+          - heading "Observation Definitions" [level=1] [ref=e86]
+          - generic [ref=e87]:
+            - paragraph [ref=e89]: Manage and view observation definitions
+            - button "Add Definition" [ref=e90] [cursor=pointer]:
+              - img
+              - text: Add Definition
+          - generic [ref=e91]:
+            - generic [ref=e93]:
+              - img [ref=e95]
+              - textbox "Search definitions" [ref=e97]
+            - generic [ref=e98]:
+              - generic [ref=e100]:
+                - combobox [active] [ref=e101] [cursor=pointer]:
+                  - generic [ref=e102]:
+                    - img
+                    - generic [ref=e103]: Status is
+                    - generic [ref=e104]: Draft
+                  - img
+                - button [ref=e105] [cursor=pointer]:
+                  - img
+              - combobox [ref=e108] [cursor=pointer]:
+                - generic [ref=e109]:
+                  - img
+                  - generic [ref=e110]: Category
+                - img
+        - generic [ref=e223]:
+          - img [ref=e225]
+          - heading "No observation definitions found" [level=3] [ref=e227]
+          - paragraph [ref=e228]: Adjust observation definition filters to find what you're looking for
+  - region "Notifications alt+T"

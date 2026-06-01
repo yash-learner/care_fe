@@ -1,0 +1,117 @@
+- generic:
+  - generic:
+    - generic:
+      - generic:
+        - generic:
+          - generic:
+            - generic:
+              - list:
+                - listitem:
+                  - button:
+                    - generic:
+                      - img
+                    - img
+            - generic:
+              - generic:
+                - list:
+                  - listitem:
+                    - link:
+                      - /url: /facility/6ecdd614-48a5-4ebb-b63c-a11a7cdd7b35/overview
+                      - img
+                  - listitem:
+                    - link:
+                      - /url: /facility/6ecdd614-48a5-4ebb-b63c-a11a7cdd7b35/appointments
+                      - img
+                  - listitem:
+                    - link:
+                      - /url: /facility/6ecdd614-48a5-4ebb-b63c-a11a7cdd7b35/queues
+                      - img
+                  - button:
+                    - img
+                  - listitem:
+                    - link:
+                      - /url: /facility/6ecdd614-48a5-4ebb-b63c-a11a7cdd7b35/services
+                      - img
+                  - listitem:
+                    - link:
+                      - /url: /facility/6ecdd614-48a5-4ebb-b63c-a11a7cdd7b35/resource
+                      - img
+                  - listitem:
+                    - link:
+                      - /url: /facility/6ecdd614-48a5-4ebb-b63c-a11a7cdd7b35/users
+                      - img
+                  - button:
+                    - img
+                  - button:
+                    - img
+                  - listitem:
+                    - link:
+                      - /url: /facility/6ecdd614-48a5-4ebb-b63c-a11a7cdd7b35/analytics
+                      - img
+            - generic:
+              - list:
+                - listitem:
+                  - button:
+                    - generic:
+                      - generic:
+                        - img:
+                          - generic: AA
+            - button
+      - main:
+        - generic:
+          - heading [level=2]: Command Palette
+          - paragraph: Search for a command to run...
+        - generic:
+          - generic:
+            - generic:
+              - generic:
+                - generic:
+                  - heading [level=1]: Observation Definitions
+                  - generic:
+                    - generic:
+                      - paragraph: Manage and view observation definitions
+                    - button:
+                      - img
+                      - text: Add Definition
+                  - generic:
+                    - generic:
+                      - generic:
+                        - generic:
+                          - img
+                        - textbox:
+                          - /placeholder: Search definitions
+                    - generic:
+                      - generic:
+                        - generic:
+                          - combobox [expanded]:
+                            - generic:
+                              - img
+                              - generic: Status is
+                              - generic: Active
+                            - img
+                          - button:
+                            - img
+                      - generic:
+                        - generic:
+                          - combobox:
+                            - generic:
+                              - img
+                              - generic: Category
+                            - img
+                - generic:
+                  - generic:
+                    - img
+                  - heading [level=3]: No observation definitions found
+                  - paragraph: Adjust observation definition filters to find what you're looking for
+    - region "Notifications alt+T"
+  - listbox [ref=e209]:
+    - option "Draft" [ref=e210]:
+      - generic [ref=e212]: Draft
+    - option "Active" [active] [selected] [ref=e213]:
+      - generic [ref=e215]:
+        - img
+      - generic [ref=e216]: Active
+    - option "Retired" [ref=e217]:
+      - generic [ref=e219]: Retired
+    - option "Unknown" [ref=e220]:
+      - generic [ref=e222]: Unknown

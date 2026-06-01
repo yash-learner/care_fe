@@ -1,0 +1,246 @@
+- generic:
+  - generic:
+    - generic:
+      - generic:
+        - generic:
+          - generic:
+            - generic:
+              - list:
+                - listitem:
+                  - button:
+                    - generic:
+                      - img
+                    - img
+            - generic:
+              - generic:
+                - list:
+                  - listitem:
+                    - link:
+                      - /url: /facility/6ecdd614-48a5-4ebb-b63c-a11a7cdd7b35/overview
+                      - img
+                  - listitem:
+                    - link:
+                      - /url: /facility/6ecdd614-48a5-4ebb-b63c-a11a7cdd7b35/appointments
+                      - img
+                  - listitem:
+                    - link:
+                      - /url: /facility/6ecdd614-48a5-4ebb-b63c-a11a7cdd7b35/queues
+                      - img
+                  - button:
+                    - img
+                  - listitem:
+                    - link:
+                      - /url: /facility/6ecdd614-48a5-4ebb-b63c-a11a7cdd7b35/services
+                      - img
+                  - listitem:
+                    - link:
+                      - /url: /facility/6ecdd614-48a5-4ebb-b63c-a11a7cdd7b35/resource
+                      - img
+                  - listitem:
+                    - link:
+                      - /url: /facility/6ecdd614-48a5-4ebb-b63c-a11a7cdd7b35/users
+                      - img
+                  - button:
+                    - img
+                  - button:
+                    - img
+                  - listitem:
+                    - link:
+                      - /url: /facility/6ecdd614-48a5-4ebb-b63c-a11a7cdd7b35/analytics
+                      - img
+            - generic:
+              - list:
+                - listitem:
+                  - button:
+                    - generic:
+                      - generic:
+                        - img:
+                          - generic: AA
+            - button
+      - main:
+        - generic:
+          - heading [level=2]: Command Palette
+          - paragraph: Search for a command to run...
+        - generic:
+          - generic:
+            - generic:
+              - generic:
+                - generic:
+                  - heading [level=1]: Edit Observation Definition
+                - generic:
+                  - generic:
+                    - generic:
+                      - generic:
+                        - heading [level=2]: Basic Information
+                        - paragraph: Enter the basic details and type of the observation
+                      - generic:
+                        - generic:
+                          - generic: Title *
+                          - textbox: QA Test Observation
+                        - generic:
+                          - generic: Slug *
+                          - textbox: qa-test-observation
+                          - paragraph: Slug must only contain letters, numbers, underscores, and hyphens
+                      - generic:
+                        - generic: Description *
+                        - textbox: Observation definition created during automated QA testing.
+                      - generic:
+                        - generic:
+                          - generic: Status
+                          - combobox:
+                            - generic: Active
+                            - img
+                          - combobox
+                        - generic:
+                          - generic: Category *
+                          - combobox:
+                            - generic: Laboratory
+                            - img
+                          - combobox
+                      - generic:
+                        - generic:
+                          - generic: Data Type *
+                          - combobox:
+                            - generic: Quantity
+                            - img
+                          - combobox
+                        - generic:
+                          - generic: LOINC Code *
+                          - combobox:
+                            - generic:
+                              - text: Glucose
+                              - generic: (LP14635-4)
+                            - img
+                  - generic:
+                    - generic:
+                      - heading [level=3]: Observation Interpretation (0)
+                      - button: Add Interpretation
+                    - generic:
+                      - generic:
+                        - img
+                      - paragraph: No interpretations configured
+                  - generic:
+                    - generic:
+                      - generic:
+                        - heading [level=2]:
+                          - text: Additional Details
+                          - generic: (Optional)
+                        - paragraph: Specify additional details about how and where this observation is performed
+                      - generic:
+                        - generic:
+                          - generic: Body Site
+                          - combobox:
+                            - generic: Select Body Site
+                            - img
+                        - generic:
+                          - generic: Method
+                          - combobox:
+                            - generic: Select Method
+                            - img
+                        - generic:
+                          - generic: Unit
+                          - combobox:
+                            - generic: Select Unit
+                            - img
+                  - generic:
+                    - generic:
+                      - generic:
+                        - heading [level=2]: Components Optional
+                        - paragraph: Add components if this observation needs to collect multiple related values
+                      - generic:
+                        - generic:
+                          - generic:
+                            - button:
+                              - img
+                          - generic: Component 1
+                          - generic:
+                            - generic:
+                              - generic: Code *
+                              - combobox [expanded]:
+                                - generic: Search for observation codes
+                                - img
+                              - paragraph: Required
+                            - generic:
+                              - generic:
+                                - generic: Data Type
+                                - combobox:
+                                  - generic: Quantity
+                                  - img
+                                - combobox
+                              - generic:
+                                - generic: Unit
+                                - combobox:
+                                  - generic: Search for units
+                                  - img
+                            - generic:
+                              - generic:
+                                - heading [level=3]: Observation Interpretation (0)
+                                - button: Add Interpretation
+                              - generic:
+                                - generic:
+                                  - img
+                                - paragraph: No interpretations configured
+                        - button:
+                          - img
+                          - text: Add component
+                  - generic:
+                    - button: Cancel
+                    - button: Save
+    - region "Notifications alt+T"
+  - dialog [ref=e202]:
+    - generic [ref=e203]:
+      - generic [ref=e206]:
+        - img [ref=e207]
+        - combobox [expanded] [active] [ref=e210]: hemoglobin
+      - listbox "Suggestions" [ref=e369]:
+        - group [ref=e373]:
+          - option "Hemoglobin (LP32067-8)" [selected] [ref=e374] [cursor=pointer]:
+            - generic [ref=e375]:
+              - generic [ref=e377]: Hemoglobin (LP32067-8)
+              - button [ref=e378]:
+                - img
+          - option "Hemoglobin (LP14449-0)" [ref=e379] [cursor=pointer]:
+            - generic [ref=e380]:
+              - generic [ref=e382]: Hemoglobin (LP14449-0)
+              - button [ref=e383]:
+                - img
+          - option "Hemoglobin Q (LP207149-8)" [ref=e384] [cursor=pointer]:
+            - generic [ref=e385]:
+              - generic [ref=e387]: Hemoglobin Q (LP207149-8)
+              - button [ref=e388]:
+                - img
+          - option "Hemoglobin I (LP16437-3)" [ref=e389] [cursor=pointer]:
+            - generic [ref=e390]:
+              - generic [ref=e392]: Hemoglobin I (LP16437-3)
+              - button [ref=e393]:
+                - img
+          - option "Hemoglobin H (LP16434-0)" [ref=e394] [cursor=pointer]:
+            - generic [ref=e395]:
+              - generic [ref=e397]: Hemoglobin H (LP16434-0)
+              - button [ref=e398]:
+                - img
+          - option "Hemoglobin S (LP16455-5)" [ref=e399] [cursor=pointer]:
+            - generic [ref=e400]:
+              - generic [ref=e402]: Hemoglobin S (LP16455-5)
+              - button [ref=e403]:
+                - img
+          - option "Hemoglobin A (LP14554-7)" [ref=e404] [cursor=pointer]:
+            - generic [ref=e405]:
+              - generic [ref=e407]: Hemoglobin A (LP14554-7)
+              - button [ref=e408]:
+                - img
+          - option "Hemoglobin G (LP30929-1)" [ref=e409] [cursor=pointer]:
+            - generic [ref=e410]:
+              - generic [ref=e412]: Hemoglobin G (LP30929-1)
+              - button [ref=e413]:
+                - img
+          - option "Hemoglobin N (LP30932-5)" [ref=e414] [cursor=pointer]:
+            - generic [ref=e415]:
+              - generic [ref=e417]: Hemoglobin N (LP30932-5)
+              - button [ref=e418]:
+                - img
+          - option "Hemoglobin M (LP30931-7)" [ref=e419] [cursor=pointer]:
+            - generic [ref=e420]:
+              - generic [ref=e422]: Hemoglobin M (LP30931-7)
+              - button [ref=e423]:
+                - img

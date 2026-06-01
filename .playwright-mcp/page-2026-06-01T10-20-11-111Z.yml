@@ -1,0 +1,345 @@
+- generic:
+  - generic:
+    - generic:
+      - generic:
+        - generic:
+          - generic:
+            - generic:
+              - list:
+                - listitem:
+                  - button:
+                    - generic:
+                      - img
+                    - img
+            - generic:
+              - generic:
+                - list:
+                  - listitem:
+                    - link:
+                      - /url: /facility/6ecdd614-48a5-4ebb-b63c-a11a7cdd7b35/overview
+                      - img
+                  - listitem:
+                    - link:
+                      - /url: /facility/6ecdd614-48a5-4ebb-b63c-a11a7cdd7b35/appointments
+                      - img
+                  - listitem:
+                    - link:
+                      - /url: /facility/6ecdd614-48a5-4ebb-b63c-a11a7cdd7b35/queues
+                      - img
+                  - button:
+                    - img
+                  - listitem:
+                    - link:
+                      - /url: /facility/6ecdd614-48a5-4ebb-b63c-a11a7cdd7b35/services
+                      - img
+                  - listitem:
+                    - link:
+                      - /url: /facility/6ecdd614-48a5-4ebb-b63c-a11a7cdd7b35/resource
+                      - img
+                  - listitem:
+                    - link:
+                      - /url: /facility/6ecdd614-48a5-4ebb-b63c-a11a7cdd7b35/users
+                      - img
+                  - button:
+                    - img
+                  - button:
+                    - img
+                  - listitem:
+                    - link:
+                      - /url: /facility/6ecdd614-48a5-4ebb-b63c-a11a7cdd7b35/analytics
+                      - img
+            - generic:
+              - list:
+                - listitem:
+                  - button:
+                    - generic:
+                      - generic:
+                        - img:
+                          - generic: AA
+            - button
+      - main:
+        - generic:
+          - heading [level=2]: Command Palette
+          - paragraph: Search for a command to run...
+        - generic:
+          - generic:
+            - generic:
+              - generic:
+                - generic:
+                  - heading [level=1]: Edit Observation Definition
+                - generic:
+                  - generic:
+                    - generic:
+                      - generic:
+                        - heading [level=2]: Basic Information
+                        - paragraph: Enter the basic details and type of the observation
+                      - generic:
+                        - generic:
+                          - generic: Title *
+                          - textbox: QA Test Observation
+                        - generic:
+                          - generic: Slug *
+                          - textbox: qa-test-observation
+                          - paragraph: Slug must only contain letters, numbers, underscores, and hyphens
+                      - generic:
+                        - generic: Description *
+                        - textbox: Observation definition created during automated QA testing.
+                      - generic:
+                        - generic:
+                          - generic: Status
+                          - combobox:
+                            - generic: Active
+                            - img
+                          - combobox
+                        - generic:
+                          - generic: Category *
+                          - combobox:
+                            - generic: Laboratory
+                            - img
+                          - combobox
+                      - generic:
+                        - generic:
+                          - generic: Data Type *
+                          - combobox:
+                            - generic: Quantity
+                            - img
+                          - combobox
+                        - generic:
+                          - generic: LOINC Code *
+                          - combobox:
+                            - generic:
+                              - text: Glucose
+                              - generic: (LP14635-4)
+                            - img
+                  - generic:
+                    - generic:
+                      - heading [level=3]: Observation Interpretation (0)
+                      - button: Add Interpretation
+                    - generic:
+                      - generic:
+                        - img
+                      - paragraph: No interpretations configured
+                  - generic:
+                    - generic:
+                      - generic:
+                        - heading [level=2]:
+                          - text: Additional Details
+                          - generic: (Optional)
+                        - paragraph: Specify additional details about how and where this observation is performed
+                      - generic:
+                        - generic:
+                          - generic: Body Site
+                          - combobox:
+                            - generic: Select Body Site
+                            - img
+                        - generic:
+                          - generic: Method
+                          - combobox:
+                            - generic: Select Method
+                            - img
+                        - generic:
+                          - generic: Unit
+                          - combobox:
+                            - generic: Select Unit
+                            - img
+                  - generic:
+                    - generic:
+                      - generic:
+                        - heading [level=2]: Components Optional
+                        - paragraph: Add components if this observation needs to collect multiple related values
+                      - generic:
+                        - generic:
+                          - generic:
+                            - button:
+                              - img
+                          - generic: Component 1
+                          - generic:
+                            - generic:
+                              - generic: Code *
+                              - combobox [expanded]:
+                                - generic: Search for observation codes
+                                - img
+                              - paragraph: Required
+                            - generic:
+                              - generic:
+                                - generic: Data Type
+                                - combobox:
+                                  - generic: Quantity
+                                  - img
+                                - combobox
+                              - generic:
+                                - generic: Unit
+                                - combobox:
+                                  - generic: Search for units
+                                  - img
+                            - generic:
+                              - generic:
+                                - heading [level=3]: Observation Interpretation (0)
+                                - button: Add Interpretation
+                              - generic:
+                                - generic:
+                                  - img
+                                - paragraph: No interpretations configured
+                        - button:
+                          - img
+                          - text: Add component
+                  - generic:
+                    - button: Cancel
+                    - button: Save
+    - region "Notifications alt+T"
+  - dialog [ref=e202]:
+    - generic [ref=e203]:
+      - generic [ref=e206]:
+        - img [ref=e207]
+        - combobox [expanded] [active] [ref=e210]
+      - listbox "Suggestions" [ref=e211]:
+        - generic [ref=e213]:
+          - group [ref=e215]:
+            - option "Glucose (LP14635-4)" [selected] [ref=e216] [cursor=pointer]:
+              - generic [ref=e217]:
+                - generic [ref=e219]: Glucose (LP14635-4)
+                - button [ref=e220]:
+                  - img
+            - option "Leukocytes (LP157588-7)" [ref=e221] [cursor=pointer]:
+              - generic [ref=e222]:
+                - generic [ref=e224]: Leukocytes (LP157588-7)
+                - button [ref=e225]:
+                  - img
+            - option "ABO group (LP17806-8)" [ref=e226] [cursor=pointer]:
+              - generic [ref=e227]:
+                - generic [ref=e229]: ABO group (LP17806-8)
+                - button [ref=e230]:
+                  - img
+            - option "Leukocyte phosphatase | White blood cells | Hematology and Cell counts (LP393833-1)" [ref=e231] [cursor=pointer]:
+              - generic [ref=e232]:
+                - generic [ref=e234]: Leukocyte phosphatase | White blood cells | Hematology and Cell counts (LP393833-1)
+                - button [ref=e235]:
+                  - img
+            - option "Renal function (LP31398-8)" [ref=e236] [cursor=pointer]:
+              - generic [ref=e237]:
+                - generic [ref=e239]: Renal function (LP31398-8)
+                - button [ref=e240]:
+                  - img
+            - option "Chest xray.calculated (LP6178-0)" [ref=e241] [cursor=pointer]:
+              - generic [ref=e242]:
+                - generic [ref=e244]: Chest xray.calculated (LP6178-0)
+                - button [ref=e245]:
+                  - img
+            - option "RBC Dual Population | Blood | Hematology and Cell counts (LP393433-0)" [ref=e246] [cursor=pointer]:
+              - generic [ref=e247]:
+                - generic [ref=e249]: RBC Dual Population | Blood | Hematology and Cell counts (LP393433-0)
+                - button [ref=e250]:
+                  - img
+            - option "Never smoked (LA14458-6)" [ref=e251] [cursor=pointer]:
+              - generic [ref=e252]:
+                - generic [ref=e254]: Never smoked (LA14458-6)
+                - button [ref=e255]:
+                  - img
+            - option "Sugar (LP65098-3)" [ref=e256] [cursor=pointer]:
+              - generic [ref=e257]:
+                - generic [ref=e259]: Sugar (LP65098-3)
+                - button [ref=e260]:
+                  - img
+            - option "History general (LP64608-0)" [ref=e261] [cursor=pointer]:
+              - generic [ref=e262]:
+                - generic [ref=e264]: History general (LP64608-0)
+                - button [ref=e265]:
+                  - img
+            - option "Blood pressure (LP40259-1)" [ref=e266] [cursor=pointer]:
+              - generic [ref=e267]:
+                - generic [ref=e269]: Blood pressure (LP40259-1)
+                - button [ref=e270]:
+                  - img
+            - option "RBC (LP7536-8)" [ref=e271] [cursor=pointer]:
+              - generic [ref=e272]:
+                - generic [ref=e274]: RBC (LP7536-8)
+                - button [ref=e275]:
+                  - img
+            - option "Creatinine (LP32035-5)" [ref=e276] [cursor=pointer]:
+              - generic [ref=e277]:
+                - generic [ref=e279]: Creatinine (LP32035-5)
+                - button [ref=e280]:
+                  - img
+            - option "ABO group [Type] in Blood (883-9)" [ref=e281] [cursor=pointer]:
+              - generic [ref=e282]:
+                - generic [ref=e284]: ABO group [Type] in Blood (883-9)
+                - button [ref=e285]:
+                  - img
+            - option "Dressing (LP35124-4)" [ref=e286] [cursor=pointer]:
+              - generic [ref=e287]:
+                - generic [ref=e289]: Dressing (LP35124-4)
+                - button [ref=e290]:
+                  - img
+            - option "Team communication is maintained throughout care (100003-3)" [ref=e291] [cursor=pointer]:
+              - generic [ref=e292]:
+                - generic [ref=e294]: Team communication is maintained throughout care (100003-3)
+                - button [ref=e295]:
+                  - img
+            - option "corrected for total protein (LP20595-2)" [ref=e296] [cursor=pointer]:
+              - generic [ref=e297]:
+                - generic [ref=e299]: corrected for total protein (LP20595-2)
+                - button [ref=e300]:
+                  - img
+            - option "Urine (LP7681-2)" [ref=e301] [cursor=pointer]:
+              - generic [ref=e302]:
+                - generic [ref=e304]: Urine (LP7681-2)
+                - button [ref=e305]:
+                  - img
+            - option "Some-day smoker (LA15919-6)" [ref=e306] [cursor=pointer]:
+              - generic [ref=e307]:
+                - generic [ref=e309]: Some-day smoker (LA15919-6)
+                - button [ref=e310]:
+                  - img
+            - option "COVID-19 (LP418143-6)" [ref=e311] [cursor=pointer]:
+              - generic [ref=e312]:
+                - generic [ref=e314]: COVID-19 (LP418143-6)
+                - button [ref=e315]:
+                  - img
+            - option "Acyclovir [Susceptibility] (1-8)" [ref=e316] [cursor=pointer]:
+              - generic [ref=e317]:
+                - generic [ref=e319]: Acyclovir [Susceptibility] (1-8)
+                - button [ref=e320]:
+                  - img
+            - option "Amdinocillin [Susceptibility] by Serum bactericidal titer (10-9)" [ref=e321] [cursor=pointer]:
+              - generic [ref=e322]:
+                - generic [ref=e324]: Amdinocillin [Susceptibility] by Serum bactericidal titer (10-9)
+                - button [ref=e325]:
+                  - img
+            - option "Cefoperazone [Susceptibility] by Minimum inhibitory concentration (MIC) (100-8)" [ref=e326] [cursor=pointer]:
+              - generic [ref=e327]:
+                - generic [ref=e329]: Cefoperazone [Susceptibility] by Minimum inhibitory concentration (MIC) (100-8)
+                - button [ref=e330]:
+                  - img
+            - option "DBG Ab [Presence] in Serum or Plasma from Blood product unit (1000-9)" [ref=e331] [cursor=pointer]:
+              - generic [ref=e332]:
+                - generic [ref=e334]: DBG Ab [Presence] in Serum or Plasma from Blood product unit (1000-9)
+                - button [ref=e335]:
+                  - img
+            - option "R wave duration in lead AVR (10000-8)" [ref=e336] [cursor=pointer]:
+              - generic [ref=e337]:
+                - generic [ref=e339]: R wave duration in lead AVR (10000-8)
+                - button [ref=e340]:
+                  - img
+            - option "Health informatics pioneer and the father of LOINC (100000-9)" [ref=e341] [cursor=pointer]:
+              - generic [ref=e342]:
+                - generic [ref=e344]: Health informatics pioneer and the father of LOINC (100000-9)
+                - button [ref=e345]:
+                  - img
+            - option "Health informatics pioneer and cofounder of LOINC (100001-7)" [ref=e346] [cursor=pointer]:
+              - generic [ref=e347]:
+                - generic [ref=e349]: Health informatics pioneer and cofounder of LOINC (100001-7)
+                - button [ref=e350]:
+                  - img
+            - option "Specimen care is maintained (100002-5)" [ref=e351] [cursor=pointer]:
+              - generic [ref=e352]:
+                - generic [ref=e354]: Specimen care is maintained (100002-5)
+                - button [ref=e355]:
+                  - img
+            - option "Demonstrates knowledge of the expected psychosocial responses to the procedure (100004-1)" [ref=e356] [cursor=pointer]:
+              - generic [ref=e357]:
+                - generic [ref=e359]: Demonstrates knowledge of the expected psychosocial responses to the procedure (100004-1)
+                - button [ref=e360]:
+                  - img
+          - group [ref=e362]:
+            - generic [ref=e364]: Starred
+            - generic [ref=e365]: Use the ☆ icon to add to starred

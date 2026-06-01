@@ -1,0 +1,315 @@
+- generic:
+  - generic:
+    - generic:
+      - generic:
+        - generic:
+          - generic:
+            - generic:
+              - list:
+                - listitem:
+                  - button:
+                    - generic:
+                      - img
+                    - img
+            - generic:
+              - generic:
+                - list:
+                  - listitem:
+                    - link:
+                      - /url: /facility/6ecdd614-48a5-4ebb-b63c-a11a7cdd7b35/overview
+                      - img
+                  - listitem:
+                    - link:
+                      - /url: /facility/6ecdd614-48a5-4ebb-b63c-a11a7cdd7b35/appointments
+                      - img
+                  - listitem:
+                    - link:
+                      - /url: /facility/6ecdd614-48a5-4ebb-b63c-a11a7cdd7b35/queues
+                      - img
+                  - button:
+                    - img
+                  - listitem:
+                    - link:
+                      - /url: /facility/6ecdd614-48a5-4ebb-b63c-a11a7cdd7b35/services
+                      - img
+                  - listitem:
+                    - link:
+                      - /url: /facility/6ecdd614-48a5-4ebb-b63c-a11a7cdd7b35/resource
+                      - img
+                  - listitem:
+                    - link:
+                      - /url: /facility/6ecdd614-48a5-4ebb-b63c-a11a7cdd7b35/users
+                      - img
+                  - button:
+                    - img
+                  - button:
+                    - img
+                  - listitem:
+                    - link:
+                      - /url: /facility/6ecdd614-48a5-4ebb-b63c-a11a7cdd7b35/analytics
+                      - img
+            - generic:
+              - list:
+                - listitem:
+                  - button:
+                    - generic:
+                      - generic:
+                        - img:
+                          - generic: AA
+            - button
+      - main:
+        - generic:
+          - heading [level=2]: Command Palette
+          - paragraph: Search for a command to run...
+        - generic:
+          - generic:
+            - generic:
+              - generic:
+                - generic:
+                  - heading [level=1]: Create Observation Definition
+                - generic:
+                  - generic:
+                    - generic:
+                      - generic:
+                        - heading [level=2]: Basic Information
+                        - paragraph: Enter the basic details and type of the observation
+                      - generic:
+                        - generic:
+                          - generic: Title *
+                          - textbox: QA Test Observation
+                        - generic:
+                          - generic: Slug *
+                          - textbox: qa-test-observation
+                          - paragraph: Slug must only contain letters, numbers, underscores, and hyphens
+                      - generic:
+                        - generic: Description *
+                        - textbox: Observation definition created during automated QA testing.
+                      - generic:
+                        - generic:
+                          - generic: Status
+                          - combobox:
+                            - generic: Active
+                            - img
+                          - combobox
+                        - generic:
+                          - generic: Category *
+                          - combobox:
+                            - generic: Laboratory
+                            - img
+                          - combobox
+                      - generic:
+                        - generic:
+                          - generic: Data Type *
+                          - combobox:
+                            - generic: Quantity
+                            - img
+                          - combobox
+                        - generic:
+                          - generic: LOINC Code *
+                          - combobox [expanded]:
+                            - generic: Search for observation codes
+                            - img
+                  - generic:
+                    - generic:
+                      - heading [level=3]: Observation Interpretation (0)
+                      - button: Add Interpretation
+                    - generic:
+                      - generic:
+                        - img
+                      - paragraph: No interpretations configured
+                  - generic:
+                    - generic:
+                      - generic:
+                        - heading [level=2]:
+                          - text: Additional Details
+                          - generic: (Optional)
+                        - paragraph: Specify additional details about how and where this observation is performed
+                      - generic:
+                        - generic:
+                          - generic: Body Site
+                          - combobox:
+                            - generic: Select Body Site
+                            - img
+                        - generic:
+                          - generic: Method
+                          - combobox:
+                            - generic: Select Method
+                            - img
+                        - generic:
+                          - generic: Unit
+                          - combobox:
+                            - generic: Select Unit
+                            - img
+                  - generic:
+                    - generic:
+                      - generic:
+                        - heading [level=2]: Components Optional
+                        - paragraph: Add components if this observation needs to collect multiple related values
+                      - generic:
+                        - paragraph: Add components if this observation needs to collect multiple related values
+                        - list:
+                          - listitem: • Blood Pressure (Systolic + Diastolic)
+                          - listitem: • Complete Blood Count (RBC + WBC + Platelets)
+                        - button:
+                          - img
+                          - text: Add your first component
+                  - generic:
+                    - button: Cancel
+                    - button: Create
+    - region "Notifications alt+T"
+  - dialog [ref=e221]:
+    - generic [ref=e222]:
+      - generic [ref=e225]:
+        - img [ref=e226]
+        - combobox [expanded] [active] [ref=e229]
+      - listbox "Suggestions" [ref=e230]:
+        - generic [ref=e232]:
+          - group [ref=e234]:
+            - option "Leukocytes (LP157588-7)" [selected] [ref=e235] [cursor=pointer]:
+              - generic [ref=e236]:
+                - generic [ref=e238]: Leukocytes (LP157588-7)
+                - button [ref=e239]:
+                  - img
+            - option "ABO group (LP17806-8)" [ref=e240] [cursor=pointer]:
+              - generic [ref=e241]:
+                - generic [ref=e243]: ABO group (LP17806-8)
+                - button [ref=e244]:
+                  - img
+            - option "Leukocyte phosphatase | White blood cells | Hematology and Cell counts (LP393833-1)" [ref=e245] [cursor=pointer]:
+              - generic [ref=e246]:
+                - generic [ref=e248]: Leukocyte phosphatase | White blood cells | Hematology and Cell counts (LP393833-1)
+                - button [ref=e249]:
+                  - img
+            - option "Renal function (LP31398-8)" [ref=e250] [cursor=pointer]:
+              - generic [ref=e251]:
+                - generic [ref=e253]: Renal function (LP31398-8)
+                - button [ref=e254]:
+                  - img
+            - option "Chest xray.calculated (LP6178-0)" [ref=e255] [cursor=pointer]:
+              - generic [ref=e256]:
+                - generic [ref=e258]: Chest xray.calculated (LP6178-0)
+                - button [ref=e259]:
+                  - img
+            - option "RBC Dual Population | Blood | Hematology and Cell counts (LP393433-0)" [ref=e260] [cursor=pointer]:
+              - generic [ref=e261]:
+                - generic [ref=e263]: RBC Dual Population | Blood | Hematology and Cell counts (LP393433-0)
+                - button [ref=e264]:
+                  - img
+            - option "Never smoked (LA14458-6)" [ref=e265] [cursor=pointer]:
+              - generic [ref=e266]:
+                - generic [ref=e268]: Never smoked (LA14458-6)
+                - button [ref=e269]:
+                  - img
+            - option "Sugar (LP65098-3)" [ref=e270] [cursor=pointer]:
+              - generic [ref=e271]:
+                - generic [ref=e273]: Sugar (LP65098-3)
+                - button [ref=e274]:
+                  - img
+            - option "History general (LP64608-0)" [ref=e275] [cursor=pointer]:
+              - generic [ref=e276]:
+                - generic [ref=e278]: History general (LP64608-0)
+                - button [ref=e279]:
+                  - img
+            - option "Blood pressure (LP40259-1)" [ref=e280] [cursor=pointer]:
+              - generic [ref=e281]:
+                - generic [ref=e283]: Blood pressure (LP40259-1)
+                - button [ref=e284]:
+                  - img
+            - option "RBC (LP7536-8)" [ref=e285] [cursor=pointer]:
+              - generic [ref=e286]:
+                - generic [ref=e288]: RBC (LP7536-8)
+                - button [ref=e289]:
+                  - img
+            - option "Creatinine (LP32035-5)" [ref=e290] [cursor=pointer]:
+              - generic [ref=e291]:
+                - generic [ref=e293]: Creatinine (LP32035-5)
+                - button [ref=e294]:
+                  - img
+            - option "ABO group [Type] in Blood (883-9)" [ref=e295] [cursor=pointer]:
+              - generic [ref=e296]:
+                - generic [ref=e298]: ABO group [Type] in Blood (883-9)
+                - button [ref=e299]:
+                  - img
+            - option "Dressing (LP35124-4)" [ref=e300] [cursor=pointer]:
+              - generic [ref=e301]:
+                - generic [ref=e303]: Dressing (LP35124-4)
+                - button [ref=e304]:
+                  - img
+            - option "Team communication is maintained throughout care (100003-3)" [ref=e305] [cursor=pointer]:
+              - generic [ref=e306]:
+                - generic [ref=e308]: Team communication is maintained throughout care (100003-3)
+                - button [ref=e309]:
+                  - img
+            - option "corrected for total protein (LP20595-2)" [ref=e310] [cursor=pointer]:
+              - generic [ref=e311]:
+                - generic [ref=e313]: corrected for total protein (LP20595-2)
+                - button [ref=e314]:
+                  - img
+            - option "Urine (LP7681-2)" [ref=e315] [cursor=pointer]:
+              - generic [ref=e316]:
+                - generic [ref=e318]: Urine (LP7681-2)
+                - button [ref=e319]:
+                  - img
+            - option "Some-day smoker (LA15919-6)" [ref=e320] [cursor=pointer]:
+              - generic [ref=e321]:
+                - generic [ref=e323]: Some-day smoker (LA15919-6)
+                - button [ref=e324]:
+                  - img
+            - option "COVID-19 (LP418143-6)" [ref=e325] [cursor=pointer]:
+              - generic [ref=e326]:
+                - generic [ref=e328]: COVID-19 (LP418143-6)
+                - button [ref=e329]:
+                  - img
+            - option "Complete blood count panel (LP99237-7)" [ref=e330] [cursor=pointer]:
+              - generic [ref=e331]:
+                - generic [ref=e333]: Complete blood count panel (LP99237-7)
+                - button [ref=e334]:
+                  - img
+            - option "Acyclovir [Susceptibility] (1-8)" [ref=e335] [cursor=pointer]:
+              - generic [ref=e336]:
+                - generic [ref=e338]: Acyclovir [Susceptibility] (1-8)
+                - button [ref=e339]:
+                  - img
+            - option "Amdinocillin [Susceptibility] by Serum bactericidal titer (10-9)" [ref=e340] [cursor=pointer]:
+              - generic [ref=e341]:
+                - generic [ref=e343]: Amdinocillin [Susceptibility] by Serum bactericidal titer (10-9)
+                - button [ref=e344]:
+                  - img
+            - option "Cefoperazone [Susceptibility] by Minimum inhibitory concentration (MIC) (100-8)" [ref=e345] [cursor=pointer]:
+              - generic [ref=e346]:
+                - generic [ref=e348]: Cefoperazone [Susceptibility] by Minimum inhibitory concentration (MIC) (100-8)
+                - button [ref=e349]:
+                  - img
+            - option "DBG Ab [Presence] in Serum or Plasma from Blood product unit (1000-9)" [ref=e350] [cursor=pointer]:
+              - generic [ref=e351]:
+                - generic [ref=e353]: DBG Ab [Presence] in Serum or Plasma from Blood product unit (1000-9)
+                - button [ref=e354]:
+                  - img
+            - option "R wave duration in lead AVR (10000-8)" [ref=e355] [cursor=pointer]:
+              - generic [ref=e356]:
+                - generic [ref=e358]: R wave duration in lead AVR (10000-8)
+                - button [ref=e359]:
+                  - img
+            - option "Health informatics pioneer and the father of LOINC (100000-9)" [ref=e360] [cursor=pointer]:
+              - generic [ref=e361]:
+                - generic [ref=e363]: Health informatics pioneer and the father of LOINC (100000-9)
+                - button [ref=e364]:
+                  - img
+            - option "Health informatics pioneer and cofounder of LOINC (100001-7)" [ref=e365] [cursor=pointer]:
+              - generic [ref=e366]:
+                - generic [ref=e368]: Health informatics pioneer and cofounder of LOINC (100001-7)
+                - button [ref=e369]:
+                  - img
+            - option "Specimen care is maintained (100002-5)" [ref=e370] [cursor=pointer]:
+              - generic [ref=e371]:
+                - generic [ref=e373]: Specimen care is maintained (100002-5)
+                - button [ref=e374]:
+                  - img
+            - option "Demonstrates knowledge of the expected psychosocial responses to the procedure (100004-1)" [ref=e375] [cursor=pointer]:
+              - generic [ref=e376]:
+                - generic [ref=e378]: Demonstrates knowledge of the expected psychosocial responses to the procedure (100004-1)
+                - button [ref=e379]:
+                  - img
+          - group [ref=e381]:
+            - generic [ref=e383]: Starred
+            - generic [ref=e384]: Use the ☆ icon to add to starred

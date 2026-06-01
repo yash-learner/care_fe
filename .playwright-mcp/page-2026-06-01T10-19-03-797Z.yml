@@ -1,0 +1,114 @@
+- generic [ref=e2]:
+  - generic [ref=e4]:
+    - generic [ref=e8]:
+      - list [ref=e10]:
+        - listitem [ref=e11]:
+          - button "CHC Muvattupuzha" [ref=e12] [cursor=pointer]:
+            - img [ref=e14]
+            - generic:
+              - generic: CHC Muvattupuzha
+            - img [ref=e18]
+      - list [ref=e22]:
+        - listitem [ref=e23]:
+          - link [ref=e24] [cursor=pointer]:
+            - /url: /facility/6ecdd614-48a5-4ebb-b63c-a11a7cdd7b35/overview
+            - img [ref=e25]
+        - listitem [ref=e28]:
+          - link [ref=e29] [cursor=pointer]:
+            - /url: /facility/6ecdd614-48a5-4ebb-b63c-a11a7cdd7b35/appointments
+            - img [ref=e30]
+        - listitem [ref=e33]:
+          - link [ref=e34] [cursor=pointer]:
+            - /url: /facility/6ecdd614-48a5-4ebb-b63c-a11a7cdd7b35/queues
+            - img [ref=e35]
+        - button [ref=e36] [cursor=pointer]:
+          - img [ref=e37]
+        - listitem [ref=e40]:
+          - link [ref=e41] [cursor=pointer]:
+            - /url: /facility/6ecdd614-48a5-4ebb-b63c-a11a7cdd7b35/services
+            - img [ref=e42]
+        - listitem [ref=e45]:
+          - link [ref=e46] [cursor=pointer]:
+            - /url: /facility/6ecdd614-48a5-4ebb-b63c-a11a7cdd7b35/resource
+            - img [ref=e47]
+        - listitem [ref=e50]:
+          - link [ref=e51] [cursor=pointer]:
+            - /url: /facility/6ecdd614-48a5-4ebb-b63c-a11a7cdd7b35/users
+            - img [ref=e52]
+        - button [ref=e55] [cursor=pointer]:
+          - img [ref=e56]
+        - button [ref=e59] [cursor=pointer]:
+          - img [ref=e60]
+        - listitem [ref=e62]:
+          - link [ref=e63] [cursor=pointer]:
+            - /url: /facility/6ecdd614-48a5-4ebb-b63c-a11a7cdd7b35/analytics
+            - img [ref=e64]
+      - list [ref=e68]:
+        - listitem [ref=e69]:
+          - button [ref=e70] [cursor=pointer]:
+            - img [ref=e73]:
+              - generic [ref=e74]: AA
+      - button "Toggle Sidebar" [ref=e75]
+    - main [ref=e76]:
+      - generic [ref=e77]:
+        - heading "Command Palette" [level=2] [ref=e78]
+        - paragraph [ref=e79]: Search for a command to run...
+      - generic [ref=e447]:
+        - generic [ref=e448]:
+          - heading "Observation Definitions" [level=1] [ref=e449]
+          - generic [ref=e450]:
+            - paragraph [ref=e452]: Manage and view observation definitions
+            - button "Add Definition" [ref=e453] [cursor=pointer]:
+              - img
+              - text: Add Definition
+          - generic [ref=e454]:
+            - generic [ref=e456]:
+              - img [ref=e458]
+              - textbox "Search definitions" [ref=e460]
+            - generic [ref=e461]:
+              - generic [ref=e463]:
+                - combobox [ref=e464] [cursor=pointer]:
+                  - generic [ref=e465]:
+                    - img
+                    - generic [ref=e466]: Status is
+                    - generic [ref=e467]: Active
+                  - img
+                - button [ref=e468] [cursor=pointer]:
+                  - img
+              - combobox [ref=e471] [cursor=pointer]:
+                - generic [ref=e472]:
+                  - img
+                  - generic [ref=e473]: Category
+                - img
+        - table [ref=e477]:
+          - rowgroup [ref=e478]:
+            - row "Title Category Status Data Type Actions" [ref=e479]:
+              - columnheader "Title" [ref=e480]
+              - columnheader "Category" [ref=e481]
+              - columnheader "Status" [ref=e482]
+              - columnheader "Data Type" [ref=e483]
+              - columnheader "Actions" [ref=e484]
+          - rowgroup [ref=e485]:
+            - row "QA Test Observation Laboratory Active Quantity View Edit" [ref=e486]:
+              - cell "QA Test Observation" [ref=e487]
+              - cell "Laboratory" [ref=e488]
+              - cell "Active" [ref=e489]:
+                - generic [ref=e490]: Active
+              - cell "Quantity" [ref=e491]
+              - cell "View Edit" [ref=e492]:
+                - generic [ref=e493]:
+                  - link "View" [ref=e494] [cursor=pointer]:
+                    - /url: /facility/6ecdd614-48a5-4ebb-b63c-a11a7cdd7b35/settings/observation_definitions/f-6ecdd614-48a5-4ebb-b63c-a11a7cdd7b35-qa-test-observation
+                    - img
+                    - text: View
+                  - link "Edit" [ref=e495] [cursor=pointer]:
+                    - /url: /facility/6ecdd614-48a5-4ebb-b63c-a11a7cdd7b35/settings/observation_definitions/f-6ecdd614-48a5-4ebb-b63c-a11a7cdd7b35-qa-test-observation/edit
+                    - img
+                    - text: Edit
+  - region "Notifications alt+T":
+    - list:
+      - listitem [ref=e497]:
+        - button "Close toast" [ref=e498] [cursor=pointer]:
+          - img [ref=e499]
+        - img [ref=e503]
+        - generic [ref=e506]: Observation definition created successfully

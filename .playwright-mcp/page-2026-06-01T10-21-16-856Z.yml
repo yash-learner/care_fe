@@ -1,0 +1,173 @@
+- generic [ref=e2]:
+  - generic [ref=e4]:
+    - generic [ref=e8]:
+      - list [ref=e10]:
+        - listitem [ref=e11]:
+          - button "CHC Muvattupuzha" [ref=e12] [cursor=pointer]:
+            - img [ref=e14]
+            - generic:
+              - generic: CHC Muvattupuzha
+            - img [ref=e18]
+      - list [ref=e22]:
+        - listitem [ref=e23]:
+          - link [ref=e24] [cursor=pointer]:
+            - /url: /facility/6ecdd614-48a5-4ebb-b63c-a11a7cdd7b35/overview
+            - img [ref=e25]
+        - listitem [ref=e28]:
+          - link [ref=e29] [cursor=pointer]:
+            - /url: /facility/6ecdd614-48a5-4ebb-b63c-a11a7cdd7b35/appointments
+            - img [ref=e30]
+        - listitem [ref=e33]:
+          - link [ref=e34] [cursor=pointer]:
+            - /url: /facility/6ecdd614-48a5-4ebb-b63c-a11a7cdd7b35/queues
+            - img [ref=e35]
+        - button [ref=e36] [cursor=pointer]:
+          - img [ref=e37]
+        - listitem [ref=e40]:
+          - link [ref=e41] [cursor=pointer]:
+            - /url: /facility/6ecdd614-48a5-4ebb-b63c-a11a7cdd7b35/services
+            - img [ref=e42]
+        - listitem [ref=e45]:
+          - link [ref=e46] [cursor=pointer]:
+            - /url: /facility/6ecdd614-48a5-4ebb-b63c-a11a7cdd7b35/resource
+            - img [ref=e47]
+        - listitem [ref=e50]:
+          - link [ref=e51] [cursor=pointer]:
+            - /url: /facility/6ecdd614-48a5-4ebb-b63c-a11a7cdd7b35/users
+            - img [ref=e52]
+        - button [ref=e55] [cursor=pointer]:
+          - img [ref=e56]
+        - button [ref=e59] [cursor=pointer]:
+          - img [ref=e60]
+        - listitem [ref=e62]:
+          - link [ref=e63] [cursor=pointer]:
+            - /url: /facility/6ecdd614-48a5-4ebb-b63c-a11a7cdd7b35/analytics
+            - img [ref=e64]
+      - list [ref=e68]:
+        - listitem [ref=e69]:
+          - button [ref=e70] [cursor=pointer]:
+            - img [ref=e73]:
+              - generic [ref=e74]: AA
+      - button "Toggle Sidebar" [ref=e75]
+    - main [ref=e76]:
+      - generic [ref=e77]:
+        - heading "Command Palette" [level=2] [ref=e78]
+        - paragraph [ref=e79]: Search for a command to run...
+      - generic [ref=e84]:
+        - heading "Create Activity Definition" [level=1] [ref=e86]
+        - generic [ref=e87]:
+          - generic [ref=e89]:
+            - generic [ref=e90]:
+              - heading "Basic Information" [level=2] [ref=e91]
+              - paragraph [ref=e92]: Enter the basic details of the activity
+            - generic [ref=e93]:
+              - generic [ref=e94]:
+                - generic [ref=e95]:
+                  - text: Title
+                  - generic [ref=e96]: "*"
+                - textbox "Title *" [ref=e97]
+              - generic [ref=e98]:
+                - generic [ref=e99]:
+                  - text: Slug
+                  - generic [ref=e100]: "*"
+                - textbox "Slug *" [ref=e101]
+                - paragraph [ref=e102]: Slug must only contain letters, numbers, underscores, and hyphens
+            - generic [ref=e103]:
+              - generic [ref=e104]:
+                - text: Description
+                - generic [ref=e105]: "*"
+              - textbox "Description *" [ref=e106]
+            - generic [ref=e107]:
+              - generic [ref=e108]:
+                - text: Usage
+                - generic [ref=e109]: "*"
+              - textbox "Usage *" [ref=e110]
+            - generic [ref=e111]:
+              - generic [ref=e112]:
+                - generic [ref=e113]: Status
+                - combobox "Status" [ref=e114] [cursor=pointer]:
+                  - generic: Active
+                  - img
+                - combobox [ref=e115]
+              - generic [ref=e116]:
+                - generic [ref=e117]:
+                  - text: Category
+                  - generic [ref=e118]: "*"
+                - combobox "Category *" [ref=e119] [cursor=pointer]:
+                  - generic: Select a category
+                  - img
+                - combobox [ref=e120]
+              - generic [ref=e121]:
+                - generic [ref=e122]:
+                  - text: Resource Category
+                  - generic [ref=e123]: "*"
+                - combobox [ref=e124] [cursor=pointer]:
+                  - generic [ref=e126]: Select resource category
+                  - img
+            - generic [ref=e127]:
+              - generic [ref=e128]:
+                - generic [ref=e129]: Kind
+                - combobox "Kind" [ref=e130] [cursor=pointer]:
+                  - generic: Service Request
+                  - img
+                - combobox [ref=e131]
+              - generic [ref=e132]:
+                - generic [ref=e133]: Derived From URI
+                - textbox "Derived From URI" [ref=e134]
+            - generic [ref=e136]:
+              - generic [ref=e137]: Code *
+              - combobox "Code *" [ref=e138] [cursor=pointer]:
+                - generic [ref=e139]: Search for activity codes
+                - img
+          - generic [ref=e141]:
+            - heading "Additional Details (Optional)" [level=2] [ref=e143]:
+              - text: Additional Details
+              - generic [ref=e144]: (Optional)
+            - generic [ref=e145]:
+              - generic [ref=e146]: Body Site
+              - combobox "Body Site" [ref=e147] [cursor=pointer]:
+                - generic [ref=e148]: Select Body Site
+                - img
+          - generic [ref=e150]:
+            - generic [ref=e151]:
+              - heading "Requirements" [level=2] [ref=e152]
+              - paragraph [ref=e153]: Specify the requirements for this activity
+            - generic [ref=e154]:
+              - generic [ref=e155]:
+                - generic [ref=e156]: Specimen Requirements
+                - combobox [ref=e159] [cursor=pointer]:
+                  - generic [ref=e161]: Select Specimen Requirements
+                  - img
+              - generic [ref=e162]:
+                - generic [ref=e163]: Observation Requirements
+                - combobox [ref=e166] [cursor=pointer]:
+                  - generic [ref=e168]: Select Observation Requirements
+                  - img
+              - generic [ref=e169]:
+                - generic [ref=e170]: Charge Item Definitions
+                - combobox [ref=e174] [cursor=pointer]:
+                  - generic [ref=e176]: Select Charge Item Definitions
+                  - img
+              - generic [ref=e177]:
+                - generic [ref=e178]: Healthcare Service
+                - combobox [ref=e181] [cursor=pointer]:
+                  - generic [ref=e182]: Select Healthcare Service
+                  - img
+              - generic [ref=e183]:
+                - generic [ref=e184]: Locations
+                - combobox [ref=e187] [cursor=pointer]:
+                  - generic [ref=e189]: Select locations
+                  - img
+          - generic [ref=e191]:
+            - generic [ref=e192]:
+              - heading "Diagnostic Report" [level=2] [ref=e193]
+              - paragraph [ref=e194]: Specify the diagnostic report codes for this activity
+            - generic [ref=e195]:
+              - generic [ref=e196]: Diagnostic Report Codes
+              - combobox [ref=e198] [cursor=pointer]:
+                - generic [ref=e199]: Search for Diagnostic codes
+                - img
+          - generic [ref=e200]:
+            - button "Cancel" [ref=e201] [cursor=pointer]
+            - button "Create" [ref=e202] [cursor=pointer]
+  - region "Notifications alt+T"

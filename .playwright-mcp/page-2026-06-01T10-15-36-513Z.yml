@@ -1,0 +1,58 @@
+- generic [ref=e2]:
+  - generic [ref=e40]:
+    - generic [ref=e41]:
+      - generic [ref=e42]:
+        - link "Open Healthcare Network logo" [ref=e44] [cursor=pointer]:
+          - /url: https://ohc.network?ref=care
+          - img "Open Healthcare Network logo" [ref=e45]
+        - generic [ref=e46]:
+          - heading "CARE" [level=1] [ref=e47]
+          - generic [ref=e48]: Our goal is to continuously improve the quality and accessibility of public healthcare services using digital tools.
+      - generic [ref=e50]:
+        - generic [ref=e51]:
+          - link "Logo of Digital Public Goods Alliance" [ref=e52] [cursor=pointer]:
+            - /url: https://www.digitalpublicgoods.net/r/care
+            - img "Logo of Digital Public Goods Alliance" [ref=e53]
+          - link "Open Healthcare Network logo" [ref=e55] [cursor=pointer]:
+            - /url: https://ohc.network?ref=care
+            - img "Open Healthcare Network logo" [ref=e56]
+        - link "Open Healthcare Network is an open-source public utility designed by a multi-disciplinary team of innovators and volunteers. Open Healthcare Network CARE is a Digital Public Good recognised by the United Nations." [ref=e57] [cursor=pointer]:
+          - /url: https://ohc.network?ref=care
+        - generic [ref=e58]:
+          - link "Contribute on Github" [ref=e59] [cursor=pointer]:
+            - /url: https://github.com/ohcnetwork
+          - text: "|"
+          - link "Third Party Software Licenses" [ref=e60] [cursor=pointer]:
+            - /url: /licenses
+    - generic [ref=e63]:
+      - generic [ref=e64]:
+        - generic [ref=e65]:
+          - generic [ref=e66]: Welcome back!
+          - generic [ref=e67]: Choose your login method to continue
+        - generic [ref=e69]:
+          - tablist [ref=e70]:
+            - tab "Log in as Staff" [selected] [ref=e71] [cursor=pointer]
+            - tab "Log in as Patient" [ref=e72] [cursor=pointer]
+          - tabpanel "Log in as Staff" [ref=e73]:
+            - generic [ref=e74]:
+              - generic [ref=e75]:
+                - generic [ref=e76]: Username
+                - textbox "Username" [ref=e77]
+              - generic [ref=e78]:
+                - generic [ref=e79]: Password
+                - generic [ref=e80]:
+                  - textbox "Password" [ref=e81]
+                  - button [ref=e82] [cursor=pointer]:
+                    - img [ref=e83]
+              - button "Forgot password?" [ref=e85] [cursor=pointer]
+              - button "Login" [ref=e86] [cursor=pointer]
+      - generic [ref=e87]:
+        - text: Available in
+        - generic [ref=e88]:
+          - button "English" [ref=e89] [cursor=pointer]
+          - button "தமிழ்" [ref=e90] [cursor=pointer]
+          - button "മലയാളം" [ref=e91] [cursor=pointer]
+          - button "मराठी" [ref=e92] [cursor=pointer]
+          - button "ಕನ್ನಡ" [ref=e93] [cursor=pointer]
+          - button "हिन्दी" [ref=e94] [cursor=pointer]
+  - region "Notifications alt+T"
