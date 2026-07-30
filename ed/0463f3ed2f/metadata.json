@@ -1,0 +1,28 @@
+{
+  "cli_version": "0.9.0",
+  "checkpoint_id": "ed0463f3ed2f",
+  "strategy": "manual-commit",
+  "branch": "ENG-831",
+  "checkpoints_count": 1,
+  "files_touched": [
+    "src/hooks/usePatientPortalData.ts",
+    "src/pages/Patient/VisitSummary.tsx",
+    "src/types/scheduling/schedule.ts"
+  ],
+  "sessions": [
+    {
+      "metadata": "/ed/0463f3ed2f/0/metadata.json",
+      "transcript": "/ed/0463f3ed2f/0/full.jsonl",
+      "compact_transcript": "/ed/0463f3ed2f/0/transcript.jsonl",
+      "content_hash": "/ed/0463f3ed2f/0/content_hash.txt",
+      "prompt": ""
+    }
+  ],
+  "token_usage": {
+    "input_tokens": 103,
+    "cache_creation_tokens": 41814,
+    "cache_read_tokens": 26629177,
+    "output_tokens": 16965,
+    "api_call_count": 54
+  }
+}

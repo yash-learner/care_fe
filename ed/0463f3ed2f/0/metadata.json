@@ -1,0 +1,52 @@
+{
+  "cli_version": "0.9.0",
+  "checkpoint_id": "ed0463f3ed2f",
+  "session_id": "47fd1637-ca3b-4cc8-aa4d-9c6d9dea4b57",
+  "strategy": "manual-commit",
+  "created_at": "2026-07-30T18:03:45.930896Z",
+  "branch": "ENG-831",
+  "checkpoints_count": 1,
+  "save_step_count": 1,
+  "files_touched": [
+    "src/hooks/usePatientPortalData.ts",
+    "src/pages/Patient/VisitSummary.tsx",
+    "src/types/scheduling/schedule.ts"
+  ],
+  "agent": "Claude Code",
+  "model": "claude-opus-5",
+  "turn_id": "a2fe0c231582",
+  "checkpoint_transcript_start": 964,
+  "transcript_lines_at_start": 964,
+  "compact_transcript_start": 297,
+  "token_usage": {
+    "input_tokens": 103,
+    "cache_creation_tokens": 41814,
+    "cache_read_tokens": 26629177,
+    "output_tokens": 16965,
+    "api_call_count": 54
+  },
+  "session_metrics": {
+    "turn_count": 4
+  },
+  "initial_attribution": {
+    "calculated_at": "2026-07-30T18:03:45.623763Z",
+    "agent_lines": 75,
+    "agent_removed": 12,
+    "human_added": 0,
+    "human_modified": 0,
+    "human_removed": 0,
+    "total_committed": 75,
+    "total_lines_changed": 87,
+    "agent_percentage": 100,
+    "metric_version": 2
+  },
+  "prompt_attributions": [
+    {
+      "checkpoint_number": 1,
+      "user_lines_added": 0,
+      "user_lines_removed": 0,
+      "agent_lines_added": 0,
+      "agent_lines_removed": 0
+    }
+  ]
+}
