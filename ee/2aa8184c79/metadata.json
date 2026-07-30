@@ -1,0 +1,42 @@
+{
+  "cli_version": "0.9.0",
+  "checkpoint_id": "ee2aa8184c79",
+  "strategy": "manual-commit",
+  "branch": "ENG-831",
+  "checkpoints_count": 1,
+  "files_touched": [
+    "src/components/Patient/PatientAppShell.tsx",
+    "src/components/Patient/PatientProfileCard.tsx",
+    "src/components/Patient/PatientSwitcherSheet.tsx",
+    "src/pages/Patient/DiagnosticReportDetail.tsx",
+    "src/pages/Patient/PatientProfileSettings.tsx",
+    "src/pages/Patient/PatientRecords.tsx",
+    "src/pages/Patient/PatientVisits.tsx",
+    "src/pages/Patient/PrescriptionDetail.tsx",
+    "src/pages/Patient/SelectProfile.tsx",
+    "src/pages/Patient/VisitSummary.tsx",
+    "src/pages/Patient/index.tsx",
+    "src/pages/PublicAppointments/BookFacility.tsx",
+    "src/pages/PublicAppointments/BookPractitioner.tsx",
+    "src/pages/PublicAppointments/PatientRegistration.tsx",
+    "src/pages/PublicAppointments/Schedule.tsx",
+    "src/pages/PublicAppointments/Success.tsx",
+    "src/pages/PublicAppointments/auth/PatientLogin.tsx"
+  ],
+  "sessions": [
+    {
+      "metadata": "/ee/2aa8184c79/0/metadata.json",
+      "transcript": "/ee/2aa8184c79/0/full.jsonl",
+      "compact_transcript": "/ee/2aa8184c79/0/transcript.jsonl",
+      "content_hash": "/ee/2aa8184c79/0/content_hash.txt",
+      "prompt": "/ee/2aa8184c79/0/prompt.txt"
+    }
+  ],
+  "token_usage": {
+    "input_tokens": 52,
+    "cache_creation_tokens": 874296,
+    "cache_read_tokens": 22460854,
+    "output_tokens": 19002,
+    "api_call_count": 26
+  }
+}
