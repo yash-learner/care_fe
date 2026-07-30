@@ -1,0 +1,49 @@
+{
+  "cli_version": "0.9.0",
+  "checkpoint_id": "c316d7900a98",
+  "strategy": "manual-commit",
+  "branch": "ENG-831",
+  "checkpoints_count": 2,
+  "files_touched": [
+    "public/locale/en.json",
+    "src/components/Patient/CancelAppointmentButton.tsx",
+    "src/components/Patient/PatientAppShell.tsx",
+    "src/components/Patient/PatientBadge.tsx",
+    "src/components/Patient/PatientProfileCard.tsx",
+    "src/components/Patient/PatientSwitcherSheet.tsx",
+    "src/pages/Patient/DiagnosticReportDetail.tsx",
+    "src/pages/Patient/PatientProfileSettings.tsx",
+    "src/pages/Patient/PatientRecords.tsx",
+    "src/pages/Patient/PatientVisits.tsx",
+    "src/pages/Patient/PrescriptionDetail.tsx",
+    "src/pages/Patient/SelectProfile.tsx",
+    "src/pages/Patient/VisitSummary.tsx",
+    "src/pages/Patient/index.tsx",
+    "src/pages/Patient/records/reportUtils.ts",
+    "src/pages/PublicAppointments/BookFacility.tsx",
+    "src/pages/PublicAppointments/BookPractitioner.tsx",
+    "src/pages/PublicAppointments/BookingStepLayout.tsx",
+    "src/pages/PublicAppointments/PatientRegistration.tsx",
+    "src/pages/PublicAppointments/Schedule.tsx",
+    "src/pages/PublicAppointments/Success.tsx",
+    "src/pages/PublicAppointments/auth/PatientAuthLayout.tsx",
+    "src/pages/PublicAppointments/auth/PatientLogin.tsx",
+    "tailwind.config.js"
+  ],
+  "sessions": [
+    {
+      "metadata": "/c3/16d7900a98/0/metadata.json",
+      "transcript": "/c3/16d7900a98/0/full.jsonl",
+      "compact_transcript": "/c3/16d7900a98/0/transcript.jsonl",
+      "content_hash": "/c3/16d7900a98/0/content_hash.txt",
+      "prompt": "/c3/16d7900a98/0/prompt.txt"
+    }
+  ],
+  "token_usage": {
+    "input_tokens": 424,
+    "cache_creation_tokens": 613042,
+    "cache_read_tokens": 63767669,
+    "output_tokens": 107501,
+    "api_call_count": 224
+  }
+}
