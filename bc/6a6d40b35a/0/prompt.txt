@@ -1,0 +1,60 @@
+Use the claude_design MCP (https://api.anthropic.com/v1/design/mcp, auth via /design-login) to import this project:
+https://claude.ai/design/p/c25ec85e-977d-4fdb-8da3-06fb50cf4e0d?file=Patient+Login+Experience.dc.html
+
+Focus on these files (the whole project is readable):
+- `Patient Login Experience.dc.html`
+
+Also read these files the selection imports:
+- `_ds/careui-d470209a-03fd-48aa-a991-8e3514e398d9/_ds_bundle.js`
+- `_ds/careui-d470209a-03fd-48aa-a991-8e3514e398d9/styles.css`
+- `support.js`
+
+Implement: `Patient Login Experience.dc.html`
+
+You can check the PR, we are planing to changing our patient login experience, evaluvate the current code and build the implementaion.
+
+---
+
+profile page is crashing, can we build it
+
+---
+
+* Cancel appointment is missing
+* I didn't like the destop view, do we need 2 ui, can't we have the same in both
+* instead of active prescription can make it recent prescription?
+
+---
+
+Facility list is currently using the old design, we should make it new;
+
+---
+
+* Search facility should have add the organisation filter, for a state level deployment the list will be really large, you can reuse the component that was already avilable
+* The flow should be really nice for facility appointment to go through the flow itself without redirecting to the public page.  
+* change number in otp screen is crashing, it can just be a back to login
+* you are missing care logo, we want our nice branding
+
+---
+
+add patient has some bugs also the patient registration ui doesn't look nice
+
+---
+
+from home we should redirect login right!
+
+---
+
+/Users/bodhishthomas/code/care_fe/src/pages/PublicAppointments/PatientRegistration.tsx:302:18
+  300 |                 />
+  301 |
+> 302 |                 {form.watch("ageInputType") === "date_of_birth" && (
+      |                  ^^^^ React Hook Form's `useForm()` API returns a `watch()` function which cannot be memoized safely.
+  303 |                   <FormField
+  304 |                     control={form.control}
+  305 |                     name="date_of_birth"  react-hooks/incompatible-library
+  415:24  error    `GovtOrganizationSelector` is deprecated. This component is deprecated and should not be used.
+Use `GovtOrganizationPicker` instead. This component is known for weird bugs
+
+---
+
+restart dev server?
