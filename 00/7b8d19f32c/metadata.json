@@ -1,0 +1,28 @@
+{
+  "cli_version": "0.9.0",
+  "checkpoint_id": "007b8d19f32c",
+  "strategy": "manual-commit",
+  "branch": "ENG-831",
+  "checkpoints_count": 1,
+  "files_touched": [
+    "src/components/Patient/CancelAppointmentButton.tsx",
+    "src/pages/Patient/PatientVisits.tsx",
+    "src/pages/Patient/index.tsx"
+  ],
+  "sessions": [
+    {
+      "metadata": "/00/7b8d19f32c/0/metadata.json",
+      "transcript": "/00/7b8d19f32c/0/full.jsonl",
+      "compact_transcript": "/00/7b8d19f32c/0/transcript.jsonl",
+      "content_hash": "/00/7b8d19f32c/0/content_hash.txt",
+      "prompt": ""
+    }
+  ],
+  "token_usage": {
+    "input_tokens": 14,
+    "cache_creation_tokens": 6809,
+    "cache_read_tokens": 6474979,
+    "output_tokens": 3107,
+    "api_call_count": 7
+  }
+}
