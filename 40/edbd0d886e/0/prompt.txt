@@ -1,0 +1,1 @@
+when loading visits, if an encounter is associated, you can pass that encounter id to the prescription and diagnostic report api to fetch and show reports specific to that, it was part of the ui

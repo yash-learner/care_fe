@@ -1,0 +1,28 @@
+{
+  "cli_version": "0.9.0",
+  "checkpoint_id": "40edbd0d886e",
+  "strategy": "manual-commit",
+  "branch": "ENG-831",
+  "checkpoints_count": 1,
+  "files_touched": [
+    "src/pages/Patient/PatientRecords.tsx",
+    "src/pages/Patient/VisitSummary.tsx",
+    "src/pages/PublicAppointments/Success.tsx"
+  ],
+  "sessions": [
+    {
+      "metadata": "/40/edbd0d886e/0/metadata.json",
+      "transcript": "/40/edbd0d886e/0/full.jsonl",
+      "compact_transcript": "/40/edbd0d886e/0/transcript.jsonl",
+      "content_hash": "/40/edbd0d886e/0/content_hash.txt",
+      "prompt": "/40/edbd0d886e/0/prompt.txt"
+    }
+  ],
+  "token_usage": {
+    "input_tokens": 98,
+    "cache_creation_tokens": 488729,
+    "cache_read_tokens": 22664055,
+    "output_tokens": 16210,
+    "api_call_count": 52
+  }
+}
