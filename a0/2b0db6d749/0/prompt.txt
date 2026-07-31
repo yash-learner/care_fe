@@ -1,0 +1,996 @@
+I want to add support for questionnaire at different places, so we need to make it a generic component, the current design is bad and code is not really great, we should probably build it from scratch in a new route so that I can have both in parallel. 
+
+Here is the figma design
+Implement this design from Figma.
+@https://www.figma.com/design/Z93EYKSa1MdBmXndsMBJSQ/Care---Master?node-id=30426-20267&m=dev
+
+backend changes are already done at https://github.com/ohcnetwork/care/tree/ENG-737
+
+---
+
+<task-notification>
+<task-id>ad77a7f1106da51c2</task-id>
+<tool-use-id>toolu_01RZMc6WgRrsPWxmMUw9ZZAo</tool-use-id>
+<output-file>/private/tmp/claude-501/-Users-bodhishthomas-code-care-fe/5786aa56-b361-49ee-bae1-fb5d507b7318/tasks/ad77a7f1106da51c2.output</output-file>
+<status>completed</status>
+<summary>Agent "Explore questionnaire frontend code" finished</summary>
+<note>A task-notification fires each time this agent stops with no live background children of its own. The user can send it another message and resume it, so the same task-id may notify more than once.</note>
+<result># CARE Frontend — Questionnaire Implementation Map
+
+## 1. File inventory &amp; responsibilities
+
+### `src/components/Questionnaire/` — fill-side (renderer)
+
+| File | LOC | Responsibility |
+|---|---|---|
+| `QuestionnaireForm.tsx` | 1203 | **The orchestrator.** Fetches questionnaire, holds all response state, validation, draft save/load, batch submission, left nav, error display |
+| `QuestionRenderer.tsx` | 98 | Thin loop over top-level questions; full-width layout decisions; scroll-to-group |
+| `QuestionTypes/QuestionGroup.tsx` | 211 | Recursive group renderer + `isQuestionEnabled()` (enable_when logic) |
+| `QuestionTypes/QuestionInput.tsx` | 523 | **The type→component switch**; repeats/add-another; notes popovers |
+| `QuestionLabel.tsx` / `QuestionDescription.tsx` | 57 / 15 | Label + description primitives |
+| `QuestionnaireSearch.tsx` | 191 | Combobox to add extra questionnaires into the same form |
+| `utils.ts` | 85 | Tree helpers (move/copy/extract questions) — editor-oriented |
+| `data/StructuredFormData.tsx` | 283 | Hardcoded `FIXED_QUESTIONNAIRES` for 11 structured types + `StructuredQuestionType` union |
+| `structured/handlers.ts` | 274 | Structured type → batch HTTP request builders |
+| `structured/types.ts` | 62 | `StructuredDataMap` / `StructuredRequestMap` type maps |
+
+### `QuestionTypes/` — leaf inputs
+
+Simple: `TextQuestion` (252), `ChoiceQuestion` (219), `FileQuestion` (197), `QuantityQuestion` (134), `TemplateSelector` (129), `DateTimeQuestion` (101), `TimeQuestion` (61), `DateQuestion` (61), `NumberQuestion` (56), `BooleanQuestion` (56), `DeathQuestion` (54), `FieldError` (33).
+
+Structured (heavy): `MedicationRequestQuestion` (**2390**), `ServiceRequestQuestion` (1064), `DiagnosisQuestion` (1017), `SymptomQuestion` (1013), `MedicationStatementQuestion` (994), `AllergyQuestion` (891), `EncounterQuestion` (601), `ChargeItemQuestion` (346), `AppointmentQuestion` (295).
+
+### Authoring side (not fill-side)
+
+`QuestionnaireEditor.tsx` (**3253**), `ManageResponseTemplatesSheet.tsx` (1183), `MedicationValueSetSelect.tsx` (575), `ValueSetSearchContent.tsx` (550), `AddToTemplateDialog.tsx` (405), `ManageQuestionnaireOrganizationsSheet.tsx` (390), `QuestionnaireList.tsx` (310), `QuestionnaireProperties.tsx` (293), `MoveQuestionDialog.tsx` (285), `CloneQuestionnaireSheet.tsx` (269), `EntitySelectionDrawer.tsx` (234), `CodingEditor.tsx` (226), `ValueSetSelect.tsx` (213), `QuestionActions.tsx` (135), `SelectOrCreateValueset.tsx` (132).
+
+### Read-back / display
+
+`src/components/Facility/ConsultationDetails/`: `QuestionnaireResponsesList.tsx` (732), `PrintAllQuestionnaireResponses.tsx` (389), `QuestionnaireResponseView.tsx` (117), `PrintQuestionnaireResponse.tsx` (105).
+
+---
+
+## 2. Render &amp; fill flow
+
+### Entry routes
+
+`src/Routers/routes/ConsultationRoutes.tsx`:
+- L96 `/facility/:facilityId/patient/:patientId/encounter/:encounterId/questionnaire` (no id — search-only)
+- L106 `.../encounter/:encounterId/questionnaire/:questionnaireId` — main fill route
+- L117 `.../encounter/:encounterId/questionnaire_response/:id` — read view
+- L134 `/facility/:facilityId/patient/:patientId/consultation` → hardcoded `questionnaireId="encounter"`
+- L145 `/facility/:facilityId/patient/:patientId/questionnaire`, L155 `/patient/:patientId/questionnaire` (subjectType `patient`)
+- L32-79 print routes (`PrintAllQuestionnaireResponses`, `PrintQuestionnaireResponse`)
+
+`src/Routers/routes/adminRoutes.tsx` L20-22: `/admin/questionnaire`, `/create`, `/:id/edit` (authoring only).
+
+### Chain
+
+```
+route → EncounterQuestionnaire (src/components/Patient/EncounterQuestionnaire.tsx:25)
+      → QuestionnaireForm (QuestionnaireForm.tsx:369)
+      → QuestionRenderer (QuestionRenderer.tsx:38)   [per top-level question]
+      → QuestionGroup (QuestionGroup.tsx:105)        [recursive; enable_when gate]
+      → QuestionInput (QuestionInput.tsx:174)        [type switch]
+      → &lt;XQuestion /&gt;
+```
+
+`EncounterQuestionnaire.tsx` is a thin wrapper: fetches encounter for `PatientHeader` (L34-41), renders the form in a `Card`, and hardcodes post-submit navigation (L68-80).
+
+### Question type → component mapping
+
+`QuestionInput.tsx:234-376`, a single nested `switch`:
+
+- `dateTime`→`DateTimeQuestion`, `date`→`DateQuestion`, `decimal`|`integer`→`NumberQuestion`, `quantity`→`QuantityQuestion`, `choice`→`ChoiceQuestion`, `text`|`string`→`TextQuestion`, `boolean`→`BooleanQuestion`, `time`→`TimeQuestion`, `display`→`null`, default→`TextQuestion`
+- `structured` → inner switch on `question.structured_type` (L259-365): `medication_request`, `medication_statement`, `service_request`, `charge_item`, `allergy_intolerance`, `symptom`, `diagnosis`, `appointment`, `encounter`, `time_of_death`, `files`. **Each branch guards on `encounterId`/`facilityId` and returns a raw `&lt;span&gt;{t("..._no_encounter")}&lt;/span&gt;` fallback.**
+
+`commonProps` (L220-232) is the implicit contract every leaf must accept: `{classes, disableRightBorder, question, questionnaireResponse, updateQuestionnaireResponseCB, disabled, withLabel, clearError, index, patientId, errors}` — untyped, spread-based.
+
+### State management
+
+All state lives in `QuestionnaireForm` as plain `useState`; **no context, no form library, no reducer** (verified: zero `createContext`/`useContext` in `src/components/Questionnaire/`).
+
+- `questionnaireForms: QuestionnaireFormState[]` (L381) — array because users can append extra questionnaires via `QuestionnaireSearch` (L1112-1133). Each entry = `{questionnaire, responses, errors}` (L63-67).
+- `initializeResponses()` (L334-367) flattens the question tree into a flat `QuestionnaireResponse[]`, seeding `initial_selected` answer options.
+- Updates: `onResponseChange` callback inline at L1058-1081 — full `map` over all forms and all responses on **every keystroke**; also clears `errors: []` for the whole form.
+- Other state: `isDirty`, `serverErrors`, `activeQuestionnaireId`, `activeGroupId`, `isInitialized`, `draftMismatchError`.
+- `enable_when` evaluated in `isQuestionEnabled` (`QuestionGroup.tsx:37-103`), matched by `link_id`; disabled groups clear their descendants' responses in a `useEffect` (L134-138).
+
+### Submission
+
+`handleSubmit` (`QuestionnaireForm.tsx:743-946`) — ~200 lines:
+1. Clear errors, run required-field validation + `STRUCTURED_TYPE_VALIDATORS` (L295-332, only 5 of 11 structured types have validators); scroll to first error.
+2. Build structured requests via `getStructuredRequests()` (`structured/handlers.ts:270`) — async, `Promise.all`.
+3. Append one `POST /api/v1/questionnaire/{id}/submit/` per form (L869), with inline date/dateTime/unit/coding coercion (L888-916).
+4. If continuing a draft, append `PUT /api/v1/form_submission/{id}/` with `status: "submitted"` (L929-941).
+5. Fire **all** as a single `batchApi.batchRequest` (L422).
+
+**Endpoints hit** (raw URL strings, bypassing the typed api layer):
+- `POST /api/v1/questionnaire/{id}/submit/`
+- `POST /api/v1/patient/{patientId}/{allergy_intolerance|symptom|diagnosis}/upsert/`
+- `POST /api/v1/patient/{patientId}/medication/{request|statement}/upsert/`
+- `PUT /api/v1/encounter/{encounterId}/`, `PUT /api/v1/patient/{patientId}/`
+- `POST /api/v1/facility/{facilityId}/slots/{slot_id}/create_appointment/`
+- `POST /api/v1/facility/{facilityId}/charge_item/apply_charge_item_defs/`
+- `POST /api/v1/facility/{facilityId}/service_request/apply_activity_definition/`
+- `POST /api/v1/files/upload-file/`
+
+**Drafts** (`careConfig.enableQuestionnaireDraft`, `care.config.ts:333`): `handleSaveDraft` (L717-741) dumps `questionnaireForms[0]` wholesale into `response_dump.questionnaireResponses`. Only allowed when there are no structured questions and exactly one form (L556-582). Resumed via `?continue_draft=&lt;id&gt;` (L378, L588-639) with an id-equality mismatch guard.
+
+---
+
+## 3. Domain types &amp; API
+
+`src/types/questionnaire/`:
+- `questionnaire.ts` — `QuestionnaireBase` / `QuestionnaireRead` (adds `id`) / `QuestionnaireCreate` / `QuestionnaireUpdate`. Note: **there is no `QuestionnaireDetail`** — `QuestionnaireRead` is that type.
+- `question.ts` (180) — `QuestionType` union (L6-20), `SUPPORTED_QUESTION_TYPES`, `EnableWhen`, `AnswerOption`, `TemplateConfig`, `Question` (L134-167), `findQuestionById` (L169).
+- `form.ts` (52) — `ResponseValue` discriminated union via the `RV&lt;T,V&gt;` helper (L17-41), `QuestionnaireResponse` (in-flight answer, L43-52).
+- `questionnaireResponse.ts` — the *persisted* server response (name collision with `form.ts`'s type; `questionnaireResponse.ts:4` aliases it as `Response`).
+- `batch.ts` (66) — `QuestionValidationError`, `ValidationErrorResponse`, batch error shapes.
+- `validation.ts` (115) — `FieldMetadata`, `useFieldError`, `validateFields` (used by structured questions).
+- `formSubmission.ts` / `formSubmissionApi.ts` — drafts.
+- `questionnaireResponseTemplate.ts` / `...Api.ts` — response templates.
+- `quantity.ts` (8), `base.ts` (4).
+
+Route files:
+- `questionnaireApi.ts` (90) — list/get/create/update/partialUpdate/delete, `submit` (L46; **declared but unused** — the form builds the URL by hand), `get/setOrganizations`, `addFavorite`/`removeFavorite`/`listFavorites`. Note `submit.TBody` declares a `responses` array while the form actually sends `results`.
+- `questionnaireResponseApi.ts` (24) — patient-scoped get/list/update.
+- `formSubmissionApi.ts` (38), `questionnaireResponseTemplateApi.ts` (45).
+
+---
+
+## 4. Call sites of `QuestionnaireForm`
+
+Only **two**:
+1. `src/components/Patient/EncounterQuestionnaire.tsx:62` — the real one, reached from all 5 fill routes.
+2. `src/components/Questionnaire/QuestionnaireEditor.tsx:1295` — preview tab, passing the sentinel strings `patientId="preview"` and `encounterId="preview"`.
+
+Indirect launch points (navigate to the URL):
+- `src/pages/Encounters/tabs/overview/FormsDialog.tsx:164`
+- `src/pages/Encounters/tabs/overview/FavoriteFormsQuickActions.tsx:59`
+- `src/pages/Encounters/tabs/overview/FormSubmissionDrafts.tsx:112` (adds `?continue_draft=`)
+- `src/components/Encounter/EncounterCommandDialog.tsx:141-151` (hardcoded structured slugs) and `:188-190` (dynamic)
+- `src/components/Questionnaire/QuestionnaireSearch.tsx:52` (default `onSelect`)
+
+Plugin surface: `src/pluginTypes.ts:18,26-27` — the Scribe plugin receives `formState`/`setFormState` and can arbitrarily rewrite `QuestionnaireFormState[]` (mounted at `QuestionnaireForm.tsx:1189`).
+
+Permission gate: `src/common/Permissions.tsx:146,318` — `canSubmitEncounterQuestionnaire` (**not referenced inside `QuestionnaireForm`**).
+
+---
+
+## 5. Pain points visible in the code
+
+**Giant files.** `QuestionnaireEditor.tsx` at 3253 lines contains `LayoutOptionCard`, `OptionFields` (L1496), `QuestionEditor` (L1718) and `getQuestionByPath` (L3247) inline. `MedicationRequestQuestion.tsx` at 2390 lines has ~60 imports pulling in prescriptions, product knowledge, medication statements, templates, and `useCurrentFacilitySilently`. `handleSubmit` alone is ~200 lines.
+
+**Prop drilling.** `patientId`, `encounterId`, `facilityId`, `questionnaireId`, `questionnaireSlug`, `disabled`, `errors`, `clearError`, `activeGroupId` are threaded verbatim through 4 levels (Form → Renderer → Group → Input → leaf). `QuestionGroup` re-passes 12 props to itself recursively (L191-206). `questionnaireSlug` was added purely so `MedicationRequestQuestion` and `ServiceRequestQuestion` could filter templates. `commonProps` (`QuestionInput.tsx:220`) is an untyped spread bag.
+
+**Encounter/facility coupling.** Every structured branch in `QuestionInput.tsx:259-365` conditionally degrades to a bare `&lt;span&gt;` when `encounterId`/`facilityId` are missing — 11 near-identical guard blocks. `structured/handlers.ts:164-168` even `throw`s at submit time if `facilityId` is absent.
+
+**Special-cased structured types.** The same 11 types are enumerated in six places that must be kept in sync: `data/StructuredFormData.tsx:212` (`STRUCTURED_QUESTIONS`), `structured/types.ts:27,42` (two maps), `structured/handlers.ts:34`, `QuestionInput.tsx:259`, `QuestionnaireForm.tsx:295` (`STRUCTURED_TYPE_VALIDATORS` — covers only 5 of 11), and `QuestionRenderer.tsx:17` (`FULL_WIDTH_QUESTION_TYPES`, 3 of 11).
+
+**Imperative DOM.** Error navigation uses `document.getElementById("question-" + id)` plus manual `classList.add/remove` with a `setTimeout(…, 2000)`, duplicated twice inside `ValidationErrorDisplay` (L196-217 and L258-279) and again in `handleSubmit` (L822-825) and `utils.ts:68`.
+
+**"preview" sentinel strings.** `encounterId === "preview"` is checked in `QuestionRenderer.tsx:53` and `QuestionnaireForm.tsx:1106` to suppress submit/search; `patientId="preview"` is passed too. A magic-string mode flag rather than a prop.
+
+**Bypassed API layer.** All submit requests are hand-built URL strings in `handleSubmit`/`handlers.ts` despite typed route objects existing. There's an explicit `TODO` + `eslint-disable @typescript-eslint/no-deprecated` at `QuestionnaireForm.tsx:419-421` about migrating to `useBatchRequest`.
+
+**Dead / half-wired metadata.** `Question.formula`, `read_only`, `is_observation`, `collect_time`, `collect_performer`, `collect_body_site`, `collect_method` are editable in `QuestionnaireEditor` (e.g. L2457-2464) but **no fill-side component reads them** (grep across `QuestionTypes/`, `QuestionRenderer`, `QuestionnaireForm` returns nothing). Correspondingly, `handleSubmit` L917-919 sends `note`, `body_site`, `method`, and `form.ts:49` declares `taken_at`, but nothing except `note` is ever set — `updateQuestionnaireResponseCB` only accepts `(values, questionId, note)`.
+
+**Other smells.** Type-name collision: `QuestionnaireResponse` means two different things in `form.ts` vs `questionnaireResponse.ts`. `handleSubmissionError` (L676-713) pairs server results to forms by **array index** rather than `reference_id`. Draft `response_dump` stores the entire questionnaire definition alongside answers, so any edit to the questionnaire invalidates the draft (mismatch guard at L602). `useNavigationPrompt` is disabled in dev (L586).
+
+---
+
+## 6. Branch `bodhi/questionnaire-actions`
+
+`git status` is **clean** — no uncommitted changes. Two questionnaire commits ahead of `develop` (the third, `c56078622`, is unrelated tooling config).
+
+**`d542f8033` "Fix slug for questionnaire"** (15 files, +131/−134) — reverts a slug-based lookup back to id-based:
+- `questionnaireApi.get` path `…/{slug}/` → `…/{id}/`
+- `QuestionnaireFormProps.questionnaireSlug` → `questionnaireId`; query key, `FIXED_QUESTIONNAIRES` lookup, and draft-saveable check all follow
+- Submit URL `…/questionnaire/${form.questionnaire.slug}/submit/` → `${form.questionnaire.id}/submit/`
+- Route param `:slug` → `:questionnaireId` in `ConsultationRoutes.tsx` and `adminRoutes.tsx`; navigation targets updated in `FormsDialog`, `FavoriteFormsQuickActions`, `FormSubmissionDrafts`, `EncounterCommandDialog`, `QuestionnaireList/Search/Properties/Editor`, `CloneQuestionnaireSheet`, `ManageQuestionnaireOrganizationsSheet`
+- Adds the `useBatchRequest` TODO + eslint-disable at `QuestionnaireForm.tsx:419`
+
+Note this left the codebase in a mixed state: `handleSaveDraft` (L735) still sends `questionnaire: draftQuestionnaire.questionnaire.slug`, and `FIXED_QUESTIONNAIRES` is still keyed by `slug` (`StructuredFormData.tsx:266`) — it happens to work only because the fixed questionnaires set `id === slug`.
+
+**`a6d1f304b` "Update valueset"** (13 files, +333/−169) — mostly outside the fill path: `ValueSetSearchContent.tsx` heavily reworked (+301/−…), `SelectOrCreateValueset.tsx`, `ValueSetSelect.tsx`, `ValueSetEditor/List`, `types/valueSet/valueSet.ts` + `valueSetApi.ts`, plus small touches to `ChoiceQuestion.tsx` (+9/−…), `QuantityQuestion.tsx`, `QuestionnaireEditor.tsx`, `question.ts` (the `answer_value_set` type became `ValueSetConfig`), and `tests/helper/ui.ts`.
+
+Despite the branch name, **no "questionnaire actions" feature work is committed yet** — `QuestionActions.tsx` (135 LOC) is a pre-existing editor-side bulk move/delete component and is untouched by both commits.</result>
+<usage><subagent_tokens>105284</subagent_tokens><tool_uses>32</tool_uses><duration_ms>177785</duration_ms></usage>
+</task-notification>
+
+---
+
+try accessing figma again?
+
+---
+
+lets build it, we should be able to replace the instance level questionnaire
+
+---
+
+<task-notification>
+<task-id>w6k0xdauy</task-id>
+<tool-use-id>toolu_01Y9U8a5UrLaQUG3nv14QwF4</tool-use-id>
+<output-file>/private/tmp/claude-501/-Users-bodhishthomas-code-care-fe/5786aa56-b361-49ee-bae1-fb5d507b7318/tasks/w6k0xdauy.output</output-file>
+<status>completed</status>
+<summary>Dynamic workflow "Gather Figma UI specs and codebase conventions for the questionnaire v2 implementation plan" completed</summary>
+<result>{"figmaManagement":"SPEC SOURCE: Figma \"Care - Master\" (Z93EYKSa1MdBmXndsMBJSQ). All observations from screenshots + node metadata. Frames are 1440px wide desktop.\n\n================================================================\nSCREEN 1 — QUESTIONNAIRE LIST (node 30426:20268, \"Facility-settings/Questionnaires\")\n================================================================\n\nOverall layout\n- Two-column facility-settings shell: fixed left settings nav (~196px wide, light gray page background) + white content card (rounded rectangle, x=220, 1200px wide) that holds the page.\n- Slim custom scrollbar thumb (8px rounded rect) hugging the right edge of the card.\n\nLeft settings sidebar (top to bottom)\n- \"← Back\" link/button (small, ~63x28, left arrow + underlined \"Back\" text, top-left of the gray rail).\n- Eyebrow label \"FACILITY SETTINGS\" (tiny uppercase muted gray text).\n- Vertical nav list, items 40px tall, 196px wide, 12px left text padding: General, Departments, Questionnaires, Users, Facility Areas, Inventory.\n- Active item = \"Questionnaires\": white pill/rounded background + darker text (selected state); all others plain gray text on the rail background.\n\nContent card (top to bottom)\n- Page title \"Questionnaires\" (bold, ~18-20px).\n- Subtitle \"Manage and view questionnaires\" (muted gray, ~14px).\n- Toolbar row (single line):\n  - Left: segmented filter control (257x36 outer, white pills with 2px inset), three segments each with a 16px lucide icon + label:\n    - \"Active\" — lucide/file-check icon (selected segment: white raised pill w/ border, dark text)\n    - \"Draft\" — lucide/notepad-text-dashed icon\n    - \"Retired\" — lucide/archive icon\n    - Unselected segments look flat/borderless with muted text.\n  - Middle: search input (255x36, white, thin gray border, rounded) with muted placeholder \"Search questionnaires\".\n  - Right: primary button \"Create Questionnaire\" (185x32) — solid primary dark-green fill, white text, \"+\" plus icon on the left.\n- Table (bordered rounded container, 960px wide):\n  - Header row (30px tall, very light gray fill) with three muted-gray column labels: \"Title\" | \"Description\" | \"Slug\". Column x-positions: Title ~351, Description ~631, Slug ~1111 → roughly 280px / 480px / 190px column widths.\n  - 10 data rows, 40px tall each, separated by 1px light gray hairlines:\n    1. \"Arterial Blood Gas (ABG)\" | \"A form to record Arterial Blood Gas parameters.\" | slug badge \"arterial_blood_gas\" — THIS ROW SHOWS THE HOVER STATE: an outline \"See Details\" button (97x28, white, gray border, eye icon + text) appears at the right end of the description column.\n    2. \"Nurse Update\" | \"A form for documenting nurse updates, including Glasgow Coma Scale…\" (truncated w/ ellipsis) | \"nurse_update\"\n    3. \"Community Nurse Homecare Form\" | \"A form to record Arterial Blood Gas parameters.\" | \"arterial_blood_gas\"\n    4. \"Consultation\" | \"A form to record Arterial Blood Gas parameters.\" | \"arterial_blood_gas\"\n    5. \"Recommend Discharge\" | \"A form to document the decision to recommend discharge and related…\" | \"arterial_blood_gas\"\n    6. \"Respiratory Status\" | \"A form to document respiratory status, including bilateral air entry and…\" | \"nurse_update\"\n    7. \"Doctor's Progress Notes\" | \"A form for documenting the doctor's progress notes, including patient…\" | \"arterial_blood_gas\"\n    8. \"Allergy Intolerance\" | \"A form to document patient allergy intolerance details.\" | \"arterial_blood_gas\"\n    9. \"Nursing Care Given\" | \"A form to document nursing care provided to the patient.\" | \"arterial_blood_gas\"\n    10. \"Nurse Update\" | \"A form for documenting nurse updates, including Glasgow Coma Scale…\" | \"nurse_update\"\n  - Title cells: dark near-black medium-weight text. Description cells: muted gray. Slug cells: gray pill badge (24px tall, light gray fill, rounded, monospace-looking lowercase snake_case text).\n- No pagination, no footer, no bulk-select checkboxes visible. Empty area below table is plain white.\n\nColor roles: primary dark-green solid button (Create); muted gray secondary text; light-gray table header; gray outline badges for slugs; white outline button for See Details; hairline gray dividers.\n\nInteractive: back link, 6 nav items, 3 filter segments, search input, Create Questionnaire, each row (hover reveals See Details), See Details button, slug badges look non-interactive.\n\n================================================================\nSCREEN 2 — DETAIL / EDIT, QUESTIONS TAB (node 30426:26657, \"Facility-settings/Questionnaires-edit-form-scroll-to-top\")\n================================================================\n\nOverall layout\n- Full-width white content card (1416px) — the facility-settings left nav is NOT present here; this is its own page.\n- Sticky-looking header block (145px tall) with breadcrumb row, title row, tab row, then a 1px divider.\n- Body is two columns: main column 768px wide (left, x=192) + right properties sidebar 264px wide (x=984 within content, ~24px gutter).\n- Floating circular scroll-to-top button (36px circle, lucide/arrow-up-from-dot 16px icon) bottom-right area; slim 8px scrollbar thumb at right edge.\n\nHeader (top to bottom)\n- Row 1: \"‹ Back\" chip button (77x32, light gray pill w/ chevron-left) | vertical divider | breadcrumb: \"Questionnaires\" › \"Instance\" › \"Surgical Admission and Perioperative Form\" (first two are underlined links with \"&gt;\" separators; last crumb muted, not underlined).\n- Row 2 (title row, 40px):\n  - Left: H1 \"Surgical Admission and Perioperative Form\" (bold ~20px) followed by three 24px-tall badges: \"INSTANCE\" (white outline badge, uppercase mono-style text), \"Active\" (light green fill, green text), \"v8\" (light gray fill).\n  - Right: \"Cancel\" (underlined text link, 83x40) and \"Save Form\" primary button (128x40, solid dark green, white check icon + white text).\n- Row 3: underline tabs \"Questions\" (active — dark text + 3px dark underline bar) and \"Versions\" (muted text, no underline), sitting on a full-width hairline.\n\nMain column — Basic Information card\n- White card, thin gray border, rounded (~8px), 768 wide.\n- Card header: title \"Basic Information\" (semibold 16px); beneath it three small gray outline badges: \"Title\", \"Slug\", \"Description\" (summary chips of contained fields); top-right an icon-only ghost button (36x36) with an \"X\" (collapse/close).\n- Fields (each label 14px dark text above a 40px bordered rounded input, 736px wide):\n  - \"Title\" — empty input.\n  - \"Slug (Unique URL-friendly form identifier)\" — label with italic parenthetical; empty input; helper line below in italic muted text: \"Slug must only contain letters, numbers, underscores, and hyphens\".\n  - \"Description\" — input with muted placeholder \"Type description\".\n  - \"Organisations\" — combobox container (40px) containing two selected-value chips \"Staff\" and \"Administrator\" (28px light gray badges), inline muted placeholder \"Search for organisation\", and a lucide/chevron-down at the right.\n\nMain column — Questions section\n- Section header row: \"Questions\" (bold ~18px) left; right: outline button \"Edit Questions\" (142x36, white, gray border, pencil/edit icon + text).\n- Question list: 6 rows, each 84px tall, 16px vertical gap. Row anatomy (left→right):\n  - Drag handle strip (32px wide, slightly darker gray zone, lucide/grip-vertical 16px icon centered) — outside the white inner card, giving a two-layer look on a light gray row background.\n  - White inner card containing: index number (\"1.\"–\"6.\", 16px dark text), question title (semibold 16px), and under the title two 24px badges: a colored TYPE badge + a gray count badge \"N Sub-questions\".\n  - Right inside the card: icon-only ghost button (36x36) with an up/down expand chevron glyph.\n  - Far right, outside the card: kebab (vertical 3-dot) icon-only bu
+... (truncated 125773 chars, full result in /private/tmp/claude-501/-Users-bodhishthomas-code-care-fe/5786aa56-b361-49ee-bae1-fb5d507b7318/tasks/w6k0xdauy.output)</result>
+<diagnostics>Per-agent results: /Users/bodhishthomas/.claude/projects/-Users-bodhishthomas-code-care-fe/5786aa56-b361-49ee-bae1-fb5d507b7318/subagents/workflows/wf_90072d09-e91/journal.jsonl — one {"type":"result",...} line per completed agent with its full return value.
+If the result above is empty or unexpected, Read this file BEFORE diagnosing — do not assume agents returned non-empty results.
+To re-run with edited post-processing: Workflow({scriptPath: '/Users/bodhishthomas/.claude/projects/-Users-bodhishthomas-code-care-fe/5786aa56-b361-49ee-bae1-fb5d507b7318/workflows/scripts/questionnaire-v2-plan-research-wf_90072d09-e91.js', resumeFromRunId: 'wf_90072d09-e91'}) — agents whose (prompt, opts) are unchanged replay from cache.</diagnostics>
+<usage><agent_count>8</agent_count><agents_done>8</agents_done><agents_error>0</agents_error><agents_skipped>0</agents_skipped><agents_empty_result>0</agents_empty_result><subagent_tokens>643855</subagent_tokens><tool_uses>154</tool_uses><duration_ms>212922</duration_ms></usage>
+</task-notification>
+
+---
+
+<task-notification>
+<task-id>a4dd3d08732b93b8d</task-id>
+<tool-use-id>REDACTED</tool-use-id>
+<output-file>/private/tmp/claude-501/-Users-bodhishthomas-code-care-fe/5786aa56-b361-49ee-bae1-fb5d507b7318/tasks/a4dd3d08732b93b8d.output</output-file>
+<status>completed</status>
+<summary>Agent "Implement Task 1 (types+API)" finished</summary>
+<note>A task-notification fires each time this agent stops with no live background children of its own. The user can send it another message and resume it, so the same task-id may notify more than once.</note>
+<result>DONE
+
+Commit: 557cfcdacc94f2402646fe497e81a9a1014bd517 (bodhi/questionnaire-actions)
+
+Verification: `npx tsc --noEmit` and `npx eslint src/types/questionnaire/questionnaire.ts src/types/questionnaire/questionnaireApi.ts` both pass clean (exit 0) after `eslint --fix`/`prettier --write`; old-importer compatibility (QuestionnaireProperties.tsx SUBJECT_TYPES, observation.ts, StructuredFormData.tsx literals) manually confirmed.
+
+Concerns: brief's import `FacilityOrganization` doesn't exist in `src/types/facilityOrganization/facilityOrganization.ts` — used the real export `FacilityOrganizationRead` instead (noted in report). Prettier reflowed the two multi-line union types to the project's single-line style (cosmetic only, same members). Commit-msg hook auto-appended an `Entire-Checkpoint:` trailer (repo's existing checkpoint system, not authored by me, not a Co-Authored-By/generated-with footer).</result>
+<usage><subagent_tokens>77261</subagent_tokens><tool_uses>28</tool_uses><duration_ms>257610</duration_ms></usage>
+</task-notification>
+
+---
+
+<task-notification>
+<task-id>a4ad91c2c5ce47ab5</task-id>
+<tool-use-id>toolu_016aXguaVuNLp3zW3E34afKf</tool-use-id>
+<output-file>/private/tmp/claude-501/-Users-bodhishthomas-code-care-fe/5786aa56-b361-49ee-bae1-fb5d507b7318/tasks/a4ad91c2c5ce47ab5.output</output-file>
+<status>completed</status>
+<summary>Agent "Review Task 1 diff" finished</summary>
+<note>A task-notification fires each time this agent stops with no live background children of its own. The user can send it another message and resume it, so the same task-id may notify more than once.</note>
+<result>That's just a comment ("mounted at any auth context") — no actual `any` type usage. Everything checks out.
+
+## Verdicts
+
+**Spec compliance: ✅**
+
+All required items from the brief are present and match verbatim:
+- `SubjectType`, `QuestionnaireAuthContext`, `QuestionnaireScope`, `SUBJECT_TYPES_FOR_CONTEXT` (correctly excludes `"patient"` for all contexts except `instance`) — all exact matches to the brief's Step 1 code block.
+- `QuestionnaireRead` gained `auth_context?`, `internal_revision?`, `created_by?`, `updated_by?`, `modified_date?`, all optional.
+- `QuestionnaireCreateV2` added with `auth_context`, `facility?`, `facility_organization?` (the brief's prose summary says "QuestionnaireCreate ... gains" these fields, but the brief's own authoritative Step-1 code creates a *separate* `QuestionnaireCreateV2` type and leaves `QuestionnaireCreate` untouched — implementer correctly followed the literal code block, which is also required to satisfy the "preserve every existing export" constraint).
+- `submitResource`, `createV2`, `getFacilityOrganizations`, `setFacilityOrganizations` routes; `submit` TBody switched from `responses` to `results: QuestionnaireSubmitResult[]` — all exact matches.
+- `QuestionnaireSubmitResult`, `QuestionnaireSubmitBody`, `QuestionnaireSubmitResourceBody`, `QuestionnaireSubmitResultValue` — exact matches, placed above the default export as instructed.
+- All prior exports preserved (`SubjectType`, `QuestionStatus`, `QuestionnaireBase`, `QuestionnaireRead`, `QuestionnaireCreate`, `QuestionnaireUpdate`, `QuestionnaireSetOrganizations`, `QUESTIONNAIRE_STATUS_COLORS`).
+- Only the two specified files touched (confirmed via `git show --stat`); no premature consumers added (grepped repo-wide — zero references to the new types/routes outside the two files, as expected for a types-only task).
+- No Missing / no Extra items.
+
+**Code quality: Approved**
+
+No Critical or Important issues found.
+
+Minor observations (informational, not blocking):
+- `src/types/questionnaire/questionnaireApi.ts` / `questionnaire.ts` — the implementer substituted `FacilityOrganizationRead` for the brief's literal `FacilityOrganization` (which doesn't exist as an export). Verified against `src/types/facilityOrganization/facilityOrganization.ts`: exports are `FacilityOrganizationType`, `FacilityOrganizationParent`, `FacilityOrganizationBase`, `FacilityOrganizationRead`, `FacilityOrganizationCreate`, `FacilityOrganizationUserRole` — no bare `FacilityOrganization`. `FacilityOrganizationRead` is the correct read-shape analog (consistent with every other importer of that file, e.g. `src/types/location/locationApi.ts:2`) and is the right choice for a `TRes` of a GET route. Correctly documented as a deviation in the report.
+- The multi-line union formatting for `SubjectType`/`QuestionnaireAuthContext` (`"a" | "b" | ...;` on one line after `=`) differs from the brief's manual leading-pipe style, but matches this project's actual Prettier output — confirmed against a real precedent, `ValueSetAuthContext` in `src/types/valueSet/valueSet.ts:68-69`, which uses the identical format. Correctly attributed to tooling, not manual choice.
+
+**⚠️ Cannot verify from diff:** none. All binding constraints were checked against the live repo: old importers (`QuestionnaireProperties.tsx:97`, `observation.ts:5,58`, `StructuredFormData.tsx` literals) confirmed to still type-check by inspection; the `submit` route's TBody change confirmed to have zero existing callers of the typed route (the one raw POST caller in `QuestionnaireForm.tsx` already used the new `results`/`values`/`body_site` field names); no other file in the repo references the new exports yet; commit contains exactly the two claimed files.</result>
+<usage><subagent_tokens>77859</subagent_tokens><tool_uses>16</tool_uses><duration_ms>282712</duration_ms></usage>
+</task-notification>
+
+---
+
+<task-notification>
+<task-id>a559fc862db2eb68b</task-id>
+<tool-use-id>REDACTED</tool-use-id>
+<output-file>/private/tmp/claude-501/-Users-bodhishthomas-code-care-fe/5786aa56-b361-49ee-bae1-fb5d507b7318/tasks/a559fc862db2eb68b.output</output-file>
+<status>completed</status>
+<summary>Agent "Implement Task 2 (UI primitives)" finished</summary>
+<note>A task-notification fires each time this agent stops with no live background children of its own. The user can send it another message and resume it, so the same task-id may notify more than once.</note>
+<result>DONE
+Commit: `7417d94c7`
+Verification: `npx tsc --noEmit` and `npx eslint src/components/QuestionnaireV2/` both pass clean (exit 0); only the intended 7 files changed (6 new shared components + `public/locale/en.json`, 13 new alphabetically-sorted `question_type__*` keys).
+Concerns: (1) resolved an internal brief inconsistency — Interfaces summary says `renderItemExtra` but Step 6 code and the master plan doc's downstream `BuilderTreeNav` usage both use `renderSeparator`; implemented `renderSeparator` to match actual consumers. (2) `QuestionType` includes `"time"` but the brief's Step 7 i18n list and Step 1 `TYPE_CLASSES` omit it — implemented verbatim per brief, so a `time`-type badge will show the raw untranslated key; not fixed unilaterally, flagged in the report for follow-up. (3) No `Entire-Checkpoint` trailer was appended to the commit in this environment despite the brief noting it's automatic — no footer added manually, hooks were not bypassed. Full details in `/Users/bodhishthomas/code/care_fe/.superpowers/sdd/task-2-report.md`.</result>
+<usage><subagent_tokens>102737</subagent_tokens><tool_uses>44</tool_uses><duration_ms>382882</duration_ms></usage>
+</task-notification>
+
+---
+
+<task-notification>
+<task-id>a69c3ae3505ea5fe4</task-id>
+<tool-use-id>toolu_01MLQkfq1mQYCyMDYHDRqHgu</tool-use-id>
+<output-file>/private/tmp/claude-501/-Users-bodhishthomas-code-care-fe/5786aa56-b361-49ee-bae1-fb5d507b7318/tasks/a69c3ae3505ea5fe4.output</output-file>
+<status>completed</status>
+<summary>Agent "Review Task 2 diff" finished</summary>
+<note>A task-notification fires each time this agent stops with no live background children of its own. The user can send it another message and resume it, so the same task-id may notify more than once.</note>
+<result>## Review: Task 2 — Shared UI primitives
+
+**Files reviewed:** `src/components/QuestionnaireV2/shared/{QuestionTypeBadge,ChoiceChip,SegmentedRadioGroup,CollapsibleSettingsCard,LabeledActionButton,QuestionTreeNav}.tsx`, `public/locale/en.json`, commits `7417d94c7` + `32391c116`.
+
+### Spec compliance: ✅
+
+- All six components exist with the exact exported names and prop signatures specified: `QuestionTypeBadge({type})`, `ChoiceChip({checked,onCheckedChange,label,control,disabled})`, `SegmentedRadioGroup&lt;T&gt;({value,onChange,options,disabled,"aria-label"})`, `CollapsibleSettingsCard({title,subtitle,badge,defaultOpen,children})`, `LabeledActionButton({label,onClick,disabled,children})`, `QuestionTreeNav({title,questions,activeId,onSelect,footer,renderSeparator})`. `numberQuestions()` and `interface TreeItem` are exported from `QuestionTreeNav.tsx`.
+- `renderSeparator` (not `renderItemExtra`) is used — correct per the binding contract given to me.
+- i18n: verified `QuestionType` union in `src/types/questionnaire/question.ts:6-20` has exactly 14 members; `en.json` now has exactly 14 `question_type__*` keys (lines 4691-4704), one per variant, including `question_type__time` from the follow-up commit. Programmatically confirmed `en.json` is valid JSON (6688 keys) and **fully alphabetically sorted** (0 mismatches against a sorted-key diff) — the insertion doesn't break ordering.
+- No imports from `src/components/Questionnaire/` (old dir), `src/components/ui/*` untouched, lucide-react only (`Square`, `SquareCheck`, `ChevronsUpDown`), named exports throughout, one component per file, no `any` anywhere in the diff.
+- Accessibility basics present: `ChoiceChip` has `role={control}` + `aria-checked`; `SegmentedRadioGroup` options have `role="radio"` + `aria-checked`, wrapped in `role="radiogroup"` with an optional `aria-label` (labeling is the caller's responsibility, consistent with the prop contract — not a gap in this task).
+
+No missing/extra items found.
+
+### Code quality: Approved
+
+Spot-checks performed beyond the diff:
+- **`primary-*` Tailwind classes**: `tailwind.config.js` only declares `primary.{100..900,DEFAULT}` (no explicit `50`), but I confirmed `.bg-primary-50{background-color:#f3faf7}` is actually present in the compiled `build/assets/index-*.css`, and `bg-primary-50` is already used pre-existing in `src/components/Questionnaire/AddToTemplateDialog.tsx:224`. `primary-600/700/800` are used extensively elsewhere (`nav-tabs.tsx`, `checkbox.tsx`, `button.tsx`, etc.). The implementer's claim checks out — no substitution was needed.
+- **`cn` import path** (`@/lib/utils`) matches the established convention (used identically in `QuestionnaireProperties.tsx`, `QuestionRenderer.tsx`, etc.).
+- **`Badge` variant override**: `Badge` composes `cn(badgeVariants({variant,size}), className)`, and `cn` uses `tailwind-merge`, so `TYPE_CLASSES`' `bg-*`/`text-*` classes correctly win over the `secondary` variant's gray defaults — no dead styling.
+- **`React.ReactNode` used without importing `React`** in `CollapsibleSettingsCard.tsx` and `LabeledActionButton.tsx` — verified this is an established, working pattern elsewhere in the codebase (`nav-tabs.tsx`, `filter-select.tsx`, several `Questionnaire/*` files), not a defect.
+- `Question.id`/`.text`/`.questions` fields used in `QuestionTreeNav`/`numberQuestions` all exist on the `Question` interface (`src/types/questionnaire/question.ts:134+`).
+- Git history confirms only the 7 expected files changed across the two commits; no other diffs on the branch (only an untracked `docs/superpowers/` plan doc, intentionally excluded per the report).
+
+No Critical or Important issues. One Minor, non-blocking observation:
+- **Minor** (`QuestionTypeBadge.tsx` `TYPE_CLASSES`): `display`, `quantity`, `url`, and `time` have no explicit color mapping and fall back to gray. This is intentional/verbatim per the brief's `Partial&lt;Record&lt;QuestionType,...&gt;&gt;` design (brief only specified colors for 10 types), not an implementer defect.
+
+### ⚠️ Cannot verify from diff
+
+- Actual `tsc`/`eslint` pass — not independently re-run per instructions; relying on the implementer's report (spot checks above didn't surface anything that would fail either check).
+- Visual/Figma fidelity of the chosen colors and layout (badge hues, chip/segment styling) — no Figma access available in this environment to compare against the design source.
+- No automated tests exist for these six presentational components (none were required by the brief).</result>
+<usage><subagent_tokens>90962</subagent_tokens><tool_uses>21</tool_uses><duration_ms>183862</duration_ms></usage>
+</task-notification>
+
+---
+
+<task-notification>
+<task-id>a09ff97d8dd9a753e</task-id>
+<tool-use-id>toolu_01G3k1GVppyckv5sNQuxiVtn</tool-use-id>
+<output-file>/private/tmp/claude-501/-Users-bodhishthomas-code-care-fe/5786aa56-b361-49ee-bae1-fb5d507b7318/tasks/a09ff97d8dd9a753e.output</output-file>
+<status>completed</status>
+<summary>Agent "Implement Task 3 (list page)" finished</summary>
+<note>A task-notification fires each time this agent stops with no live background children of its own. The user can send it another message and resume it, so the same task-id may notify more than once.</note>
+<result>Task 3 is complete and committed. Full report written to `/Users/bodhishthomas/code/care_fe/.superpowers/sdd/task-3-report.md`.
+
+**Status:** Done — all 8 brief steps implemented, self-reviewed, and verified.
+
+**Commit:** `a9d590b76` — "feat(questionnaire-v2): generic list page mounted at facility settings and admin" (7 files changed: new `QuestionnaireListPage.tsx`, new `tests/admin/questionnairesV2/questionnaireList.spec.ts`, modified `layout.tsx`, `adminRoutes.tsx`, `facility-nav.tsx`, `admin-nav.tsx`, `en.json`).
+
+**Verification:** `tsc --noEmit` clean, `eslint`/`prettier` clean, `npm run build` succeeds, Playwright `tests/admin/questionnairesV2/` — 2/2 passed.
+
+**Concerns:**
+1. Deviated from the brief's literal `getPermissions(hasPermission, [])` — an empty array is truthy in JS, so it would always resolve `canWriteQuestionnaire` to `false` for non-superadmins (the opposite of the brief's stated "user-level" intent). Used `getPermissions(hasPermission, userPermissions)` instead, which correctly reduces to the user-level check. Documented in the report.
+2. `.env.local` (gitignored) was pointed at staging, not the local backend — fixed to `http://127.0.0.1:9000` per CLAUDE.md's documented setup; not part of the commit.
+3. Full `npx playwright test` locally hits pre-existing, unrelated failures in `patient.setup.ts`/`patientAccount.setup.ts`/`questionnaire.setup.ts` against this docker backend, which block the whole "setup" project dependency and thus all "chromium" tests. Used `--project=chromium --no-deps` for the final verification run since our spec's actual dependencies (`auth.setup.ts`, `facility.setup.ts`) passed and left valid fixtures. Spawned a background task (`task_3c733e42`) to investigate/fix those unrelated setup specs.</result>
+<usage><subagent_tokens>169781</subagent_tokens><tool_uses>98</tool_uses><duration_ms>902093</duration_ms></usage>
+</task-notification>
+
+---
+
+<task-notification>
+<task-id>af32fd2a72cd18deb</task-id>
+<tool-use-id>REDACTED</tool-use-id>
+<output-file>/private/tmp/claude-501/-Users-bodhishthomas-code-care-fe/5786aa56-b361-49ee-bae1-fb5d507b7318/tasks/af32fd2a72cd18deb.output</output-file>
+<status>completed</status>
+<summary>Agent "Review Task 3 diff" finished</summary>
+<note>A task-notification fires each time this agent stops with no live background children of its own. The user can send it another message and resume it, so the same task-id may notify more than once.</note>
+<result>## Task 3 Review — QuestionnaireListPage + route mounts + sidebar nav
+
+**Spec compliance: ✅**
+
+All binding constraints are met:
+- `QuestionnaireListPage({ scope })` is the single route component for both mounts (`src/components/QuestionnaireV2/manage/QuestionnaireListPage.tsx:46`); rows, "See Details", and Create all navigate via `${scope.basePath}/...`.
+- Facility route registered at `src/pages/Facility/settings/layout.tsx:258-266`, correctly before the `"*"` catch-all at line 267, with the required forward-compat comment. Scope object matches spec exactly.
+- Admin route registered at `src/Routers/routes/adminRoutes.tsx:20-31` via `INSTANCE_SCOPE` (`as const`, matching brief); old `/admin/questionnaire*` v1 routes at lines 26-28 untouched.
+- Query uses `query.debounced(questionnaireApi.list, …)` with `limit`/`offset` from `useFilters`, `title`/`status` from `qParams`, plus optimistic `facility`/`auth_context` — verified `QueryParams` (`src/Utils/request/types.ts:9`) is a loose `Record&lt;string, QueryParamValue&gt;`, so these untyped extra keys are legal even though `questionnaireApi.list` has no `TQuery`. `queryKey` includes scope + qParams (line 160-165 of diff).
+- Status tabs (Active/Draft/Retired) use `role="radio"` + `aria-checked`; search input, Create button gated on `canWriteQuestionnaire`, desktop table + mobile cards, `EmptyState`, `Pagination`, `TableSkeleton` all present exactly as specified.
+- Sidebar: facility nav child added at `facility-nav.tsx:142-145` (no icon, matches siblings); admin nav entry at `admin-nav.tsx:21-25` uses `&lt;CareIcon icon="d-book-open" /&gt;` matching its sibling. Confirmed via grep: zero `CareIcon` references inside `QuestionnaireListPage.tsx` — lucide-only as required.
+- i18n: verified every `t()` key used (`questionnaires`, `manage_and_view_questionnaires`, `status`, `active`/`draft`/`retired`, `search_questionnaires`, `create_questionnaire`, `no_questionnaires_found`, `adjust_questionnaire_filters`, `title`, `description`, `slug`, `see_details`) exists exactly once in `public/locale/en.json`; JSON parses valid (`node -e "JSON.parse(...)"` succeeded); the new `"questionnaires"` key is correctly alphabetically placed between `questionnaire_updated_successfully` and `questionniare_load_error` (`"questionnaires"` &lt; `"questionniare_load_error"` since 'a' &lt; 'i' at the differing position). Two pre-existing keys differ from the brief's suggested copy by capitalization only (`manage_and_view_questionnaires`, `search_questionnaires`) — harmless since Playwright's default string locators are case-insensitive substring matches.
+- TypeScript: no `any` in the new file, named export (`export function QuestionnaireListPage`), zero imports from `src/components/Questionnaire/`.
+- Playwright spec at `tests/admin/questionnairesV2/questionnaireList.spec.ts` matches the brief verbatim, uses `storageState: "tests/.auth/user.json"` and `getFacilityId()` per existing convention.
+
+No missing or extra items found.
+
+**Code quality: Approved**
+
+- Minor (inherited from the brief's own literal code, not an implementer defect): the desktop `&lt;TableRow onClick=…&gt;` (`QuestionnaireListPage.tsx` diff line ~261) has no keyboard affordance (`role="button"`/`tabIndex`/`onKeyDown`) — a pointer-only interaction pattern. The mobile card equivalent correctly uses a real `&lt;button&gt;`. Worth a follow-up polish pass, not a blocker since it's byte-for-byte what the brief specified.
+- Everything else is clean: `e.stopPropagation()` correctly guards the nested "See Details" button from double-firing row navigation; `queryKey` pattern (`[..., qParams]`) matches existing codebase convention (e.g. `TemplateList.tsx`); `updateQuery({ search: … || undefined })` pattern matches ~10 other call sites; import grouping matches the project's 3rd-party → components → common → context/hooks → lib/types/Utils convention.
+
+**Adjudication of the `getPermissions` deviation: correct**
+
+Read `src/context/PermissionContext.tsx:34-43` — `hasPermission(permission, objectPermissions)` branches on `if (objectPermissions)`, and a JS array is always truthy regardless of contents. Passing the brief's literal `getPermissions(hasPermission, [])` sends `objectPermissions = []`, forcing the `objectPermissions.includes(permission)` branch, which evaluates `[].includes(x)` — always `false` for any non-super-admin. That would permanently hide the Create button from every real user, contradicting the brief's own stated goal of a "user-level, non-object" check.
+
+The implementer's fix — pulling `userPermissions` from `usePermissions()` and calling `getPermissions(hasPermission, userPermissions)` — makes `objectPermissions = userPermissions` (still truthy), so `objectPermissions.includes(x)` reduces to `userPermissions.includes(x)`, which is definitionally identical to the fallback branch (`hasPermission(x)` called with no second arg). This is a correct, behavior-preserving fix that achieves the intended semantics while still reusing the `getPermissions` helper as required by the brief's interface list.
+
+I independently checked every existing `getPermissions(hasPermission, …)` call site (`EncounterProvider.tsx:137-149`, `TemplateList.tsx:57`, `TemplatePage.tsx:19-22`, `facility-nav.tsx:239`, `AppointmentDetail.tsx:141`, etc.) — none pass a literal `[]` or `userPermissions` to get a "user-level" check; every one passes some object's `.permissions` (with `?? []` only as a not-yet-loaded guard, never as an idiom for "user-level only"). So there's no established idiom either way, but the implementer's reasoning about `hasPermission`'s truthy-array branching is verified correct from the source, and their substitute produces the only semantically valid result for a cross-facility/instance list with no owning object.
+
+**⚠️ Cannot verify from diff: none.** All items requiring live-repo cross-checks (route ordering in both routers, sidebar nav file context, en.json key existence/validity/ordering, `usePermissions()` exposing `userPermissions`, absence of `any`/CareIcon/Questionnaire-v1 imports) were verified directly against the current repo state at commit `a9d590b76` (HEAD of `bodhi/questionnaire-actions`).</result>
+<usage><subagent_tokens>123064</subagent_tokens><tool_uses>38</tool_uses><duration_ms>236356</duration_ms></usage>
+</task-notification>
+
+---
+
+<task-notification>
+<task-id>a981195c91439299e</task-id>
+<tool-use-id>toolu_01Cr2K4cb9W5CKmatL1uLcsk</tool-use-id>
+<output-file>/private/tmp/claude-501/-Users-bodhishthomas-code-care-fe/5786aa56-b361-49ee-bae1-fb5d507b7318/tasks/a981195c91439299e.output</output-file>
+<status>completed</status>
+<summary>Agent "Implement Task 4 (detail page)" finished</summary>
+<note>A task-notification fires each time this agent stops with no live background children of its own. The user can send it another message and resume it, so the same task-id may notify more than once.</note>
+<result>STATUS: DONE
+Commit: `d2eaceb4d` — "feat(questionnaire-v2): detail page with properties sidebar and question overview" (9 files, 813 insertions)
+Verification: `npx tsc --noEmit` clean, `npm run build` succeeds, `npx playwright test tests/admin/questionnairesV2/ --project=chromium --no-deps` → 3/3 pass (including the new `questionnaireDetail.spec.ts`).
+
+Concerns:
+- Found and fixed a real bug during verification (not cosmetic): the backend's `GET /questionnaire/{id}/` returns `version` as a raw number for existing fixture data, but the update schema requires a string, so the naive full-body-spread PUT was silently 400ing on every save (title, reorder, everything). Added a `buildUpdateBody` helper that coerces `version` to a string while still preserving every field (no `questions`/`subject_type` loss).
+- `OrganizationsField`'s facility-scope branch (`FacilityOrganizationSelector`) has no integration test — no facility-scope questionnaire exists in the fixture DB to exercise it end-to-end. Covered only by strict TS checking and code review.
+- Skipped adding `slug_format_hint` (brief's step 7) since an identical string already exists as `slug_format_message`; reused that key instead of duplicating.
+- Full details, including the deviations list, in `/Users/bodhishthomas/code/care_fe/.superpowers/sdd/task-4-report.md`.</result>
+<usage><subagent_tokens>289321</subagent_tokens><tool_uses>152</tool_uses><duration_ms>1430585</duration_ms></usage>
+</task-notification>
+
+---
+
+<task-notification>
+<task-id>ab0d0847fff2a2835</task-id>
+<tool-use-id>REDACTED</tool-use-id>
+<output-file>/private/tmp/claude-501/-Users-bodhishthomas-code-care-fe/5786aa56-b361-49ee-bae1-fb5d507b7318/tasks/ab0d0847fff2a2835.output</output-file>
+<status>completed</status>
+<summary>Agent "Review Task 4 diff" finished</summary>
+<note>A task-notification fires each time this agent stops with no live background children of its own. The user can send it another message and resume it, so the same task-id may notify more than once.</note>
+<result>## Review: Task 4 — Detail page (Questions tab, properties sidebar, save)
+
+### Spec compliance: ✅
+
+All binding constraints are met:
+- `QuestionnaireDetailPage({scope, id})` registered in both routers — verified in `src/pages/Facility/settings/layout.tsx` (`/questionnaires/:id` inserted before `"*"`) and `src/Routers/routes/adminRoutes.tsx` (`/admin/questionnaires/:id` reusing `INSTANCE_SCOPE`). List page's row-click navigates to `${scope.basePath}/${questionnaire.id}` (confirmed in `QuestionnaireListPage.tsx:171,188,218`), which matches both new routes.
+- Header/breadcrumb/badges/buttons match brief exactly (`QUESTIONNAIRE_STATUS_COLORS`, `v{internal_revision ?? 1}`, Cancel + disabled-while-pending Save Form). Badge variants used (`outline`, `primary`, `yellow`, `destructive`, `secondary`) all exist in `src/components/ui/badge.tsx`.
+- RHF form + zod schema matches (title min 1, slug 5-25 `/^[-\w]+$/`, `values:` binding from the fetched read).
+- `buildUpdateBody` (`QuestionnaireDetailPage.tsx:808-820`) verified correct: it spreads the full fetched `questionnaire` before applying the patch, so `questions`, `subject_type`, `code`, and each `Question.styling_metadata` are preserved unchanged on both the form-submit and reorder save paths (reorder only shallow-copies the array via `swapElements([...questions], from, to)`, individual `Question` object references are untouched). The `version` coercion (`String(...)` when non-null, passthrough when `null`/`undefined`) is safe — `QuestionnaireBase.version` is optional, so an `undefined` value is simply omitted from the JSON body rather than sent as an invalid type.
+- `FormPropertiesSidebar`, `OrganizationsField`, `QuestionOverviewList` all match their component contracts and prop signatures verified against the real `SegmentedRadioGroup`, `OrgSelector` (`ManageQuestionnaireOrganizationsSheet.tsx`), `FacilityOrganizationSelector`, `organizationApi.list`, `swapElements`, `FormSkeleton`, and `QuestionTypeBadge` definitions in the repo.
+- i18n: all 7 new keys added and alphabetically placed; `slug_format_message` text (`"Slug must only contain letters, numbers, underscores, and hyphens"`) is byte-identical to the brief's proposed `slug_format_hint` string, so reuse is legitimate. All other referenced keys (`title`, `slug`, `description`, `status`, `version`, `instance`, `facility`, `active`/`draft`/`retired`, `move_up`/`move_down`, `no_organizations_selected`, `remove_organization`, subject-type labels) exist in `en.json`.
+- Playwright spec matches the brief verbatim and uses the same `[data-slot="table-body"]` / `expectToast` conventions as the rest of the suite.
+
+Missing/Extra: none.
+
+### Code quality: Issues found (not a clean approval)
+
+**Critical** — `src/components/QuestionnaireV2/manage/QuestionnaireDetailPage.tsx:852-862` (the `useForm({ values: ... })` call) combined with `:867` (`invalidateQueries({queryKey: ["questionnairesV2"]})`) and `:984-994` (the reorder handler, which fires through the *same* `save` mutation):
+A background refetch silently discards unsaved edits in the Basic Information card. React Hook Form's `values` option resets the whole form whenever the passed object changes, **unless** `resetOptions: { keepDirtyValues: true }` is set (confirmed present as a `useForm` option in the installed `react-hook-form@7.76` types, not used here). Reproduction: type a new title (dirty, unsaved) → click a question's up/down reorder arrow (no need to touch Save Form) → `onReorder` calls `save()` on the *same* mutation used by form submit → `onSuccess` invalidates the `"questionnairesV2"` prefix, which matches `["questionnairesV2","detail",id]` too → the detail query refetches with the server's (still-original) title → RHF's `values` sees a new object that doesn't match the dirty in-memory title, and since no `keepDirtyValues` is set, it resets the field back to the server value, wiping the user's typed edit with no warning. This is exactly the "(c)" risk the task called out, and it's reachable through completely ordinary use of this page (type → reorder → edit vanishes).
+
+**Important** — `QuestionnaireDetailPage.tsx:808-820` (`buildUpdateBody`): it spreads the entire `QuestionnaireRead` object into a body typed `QuestionnaireUpdate`, which also forwards read-only/response-only fields not in `QuestionnaireBase` (`id`, `auth_context`, `internal_revision`, `created_by`, `updated_by`, `modified_date`). It currently works only because the backend evidently ignores unknown top-level keys (the observed 400 was specifically about `version`'s type, not "extra fields forbidden"). This is implicit reliance on backend leniency rather than an update body explicitly scoped to `QuestionnaireBase`; worth tightening (e.g. destructure only the writable fields) so a future stricter backend schema doesn't silently break every save.
+
+**Minor** — reorder buttons in `QuestionOverviewList.tsx` aren't disabled while `isPending`, and there's no optimistic local reordering. Two rapid clicks before the first mutation's invalidate+refetch settles both derive their swap from the same stale `questionnaire.questions`, so the second `save()` can silently lose the first swap (lost-update race). Low likelihood but easy to trigger by an impatient double-click.
+
+**Minor** — `QuestionOverviewList.tsx:693` (expand/collapse chevron button) sets `aria-label={question.text}`, duplicating the visible question text instead of describing the toggle action (e.g. "Expand sub-questions").
+
+**Minor** — `QuestionnaireDetailPage.tsx:975` labels the "versions" tab trigger with `t("version")` (singular "Version"); no `"versions"` key exists in `en.json`. Purely cosmetic, brief didn't specify exact wording.
+
+### ⚠️ Cannot verify from diff
+- The facility-scope `OrganizationsField` branch (`FacilityOrganizationSelector` integration) has no automated test coverage — the report itself notes no facility-scope questionnaire fixture exists to exercise it end-to-end; verified only via type-checking against the real component's props.
+- Whether the backend truly tolerates the extra `QuestionnaireRead`-only fields in the PUT body under all conditions (different auth contexts, questionnaire states) — confirmed only for the one title-edit Playwright scenario per the implementer's report, not independently re-run here per instructions.
+- Actual 3/3 Playwright pass claim — not re-executed, taken on the report's evidence per instructions.</result>
+<usage><subagent_tokens>132589</subagent_tokens><tool_uses>40</tool_uses><duration_ms>373004</duration_ms></usage>
+</task-notification>
+
+---
+
+<task-notification>
+<task-id>ac28b0f4c7e3b6871</task-id>
+<tool-use-id>REDACTED</tool-use-id>
+<output-file>/private/tmp/claude-501/-Users-bodhishthomas-code-care-fe/5786aa56-b361-49ee-bae1-fb5d507b7318/tasks/ac28b0f4c7e3b6871.output</output-file>
+<status>completed</status>
+<summary>Agent "Fix Task 4 review findings" finished</summary>
+<note>A task-notification fires each time this agent stops with no live background children of its own. The user can send it another message and resume it, so the same task-id may notify more than once.</note>
+<result>DONE, commit 5b2dd22a2f1c3daea14d5dd75cea03539eccdca4, `npx tsc --noEmit` clean + `npm run build` succeeded + `POSTGRES_PORT=5433 POSTGRES_PASSWORD=REDACTED npx playwright test tests/admin/questionnairesV2/ --project=chromium --no-deps` → 3 passed (6.0s).</result>
+<usage><subagent_tokens>86208</subagent_tokens><tool_uses>40</tool_uses><duration_ms>244932</duration_ms></usage>
+</task-notification>
+
+---
+
+<task-notification>
+<task-id>a043671de8ebd6ebc</task-id>
+<tool-use-id>REDACTED</tool-use-id>
+<output-file>/private/tmp/claude-501/-Users-bodhishthomas-code-care-fe/5786aa56-b361-49ee-bae1-fb5d507b7318/tasks/a043671de8ebd6ebc.output</output-file>
+<status>completed</status>
+<summary>Agent "Re-review Task 4 fixes" finished</summary>
+<note>A task-notification fires each time this agent stops with no live background children of its own. The user can send it another message and resume it, so the same task-id may notify more than once.</note>
+<result>## Review: Task 4 fix pass (commit `5b2dd22a2`)
+
+**1. CRITICAL — dirty-form reset on refetch: FIXED.** `QuestionnaireDetailPage.tsx:133` adds `resetOptions: { keepDirtyValues: true }` to the `useForm` call that also uses `values: questionnaire ? {...} : undefined`. This is the documented RHF pattern for exactly this failure mode (background refetch via `values` no longer clobbers dirty fields). Verified `FormPropertiesSidebar.tsx`'s status binding uses `form.setValue("status", value, { shouldDirty: true })` (line 46), which correctly marks the field dirty so it's preserved across the reorder-triggered refetch.
+
+**2. IMPORTANT — `buildUpdateBody` field leakage: FIXED.** Lines 69-81 now build an explicit `writable: QuestionnaireUpdate` literal with `slug, version (String-coerced), code, questions, title, description, status, subject_type` — this is exactly and only the 8 fields of `QuestionnaireBase` (`src/types/questionnaire/questionnaire.ts:41-50`, aliased as `QuestionnaireUpdate`). No read-only `QuestionnaireRead`-only fields (`id`, `auth_context`, `internal_revision`, `created_by`, `updated_by`, `modified_date`) can leak in, and no writable field was dropped — field-for-field match confirmed against the type definition.
+
+**3. MINOR — reorder buttons not disabled during save: FIXED.** `QuestionOverviewList.tsx` takes required `isSaving: boolean` (line 20), applied as `disabled={index === 0 || isSaving}` / `disabled={index === questions.length - 1 || isSaving}` (lines 108, 119). `QuestionnaireDetailPage.tsx:256` passes `isSaving={isPending}` from the existing mutation.
+
+**4. MINOR — chevron aria-label duplicated question text: FIXED.** `QuestionOverviewList.tsx:96` now uses `aria-label={t("toggle_sub_questions")}`; new key added to `en.json` ("Toggle sub-questions").
+
+**5. MINOR — versions tab singular label: FIXED.** `QuestionnaireDetailPage.tsx:247` now uses `t("versions")`; new `"versions": "Versions"` key added to `en.json`.
+
+**New issues introduced: none.**
+- `en.json` is valid JSON and the full key set is alphabetically sorted (verified programmatically, not just around the two insertion points).
+- Only one call site of `QuestionOverviewList` exists in the codebase, so making `isSaving` a required prop didn't break any other caller.
+- `npx tsc --noEmit` passes clean against the current tree.
+- `keepDirtyValues` interacts correctly with the `SegmentedRadioGroup` status binding (`shouldDirty: true` on change) — no gap there.
+
+**Fix-report contract check: satisfied.** The `## Fix pass` section in `task-4-report.md` includes the exact covering test command (`POSTGRES_PORT=5433 POSTGRES_PASSWORD=REDACTED npx playwright test tests/admin/questionnairesV2/ --project=chromium --no-deps`) and its result (`3 passed (6.0s)`, listing all 3 test names).
+
+**Overall: Approved.**</result>
+<usage><subagent_tokens>70264</subagent_tokens><tool_uses>13</tool_uses><duration_ms>94856</duration_ms></usage>
+</task-notification>
+
+---
+
+<task-notification>
+<task-id>ab9030f34cc657172</task-id>
+<tool-use-id>REDACTED</tool-use-id>
+<output-file>/private/tmp/claude-501/-Users-bodhishthomas-code-care-fe/5786aa56-b361-49ee-bae1-fb5d507b7318/tasks/ab9030f34cc657172.output</output-file>
+<status>completed</status>
+<summary>Agent "Implement Task 5 (create page)" finished</summary>
+<note>A task-notification fires each time this agent stops with no live background children of its own. The user can send it another message and resume it, so the same task-id may notify more than once.</note>
+<result>Status: DONE
+
+Commit: `72b8bcaef45043a0a76475e69a3a5cbbd17265f5` — "feat(questionnaire-v2): scope-aware create page"
+
+Verification: `npx tsc --noEmit` clean; `npm run build` succeeds; `eslint --fix`/`prettier` clean (one expected `react-hooks/incompatible-library` warning, same as the reference `ObservationDefinitionForm.tsx` pattern); Playwright suite (`tests/facility/settings/questionnaires/ tests/admin/questionnairesV2/ --project=chromium --no-deps`) passes reliably alone and under `--workers=1`, and passed 2 of 3 default-parallelism runs — the one failure was root-caused to a pre-existing race in Task 4's `questionnaireDetail.spec.ts` (blindly edits "first row" of an unscoped shared list), not a bug in the new create page; backend accepted `questions: []` fine, so the brief's placeholder-question fallback was not needed.
+
+Concerns: flagged the pre-existing test-isolation flake as a separate background task (task_5c17418f) rather than fixing it here, since it's out of this task's file scope. Full details in `/Users/bodhishthomas/code/care_fe/.superpowers/sdd/task-5-report.md`.</result>
+<usage><subagent_tokens>159735</subagent_tokens><tool_uses>71</tool_uses><duration_ms>821696</duration_ms></usage>
+</task-notification>
+
+---
+
+<task-notification>
+<task-id>a24b5fc57cab11551</task-id>
+<tool-use-id>toolu_01X8eGwNWcowrcnoN611HfN4</tool-use-id>
+<output-file>/private/tmp/claude-501/-Users-bodhishthomas-code-care-fe/5786aa56-b361-49ee-bae1-fb5d507b7318/tasks/a24b5fc57cab11551.output</output-file>
+<status>completed</status>
+<summary>Agent "Review Task 5 diff" finished</summary>
+<note>A task-notification fires each time this agent stops with no live background children of its own. The user can send it another message and resume it, so the same task-id may notify more than once.</note>
+<result>## Task 5 Review Verdicts
+
+**Spec compliance: ✅ PASS** — no missing items, no extra scope creep.
+
+Verified directly against the repo (not just the diff):
+- Route order: `src/pages/Facility/settings/layout.tsx:260-289` has `/questionnaires` → `/questionnaires/new` → `/questionnaires/:id` → `"*"` (line 290) in that exact object-key order. `src/Routers/routes/adminRoutes.tsx:31-41` has `/admin/questionnaires` → `/admin/questionnaires/new` → `/admin/questionnaires/:id` in that order. Both correct per raviger's ordered-match semantics.
+- `QuestionnaireCreatePage.tsx`: RHF+zod with `title` min 1, `slug` min 5/max 25 regex `/^[-\w]+$/` (identical to `QuestionnaireDetailPage.tsx:107-116`), auto-slug via unconditional `form.watch` + `generateSlug(value.title || "", 25)` effect (correctly omits the `isEditMode` guard present in `ObservationDefinitionForm.tsx:281-292` since this page is create-only), `status` SegmentedRadioGroup defaulting `"active"`, `subject_type` SegmentedRadioGroup over `SUBJECT_TYPES_FOR_CONTEXT[scope.authContext]` defaulting to `[0]` and editable (unlike the disabled copy in `FormPropertiesSidebar.tsx:58-71`).
+- Create body matches the brief's mutation code verbatim: `auth_context` from scope, `facility` only for `facility`/`user`, `facility_organization` only for `facility_organization`, `version: "1.0"`, `questions: []`, invalidate `["questionnairesV2"]`, toast, `navigate(`${scope.basePath}/${created.id}`)`.
+- Questions empty-state card matches spec exactly (icon tile + `no_questions_added_yet` + `add_your_first_question_hint`, no add/import affordance).
+- `en.json`: valid JSON (parsed successfully), 2 new keys added in correct alphabetical position (`add_your_first_question_hint` at line 559, `no_questions_added_yet` at line 3880); `questionnaire_created_successfully`/`untitled_question` correctly reused from the legacy Questionnaire feature rather than duplicated. `slug_format_message` reused, not redefined.
+- No `any`, no `eslint-disable`/`ts-ignore` in the new file, lucide-only icons (`ArrowLeft, Check, ListChecks`), named export, no imports from the old `src/components/Questionnaire/` (v1) directory.
+- Playwright spec matches the brief's code, and its selectors resolve correctly against real components (`getByRole("radio", { name: "Encounter", exact: true })` is unambiguous since the `status` SegmentedRadioGroup has no "Encounter" option).
+
+## Code quality: Approved (two low-severity notes, not blocking)
+
+1. **JSX/constant duplication** — `src/components/QuestionnaireV2/manage/QuestionnaireCreatePage.tsx:153` (`STATUS_OPTIONS`) duplicates the identical array in `FormPropertiesSidebar.tsx:17`, and the Basic Information/Form Properties markup (`QuestionnaireCreatePage.tsx:289-408`) duplicates `BasicInformationCard.tsx` and `FormPropertiesSidebar.tsx` almost verbatim. This is a justified tradeoff, not an oversight: both shared components are typed against `UseFormReturn&lt;DetailFormValues&gt;` (`BasicInformationCard.tsx:20`) and `FormPropertiesSidebar` additionally requires a full `QuestionnaireRead` (`FormPropertiesSidebar.tsx:21`, reading `questionnaire.subject_type` directly) — neither exists pre-creation. Genericizing those two Task-4 components was correctly out of scope for this task. Low severity; worth a follow-up refactor if a Task 6+ touches those files anyway.
+2. No `onError` handler on the create mutation — consistent with the app-wide global 400/406 toast handling documented in CLAUDE.md and with the identical pattern in `QuestionnaireDetailPage.tsx:136-142`; not a gap.
+
+⚠️ Cannot verify from diff: build/lint/typecheck/Playwright pass rates (report's numbers were not independently re-run, per instructions) — code inspection found nothing that would contradict them.
+
+## Race adjudication: **Confirmed**, minimal fix proposed
+
+`tests/admin/questionnairesV2/questionnaireDetail.spec.ts:13-14` navigates to the unscoped `/admin/questionnaires` list and does `page.locator('[data-slot="table-body"] tr').first().click()` — it opens whatever row happens to be first, then edits and saves its title, with no ownership check. Two facts confirm this is a real (not just theoretical) collision, not merely a "different ordering theory" concern:
+- `QuestionnaireListPage.tsx:78-82` documents that the backend's `QuestionnaireFilter` does **not** actually filter by `facility`/`auth_context` yet — meaning a facility-scoped questionnaire created by `questionnaireCreate.spec.ts` genuinely lands in the same underlying, unfiltered table the instance-scoped admin list reads from.
+- The implementer's empirical evidence (isolated/`--workers=1` runs pass reliably; default-parallelism runs occasionally fail with the *admin* spec's "Edited …" title showing up on the *facility* spec's freshly-created row) is consistent with exactly this class of bug regardless of the specific sort order the backend uses.
+
+This is a genuine, pre-existing Task 4 test-isolation defect, correctly not fixed in this Task 5 commit (out of scope, and the implementer flagged it rather than silently patching another task's file).
+
+**Minimal fix**: in `questionnaireDetail.spec.ts`, replace "click the first row" with either (a) create a uniquely-titled questionnaire in a `beforeEach`/first test step (via the UI create flow now available, or a direct API POST) and then locate/open that row by its unique title text (mirroring the `QV2 ${faker.word.words(2)} ${Date.now()}` pattern already used in the new create spec), or (b) capture the created questionnaire's `id` and `page.goto` its detail URL directly instead of clicking a row at all. Either avoids depending on table order/position entirely.
+
+⚠️ Cannot verify from diff: none — this is a pre-existing file, read directly from the repo, not part of the reviewed diff.</result>
+<usage><subagent_tokens>102133</subagent_tokens><tool_uses>30</tool_uses><duration_ms>208106</duration_ms></usage>
+</task-notification>
+
+---
+
+<task-notification>
+<task-id>a4a061ba683deb772</task-id>
+<tool-use-id>REDACTED</tool-use-id>
+<output-file>/private/tmp/claude-501/-Users-bodhishthomas-code-care-fe/5786aa56-b361-49ee-bae1-fb5d507b7318/tasks/a4a061ba683deb772.output</output-file>
+<status>completed</status>
+<summary>Agent "Fix detail spec race" finished</summary>
+<note>A task-notification fires each time this agent stops with no live background children of its own. The user can send it another message and resume it, so the same task-id may notify more than once.</note>
+<result>Good — the `.superpowers/sdd/` directory is gitignored, so the report update doesn't affect the commit. Everything is verified and committed.
+
+DONE
+Commit: 4dfeae9da5c295d3dff0380d1162c2fc73aca150
+Both runs of `tests/facility/settings/questionnaires/ tests/admin/questionnairesV2/` (chromium, default parallelism): 4 passed / 4 passed — no flakes.</result>
+<usage><subagent_tokens>67265</subagent_tokens><tool_uses>24</tool_uses><duration_ms>113208</duration_ms></usage>
+</task-notification>
+
+---
+
+<task-notification>
+<task-id>aa9f76558aec5235a</task-id>
+<tool-use-id>toolu_018EkphuQEEKGKvswRJCYRpn</tool-use-id>
+<output-file>/private/tmp/claude-501/-Users-bodhishthomas-code-care-fe/5786aa56-b361-49ee-bae1-fb5d507b7318/tasks/aa9f76558aec5235a.output</output-file>
+<status>completed</status>
+<summary>Agent "Implement Task 6 (renderer store)" finished</summary>
+<note>A task-notification fires each time this agent stops with no live background children of its own. The user can send it another message and resume it, so the same task-id may notify more than once.</note>
+<result>## Complete
+
+**Commit:** `1071a66b6d74287a759f19aaf09a32eb4757932e`
+
+**Three files created** (`src/components/QuestionnaireV2/renderer/`):
+- `types.ts` — RendererMode, RendererSubject
+- `store.ts` — Jotai atoms, evaluateEnableWhen, hooks (useQuestionResponse, useQuestionEnabled, useQuestionErrors)
+- `RendererContext.tsx` — Provider + useRenderer hook
+
+**Verification:** tsc pass, eslint pass (after auto-fix), prettier pass. All required exports present with exact names.
+
+**Semantics ported from old isQuestionEnabled:** Boolean normalization ("Yes"/"No"), numeric coercion for comparisons, "exists" checking for non-empty values, enable_behavior logic (any/all). Type-safe discriminated union handling—no `any`.
+
+**One deviation:** Restructured RendererContext to use `useMemo` for store creation instead of `useRef` pattern to avoid react-hooks/refs warnings while maintaining idempotent initialization.
+
+**Report:** `/Users/bodhishthomas/code/care_fe/.superpowers/sdd/task-6-report.md`
+
+**No concerns.** Ready for downstream consumers (Tasks 7–9, 12).</result>
+<usage><subagent_tokens>52683</subagent_tokens><tool_uses>24</tool_uses><duration_ms>231886</duration_ms></usage>
+</task-notification>
+
+---
+
+<task-notification>
+<task-id>a62a632fc001f07b7</task-id>
+<tool-use-id>REDACTED</tool-use-id>
+<output-file>/private/tmp/claude-501/-Users-bodhishthomas-code-care-fe/5786aa56-b361-49ee-bae1-fb5d507b7318/tasks/a62a632fc001f07b7.output</output-file>
+<status>completed</status>
+<summary>Agent "Review Task 6 diff" finished</summary>
+<note>A task-notification fires each time this agent stops with no live background children of its own. The user can send it another message and resume it, so the same task-id may notify more than once.</note>
+<result>## Spec compliance: ❌ (divergent `evaluateEnableWhen` semantics)
+
+**Present / matching:**
+- All three files exist with exact required paths and exports: `types.ts` (`RendererMode`, `RendererSubject`), `store.ts` (`questionnaireAtom`, `responsesAtom`, `errorsAtom`, `activeGroupIndexAtom`, `questionIdByLinkIdAtom`, `initializeResponses`, `evaluateEnableWhen`, `useQuestionResponse`, `useQuestionEnabled`, `useQuestionErrors`), `RendererContext.tsx` (`QuestionnaireRendererProvider`, `useRenderer`).
+- `initializeResponses` produces the exact response shape, flattens groups, seeds `initial_selected` choice options.
+- `useQuestionResponse` merges `Partial` immutably as specified.
+- No imports from the old `src/components/Questionnaire/` dir. Confirmed via grep that nothing outside `renderer/` imports these three files yet (no premature wiring).
+- TS strict, no `any`, double quotes/semicolons throughout.
+
+**Missing / divergent — `evaluateEnableWhen` (`src/components/QuestionnaireV2/renderer/store.ts:64-152`) does not match `isQuestionEnabled` (`src/components/Questionnaire/QuestionTypes/QuestionGroup.tsx:37-103`) in three confirmed, practically-reachable ways:**
+
+1. **Missing short-circuit for "unanswered dependency."** Old code (`QuestionGroup.tsx:44-48`) returns `false` for *every* operator when the referenced question has no recorded values. New code has no equivalent guard — `store.ts:68` just reads `response?.values[0]?.value`, which is `undefined` for an unanswered question. For `not_equals` (`store.ts:122`, and the boolean branch at `114`) and `exists: false` (`store.ts:73-74`), an `undefined` value makes the condition evaluate to **`true`**, so the dependent question is shown *before* the user has answered the upstream question — the old renderer keeps it hidden until then. `not_equals` and `exists` are real, user-selectable operators in the builder (`src/components/Questionnaire/QuestionnaireEditor.tsx:1884-1889, 3070-3100`), so this is reachable, not theoretical.
+
+2. **Only reads `values[0]`.** Old code maps over *all* `dependentValues` and uses `.some()`/`.includes()` (`QuestionGroup.tsx:56-93`), correctly handling multi-select responses. New code (`store.ts:68`) only ever looks at the first value. `repeats: true` (multi-select choice questions) is a real, exposed feature (`src/components/Questionnaire/QuestionTypes/ChoiceQuestion.tsx:115,171`, `QuestionInput.tsx:418-487`), so an `enable_when` referencing a multi-select question where the matching option isn't first in the array will silently misevaluate.
+
+3. **No numeric→string coercion for `equals`/`not_equals`.** Old's `normalizeValue` (`QuestionGroup.tsx:50-54`) stringifies numbers (`value.toString()`) before comparison, so an integer/decimal question's numeric response of `5` matches an `answer: "5"`. New code (`store.ts:77-99, 101-123`) only special-cases booleans; a numeric `value` compared via strict `===` against a string `answer` will never match. This silently breaks `equals`/`not_equals` conditions targeting integer/decimal questions.
+
+   *(Secondary, lower-likelihood divergence: old normalizes booleans to `"Yes"/"No"` before *every* operator, so `Number("Yes")` is `NaN` and numeric operators against boolean values are always `false`; new code's `Number(value)` at `store.ts:127,133,139,145` turns `true`/`false` into `1`/`0`, so a numeric `enable_when` against a boolean question can now evaluate `true` where old always returned `false`.)*
+
+The implementer's report claims full parity ("boolean normalization," "numeric coercion," "exists checks... ported") but only covers a subset of the old logic and misses the short-circuit and multi-value handling entirely — this is exactly the "silent divergence" the brief warned would cause questions to be wrongly shown/hidden.
+
+Minor/non-blocking: `initializeResponses` (`store.ts:44-47`) drops the `coding: opt.code` field that old `initializeResponses` preserves for auto-selected default choice options (`QuestionnaireForm.tsx:349-353`); also gates seeding on `question.type === "choice"` vs old's looser `answer_option`-presence check — negligible in practice.
+
+## Code quality: Issues found
+
+**`useMemo` for store creation — Important, verdict: NOT guaranteed stable.** `RendererContext.tsx:63`: `const store = useMemo(() =&gt; createStore(), []);`, deviating from the brief's explicit `useRef` sketch. React's own docs describe `useMemo` as a performance optimization only — the cache is explicitly *not* guaranteed to persist (React may "forget" memoized values, e.g. under future memory-pressure optimizations), unlike `useRef`/lazy `useState`, which do carry a genuine per-instance-lifetime guarantee. Confirmed the app runs in `&lt;React.StrictMode&gt;` (`src/index.tsx:47-49`) on React 19.2.6. In today's React this won't visibly misbehave, but it is relying on undocumented behavior for something load-bearing: if the store identity were ever invalidated, the `useEffect` at `RendererContext.tsx:67-71` (keyed on `[questionnaire, store]`) would re-run `initializeResponses` against a fresh store, silently wiping any in-progress answers for the current session — real state-loss risk for a clinical data-entry form.
+
+ The implementer's stated reason ("avoids react-hooks/refs ESLint warning") checks out — `eslint.config.mjs:164` does set `"react-hooks/refs": "warn"` (the new React-Compiler-oriented rule that flags mutating `ref.current` during render, which the brief's `if (!storeRef.current) storeRef.current = createStore();` pattern would trigger). But it's set to `"warn"`, not `"error"`, so it wouldn't fail lint either way, and a strictly better fix existed: `const [store] = useState(() =&gt; createStore());` gives the same true stability guarantee as `useRef`, touches no ref during render, and would not trigger `react-hooks/refs` at all. The chosen fix trades a lint warning for a correctness-guarantee gap on the exact piece of state (store identity) the brief called out for scrutiny. Recommend swapping to `useRef` (matching the brief) or lazy `useState` before Tasks 7–12 build on top of this Provider — cheap now, expensive later.
+
+**Minor nit:** `useQuestionEnabled`'s derived atom (`store.ts:174-193`) is memoized on `[question]` (object identity) rather than a primitive like `question.id`, unlike `useQuestionResponse`/`useQuestionErrors` which key on primitives. Not spec-violating, just slightly more fragile if a caller ever passes a freshly-constructed `question` object per render.
+
+Everything else — naming, immutability, TS strictness (no unwarranted `any`/assertions; the `EnableWhen` discriminated-union narrowing in the switch is handled correctly without assertions), formatting, no old-dir imports — is clean.
+
+## ⚠️ Cannot verify from diff
+- Actual `tsc`/`eslint` pass/fail (per instructions, not re-run). Spot-checked types manually; found no obvious errors. Note: `RendererContext.tsx` uses `React.ReactNode` without an explicit `import React from "react"` — verified this exact pattern already exists and presumably passes elsewhere in the repo (`src/context/PermissionContext.tsx:1,23`), so it's not a real issue.
+- Runtime behavior of the Provider/store under actual StrictMode double-render in a live browser (not exercised — nothing wires these files up yet, consistent with task scope).</result>
+<usage><subagent_tokens>96568</subagent_tokens><tool_uses>20</tool_uses><duration_ms>308345</duration_ms></usage>
+</task-notification>
+
+---
+
+<task-notification>
+<task-id>a6bc34de68e778d10</task-id>
+<tool-use-id>toolu_01EDTosgQFQXHta9UiJJMd22</tool-use-id>
+<output-file>/private/tmp/claude-501/-Users-bodhishthomas-code-care-fe/5786aa56-b361-49ee-bae1-fb5d507b7318/tasks/a6bc34de68e778d10.output</output-file>
+<status>completed</status>
+<summary>Agent "Fix Task 6 review findings" finished</summary>
+<note>A task-notification fires each time this agent stops with no live background children of its own. The user can send it another message and resume it, so the same task-id may notify more than once.</note>
+<result>DONE, commit 65a2d7d24. `evaluateEnableWhen` was rewritten as a direct port of `isQuestionEnabled`'s `checkCondition` (short-circuit on unanswered dependency, all-values `.some()`/`.includes()`, verbatim `normalizeValue`), `RendererContext.tsx` switched to `useState(() =&gt; createStore())`, and `initializeResponses` now gates on `answer_option` presence and carries `coding: opt.code`; `npx tsc --noEmit` and `npx eslint .../renderer/ --fix` + prettier all pass clean, with no remaining line-by-line deviations from QuestionGroup.tsx beyond structural typing (documented in the appended `.superpowers/sdd/task-6-report.md` "## Fix pass" section).</result>
+<usage><subagent_tokens>83962</subagent_tokens><tool_uses>28</tool_uses><duration_ms>267102</duration_ms></usage>
+</task-notification>
+
+---
+
+<task-notification>
+<task-id>a1dcf355b89c39d00</task-id>
+<tool-use-id>toolu_01PPRhMNSWv4qyo9tDHWY1hv</tool-use-id>
+<output-file>/private/tmp/claude-501/-Users-bodhishthomas-code-care-fe/5786aa56-b361-49ee-bae1-fb5d507b7318/tasks/a1dcf355b89c39d00.output</output-file>
+<status>completed</status>
+<summary>Agent "Re-review Task 6 fixes" finished</summary>
+<note>A task-notification fires each time this agent stops with no live background children of its own. The user can send it another message and resume it, so the same task-id may notify more than once.</note>
+<result>## Verification Results
+
+**Fix-report contract**: Confirmed present. The report's "Verification" section states `npx tsc --noEmit` pass, `npx eslint ... --fix` pass, `npx prettier --check` pass — I independently re-ran `tsc --noEmit` (exit 0, no output) and `eslint src/components/QuestionnaireV2/renderer/` (exit 0, no output) and they match. A "Line-by-line parity statement" paragraph is present in the report (lines 136-151).
+
+### Findings 1–5
+
+1. **Unanswered dependency → false for every operator** — **FIXED**. `store.ts:89`: `if (!dependentValues || dependentValues.length === 0) return false;` runs before the switch, byte-for-byte matching `QuestionGroup.tsx:48`.
+2. **All values evaluated, not just values[0]** — **FIXED**. `store.ts:87,91`: `response?.values` (full array) is mapped to `normalizedAnswers`, and every case uses `.some()`/`.includes()` over it, matching `QuestionGroup.tsx:56-93`.
+3. **normalizeValue ported verbatim, applied before every operator** — **FIXED**. `store.ts:68-72` is a verbatim copy of `QuestionGroup.tsx:50-54` (boolean→"Yes"/"No", number→`.toString()`), applied once up front (`store.ts:91`) before the switch, so numeric operators never see raw booleans.
+4. **Store identity: `useState(() =&gt; createStore())`** — **FIXED**. `RendererContext.tsx:49`: `const [store] = useState(() =&gt; createStore());` replaces the old `useMemo(() =&gt; createStore(), [])`.
+5. **initializeResponses seeding parity** — **FIXED**. `store.ts:44`: gated on `question.answer_option &amp;&amp; question.answer_option.length &gt; 0` (not `type === "choice"`), and each seed carries `coding: opt.code ?? undefined` (`store.ts:50`). Confirmed against the actual reference at `QuestionnaireForm.tsx:343-354`, which gates identically and sets `coding: opt.code ?? undefined` with no `unit`/other fields — exact match.
+
+### Trace table (8 cases traced, old `isQuestionEnabled`/`checkCondition` vs new `evaluateEnableWhen`)
+
+| # | Operator | Dependent values | Answer | Old result | New result | Match |
+|---|----------|------------------|--------|------------|------------|-------|
+| 1 | not_equals | unanswered (`[]`/undefined) | "foo" | false (short-circuit) | false | ✓ |
+| 2 | exists | unanswered | false | false (short-circuit) | false | ✓ |
+| 3 | equals | `["A","B"]` (multi-select) | "B" | true (`.includes` sees index 1) | true | ✓ |
+| 4 | equals | `[5]` (number) | "5" (string) | true (`5`→`"5"` via normalizeValue) | true | ✓ |
+| 5 | equals | `[true]` (boolean) | "Yes" | true (`true`→`"Yes"`) | true | ✓ |
+| 6 | greater | `[true]` (boolean) | 0 | false (`"Yes"`→`Number("Yes")`=NaN) | false | ✓ |
+| 7 | exists | `["", "x"]` (mixed) | true or false (ignored) | true (some non-empty; answer never checked — old quirk) | true | ✓ |
+| 8 | not_equals | `["A","C"]` | "B" | true (`!includes("B")`) | true | ✓ |
+
+**8 cases, all match.** Cases 1, 3, 4, 6 specifically confirm the three originally-reported divergences are gone (previously: case 1 → old buggy code returned `true`; case 3 → old buggy code checked only `"A"` and returned `false`; case 4 → old buggy code did `5 === "5"` → `false`; case 6 → old buggy code computed `Number(true)=1 &gt; 0` → `true`). Case 7 confirms the `exists` operator's quirk of ignoring `enableWhen.answer` entirely is faithfully preserved from the reference (not a new deviation, as the report claims).
+
+I also traced `useQuestionEnabled` (`store.ts:154-174`), which supplies `evaluateEnableWhen` with `responses[linkIndex[condition.question] ?? ""]` in place of the old `.find(v =&gt; v.link_id === ...)` — semantically equivalent lookup, unaffected by this fix pass and still consistent with the new `(enableWhen, response)` signature. `enable_behavior` any/all folding via `.some(Boolean)`/`.every(Boolean)` over the mapped results also matches `question.enable_when.some/every(checkCondition)`.
+
+### New issues introduced by the fix
+
+None found. Specifically checked:
+- Exports unchanged: `questionnaireAtom`, `responsesAtom`, `errorsAtom`, `activeGroupIndexAtom`, `questionIdByLinkIdAtom`, `initializeResponses`, `evaluateEnableWhen`, `useQuestionResponse`, `useQuestionEnabled`, `useQuestionErrors` all still present with same names/signatures.
+- No `any` in either changed file (grep confirms only the English word "any" appears, in comments/`enable_behavior === "any"`).
+- `EnableWhen` discriminated union (`question.ts:95-112`) covers exactly the 7 operators handled in the switch; type narrowing works without assertions, matching the report's claim.
+- No downstream consumers exist yet (`grep` across `src/components/QuestionnaireV2/` shows only `RendererContext.tsx` importing from `store.ts`), so this fix cannot have broken any Task 7-9 usage.
+- `tsc --noEmit` and `eslint` both exit 0 independently verified; `prettier --check` also passes.
+- One harmless, pre-existing redundancy carried over faithfully: the `exists` case's `normalizedAnswers.length &gt; 0` check is dead code (already guaranteed by the outer short-circuit) — but this redundancy exists identically in the old reference code, so it's not a new issue.
+
+### Overall: **Approved**</result>
+<usage><subagent_tokens>74252</subagent_tokens><tool_uses>15</tool_uses><duration_ms>215220</duration_ms></usage>
+</task-notification>
+
+---
+
+<task-notification>
+<task-id>ad4dd633c108c804b</task-id>
+<tool-use-id>REDACTED</tool-use-id>
+<output-file>/private/tmp/claude-501/-Users-bodhishthomas-code-care-fe/5786aa56-b361-49ee-bae1-fb5d507b7318/tasks/ad4dd633c108c804b.output</output-file>
+<status>completed</status>
+<summary>Agent "Implement Task 7 (renderer inputs)" finished</summary>
+<note>A task-notification fires each time this agent stops with no live background children of its own. The user can send it another message and resume it, so the same task-id may notify more than once.</note>
+<result>Status: DONE. Commit: `1ae4c4957b368f21f0d91ff4c90752db1e0e9bcb`.
+
+Verification: `npx tsc --noEmit` and `npx eslint src/components/QuestionnaireV2/renderer/` both pass clean (re-verified after pre-commit hooks re-ran prettier/eslint --fix with no further changes).
+
+Concerns:
+- QuantityInput's unit-source design is a judgment call — I kept `unit` static from `question.unit` (per brief's literal formula) and only reuse `QuantityQuestion.tsx`'s "Type" `ValueSetSelect` (writing `coding`) when `question.answer_value_set` is set, rather than also reproducing the legacy component's always-on hardcoded `system="system-ucum-units"` unit picker. Full reasoning is in the report — worth a second look from whoever reviews Task 8/9 integration.
+- `answer_option`-carries-units clause in the brief has no corresponding field on `AnswerOption` today, so nothing was implemented for it.
+- Pre-existing untracked `docs/superpowers/` directory (unrelated to this task) was left alone and not committed.
+
+Full details, per-file reuse mapping, and self-review checklist are in `/Users/bodhishthomas/code/care_fe/.superpowers/sdd/task-7-report.md`.</result>
+<usage><subagent_tokens>145080</subagent_tokens><tool_uses>65</tool_uses><duration_ms>605141</duration_ms></usage>
+</task-notification>
+
+---
+
+<task-notification>
+<task-id>a2f9a000490bdd659</task-id>
+<tool-use-id>toolu_01XmWn9No1MtggifMMNNNHMv</tool-use-id>
+<output-file>/private/tmp/claude-501/-Users-bodhishthomas-code-care-fe/5786aa56-b361-49ee-bae1-fb5d507b7318/tasks/a2f9a000490bdd659.output</output-file>
+<status>completed</status>
+<summary>Agent "Review Task 7 diff" finished</summary>
+<note>A task-notification fires each time this agent stops with no live background children of its own. The user can send it another message and resume it, so the same task-id may notify more than once.</note>
+<result># Task 7 Review — Renderer simple inputs + type registry
+
+## Spec compliance: ✅
+
+Verified against the binding constraints by reading `questionTypeRegistry.tsx`, all 9 input files, `store.ts`, `src/types/questionnaire/form.ts`, `src/types/questionnaire/question.ts`, and the four legacy leaves (`DateQuestion.tsx`, `DateTimeQuestion.tsx`, `TimeQuestion.tsx`, `QuantityQuestion.tsx`):
+
+- `RendererInputProps { question: Question; disabled: boolean }` and `QUESTION_TYPE_COMPONENTS: Partial&lt;Record&lt;QuestionType, ComponentType&lt;RendererInputProps&gt;&gt;&gt;` match the brief verbatim; `group`/`structured` correctly absent (confirmed against the 14-value `QuestionType` union in `src/types/questionnaire/question.ts`).
+- Every input reads/writes only via `useQuestionResponse` from `store` — no `value`/`onChange` props anywhere; confirmed no component takes extra props beyond `RendererInputProps`.
+- `disabled` is threaded to every interactive control, including into `ValueSetSelect` (verified its `Props`/`ButtonProps` type — `disabled` isn't a named prop, so it flows through `...props` onto the underlying `Button` in both mobile/drawer and desktop/popover render branches — report's claim is accurate).
+- Value shapes verified against `RV&lt;T,V&gt;` in `form.ts`: `date`/`dateTime` declare `Date` and both `DateInput`/`DateTimeInput` write real `Date` objects (not ISO strings) — correct. `time` declares `string` and `TimeInput` writes native `"HH:mm"` straight from `&lt;input type="time"&gt;` (which, absent a `step` attribute, is always zero-padded 24h `HH:mm` — verified against `TimeQuestion.tsx`'s own native-input assumption). `quantity` declares `number|undefined` plus optional `unit`/`coding: Code` — `QuantityInput` matches. `string`/`boolean`/`number` all match.
+- Old-leaf reuse verified by diffing imports: `DateInput` imports `CombinedDatePicker` (same as `DateQuestion.tsx`, same `buttonClassName`), `DateTimeInput` imports `DatePicker` + `Input` (same as `DateTimeQuestion.tsx`, same layout/`formatTime`/mutation logic), `TimeInput` uses plain `Input type="time"` (same as `TimeQuestion.tsx`). None of the four old *question* components themselves are imported anywhere in the diff — only their underlying ui pickers. `ValueSetSelect` (old-dir import) is used only in `ChoiceInput` and `QuantityInput`, the one allowed exception.
+- `ChoiceInput` uses `ChoiceChip control="radio"` from `shared/ChoiceChip` for `answer_option` mode — confirmed.
+- `AnswerOption` (in `question.ts`) genuinely has no `unit` field today, so the report's claim that there's nothing to branch on for "answer_option carries units" is accurate, not an excuse.
+- i18n: `enter_details`, `yes`, `no`, `type`, `value` all present and correctly alphabetized in `public/locale/en.json`.
+- No `any`, all named exports, no new icon imports (lucide only via `ChoiceChip`), spot-checked `npx eslint src/components/QuestionnaireV2/renderer/` myself — clean, consistent with report.
+
+Missing: none. Extra: none (no scope creep beyond the brief).
+
+## Code quality: Approved, with minor non-blocking nits
+
+1. **Type-only circular import** (all 9 files, e.g. `src/components/QuestionnaireV2/renderer/inputs/TextInput.tsx:6`): each leaf imports `RendererInputProps` as a regular import from `questionTypeRegistry.tsx`, which itself imports the leaf components as values — a registry↔inputs cycle. Harmless in practice (Vite/esbuild elides type-only bindings per-file, `tsc`/`eslint` both pass), but `import type { RendererInputProps }` would make the intent explicit and remove any latent risk. Style-only.
+2. **`DateTimeInput.handleTimeChange`** (`src/components/QuestionnaireV2/renderer/inputs/DateTimeInput.tsx:209-218`): `const date = value || new Date(); date.setHours(...); date.setMinutes(...)` mutates the `Date` object already sitting in the Jotai atom in place before writing it back. This is a faithful, brief-mandated verbatim port of the identical pattern in legacy `DateTimeQuestion.tsx:55-74` — not a new regression, but worth a follow-up cleanup pass someday (construct a new `Date` instead of mutating the stored one).
+3. **`NumberInput`** (`src/components/QuestionnaireV2/renderer/inputs/NumberInput.tsx:264-271`): only guards `e.target.value === ""`. I verified empirically in a live Chromium browser (typed `"1."`, `"-"`, `"1e"` character-by-character into a bare `&lt;input type="number"&gt;`) that the browser's own `input` event sanitization never delivers a non-empty value with `valueAsNumber === NaN` under normal keyboard typing — it either drops the invalid keystroke or clears to `""`, which the existing check already routes to `values: []`. So this isn't a live bug in this environment, though a defensive `Number.isNaN(e.target.valueAsNumber)` check would be cheap extra insurance against paste/IME/mobile edge cases I couldn't reproduce here. Not blocking.
+4. Minor observation (not a defect, spec-compliant as given): `initializeResponses` (store.ts:43-51, Task 6) seeds `answer_option`-based initial selections with `coding: option.code`, but `ChoiceInput`'s own answer_option write path (per the binding constraint's literal value shape) never attaches `coding`. This exactly matches the spec I was given to check against, so not flagged as an error — just noting the asymmetry in case a later task's submission-mapping logic expects `coding` on answer_option answers too.
+
+## Quantity adjudication: acceptable as-is
+
+The implementer's reading — `unit` is always the static `question.unit`; the legacy's unconditional hardcoded `system="system-ucum-units"` "Unit" picker is dropped; the conditional "Type"/`coding` `ValueSetSelect` is kept, gated on `answer_value_set` exactly as legacy gates it — is correct, for three reasons:
+1. It's the literal, unambiguous brief formula for the base case (`unit: question.unit`).
+2. It matches the Figma renderer spec, which puts the unit in the question label (e.g. "Temperature (°F)") rather than as an in-field picker — implying `question.unit` is question-author data, not something a preview/readonly viewer should let anyone override.
+3. Preview/readonly are the only current consumers; an always-on freeform unit-picker only makes sense once there's an actual answering user in fill-mode, which is explicitly a later phase (correctly not speculated on here — YAGNI).
+
+The value shape in both branches is written correctly (`RV&lt;"quantity", number|undefined&gt;` with optional `Code` `unit`/`coding`) — no data-shape error. If product later wants end-users to freely pick a unit at answer time (mirroring the legacy always-on picker), that's a scope addition for the fill-mode task, not something Task 7 got wrong.
+
+## ⚠️ Cannot verify from diff
+
+- Did not re-run a full-repo `tsc`/`eslint`; spot-checked `npx eslint` on the touched directory/file only (clean, consistent with report).
+- No live rendering/visual verification possible or expected — nothing wires these components in yet (Task 8 does that per the report).
+- Whether `question.unit`/`answer_unit` actually gets populated by the questionnaire builder for real questionnaires (which the Quantity adjudication leans on) wasn't traced — that lives outside this task's file set.</result>
+<usage><subagent_tokens>129581</subagent_tokens><tool_uses>65</tool_uses><duration_ms>844977</duration_ms></usage>
+</task-notification>
+
+---
+
+<task-notification>
+<task-id>aea83086e7e1cfa34</task-id>
+<tool-use-id>REDACTED</tool-use-id>
+<output-file>/private/tmp/claude-501/-Users-bodhishthomas-code-care-fe/5786aa56-b361-49ee-bae1-fb5d507b7318/tasks/aea83086e7e1cfa34.output</output-file>
+<status>completed</status>
+<summary>Agent "Implement Task 8 (renderer assembly)" finished</summary>
+<note>A task-notification fires each time this agent stops with no live background children of its own. The user can send it another message and resume it, so the same task-id may notify more than once.</note>
+<result>Status: Complete. Commit: `f57215dd3` ("feat(questionnaire-v2): renderer assembly — group cards, notes, tree nav, pagination").
+
+Verification: `npx tsc --noEmit` passes clean; `npx eslint src/components/QuestionnaireV2/` returns 0 errors (2 pre-existing warnings in unrelated `manage/` files); `eslint`/`prettier --write` + pre-commit hook all ran clean on the 5 new files + `en.json`.
+
+Concerns: none blocking — two interpretive calls flagged in the report (`.superpowers/sdd/task-8-report.md`): the "optional" Group badge is rendered unconditionally at depth 0 (no unambiguous gating signal in the brief), and the input+note row got an explicit `border-gray-200` (brief's prose says "bordered flex row" though its code sketch omitted the class).</result>
+<usage><subagent_tokens>121555</subagent_tokens><tool_uses>59</tool_uses><duration_ms>489931</duration_ms></usage>
+</task-notification>
+
+---
+
+<task-notification>
+<task-id>a81fb8e1712780ee8</task-id>
+<tool-use-id>REDACTED</tool-use-id>
+<output-file>/private/tmp/claude-501/-Users-bodhishthomas-code-care-fe/5786aa56-b361-49ee-bae1-fb5d507b7318/tasks/a81fb8e1712780ee8.output</output-file>
+<status>completed</status>
+<summary>Agent "Review Task 8 diff" finished</summary>
+<note>A task-notification fires each time this agent stops with no live background children of its own. The user can send it another message and resume it, so the same task-id may notify more than once.</note>
+<result># Task 8 Review — Renderer assembly
+
+## Spec compliance: ✅
+
+All five exports match required signatures exactly, and `RendererBody` is correctly unexported (`QuestionnaireRenderer.tsx:352`, no `export` keyword).
+
+Verified against source, not just the report:
+- **`NoteAffordance({questionId})`** (`NoteAffordance.tsx`) — Popover+Textarea bound via `useQuestionResponse`, `NotebookPen`, amber dot, hidden in readonly-without-note. Matches brief verbatim.
+- **`QuestionField({question, depth})`** — `disabled = mode === "readonly" || question.read_only === true` (line 148); `!enabled &amp;&amp; disabled_display !== "protected" → null` (line 150); group delegates to `QuestionGroupCard`; structured branch is `null` with the exact `// Task 9 replaces...` comment (line 165) and never touches `question.structured_type`; note skipped for `display` (line 191); errors mapped under (lines 195-199).
+- **`QuestionGroupCard({question, depth, disabled})`** — depth-0 indigo accent bar + Badge; depth≥1 `bg-gray-100` box, `grid gap-4 sm:grid-cols-2` bumped to `sm:grid-cols-3` when `leafChildCount &gt;= 3` (verified `cn`/`twMerge` correctly resolves the conflicting `grid-cols-*` classes so no dual-class bug); children wrapped in `&lt;fieldset disabled={disabled}&gt;` in both branches; `styling_metadata?.classes` merged onto the outer wrapper in both branches.
+- **`RendererFooter()`** — reads/writes `activeGroupIndexAtom` directly, ghost buttons, correct disabled-at-bounds logic.
+- **`QuestionnaireRenderer({questionnaire, mode, subject, className})`** — Provider + `RendererBody`; nav `hidden ... lg:block`; single `QuestionField` rendered per page; empty guard with `no_questions_added_yet`.
+- i18n: `add_note`, `unsupported_question_type` added at correct alphabetical spots; `previous`/`next`/`group`/`no_questions_added_yet`/`enter_details` all confirmed pre-existing via grep.
+- No `any`, lucide-only icons (`NotebookPen`, `ChevronLeft`, `ChevronRight`), no old-dir imports in any of the 5 new files (the old-dir imports that do exist — `ChoiceInput.tsx`, `QuantityInput.tsx`, `OrganizationsField.tsx` — predate this diff, out of scope for Task 8).
+
+**Missing / Extra:** none against the brief's binding constraints.
+
+## Correctness scrutiny
+
+1. **Child→ancestor index mapping** — `containsQuestion`/`findTopLevelIndex` (`QuestionnaireRenderer.tsx:327-342`) recursively walk the full subtree of every top-level question and return that top-level index for any nested id. Traced and correct; more robust than needed since it handles arbitrary depth, not just the two levels `QuestionTreeNav` visually exposes.
+2. **`activeGroupIndex` reset on questionnaire change** — confirmed in `RendererContext.tsx:53-57`: effect keyed on `[questionnaire, store]` resets the atom to 0 whenever the `questionnaire` object reference changes. `RendererBody` additionally guards render with `questionnaire.questions[activeGroupIndex] ?? questionnaire.questions[0]` (line 371). Correct for the expected immutable-update pattern (Task 12 passing a fresh object per edit). Residual edge case: if `questionnaire.questions` were mutated in place (same reference, shorter array), the fallback fixes *what's rendered* but `RendererFooter`'s prev/next disabled-state still reads the raw (stale) atom value, so button enablement could briefly disagree with the displayed question. Low-severity, dependent on Task 12/14's update pattern — flagging, not blocking.
+3. **NoteAffordance vs. fieldset-disabled** — for questions inside a disabled/protected **group**, the note button correctly loses interactivity via native HTML fieldset-disabling (buttons are covered by the spec's disabled-fieldset algorithm) — matches the report's claim. However, for a **top-level, non-grouped** question that is individually `read_only` or enable_when-disabled+protected, there is no equivalent fieldset around it, and `NoteAffordance` only checks the renderer's global `mode === "readonly"` (`NoteAffordance.tsx:89`), never the per-question `effectiveDisabled`. So its popover stays fully editable even though the sibling input is disabled. This is a genuine asymmetry — but it originates from the brief's own fixed `NoteAffordance({questionId})` signature (no `disabled` prop permitted), so it's a spec-level gap the implementer couldn't have closed without violating the binding export signature. Worth flagging for Task 9/15 follow-up, not a Task 8 blocker.
+4. **Infinite-render risk** — none found. No `setState` during render; the Provider's `useEffect` deps (`[questionnaire, store]`) can't self-trigger; `useMemo`-derived atoms in `store.ts` recreate per-render only if their key reference changes (perf nit, pre-existing from Task 6, not a loop).
+
+## Adjudications
+
+**(a) Group badge shown unconditionally at depth 0** — **Acceptable.** No unambiguous field (e.g. `is_component`) exists to gate it on; low-risk, purely cosmetic, easy to condition later once Task 12/14 clarifies the Figma variant intent.
+
+**(b) `border-gray-200` on the input+note row vs. Input's own border** — **Confirmed double-border, Minor, correctly deferred to Task 15.** `src/components/ui/input.tsx:16` unconditionally applies `border border-gray-300 rounded-md` on every `Input`. `QuestionField.tsx:181` adds an outer `border border-gray-200 rounded-md overflow-hidden` around the same input. None of `TextInput`, `NumberInput`, `TimeInput`, `QuantityInput`, or `DateTimeInput`'s time field override/strip that border, so top/left/bottom edges double-border. Notably `DateInput.tsx` (Task 7) *does* strip its right border/rounding (`border-r-0 rounded-r-none`) to blend into the note column — evidence the merged-single-border design was intended but applied inconsistently even before Task 8. This is exactly what the task calls it: a Minor visual defect for the Task 15 polish pass, not a fix-now blocker.
+
+## Code quality: Approved, with non-blocking issues noted
+
+- Moderate (spec-level, not implementer's fault): NoteAffordance disabled-state asymmetry between grouped and top-level questions (§3 above).
+- Minor: double-border on input+note row (adjudication b).
+- Minor: `RendererFooter` reading raw un-clamped atom value vs. `RendererBody`'s defensive fallback (§2 above).
+- No structural, typing, or import-hygiene problems found in the 5 new files.
+
+## ⚠️ Cannot verify from diff
+- Live/pixel visual rendering (exact severity of the double-border, Figma fidelity) — not exercised in a browser.
+- End-to-end integration correctness, since nothing routes to `QuestionnaireRenderer` yet (Task 12 wires it up) — no live/Playwright verification possible at this stage, consistent with the report's own disclosure.
+- `tsc`/`eslint` pass/fail — not re-run per instructions; relied on the report's stated PASS/0-errors output plus manual type spot-checks (Badge `variant="outline"`, Popover/Textarea prop shapes, `QuestionValidationError.msg`/`.error` both optional strings) which showed no red flags.</result>
+<usage><subagent_tokens>91403</subagent_tokens><tool_uses>17</tool_uses><duration_ms>300091</duration_ms></usage>
+</task-notification>
+
+---
+
+<task-notification>
+<task-id>a61210e6c598b5e16</task-id>
+<tool-use-id>REDACTED</tool-use-id>
+<output-file>/private/tmp/claude-501/-Users-bodhishthomas-code-care-fe/5786aa56-b361-49ee-bae1-fb5d507b7318/tasks/a61210e6c598b5e16.output</output-file>
+<status>completed</status>
+<summary>Agent "Implement Task 9 (structured adapters)" finished</summary>
+<note>A task-notification fires each time this agent stops with no live background children of its own. The user can send it another message and resume it, so the same task-id may notify more than once.</note>
+<result>Status: Complete
+Commit: 8c8134f76 — "feat(questionnaire-v2): structured question registry with old-component adapters"
+Verification: `npx tsc --noEmit` and `npx eslint src/components/QuestionnaireV2/` both pass with 0 errors (2 pre-existing warnings in unrelated files, untouched by this diff).
+Concerns: Brief's `StructuredEntry` mentions an optional `extraProps` field its own sample code never uses and the task's exact-name deliverable also omits — I followed the task's exact interface (component + requires only); flagged in the report in case a later task expects `extraProps`. Full details written to `/Users/bodhishthomas/code/care_fe/.superpowers/sdd/task-9-report.md`.</result>
+<usage><subagent_tokens>115185</subagent_tokens><tool_uses>51</tool_uses><duration_ms>398284</duration_ms></usage>
+</task-notification>
+
+---
+
+<task-notification>
+<task-id>abcbe0a7fc6ebb37c</task-id>
+<tool-use-id>toolu_01J6SbvDDKhJBEcvex2zfzz1</tool-use-id>
+<output-file>/private/tmp/claude-501/-Users-bodhishthomas-code-care-fe/5786aa56-b361-49ee-bae1-fb5d507b7318/tasks/abcbe0a7fc6ebb37c.output</output-file>
+<status>completed</status>
+<summary>Agent "Review Task 9 diff" finished</summary>
+<note>A task-notification fires each time this agent stops with no live background children of its own. The user can send it another message and resume it, so the same task-id may notify more than once.</note>
+<result>All checks pass. Compiling the final review.
+
+## Spec compliance: ✅
+
+All 11 registry rows match the brief's table exactly — verified against real exports in each source file:
+
+- Component identifiers/imports all resolve to real exports (`grep -n "^export "` on each old file confirms `AllergyQuestion`, `AppointmentQuestion`, `ChargeItemQuestion`, `TimeOfDeathQuestion`/`DeathQuestion.tsx`, `DiagnosisQuestion`, `EncounterQuestion`, `FilesQuestion`/`FileQuestion.tsx`, `MedicationRequestQuestion`, `MedicationStatementQuestion`, `ServiceRequestQuestion`, `SymptomQuestion` all exist).
+- `requires` lists match the brief exactly: 5×(patientId+encounterId), 4×(encounterId+facilityId), appointment→facilityId, time_of_death→[].
+- `STRUCTURED_REGISTRY: Record&lt;StructuredQuestionType, StructuredEntry&gt;` has exactly the 11 values defined in `STRUCTURED_QUESTIONS` (`src/components/Questionnaire/data/StructuredFormData.tsx:212-256`) — no more, no fewer (a `Record&lt;&gt;` mismatch would fail `tsc`).
+- Exactly one `any` in the whole diff: `registry.tsx:30` (`component: ComponentType&lt;any&gt;`), with the scoped `eslint-disable-next-line` directly above it (not swallowed inside the JSDoc) plus an explanatory comment. Confirmed via `grep -n "\bany\b"` on the diff.
+- `StructuredQuestionSlot.tsx` matches the brief's Step 2 code sample essentially verbatim: null-guards on missing/unknown `structured_type` or missing `response`; missing-context card enumerates all missing keys via `t(context__*)` joined and interpolated into `structured_question_requires_context`; otherwise spreads the full commonProps-compatible bag including the `(values, _questionId, note) =&gt; updateResponse({values, note})` adapter, `clearError: () =&gt; {}`, `index: 0`, `withLabel: false`, and `patientId/encounterId/facilityId` from `subject`.
+- `QuestionField.tsx` (read in full): the structured branch renders `&lt;StructuredQuestionSlot /&gt;` as a sibling to the label/description block, entirely outside the `flex items-stretch ... rounded-md border` wrapper div, and `NoteAffordance` is only reachable in the `else` branch — full-width, no note affordance, confirmed by reading the actual JSX structure, not just the diff hunk.
+- i18n: `public/locale/en.json` is valid JSON (6719 keys) and is fully alphabetically sorted end-to-end (verified programmatically, not just around the new keys). All 15 new keys present: 3× `context__*`, `structured_question_requires_context`, 11× `structured_type__*`.
+- CRITICAL semantics check: spot-checked `AllergyQuestion` (5 call sites), `MedicationStatementQuestion` (6 call sites), and `EncounterQuestion` (1 call site) — every `updateQuestionnaireResponseCB` invocation passes `questionnaireResponse.question_id`, i.e. always its own question's id. Dropping the callback's `questionId` argument in the adapter is safe.
+- Prop-bag vs. gate cross-check: confirmed `AllergyQuestion`/`SymptomQuestion`/`DiagnosisQuestion`/`MedicationStatementQuestion` never reference `facilityId` at runtime (matches `requires` excluding it); `MedicationRequestQuestion` does use a `facilityId` internally but sources it from its own `useCurrentFacilitySilently()` hook, not from props — pre-existing behavior, unaffected by the registry gate. `ServiceRequestQuestion`/`ChargeItemQuestion`/`EncounterQuestion`/`FilesQuestion`/`AppointmentQuestion`/`TimeOfDeathQuestion` never reference `patientId`/`encounterId` outside their declared `requires`. No component silently depends on an ungated context value.
+
+Missing/Extra: none.
+
+## Code quality: Approved
+
+- Clean, minimal diff; matches the brief's prescribed code near-verbatim where a sample was given.
+- `_questionId` unused-arg naming is safe under this repo's eslint config (`argsIgnorePattern: "^_"`, `eslint.config.mjs:112`).
+- `@typescript-eslint/no-explicit-any` is configured as `"warn"` not `"error"` (`eslint.config.mjs:121`) — the disable comment is stylistically correct/expected per the brief even though it wasn't strictly required to pass lint.
+- No dead code, no unused imports observed in either new file.
+- `QUESTION_TYPE_COMPONENTS[question.type]` lookup for `"structured"`/`"group"` types is a harmless `undefined` (partial record), never dereferenced in the structured branch — no behavior change from the report's claimed simplification.
+- No other file references `StructuredQuestionSlot`/`STRUCTURED_REGISTRY` yet, consistent with "nothing routes to this renderer yet."
+
+## ⚠️ Cannot verify from diff: none
+
+All binding constraints were independently verifiable by reading the actual source files (old component prop interfaces, call sites, `StructuredQuestionType` definition, `RendererSubject` type, `useQuestionResponse`/`useQuestionErrors` hooks, eslint config, and full `en.json`). Did not re-run `tsc`/`eslint` per instructions; spot-checks corroborate the report's claimed PASS results.</result>
+<usage><subagent_tokens>93680</subagent_tokens><tool_uses>36</tool_uses><duration_ms>219610</duration_ms></usage>
+</task-notification>
+
+---
+
+The dev server failed to start with the following error:
+
+```
+Failed to start preview server: [33mBoth esbuild and oxc options were set. oxc options will be used and esbuild options will be ignored.[39m The following esbuild options were set: `{ target: 'es2022' }`
+[31merror when starting dev server:
+Error: Duplicate exported component names are not allowed for auto-registration:
+- DateTimeInput
+  /Users/bodhishthomas/code/care_fe/src/components/Common/DateTimeInput.tsx
+  /Users/bodhishthomas/code/care_fe/src/components/QuestionnaireV2/renderer/inputs/DateTimeInput.tsx
+    at assertUniqueComponentNames (file:///Users/bodhishthomas/code/care_fe/node_modules/.vite-temp/vite.config.mts.timestamp-1785512635566-223b7407162c5.mjs:238:8)
+    at PluginContext.buildStart (file:///Users/bodhishthomas/code/care_fe/node_modules/.vite-temp/vite.config.mts.timestamp-1785512635566-223b7407162c5.mjs:332:4)
+    at EnvironmentPluginContainer.hookParallel (file:///Users/bodhishthomas/code/care_fe/node_modules/vite/dist/node/chunks/node.js:30008:41)
+    at EnvironmentPluginContainer.buildStart (file:///Users/bodhishthomas/code/care_fe/node_modules/vite/dist/node/chunks/node.js:30019:57)
+    at file:///Users/bodhishthomas/code/care_fe/node_modules/vite/dist/node/chunks/node.js:26010:83
+    at initServer (file:///Users/bodhishthomas/code/care_fe/node_modules/vite/dist/node/chunks/node.js:26014:5)
+    at httpServer.listen (file:///Users/bodhishthomas/code/care_fe/node_modules/vite/dist/node/chunks/node.js:26021:11)
+    at file:///Users/bodhishthomas/code/care_fe/node_modules/vite/dist/node/chunks/node.js:11393:14
+    at new Promise (<anonymous>)
+    at tryBindServer (file:///Users/bodhishthomas/code/care_fe/node_modules/vite/dist/node/chunks/node.js:11377:9)[39m
+
+
+Output:
+> care_fe@3.0.5 dev
+> npm run build:meta && npm run supported-browsers && vite
+
+
+> care_fe@3.0.5 build:meta
+> node ./scripts/generate-build-version.js
+
+
+> care_fe@3.0.5 supported-browsers
+> node ./scripts/generate-supported-browsers.mjs
+
+[33mBoth esbuild and oxc options were set. oxc options will be used and esbuild options will be ignored.[39m The following esbuild options were set: `{ target: 'es2022' }`
+[31merror when starting dev server:
+Error: Duplicate exported component names are not allowed for auto-registration:
+- DateTimeInput
+  /Users/bodhishthomas/code/care_fe/src/components/Common/DateTimeInput.tsx
+  /Users/bodhishthomas/code/care_fe/src/components/QuestionnaireV2/renderer/inputs/DateTimeInput.tsx
+    at assertUniqueComponentNames (file:///Users/bodhishthomas/code/care_fe/node_modules/.vite-temp/vite.config.mts.timestamp-1785512635566-223b7407162c5.mjs:238:8)
+    at PluginContext.buildStart (file:///Users/bodhishthomas/code/care_fe/node_modules/.vite-temp/vite.config.mts.timestamp-1785512635566-223b7407162c5.mjs:332:4)
+    at EnvironmentPluginContainer.hookParallel (file:///Users/bodhishthomas/code/care_fe/node_modules/vite/dist/node/chunks/node.js:30008:41)
+    at EnvironmentPluginContainer.buildStart (file:///Users/bodhishthomas/code/care_fe/node_modules/vite/dist/node/chunks/node.js:30019:57)
+    at file:///Users/bodhishthomas/code/care_fe/node_modules/vite/dist/node/chunks/node.js:26010:83
+    at initServer (file:///Users/bodhishthomas/code/care_fe/node_modules/vite/dist/node/chunks/node.js:26014:5)
+    at httpServer.listen (file:///Users/bodhishthomas/code/care_fe/node_modules/vite/dist/node/chunks/node.js:26021:11)
+    at file:///Users/bodhishthomas/code/care_fe/node_modules/vite/dist/node/chunks/node.js:11393:14
+    at new Promise (<anonymous>)
+    at tryBindServer (file:///Users/bodhishthomas/code/care_fe/node_modules/vite/dist/node/chunks/node.js:11377:9)[39m
+```
+
+Fix, then call preview_start to start the server.
