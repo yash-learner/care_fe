@@ -1,0 +1,47 @@
+{
+  "cli_version": "0.9.0",
+  "checkpoint_id": "346b2c0e0bcc",
+  "session_id": "0507065e-aa58-4a4e-8fc3-db91b2398e49",
+  "strategy": "manual-commit",
+  "created_at": "2026-07-31T12:44:29.156256Z",
+  "branch": "amjithtitus09-grumpy-reviewer-workflow",
+  "checkpoints_count": 1,
+  "files_touched": [
+    ".github/agents/grumpy-reviewer.agent.md",
+    ".github/aw/actions-lock.json",
+    ".github/workflows/grumpy-reviewer.lock.yml",
+    ".github/workflows/grumpy-reviewer.md"
+  ],
+  "agent": "Copilot CLI",
+  "model": "",
+  "turn_id": "42a8c6e618fe",
+  "compact_transcript_start": 0,
+  "token_usage": {
+    "input_tokens": 0,
+    "cache_creation_tokens": 0,
+    "cache_read_tokens": 0,
+    "output_tokens": 21287,
+    "api_call_count": 21
+  },
+  "initial_attribution": {
+    "calculated_at": "2026-07-31T12:44:29.134442Z",
+    "agent_lines": 1781,
+    "agent_removed": 0,
+    "human_added": 0,
+    "human_modified": 0,
+    "human_removed": 0,
+    "total_committed": 1781,
+    "total_lines_changed": 1781,
+    "agent_percentage": 100,
+    "metric_version": 2
+  },
+  "prompt_attributions": [
+    {
+      "checkpoint_number": 1,
+      "user_lines_added": 0,
+      "user_lines_removed": 0,
+      "agent_lines_added": 0,
+      "agent_lines_removed": 0
+    }
+  ]
+}

@@ -1,0 +1,37 @@
+<cross_session_message>
+from_session_id: a791e9cd-b305-4360-a3c4-262bc146b424
+from_display_name: General Chat
+requested_mode: autopilot
+
+To reply to the sender, use the send_session_message tool with session_id: "a791e9cd-b305-4360-a3c4-262bc146b424"
+</cross_session_message>
+
+Add the `grumpy-reviewer` agent from github/gh-aw as an automatic PR-review agentic workflow (gh-aw) in this repo (ohcnetwork/care_fe). This repo already uses GitHub Agentic Workflows — see the existing `.github/workflows/thank-you-note.md` (+ `.lock.yml`) and `.github/workflows/daily-playwright-improver.md` (+ `.lock.yml`) for the exact conventions to follow (frontmatter style, `permissions: read-all`, `tools.github.toolsets`, `safe-outputs`, the `if: ${{ github.repository == 'ohcnetwork/care_fe' }}` upstream guard, and the compiled `.lock.yml` + `.gitattributes` pattern).
+
+## What to do
+
+1. **Install/verify the gh-aw CLI** so you can compile:
+   - `gh aw version` — if missing, install with `curl -sL https://raw.githubusercontent.com/github/gh-aw/main/install-gh-aw.sh | bash`; if present, `gh extension upgrade aw`.
+
+2. **Add the agent file** at `.github/agents/grumpy-reviewer.agent.md` with EXACTLY the content from https://raw.githubusercontent.com/github/gh-aw/main/.github/agents/grumpy-reviewer.agent.md (fetch it fresh; do not paraphrase). It has frontmatter `name: grumpy-reviewer`, `description`, `tools: [read, search]`, `disable-model-invocation: true` and a grumpy-code-reviewer prompt body.
+
+3. **Create the workflow** `.github/workflows/grumpy-reviewer.md` that imports the agent and runs automatically on every pull request. Requirements:
+   - Trigger automatically on PRs: `opened`, `reopened`, and `synchronize` (new commits).
+   - It must also work for community/fork PRs. Because `pull_request` from forks does NOT expose repo secrets/the Copilot token, prefer `pull_request_target` (matching the existing `thank-you-note.md`, which uses `pull_request_target`) so external contributor PRs are reviewed too. Consult the gh-aw fork-support docs (https://raw.githubusercontent.com/github/gh-aw/main/docs/src/content/docs/reference/fork-support.md) to choose correctly and configure it safely.
+   - Add `workflow_dispatch:` as well for manual runs.
+   - Guard with `if: ${{ github.repository == 'ohcnetwork/care_fe' }}` like `daily-playwright-improver.md`.
+   - `permissions: read-all`.
+   - `imports: [ .github/agents/grumpy-reviewer.agent.md ]`.
+   - `tools.github.toolsets: [default]` (or `[repos, pull_requests]`).
+   - `safe-outputs`: use `create-pull-request-review-comment` (max 10) so it leaves inline review comments on changed lines. Optionally also add `submit-pull-request-review` to post a consolidated review, and `missing-tool: create-issue: true`. Keep it focused on the PR's changed lines only.
+   - Write a short prompt body instructing the agent to review only the changed lines of the triggering PR and leave grumpy-but-constructive inline review comments, deferring tone/behavior to the imported agent.
+   - Treat all repo/PR content as untrusted input (security note like the other workflows).
+   - Use the default engine (copilot) — the other workflows omit `engine:`, so do the same.
+
+4. **Compile**: run `gh aw compile` (compile all, or the specific workflow) to generate `.github/workflows/grumpy-reviewer.lock.yml`. Fix any compile errors the tool reports. Ensure `.gitattributes` still contains `.github/workflows/*.lock.yml linguist-generated=true merge=ours` (it already does).
+
+5. **Do NOT** run the app build/test suite — this is workflow config only. Validate solely via `gh aw compile` succeeding and `git status` showing the expected files.
+
+6. **Commit** on a new branch and open a PR to ohcnetwork/care_fe (base `develop`). Stage only: `.github/agents/grumpy-reviewer.agent.md`, `.github/workflows/grumpy-reviewer.md`, `.github/workflows/grumpy-reviewer.lock.yml`, and `.gitattributes` if changed. PR title e.g. `Add grumpy-reviewer agentic PR-review workflow`. In the PR body, explain what it does and that it triggers automatically on every PR (opened/reopened/synchronize) plus manual dispatch, and note it needs `copilot-requests: write` / the Copilot engine credentials to be configured on the repo (mention this as a follow-up if not already set).
+
+Report back the branch name, the PR URL, and a summary of the files added once done.
