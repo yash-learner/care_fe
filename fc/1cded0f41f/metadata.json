@@ -1,0 +1,27 @@
+{
+  "cli_version": "0.9.0",
+  "checkpoint_id": "fc1cded0f41f",
+  "strategy": "manual-commit",
+  "branch": "amjithtitus09-grumpy-reviewer-workflow",
+  "checkpoints_count": 2,
+  "files_touched": [
+    ".github/workflows/grumpy-reviewer.lock.yml",
+    ".github/workflows/grumpy-reviewer.md"
+  ],
+  "sessions": [
+    {
+      "metadata": "/fc/1cded0f41f/0/metadata.json",
+      "transcript": "/fc/1cded0f41f/0/full.jsonl",
+      "compact_transcript": "/fc/1cded0f41f/0/transcript.jsonl",
+      "content_hash": "/fc/1cded0f41f/0/content_hash.txt",
+      "prompt": "/fc/1cded0f41f/0/prompt.txt"
+    }
+  ],
+  "token_usage": {
+    "input_tokens": 0,
+    "cache_creation_tokens": 0,
+    "cache_read_tokens": 0,
+    "output_tokens": 4433,
+    "api_call_count": 10
+  }
+}
