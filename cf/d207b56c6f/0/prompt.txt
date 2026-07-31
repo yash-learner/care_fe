@@ -1,0 +1,208 @@
+I want to add support for questionnaire at different places, so we need to make it a generic component, the current design is bad and code is not really great, we should probably build it from scratch in a new route so that I can have both in parallel. 
+
+Here is the figma design
+Implement this design from Figma.
+@https://www.figma.com/design/Z93EYKSa1MdBmXndsMBJSQ/Care---Master?node-id=30426-20267&m=dev
+
+backend changes are already done at https://github.com/ohcnetwork/care/tree/ENG-737
+
+---
+
+<task-notification>
+<task-id>ad77a7f1106da51c2</task-id>
+<tool-use-id>toolu_01RZMc6WgRrsPWxmMUw9ZZAo</tool-use-id>
+<output-file>/private/tmp/claude-501/-Users-bodhishthomas-code-care-fe/5786aa56-b361-49ee-bae1-fb5d507b7318/tasks/ad77a7f1106da51c2.output</output-file>
+<status>completed</status>
+<summary>Agent "Explore questionnaire frontend code" finished</summary>
+<note>A task-notification fires each time this agent stops with no live background children of its own. The user can send it another message and resume it, so the same task-id may notify more than once.</note>
+<result># CARE Frontend — Questionnaire Implementation Map
+
+## 1. File inventory &amp; responsibilities
+
+### `src/components/Questionnaire/` — fill-side (renderer)
+
+| File | LOC | Responsibility |
+|---|---|---|
+| `QuestionnaireForm.tsx` | 1203 | **The orchestrator.** Fetches questionnaire, holds all response state, validation, draft save/load, batch submission, left nav, error display |
+| `QuestionRenderer.tsx` | 98 | Thin loop over top-level questions; full-width layout decisions; scroll-to-group |
+| `QuestionTypes/QuestionGroup.tsx` | 211 | Recursive group renderer + `isQuestionEnabled()` (enable_when logic) |
+| `QuestionTypes/QuestionInput.tsx` | 523 | **The type→component switch**; repeats/add-another; notes popovers |
+| `QuestionLabel.tsx` / `QuestionDescription.tsx` | 57 / 15 | Label + description primitives |
+| `QuestionnaireSearch.tsx` | 191 | Combobox to add extra questionnaires into the same form |
+| `utils.ts` | 85 | Tree helpers (move/copy/extract questions) — editor-oriented |
+| `data/StructuredFormData.tsx` | 283 | Hardcoded `FIXED_QUESTIONNAIRES` for 11 structured types + `StructuredQuestionType` union |
+| `structured/handlers.ts` | 274 | Structured type → batch HTTP request builders |
+| `structured/types.ts` | 62 | `StructuredDataMap` / `StructuredRequestMap` type maps |
+
+### `QuestionTypes/` — leaf inputs
+
+Simple: `TextQuestion` (252), `ChoiceQuestion` (219), `FileQuestion` (197), `QuantityQuestion` (134), `TemplateSelector` (129), `DateTimeQuestion` (101), `TimeQuestion` (61), `DateQuestion` (61), `NumberQuestion` (56), `BooleanQuestion` (56), `DeathQuestion` (54), `FieldError` (33).
+
+Structured (heavy): `MedicationRequestQuestion` (**2390**), `ServiceRequestQuestion` (1064), `DiagnosisQuestion` (1017), `SymptomQuestion` (1013), `MedicationStatementQuestion` (994), `AllergyQuestion` (891), `EncounterQuestion` (601), `ChargeItemQuestion` (346), `AppointmentQuestion` (295).
+
+### Authoring side (not fill-side)
+
+`QuestionnaireEditor.tsx` (**3253**), `ManageResponseTemplatesSheet.tsx` (1183), `MedicationValueSetSelect.tsx` (575), `ValueSetSearchContent.tsx` (550), `AddToTemplateDialog.tsx` (405), `ManageQuestionnaireOrganizationsSheet.tsx` (390), `QuestionnaireList.tsx` (310), `QuestionnaireProperties.tsx` (293), `MoveQuestionDialog.tsx` (285), `CloneQuestionnaireSheet.tsx` (269), `EntitySelectionDrawer.tsx` (234), `CodingEditor.tsx` (226), `ValueSetSelect.tsx` (213), `QuestionActions.tsx` (135), `SelectOrCreateValueset.tsx` (132).
+
+### Read-back / display
+
+`src/components/Facility/ConsultationDetails/`: `QuestionnaireResponsesList.tsx` (732), `PrintAllQuestionnaireResponses.tsx` (389), `QuestionnaireResponseView.tsx` (117), `PrintQuestionnaireResponse.tsx` (105).
+
+---
+
+## 2. Render &amp; fill flow
+
+### Entry routes
+
+`src/Routers/routes/ConsultationRoutes.tsx`:
+- L96 `/facility/:facilityId/patient/:patientId/encounter/:encounterId/questionnaire` (no id — search-only)
+- L106 `.../encounter/:encounterId/questionnaire/:questionnaireId` — main fill route
+- L117 `.../encounter/:encounterId/questionnaire_response/:id` — read view
+- L134 `/facility/:facilityId/patient/:patientId/consultation` → hardcoded `questionnaireId="encounter"`
+- L145 `/facility/:facilityId/patient/:patientId/questionnaire`, L155 `/patient/:patientId/questionnaire` (subjectType `patient`)
+- L32-79 print routes (`PrintAllQuestionnaireResponses`, `PrintQuestionnaireResponse`)
+
+`src/Routers/routes/adminRoutes.tsx` L20-22: `/admin/questionnaire`, `/create`, `/:id/edit` (authoring only).
+
+### Chain
+
+```
+route → EncounterQuestionnaire (src/components/Patient/EncounterQuestionnaire.tsx:25)
+      → QuestionnaireForm (QuestionnaireForm.tsx:369)
+      → QuestionRenderer (QuestionRenderer.tsx:38)   [per top-level question]
+      → QuestionGroup (QuestionGroup.tsx:105)        [recursive; enable_when gate]
+      → QuestionInput (QuestionInput.tsx:174)        [type switch]
+      → &lt;XQuestion /&gt;
+```
+
+`EncounterQuestionnaire.tsx` is a thin wrapper: fetches encounter for `PatientHeader` (L34-41), renders the form in a `Card`, and hardcodes post-submit navigation (L68-80).
+
+### Question type → component mapping
+
+`QuestionInput.tsx:234-376`, a single nested `switch`:
+
+- `dateTime`→`DateTimeQuestion`, `date`→`DateQuestion`, `decimal`|`integer`→`NumberQuestion`, `quantity`→`QuantityQuestion`, `choice`→`ChoiceQuestion`, `text`|`string`→`TextQuestion`, `boolean`→`BooleanQuestion`, `time`→`TimeQuestion`, `display`→`null`, default→`TextQuestion`
+- `structured` → inner switch on `question.structured_type` (L259-365): `medication_request`, `medication_statement`, `service_request`, `charge_item`, `allergy_intolerance`, `symptom`, `diagnosis`, `appointment`, `encounter`, `time_of_death`, `files`. **Each branch guards on `encounterId`/`facilityId` and returns a raw `&lt;span&gt;{t("..._no_encounter")}&lt;/span&gt;` fallback.**
+
+`commonProps` (L220-232) is the implicit contract every leaf must accept: `{classes, disableRightBorder, question, questionnaireResponse, updateQuestionnaireResponseCB, disabled, withLabel, clearError, index, patientId, errors}` — untyped, spread-based.
+
+### State management
+
+All state lives in `QuestionnaireForm` as plain `useState`; **no context, no form library, no reducer** (verified: zero `createContext`/`useContext` in `src/components/Questionnaire/`).
+
+- `questionnaireForms: QuestionnaireFormState[]` (L381) — array because users can append extra questionnaires via `QuestionnaireSearch` (L1112-1133). Each entry = `{questionnaire, responses, errors}` (L63-67).
+- `initializeResponses()` (L334-367) flattens the question tree into a flat `QuestionnaireResponse[]`, seeding `initial_selected` answer options.
+- Updates: `onResponseChange` callback inline at L1058-1081 — full `map` over all forms and all responses on **every keystroke**; also clears `errors: []` for the whole form.
+- Other state: `isDirty`, `serverErrors`, `activeQuestionnaireId`, `activeGroupId`, `isInitialized`, `draftMismatchError`.
+- `enable_when` evaluated in `isQuestionEnabled` (`QuestionGroup.tsx:37-103`), matched by `link_id`; disabled groups clear their descendants' responses in a `useEffect` (L134-138).
+
+### Submission
+
+`handleSubmit` (`QuestionnaireForm.tsx:743-946`) — ~200 lines:
+1. Clear errors, run required-field validation + `STRUCTURED_TYPE_VALIDATORS` (L295-332, only 5 of 11 structured types have validators); scroll to first error.
+2. Build structured requests via `getStructuredRequests()` (`structured/handlers.ts:270`) — async, `Promise.all`.
+3. Append one `POST /api/v1/questionnaire/{id}/submit/` per form (L869), with inline date/dateTime/unit/coding coercion (L888-916).
+4. If continuing a draft, append `PUT /api/v1/form_submission/{id}/` with `status: "submitted"` (L929-941).
+5. Fire **all** as a single `batchApi.batchRequest` (L422).
+
+**Endpoints hit** (raw URL strings, bypassing the typed api layer):
+- `POST /api/v1/questionnaire/{id}/submit/`
+- `POST /api/v1/patient/{patientId}/{allergy_intolerance|symptom|diagnosis}/upsert/`
+- `POST /api/v1/patient/{patientId}/medication/{request|statement}/upsert/`
+- `PUT /api/v1/encounter/{encounterId}/`, `PUT /api/v1/patient/{patientId}/`
+- `POST /api/v1/facility/{facilityId}/slots/{slot_id}/create_appointment/`
+- `POST /api/v1/facility/{facilityId}/charge_item/apply_charge_item_defs/`
+- `POST /api/v1/facility/{facilityId}/service_request/apply_activity_definition/`
+- `POST /api/v1/files/upload-file/`
+
+**Drafts** (`careConfig.enableQuestionnaireDraft`, `care.config.ts:333`): `handleSaveDraft` (L717-741) dumps `questionnaireForms[0]` wholesale into `response_dump.questionnaireResponses`. Only allowed when there are no structured questions and exactly one form (L556-582). Resumed via `?continue_draft=&lt;id&gt;` (L378, L588-639) with an id-equality mismatch guard.
+
+---
+
+## 3. Domain types &amp; API
+
+`src/types/questionnaire/`:
+- `questionnaire.ts` — `QuestionnaireBase` / `QuestionnaireRead` (adds `id`) / `QuestionnaireCreate` / `QuestionnaireUpdate`. Note: **there is no `QuestionnaireDetail`** — `QuestionnaireRead` is that type.
+- `question.ts` (180) — `QuestionType` union (L6-20), `SUPPORTED_QUESTION_TYPES`, `EnableWhen`, `AnswerOption`, `TemplateConfig`, `Question` (L134-167), `findQuestionById` (L169).
+- `form.ts` (52) — `ResponseValue` discriminated union via the `RV&lt;T,V&gt;` helper (L17-41), `QuestionnaireResponse` (in-flight answer, L43-52).
+- `questionnaireResponse.ts` — the *persisted* server response (name collision with `form.ts`'s type; `questionnaireResponse.ts:4` aliases it as `Response`).
+- `batch.ts` (66) — `QuestionValidationError`, `ValidationErrorResponse`, batch error shapes.
+- `validation.ts` (115) — `FieldMetadata`, `useFieldError`, `validateFields` (used by structured questions).
+- `formSubmission.ts` / `formSubmissionApi.ts` — drafts.
+- `questionnaireResponseTemplate.ts` / `...Api.ts` — response templates.
+- `quantity.ts` (8), `base.ts` (4).
+
+Route files:
+- `questionnaireApi.ts` (90) — list/get/create/update/partialUpdate/delete, `submit` (L46; **declared but unused** — the form builds the URL by hand), `get/setOrganizations`, `addFavorite`/`removeFavorite`/`listFavorites`. Note `submit.TBody` declares a `responses` array while the form actually sends `results`.
+- `questionnaireResponseApi.ts` (24) — patient-scoped get/list/update.
+- `formSubmissionApi.ts` (38), `questionnaireResponseTemplateApi.ts` (45).
+
+---
+
+## 4. Call sites of `QuestionnaireForm`
+
+Only **two**:
+1. `src/components/Patient/EncounterQuestionnaire.tsx:62` — the real one, reached from all 5 fill routes.
+2. `src/components/Questionnaire/QuestionnaireEditor.tsx:1295` — preview tab, passing the sentinel strings `patientId="preview"` and `encounterId="preview"`.
+
+Indirect launch points (navigate to the URL):
+- `src/pages/Encounters/tabs/overview/FormsDialog.tsx:164`
+- `src/pages/Encounters/tabs/overview/FavoriteFormsQuickActions.tsx:59`
+- `src/pages/Encounters/tabs/overview/FormSubmissionDrafts.tsx:112` (adds `?continue_draft=`)
+- `src/components/Encounter/EncounterCommandDialog.tsx:141-151` (hardcoded structured slugs) and `:188-190` (dynamic)
+- `src/components/Questionnaire/QuestionnaireSearch.tsx:52` (default `onSelect`)
+
+Plugin surface: `src/pluginTypes.ts:18,26-27` — the Scribe plugin receives `formState`/`setFormState` and can arbitrarily rewrite `QuestionnaireFormState[]` (mounted at `QuestionnaireForm.tsx:1189`).
+
+Permission gate: `src/common/Permissions.tsx:146,318` — `canSubmitEncounterQuestionnaire` (**not referenced inside `QuestionnaireForm`**).
+
+---
+
+## 5. Pain points visible in the code
+
+**Giant files.** `QuestionnaireEditor.tsx` at 3253 lines contains `LayoutOptionCard`, `OptionFields` (L1496), `QuestionEditor` (L1718) and `getQuestionByPath` (L3247) inline. `MedicationRequestQuestion.tsx` at 2390 lines has ~60 imports pulling in prescriptions, product knowledge, medication statements, templates, and `useCurrentFacilitySilently`. `handleSubmit` alone is ~200 lines.
+
+**Prop drilling.** `patientId`, `encounterId`, `facilityId`, `questionnaireId`, `questionnaireSlug`, `disabled`, `errors`, `clearError`, `activeGroupId` are threaded verbatim through 4 levels (Form → Renderer → Group → Input → leaf). `QuestionGroup` re-passes 12 props to itself recursively (L191-206). `questionnaireSlug` was added purely so `MedicationRequestQuestion` and `ServiceRequestQuestion` could filter templates. `commonProps` (`QuestionInput.tsx:220`) is an untyped spread bag.
+
+**Encounter/facility coupling.** Every structured branch in `QuestionInput.tsx:259-365` conditionally degrades to a bare `&lt;span&gt;` when `encounterId`/`facilityId` are missing — 11 near-identical guard blocks. `structured/handlers.ts:164-168` even `throw`s at submit time if `facilityId` is absent.
+
+**Special-cased structured types.** The same 11 types are enumerated in six places that must be kept in sync: `data/StructuredFormData.tsx:212` (`STRUCTURED_QUESTIONS`), `structured/types.ts:27,42` (two maps), `structured/handlers.ts:34`, `QuestionInput.tsx:259`, `QuestionnaireForm.tsx:295` (`STRUCTURED_TYPE_VALIDATORS` — covers only 5 of 11), and `QuestionRenderer.tsx:17` (`FULL_WIDTH_QUESTION_TYPES`, 3 of 11).
+
+**Imperative DOM.** Error navigation uses `document.getElementById("question-" + id)` plus manual `classList.add/remove` with a `setTimeout(…, 2000)`, duplicated twice inside `ValidationErrorDisplay` (L196-217 and L258-279) and again in `handleSubmit` (L822-825) and `utils.ts:68`.
+
+**"preview" sentinel strings.** `encounterId === "preview"` is checked in `QuestionRenderer.tsx:53` and `QuestionnaireForm.tsx:1106` to suppress submit/search; `patientId="preview"` is passed too. A magic-string mode flag rather than a prop.
+
+**Bypassed API layer.** All submit requests are hand-built URL strings in `handleSubmit`/`handlers.ts` despite typed route objects existing. There's an explicit `TODO` + `eslint-disable @typescript-eslint/no-deprecated` at `QuestionnaireForm.tsx:419-421` about migrating to `useBatchRequest`.
+
+**Dead / half-wired metadata.** `Question.formula`, `read_only`, `is_observation`, `collect_time`, `collect_performer`, `collect_body_site`, `collect_method` are editable in `QuestionnaireEditor` (e.g. L2457-2464) but **no fill-side component reads them** (grep across `QuestionTypes/`, `QuestionRenderer`, `QuestionnaireForm` returns nothing). Correspondingly, `handleSubmit` L917-919 sends `note`, `body_site`, `method`, and `form.ts:49` declares `taken_at`, but nothing except `note` is ever set — `updateQuestionnaireResponseCB` only accepts `(values, questionId, note)`.
+
+**Other smells.** Type-name collision: `QuestionnaireResponse` means two different things in `form.ts` vs `questionnaireResponse.ts`. `handleSubmissionError` (L676-713) pairs server results to forms by **array index** rather than `reference_id`. Draft `response_dump` stores the entire questionnaire definition alongside answers, so any edit to the questionnaire invalidates the draft (mismatch guard at L602). `useNavigationPrompt` is disabled in dev (L586).
+
+---
+
+## 6. Branch `bodhi/questionnaire-actions`
+
+`git status` is **clean** — no uncommitted changes. Two questionnaire commits ahead of `develop` (the third, `c56078622`, is unrelated tooling config).
+
+**`d542f8033` "Fix slug for questionnaire"** (15 files, +131/−134) — reverts a slug-based lookup back to id-based:
+- `questionnaireApi.get` path `…/{slug}/` → `…/{id}/`
+- `QuestionnaireFormProps.questionnaireSlug` → `questionnaireId`; query key, `FIXED_QUESTIONNAIRES` lookup, and draft-saveable check all follow
+- Submit URL `…/questionnaire/${form.questionnaire.slug}/submit/` → `${form.questionnaire.id}/submit/`
+- Route param `:slug` → `:questionnaireId` in `ConsultationRoutes.tsx` and `adminRoutes.tsx`; navigation targets updated in `FormsDialog`, `FavoriteFormsQuickActions`, `FormSubmissionDrafts`, `EncounterCommandDialog`, `QuestionnaireList/Search/Properties/Editor`, `CloneQuestionnaireSheet`, `ManageQuestionnaireOrganizationsSheet`
+- Adds the `useBatchRequest` TODO + eslint-disable at `QuestionnaireForm.tsx:419`
+
+Note this left the codebase in a mixed state: `handleSaveDraft` (L735) still sends `questionnaire: draftQuestionnaire.questionnaire.slug`, and `FIXED_QUESTIONNAIRES` is still keyed by `slug` (`StructuredFormData.tsx:266`) — it happens to work only because the fixed questionnaires set `id === slug`.
+
+**`a6d1f304b` "Update valueset"** (13 files, +333/−169) — mostly outside the fill path: `ValueSetSearchContent.tsx` heavily reworked (+301/−…), `SelectOrCreateValueset.tsx`, `ValueSetSelect.tsx`, `ValueSetEditor/List`, `types/valueSet/valueSet.ts` + `valueSetApi.ts`, plus small touches to `ChoiceQuestion.tsx` (+9/−…), `QuantityQuestion.tsx`, `QuestionnaireEditor.tsx`, `question.ts` (the `answer_value_set` type became `ValueSetConfig`), and `tests/helper/ui.ts`.
+
+Despite the branch name, **no "questionnaire actions" feature work is committed yet** — `QuestionActions.tsx` (135 LOC) is a pre-existing editor-side bulk move/delete component and is untouched by both commits.</result>
+<usage><subagent_tokens>105284</subagent_tokens><tool_uses>32</tool_uses><duration_ms>177785</duration_ms></usage>
+</task-notification>
+
+---
+
+try accessing figma again?
+
+---
+
+lets build it, we should be able to replace the instance level questionnaire
