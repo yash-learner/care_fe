@@ -1,0 +1,26 @@
+{
+  "cli_version": "0.9.0",
+  "checkpoint_id": "33ed26285f36",
+  "strategy": "manual-commit",
+  "branch": "bodhi/questionnaire-wysiwyg-builder",
+  "checkpoints_count": 1,
+  "files_touched": [
+    "src/components/QuestionnaireV2/README.md"
+  ],
+  "sessions": [
+    {
+      "metadata": "/33/ed26285f36/0/metadata.json",
+      "transcript": "/33/ed26285f36/0/full.jsonl",
+      "compact_transcript": "/33/ed26285f36/0/transcript.jsonl",
+      "content_hash": "/33/ed26285f36/0/content_hash.txt",
+      "prompt": "/33/ed26285f36/0/prompt.txt"
+    }
+  ],
+  "token_usage": {
+    "input_tokens": 184,
+    "cache_creation_tokens": 369473,
+    "cache_read_tokens": 24728672,
+    "output_tokens": 134168,
+    "api_call_count": 93
+  }
+}

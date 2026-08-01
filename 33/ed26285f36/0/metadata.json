@@ -1,0 +1,70 @@
+{
+  "cli_version": "0.9.0",
+  "checkpoint_id": "33ed26285f36",
+  "session_id": "cff8a518-79d0-4111-83aa-b70a082e704c",
+  "strategy": "manual-commit",
+  "created_at": "2026-08-01T22:09:22.673037Z",
+  "branch": "bodhi/questionnaire-wysiwyg-builder",
+  "checkpoints_count": 1,
+  "save_step_count": 1,
+  "files_touched": [
+    "src/components/QuestionnaireV2/README.md"
+  ],
+  "agent": "Claude Code",
+  "model": "claude-fable-5",
+  "turn_id": "680028fad42b",
+  "compact_transcript_start": 0,
+  "token_usage": {
+    "input_tokens": 184,
+    "cache_creation_tokens": 369473,
+    "cache_read_tokens": 24728672,
+    "output_tokens": 134168,
+    "api_call_count": 93
+  },
+  "skill_events_version": 1,
+  "skill_events": [
+    {
+      "id": "claude-skill-toolu_01Q2vUWcwaqPSqmcn5xfdtjy",
+      "event_type": "tool_invocation",
+      "skill": {
+        "name": "superpowers:brainstorming"
+      },
+      "source": {
+        "agent": "claude-code",
+        "signal": "skill_tool_use",
+        "confidence": "explicit"
+      },
+      "turn_id": "680028fad42b",
+      "transcript_anchor": {
+        "unit": "line",
+        "start": 51,
+        "end": 52,
+        "entry_ids": [
+          "eca9a027-a028-49ee-b061-a6230527617b"
+        ],
+        "tool_use_id": "toolu_01Q2vUWcwaqPSqmcn5xfdtjy"
+      },
+      "native": {
+        "tool_name": "Skill",
+        "tool_use_id": "toolu_01Q2vUWcwaqPSqmcn5xfdtjy"
+      },
+      "collapse": {
+        "target": "tool_pair",
+        "label": "Skill: superpowers:brainstorming",
+        "default_collapsed": true
+      }
+    }
+  ],
+  "initial_attribution": {
+    "calculated_at": "2026-08-01T22:09:22.590323Z",
+    "agent_lines": 35,
+    "agent_removed": 11,
+    "human_added": 1110,
+    "human_modified": 0,
+    "human_removed": 0,
+    "total_committed": 1145,
+    "total_lines_changed": 1160,
+    "agent_percentage": 3.9655172413793105,
+    "metric_version": 2
+  }
+}
