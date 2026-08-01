@@ -1,0 +1,29 @@
+{
+  "cli_version": "0.9.0",
+  "checkpoint_id": "c87d7bd92fb9",
+  "strategy": "manual-commit",
+  "branch": "bodhi/questionnaire-actions",
+  "checkpoints_count": 1,
+  "files_touched": [
+    "public/locale/en.json",
+    "src/components/QuestionnaireV2/README.md",
+    "src/components/QuestionnaireV2/builder/AnswerOptionsEditor.tsx",
+    "tests/facility/settings/questionnaires/questionnaireChoiceOptions.spec.ts"
+  ],
+  "sessions": [
+    {
+      "metadata": "/c8/7d7bd92fb9/0/metadata.json",
+      "transcript": "/c8/7d7bd92fb9/0/full.jsonl",
+      "compact_transcript": "/c8/7d7bd92fb9/0/transcript.jsonl",
+      "content_hash": "/c8/7d7bd92fb9/0/content_hash.txt",
+      "prompt": "/c8/7d7bd92fb9/0/prompt.txt"
+    }
+  ],
+  "token_usage": {
+    "input_tokens": 595,
+    "cache_creation_tokens": 1361062,
+    "cache_read_tokens": 120012470,
+    "output_tokens": 284040,
+    "api_call_count": 303
+  }
+}
