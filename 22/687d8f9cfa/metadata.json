@@ -1,0 +1,26 @@
+{
+  "cli_version": "0.9.0",
+  "checkpoint_id": "22687d8f9cfa",
+  "strategy": "manual-commit",
+  "branch": "bodhi/questionnaire-actions",
+  "checkpoints_count": 1,
+  "files_touched": [
+    "src/components/QuestionnaireV2/builder/QuestionEditorCard.tsx"
+  ],
+  "sessions": [
+    {
+      "metadata": "/22/687d8f9cfa/0/metadata.json",
+      "transcript": "/22/687d8f9cfa/0/full.jsonl",
+      "compact_transcript": "/22/687d8f9cfa/0/transcript.jsonl",
+      "content_hash": "/22/687d8f9cfa/0/content_hash.txt",
+      "prompt": "/22/687d8f9cfa/0/prompt.txt"
+    }
+  ],
+  "token_usage": {
+    "input_tokens": 797,
+    "cache_creation_tokens": 2928615,
+    "cache_read_tokens": 192998570,
+    "output_tokens": 367828,
+    "api_call_count": 404
+  }
+}
