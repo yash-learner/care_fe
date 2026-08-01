@@ -1,0 +1,92 @@
+{
+  "cli_version": "0.9.0",
+  "checkpoint_id": "b0687c9c7633",
+  "session_id": "cff8a518-79d0-4111-83aa-b70a082e704c",
+  "strategy": "manual-commit",
+  "created_at": "2026-08-01T22:08:36.721515Z",
+  "branch": "bodhi/questionnaire-wysiwyg-builder",
+  "checkpoints_count": 1,
+  "files_touched": [
+    "src/components/QuestionnaireV2/builder/builderReducer.ts",
+    "src/components/QuestionnaireV2/builder/saveValidation.ts",
+    "src/components/QuestionnaireV2/manage/QuestionnaireDetailPage.tsx",
+    "src/components/QuestionnaireV2/shared/downloadQuestionnaireJson.ts"
+  ],
+  "agent": "Claude Code",
+  "model": "claude-fable-5",
+  "turn_id": "680028fad42b",
+  "compact_transcript_start": 0,
+  "token_usage": {
+    "input_tokens": 180,
+    "cache_creation_tokens": 367843,
+    "cache_read_tokens": 23932407,
+    "output_tokens": 132593,
+    "api_call_count": 91
+  },
+  "skill_events_version": 1,
+  "skill_events": [
+    {
+      "id": "claude-skill-toolu_01Q2vUWcwaqPSqmcn5xfdtjy",
+      "event_type": "tool_invocation",
+      "skill": {
+        "name": "superpowers:brainstorming"
+      },
+      "source": {
+        "agent": "claude-code",
+        "signal": "skill_tool_use",
+        "confidence": "explicit"
+      },
+      "turn_id": "680028fad42b",
+      "transcript_anchor": {
+        "unit": "line",
+        "start": 51,
+        "end": 52,
+        "entry_ids": [
+          "eca9a027-a028-49ee-b061-a6230527617b"
+        ],
+        "tool_use_id": "toolu_01Q2vUWcwaqPSqmcn5xfdtjy"
+      },
+      "native": {
+        "tool_name": "Skill",
+        "tool_use_id": "toolu_01Q2vUWcwaqPSqmcn5xfdtjy"
+      },
+      "collapse": {
+        "target": "tool_pair",
+        "label": "Skill: superpowers:brainstorming",
+        "default_collapsed": true
+      }
+    }
+  ],
+  "initial_attribution": {
+    "calculated_at": "2026-08-01T22:08:36.64111Z",
+    "agent_lines": 0,
+    "agent_removed": 0,
+    "human_added": 90,
+    "human_modified": 38,
+    "human_removed": 0,
+    "total_committed": 90,
+    "total_lines_changed": 128,
+    "agent_percentage": 0,
+    "metric_version": 2
+  },
+  "prompt_attributions": [
+    {
+      "checkpoint_number": 1,
+      "user_lines_added": 2742,
+      "user_lines_removed": 0,
+      "agent_lines_added": 0,
+      "agent_lines_removed": 0,
+      "user_added_per_file": {
+        ".context/retros/2026-03-15-1.json": 36,
+        ".gitignore": 1,
+        ".husky/commit-msg": 1,
+        ".husky/post-commit": 1,
+        ".husky/post-rewrite": 1,
+        ".husky/pre-push": 1,
+        ".husky/prepare-commit-msg": 1,
+        "docs/superpowers/plans/2026-07-31-questionnaire-v2.md": 2495,
+        "docs/superpowers/specs/2026-07-31-questionnaire-v2-design.md": 205
+      }
+    }
+  ]
+}

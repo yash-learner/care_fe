@@ -1,0 +1,11 @@
+Use the claude_design MCP (https://api.anthropic.com/v1/design/mcp, auth via /design-login) to import this project:
+https://claude.ai/design/p/37959a05-bac7-474d-bc91-751b6e299aa1?file=Questionnaire+Builder.dc.html
+
+Focus on these files (the whole project is readable):
+- `Questionnaire Builder.dc.html`
+
+Also read these files the selection imports:
+- `ds/styles.css`
+- `support.js`
+
+Implement: This is a reference UI to adapt, and upgrade our questionnaire workflow, the current one looks a bit hard to use, this will save users a lot of time and give them a realtime preview of what they are trying to do. the rendering of questionnaire should use the current questionnaire system, it may require a full rewrite to support this cleanly, lets make sure we rearchetect it correctly. the structured questions will also needs supports, reuse the ui for structured questions as I am not giving you desing for them now. The full rendering should be build seperatley without touching the current one so that we can cleanly remove the old code after full review. lets branch out as stacked PR to this barnch.
