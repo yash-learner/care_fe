@@ -1,0 +1,108 @@
+{
+  "cli_version": "0.9.0",
+  "checkpoint_id": "273d94077e78",
+  "session_id": "cff8a518-79d0-4111-83aa-b70a082e704c",
+  "strategy": "manual-commit",
+  "created_at": "2026-08-01T22:36:12.728299Z",
+  "branch": "bodhi/questionnaire-wysiwyg-builder",
+  "checkpoints_count": 1,
+  "files_touched": [
+    "src/components/QuestionnaireV2/form/QuestionBlock.tsx",
+    "src/components/QuestionnaireV2/form/SectionCard.tsx",
+    "src/components/QuestionnaireV2/studio/StudioCanvas.tsx",
+    "src/components/QuestionnaireV2/studio/StudioOutline.tsx",
+    "src/components/QuestionnaireV2/form/FormContext.tsx",
+    "src/components/QuestionnaireV2/studio/QuestionnaireStudioPage.tsx",
+    "src/components/QuestionnaireV2/studio/FormSettingsPanel.tsx"
+  ],
+  "agent": "Claude Code",
+  "model": "claude-fable-5",
+  "turn_id": "680028fad42b",
+  "checkpoint_transcript_start": 420,
+  "transcript_lines_at_start": 420,
+  "compact_transcript_start": 119,
+  "token_usage": {
+    "input_tokens": 191,
+    "cache_creation_tokens": 143875,
+    "cache_read_tokens": 44567787,
+    "output_tokens": 69349,
+    "api_call_count": 96
+  },
+  "skill_events_version": 1,
+  "skill_events": [
+    {
+      "id": "claude-skill-toolu_01Q2vUWcwaqPSqmcn5xfdtjy",
+      "event_type": "tool_invocation",
+      "skill": {
+        "name": "superpowers:brainstorming"
+      },
+      "source": {
+        "agent": "claude-code",
+        "signal": "skill_tool_use",
+        "confidence": "explicit"
+      },
+      "turn_id": "680028fad42b",
+      "transcript_anchor": {
+        "unit": "line",
+        "start": 51,
+        "end": 52,
+        "entry_ids": [
+          "eca9a027-a028-49ee-b061-a6230527617b"
+        ],
+        "tool_use_id": "toolu_01Q2vUWcwaqPSqmcn5xfdtjy"
+      },
+      "native": {
+        "tool_name": "Skill",
+        "tool_use_id": "toolu_01Q2vUWcwaqPSqmcn5xfdtjy"
+      },
+      "collapse": {
+        "target": "tool_pair",
+        "label": "Skill: superpowers:brainstorming",
+        "default_collapsed": true
+      }
+    },
+    {
+      "id": "claude-skill-toolu_0156uEam9esSJH8KCYhPsiBq",
+      "event_type": "tool_invocation",
+      "skill": {
+        "name": "browse"
+      },
+      "source": {
+        "agent": "claude-code",
+        "signal": "skill_tool_use",
+        "confidence": "explicit"
+      },
+      "turn_id": "680028fad42b",
+      "transcript_anchor": {
+        "unit": "line",
+        "start": 432,
+        "end": 433,
+        "entry_ids": [
+          "5fb54368-a6df-466c-89c8-3b3cf7c6b57a"
+        ],
+        "tool_use_id": "toolu_0156uEam9esSJH8KCYhPsiBq"
+      },
+      "native": {
+        "tool_name": "Skill",
+        "tool_use_id": "toolu_0156uEam9esSJH8KCYhPsiBq"
+      },
+      "collapse": {
+        "target": "tool_pair",
+        "label": "Skill: browse",
+        "default_collapsed": true
+      }
+    }
+  ],
+  "initial_attribution": {
+    "calculated_at": "2026-08-01T22:36:12.518355Z",
+    "agent_lines": 205,
+    "agent_removed": 102,
+    "human_added": 145,
+    "human_modified": 0,
+    "human_removed": 0,
+    "total_committed": 350,
+    "total_lines_changed": 510,
+    "agent_percentage": 60.19607843137255,
+    "metric_version": 2
+  }
+}
