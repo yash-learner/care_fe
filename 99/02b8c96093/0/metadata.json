@@ -1,0 +1,209 @@
+{
+  "cli_version": "0.9.0",
+  "checkpoint_id": "9902b8c96093",
+  "session_id": "5786aa56-b361-49ee-bae1-fb5d507b7318",
+  "strategy": "manual-commit",
+  "created_at": "2026-08-01T14:55:16.664361Z",
+  "branch": "bodhi/questionnaire-actions",
+  "checkpoints_count": 1,
+  "save_step_count": 2,
+  "files_touched": [],
+  "agent": "Claude Code",
+  "model": "claude-fable-5",
+  "turn_id": "a77204f14365",
+  "compact_transcript_start": 0,
+  "token_usage": {
+    "input_tokens": 593,
+    "cache_creation_tokens": 1348206,
+    "cache_read_tokens": 119364726,
+    "output_tokens": 283695,
+    "api_call_count": 302
+  },
+  "skill_events_version": 1,
+  "skill_events": [
+    {
+      "id": "claude-skill-toolu_013cjuXXZsbz6fcgew3phnvz",
+      "event_type": "tool_invocation",
+      "skill": {
+        "name": "superpowers:brainstorming"
+      },
+      "source": {
+        "agent": "claude-code",
+        "signal": "skill_tool_use",
+        "confidence": "explicit"
+      },
+      "turn_id": "a77204f14365",
+      "transcript_anchor": {
+        "unit": "line",
+        "start": 15,
+        "end": 16,
+        "entry_ids": [
+          "ab944bc9-934e-4074-a511-95b07bb81a3e"
+        ],
+        "tool_use_id": "toolu_013cjuXXZsbz6fcgew3phnvz"
+      },
+      "native": {
+        "tool_name": "Skill",
+        "tool_use_id": "toolu_013cjuXXZsbz6fcgew3phnvz"
+      },
+      "collapse": {
+        "target": "tool_pair",
+        "label": "Skill: superpowers:brainstorming",
+        "default_collapsed": true
+      }
+    },
+    {
+      "id": "claude-skill-toolu_01HAue6LpTYnpNSL5SXdC9d6",
+      "event_type": "tool_invocation",
+      "skill": {
+        "name": "figma:figma-design-to-code"
+      },
+      "source": {
+        "agent": "claude-code",
+        "signal": "skill_tool_use",
+        "confidence": "explicit"
+      },
+      "turn_id": "a77204f14365",
+      "transcript_anchor": {
+        "unit": "line",
+        "start": 29,
+        "end": 30,
+        "entry_ids": [
+          "9cf3f9bc-9ae0-4099-97af-b86c7431168a"
+        ],
+        "tool_use_id": "toolu_01HAue6LpTYnpNSL5SXdC9d6"
+      },
+      "native": {
+        "tool_name": "Skill",
+        "tool_use_id": "toolu_01HAue6LpTYnpNSL5SXdC9d6"
+      },
+      "collapse": {
+        "target": "tool_pair",
+        "label": "Skill: figma:figma-design-to-code",
+        "default_collapsed": true
+      }
+    },
+    {
+      "id": "claude-skill-toolu_01VjAwv7FBhKHwkY1Fbuvmm6",
+      "event_type": "tool_invocation",
+      "skill": {
+        "name": "superpowers:writing-plans"
+      },
+      "source": {
+        "agent": "claude-code",
+        "signal": "skill_tool_use",
+        "confidence": "explicit"
+      },
+      "turn_id": "a77204f14365",
+      "transcript_anchor": {
+        "unit": "line",
+        "start": 206,
+        "end": 207,
+        "entry_ids": [
+          "25476058-ef92-4d9a-8b4f-79561d4ead63"
+        ],
+        "tool_use_id": "toolu_01VjAwv7FBhKHwkY1Fbuvmm6"
+      },
+      "native": {
+        "tool_name": "Skill",
+        "tool_use_id": "toolu_01VjAwv7FBhKHwkY1Fbuvmm6"
+      },
+      "collapse": {
+        "target": "tool_pair",
+        "label": "Skill: superpowers:writing-plans",
+        "default_collapsed": true
+      }
+    },
+    {
+      "id": "claude-skill-toolu_016AtHVnGbLfvwd3zDteA6Po",
+      "event_type": "tool_invocation",
+      "skill": {
+        "name": "superpowers:subagent-driven-development"
+      },
+      "source": {
+        "agent": "claude-code",
+        "signal": "skill_tool_use",
+        "confidence": "explicit"
+      },
+      "turn_id": "a77204f14365",
+      "transcript_anchor": {
+        "unit": "line",
+        "start": 348,
+        "end": 349,
+        "entry_ids": [
+          "de690bb9-722c-4be2-a15a-93fddcd99cae"
+        ],
+        "tool_use_id": "toolu_016AtHVnGbLfvwd3zDteA6Po"
+      },
+      "native": {
+        "tool_name": "Skill",
+        "tool_use_id": "toolu_016AtHVnGbLfvwd3zDteA6Po"
+      },
+      "collapse": {
+        "target": "tool_pair",
+        "label": "Skill: superpowers:subagent-driven-development",
+        "default_collapsed": true
+      }
+    }
+  ],
+  "session_metrics": {
+    "turn_count": 54
+  },
+  "prompt_attributions": [
+    {
+      "checkpoint_number": 2,
+      "user_lines_added": 0,
+      "user_lines_removed": 0,
+      "agent_lines_added": 0,
+      "agent_lines_removed": 0
+    },
+    {
+      "checkpoint_number": 3,
+      "user_lines_added": 533,
+      "user_lines_removed": 126,
+      "agent_lines_added": 2701,
+      "agent_lines_removed": 0,
+      "user_added_per_file": {
+        ".context/retros/2026-03-15-1.json": 36,
+        ".husky/commit-msg": 1,
+        ".husky/post-commit": 1,
+        ".husky/post-rewrite": 1,
+        ".husky/pre-push": 1,
+        ".husky/prepare-commit-msg": 1,
+        "src/components/QuestionnaireV2/README.md": 5,
+        "src/components/QuestionnaireV2/builder/AnswerOptionsEditor.tsx": 1,
+        "src/components/QuestionnaireV2/builder/BehaviourSettingsCard.tsx": 35,
+        "src/components/QuestionnaireV2/builder/QuestionEditorCard.tsx": 11,
+        "src/components/QuestionnaireV2/renderer/QuestionField.tsx": 87,
+        "src/components/QuestionnaireV2/renderer/inputs/BooleanInput.tsx": 15,
+        "src/components/QuestionnaireV2/renderer/inputs/ChoiceInput.tsx": 36,
+        "src/components/QuestionnaireV2/renderer/inputs/DateInput.tsx": 19,
+        "src/components/QuestionnaireV2/renderer/inputs/DateTimeQuestionInput.tsx": 20,
+        "src/components/QuestionnaireV2/renderer/inputs/NumberInput.tsx": 18,
+        "src/components/QuestionnaireV2/renderer/inputs/QuantityInput.tsx": 31,
+        "src/components/QuestionnaireV2/renderer/inputs/TextInput.tsx": 20,
+        "src/components/QuestionnaireV2/renderer/inputs/TimeInput.tsx": 20,
+        "src/components/QuestionnaireV2/renderer/inputs/withEntryAt.ts": 27,
+        "src/components/QuestionnaireV2/renderer/questionTypeRegistry.tsx": 6,
+        "tests/facility/settings/questionnaires/questionnaireChoiceOptions.spec.ts": 2,
+        "tests/facility/settings/questionnaires/questionnaireRepeats.spec.ts": 139
+      },
+      "user_removed_per_file": {
+        "public/locale/en.json": 1,
+        "src/components/QuestionnaireV2/README.md": 4,
+        "src/components/QuestionnaireV2/builder/AnswerOptionsEditor.tsx": 11,
+        "src/components/QuestionnaireV2/builder/BehaviourSettingsCard.tsx": 7,
+        "src/components/QuestionnaireV2/builder/QuestionEditorCard.tsx": 1,
+        "src/components/QuestionnaireV2/renderer/QuestionField.tsx": 1,
+        "src/components/QuestionnaireV2/renderer/inputs/BooleanInput.tsx": 3,
+        "src/components/QuestionnaireV2/renderer/inputs/DateInput.tsx": 4,
+        "src/components/QuestionnaireV2/renderer/inputs/DateTimeQuestionInput.tsx": 4,
+        "src/components/QuestionnaireV2/renderer/inputs/NumberInput.tsx": 5,
+        "src/components/QuestionnaireV2/renderer/inputs/QuantityInput.tsx": 17,
+        "src/components/QuestionnaireV2/renderer/inputs/TextInput.tsx": 4,
+        "src/components/QuestionnaireV2/renderer/inputs/TimeInput.tsx": 4,
+        "tests/facility/settings/questionnaires/questionnaireChoiceOptions.spec.ts": 60
+      }
+    }
+  ]
+}
