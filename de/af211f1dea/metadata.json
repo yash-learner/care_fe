@@ -1,0 +1,47 @@
+{
+  "cli_version": "0.9.0",
+  "checkpoint_id": "deaf211f1dea",
+  "strategy": "manual-commit",
+  "branch": "bodhi/questionnaire-fill",
+  "checkpoints_count": 1,
+  "files_touched": [
+    "public/locale/en.json",
+    "src/components/QuestionnaireV2/builder/QuestionEditorCard.tsx",
+    "src/components/QuestionnaireV2/builder/QuestionTypePicker.tsx",
+    "src/components/QuestionnaireV2/builder/QuestionnaireBuilderPage.tsx",
+    "src/components/QuestionnaireV2/fill/submit/composeBatch.ts",
+    "src/components/QuestionnaireV2/fill/submit/useSubmitQuestionnaire.ts",
+    "src/components/QuestionnaireV2/fill/submit/validateStructured.ts",
+    "src/components/QuestionnaireV2/form/StructuredSlot.tsx",
+    "src/components/QuestionnaireV2/structured/definitions/allergyIntolerance.tsx",
+    "src/components/QuestionnaireV2/structured/definitions/appointment.tsx",
+    "src/components/QuestionnaireV2/structured/definitions/chargeItem.tsx",
+    "src/components/QuestionnaireV2/structured/definitions/diagnosis.tsx",
+    "src/components/QuestionnaireV2/structured/definitions/encounter.tsx",
+    "src/components/QuestionnaireV2/structured/definitions/files.tsx",
+    "src/components/QuestionnaireV2/structured/definitions/medicationRequest.tsx",
+    "src/components/QuestionnaireV2/structured/definitions/medicationStatement.tsx",
+    "src/components/QuestionnaireV2/structured/definitions/serviceRequest.tsx",
+    "src/components/QuestionnaireV2/structured/definitions/symptom.tsx",
+    "src/components/QuestionnaireV2/structured/definitions/timeOfDeath.tsx",
+    "src/components/QuestionnaireV2/structured/types.ts",
+    "src/components/QuestionnaireV2/studio/QuestionInspector.tsx",
+    "src/components/QuestionnaireV2/studio/QuestionnaireStudioPage.tsx"
+  ],
+  "sessions": [
+    {
+      "metadata": "/de/af211f1dea/0/metadata.json",
+      "transcript": "/de/af211f1dea/0/full.jsonl",
+      "compact_transcript": "/de/af211f1dea/0/transcript.jsonl",
+      "content_hash": "/de/af211f1dea/0/content_hash.txt",
+      "prompt": ""
+    }
+  ],
+  "token_usage": {
+    "input_tokens": 0,
+    "cache_creation_tokens": 0,
+    "cache_read_tokens": 0,
+    "output_tokens": 0,
+    "api_call_count": 0
+  }
+}
