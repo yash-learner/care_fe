@@ -1,0 +1,18 @@
+We have now rebuild the editor but the user needs to be re engineered now.  Here is a reference implementation as 2 tabs, 2nd tab is clinical history section, the user data entry section should also support autosave in local so that simple interruptions doesn't clear the data. The current archeteture is old and we should really plan before building. The structured should be enginered correctly so that we can also add more structured questions later. 
+@https://www.figma.com/design/Z93EYKSa1MdBmXndsMBJSQ/Care---Master?node-id=43604-21509&m=dev
+
+---
+
+Yes, the preview we build in the edior and actual one should be merged so that I don’t have to edit 2 places when adding a new remderer; also in design itself add capability for plugins to extended the structured remderer so that plug-ins an bring in new question types example dental images for easy teeth picking etc
+
+---
+
+The same form that is now user in encounter is also used in patient level, similarly this can now be added to more resources like location and device where most structured maynot make sense, if you check the backend you can see those has observation support, so the same builder supporting these also is a requirement
+
+---
+
+Yes
+
+---
+
+Yes
