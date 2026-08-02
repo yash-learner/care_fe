@@ -1,0 +1,53 @@
+{
+  "cli_version": "0.9.0",
+  "checkpoint_id": "3cdd0cb00d66",
+  "strategy": "manual-commit",
+  "branch": "bodhi/questionnaire-fill",
+  "checkpoints_count": 1,
+  "files_touched": [
+    "src/components/Patient/EncounterQuestionnaire.tsx",
+    "src/components/Questionnaire/QuestionDescription.tsx",
+    "src/components/Questionnaire/QuestionRenderer.tsx",
+    "src/components/Questionnaire/QuestionTypes/BooleanQuestion.tsx",
+    "src/components/Questionnaire/QuestionTypes/ChoiceQuestion.tsx",
+    "src/components/Questionnaire/QuestionTypes/DateQuestion.tsx",
+    "src/components/Questionnaire/QuestionTypes/DateTimeQuestion.tsx",
+    "src/components/Questionnaire/QuestionTypes/NumberQuestion.tsx",
+    "src/components/Questionnaire/QuestionTypes/QuantityQuestion.tsx",
+    "src/components/Questionnaire/QuestionTypes/QuestionGroup.tsx",
+    "src/components/Questionnaire/QuestionTypes/QuestionInput.tsx",
+    "src/components/Questionnaire/QuestionTypes/TemplateSelector.tsx",
+    "src/components/Questionnaire/QuestionTypes/TextQuestion.tsx",
+    "src/components/Questionnaire/QuestionTypes/TimeQuestion.tsx",
+    "src/components/Questionnaire/QuestionnaireForm.tsx",
+    "src/components/Questionnaire/structured/handlers.ts",
+    "src/components/QuestionnaireV2/builder/QuestionnaireBuilderPage.tsx",
+    "src/components/QuestionnaireV2/form/FormCanvas.tsx",
+    "src/components/QuestionnaireV2/renderer/NoteAffordance.tsx",
+    "src/components/QuestionnaireV2/renderer/QuestionField.tsx",
+    "src/components/QuestionnaireV2/renderer/QuestionGroupCard.tsx",
+    "src/components/QuestionnaireV2/renderer/QuestionnaireRenderer.tsx",
+    "src/components/QuestionnaireV2/renderer/RendererContext.tsx",
+    "src/components/QuestionnaireV2/renderer/RendererFooter.tsx",
+    "src/components/QuestionnaireV2/renderer/TopLevelCard.tsx",
+    "src/components/QuestionnaireV2/renderer/structured/StructuredQuestionSlot.tsx",
+    "src/components/QuestionnaireV2/renderer/structured/registry.tsx",
+    "src/pages/Encounters/tabs/overview/FormSubmissionDrafts.tsx"
+  ],
+  "sessions": [
+    {
+      "metadata": "/3c/dd0cb00d66/0/metadata.json",
+      "transcript": "/3c/dd0cb00d66/0/full.jsonl",
+      "compact_transcript": "/3c/dd0cb00d66/0/transcript.jsonl",
+      "content_hash": "/3c/dd0cb00d66/0/content_hash.txt",
+      "prompt": ""
+    }
+  ],
+  "token_usage": {
+    "input_tokens": 0,
+    "cache_creation_tokens": 0,
+    "cache_read_tokens": 0,
+    "output_tokens": 0,
+    "api_call_count": 0
+  }
+}
