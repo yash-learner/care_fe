@@ -1,0 +1,40 @@
+{
+  "cli_version": "0.9.0",
+  "checkpoint_id": "a7fc421a415e",
+  "session_id": "771d8259-e78b-45e6-b6f2-87df901040d9",
+  "strategy": "manual-commit",
+  "created_at": "2026-08-02T08:53:01.227739Z",
+  "branch": "bodhi/questionnaire-wysiwyg-builder",
+  "checkpoints_count": 1,
+  "files_touched": [
+    "src/components/QuestionnaireV2/manage/QuestionnaireRevisionPage.tsx",
+    "src/components/QuestionnaireV2/renderer/inputs/ChoiceInput.tsx",
+    "src/components/QuestionnaireV2/studio/StudioTopBar.tsx",
+    "tests/facility/settings/questionnaires/questionnaireChoiceOptions.spec.ts"
+  ],
+  "agent": "Claude Code",
+  "model": "",
+  "turn_id": "dcc719ebb32e",
+  "checkpoint_transcript_start": 15,
+  "transcript_lines_at_start": 15,
+  "compact_transcript_start": 2,
+  "token_usage": {
+    "input_tokens": 0,
+    "cache_creation_tokens": 0,
+    "cache_read_tokens": 0,
+    "output_tokens": 0,
+    "api_call_count": 0
+  },
+  "initial_attribution": {
+    "calculated_at": "2026-08-02T08:53:01.220732Z",
+    "agent_lines": 0,
+    "agent_removed": 0,
+    "human_added": 112,
+    "human_modified": 7,
+    "human_removed": 0,
+    "total_committed": 112,
+    "total_lines_changed": 119,
+    "agent_percentage": 0,
+    "metric_version": 2
+  }
+}
