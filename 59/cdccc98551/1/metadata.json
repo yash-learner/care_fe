@@ -1,9 +1,11 @@
 {
   "cli_version": "0.9.0",
   "checkpoint_id": "59cdccc98551",
+  "session_id": "771d8259-e78b-45e6-b6f2-87df901040d9",
   "strategy": "manual-commit",
+  "created_at": "2026-08-02T15:27:44.794445Z",
   "branch": "bodhi/questionnaire-fill",
-  "checkpoints_count": 2,
+  "checkpoints_count": 1,
   "files_touched": [
     "src/components/QuestionnaireV2/form/StructuredSlot.tsx",
     "src/components/QuestionnaireV2/structured/definitions/adapt.ts",
@@ -21,27 +23,29 @@
     "src/components/QuestionnaireV2/structured/registry.ts",
     "src/components/QuestionnaireV2/structured/types.ts"
   ],
-  "sessions": [
-    {
-      "metadata": "/59/cdccc98551/0/metadata.json",
-      "transcript": "/59/cdccc98551/0/full.jsonl",
-      "compact_transcript": "/59/cdccc98551/0/transcript.jsonl",
-      "content_hash": "/59/cdccc98551/0/content_hash.txt",
-      "prompt": "/59/cdccc98551/0/prompt.txt"
-    },
-    {
-      "metadata": "/59/cdccc98551/1/metadata.json",
-      "transcript": "/59/cdccc98551/1/full.jsonl",
-      "compact_transcript": "/59/cdccc98551/1/transcript.jsonl",
-      "content_hash": "/59/cdccc98551/1/content_hash.txt",
-      "prompt": ""
-    }
-  ],
+  "agent": "Claude Code",
+  "model": "",
+  "turn_id": "dcc719ebb32e",
+  "checkpoint_transcript_start": 15,
+  "transcript_lines_at_start": 15,
+  "compact_transcript_start": 2,
   "token_usage": {
-    "input_tokens": 157,
-    "cache_creation_tokens": 269738,
-    "cache_read_tokens": 16369358,
-    "output_tokens": 90199,
-    "api_call_count": 86
+    "input_tokens": 0,
+    "cache_creation_tokens": 0,
+    "cache_read_tokens": 0,
+    "output_tokens": 0,
+    "api_call_count": 0
+  },
+  "initial_attribution": {
+    "calculated_at": "2026-08-02T15:27:44.787938Z",
+    "agent_lines": 0,
+    "agent_removed": 0,
+    "human_added": 802,
+    "human_modified": 21,
+    "human_removed": 0,
+    "total_committed": 802,
+    "total_lines_changed": 823,
+    "agent_percentage": 0,
+    "metric_version": 2
   }
 }
