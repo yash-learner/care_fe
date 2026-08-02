@@ -1,9 +1,11 @@
 {
   "cli_version": "0.9.0",
   "checkpoint_id": "31e9d8507f21",
+  "session_id": "771d8259-e78b-45e6-b6f2-87df901040d9",
   "strategy": "manual-commit",
+  "created_at": "2026-08-02T15:59:30.602117Z",
   "branch": "bodhi/questionnaire-fill",
-  "checkpoints_count": 2,
+  "checkpoints_count": 1,
   "files_touched": [
     "tests/facility/patient/encounter/fill/fillAutosave.spec.ts",
     "tests/facility/patient/encounter/fill/fillPage.spec.ts",
@@ -15,27 +17,29 @@
     "tests/facility/patient/encounter/structuredQuestions/medicationRequest.spec.ts",
     "tests/facility/patient/encounter/structuredQuestions/symptom.spec.ts"
   ],
-  "sessions": [
-    {
-      "metadata": "/31/e9d8507f21/0/metadata.json",
-      "transcript": "/31/e9d8507f21/0/full.jsonl",
-      "compact_transcript": "/31/e9d8507f21/0/transcript.jsonl",
-      "content_hash": "/31/e9d8507f21/0/content_hash.txt",
-      "prompt": "/31/e9d8507f21/0/prompt.txt"
-    },
-    {
-      "metadata": "/31/e9d8507f21/1/metadata.json",
-      "transcript": "/31/e9d8507f21/1/full.jsonl",
-      "compact_transcript": "/31/e9d8507f21/1/transcript.jsonl",
-      "content_hash": "/31/e9d8507f21/1/content_hash.txt",
-      "prompt": ""
-    }
-  ],
+  "agent": "Claude Code",
+  "model": "",
+  "turn_id": "dcc719ebb32e",
+  "checkpoint_transcript_start": 15,
+  "transcript_lines_at_start": 15,
+  "compact_transcript_start": 2,
   "token_usage": {
-    "input_tokens": 289,
-    "cache_creation_tokens": 425840,
-    "cache_read_tokens": 43879824,
-    "output_tokens": 182141,
-    "api_call_count": 158
+    "input_tokens": 0,
+    "cache_creation_tokens": 0,
+    "cache_read_tokens": 0,
+    "output_tokens": 0,
+    "api_call_count": 0
+  },
+  "initial_attribution": {
+    "calculated_at": "2026-08-02T15:59:30.595826Z",
+    "agent_lines": 0,
+    "agent_removed": 0,
+    "human_added": 210,
+    "human_modified": 37,
+    "human_removed": 0,
+    "total_committed": 210,
+    "total_lines_changed": 247,
+    "agent_percentage": 0,
+    "metric_version": 2
   }
 }
