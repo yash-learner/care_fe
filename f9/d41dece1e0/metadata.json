@@ -1,0 +1,37 @@
+{
+  "cli_version": "0.9.0",
+  "checkpoint_id": "f9d41dece1e0",
+  "strategy": "manual-commit",
+  "branch": "bodhi/questionnaire-fill",
+  "checkpoints_count": 1,
+  "files_touched": [
+    "public/locale/en.json",
+    "src/components/QuestionnaireV2/README.md",
+    "src/components/QuestionnaireV2/fill/DraftRestoreBar.tsx",
+    "src/components/QuestionnaireV2/fill/FillFormSection.tsx",
+    "src/components/QuestionnaireV2/fill/QuestionnaireFillPage.tsx",
+    "src/components/QuestionnaireV2/fill/StoreRegistrar.tsx",
+    "src/components/QuestionnaireV2/fill/draft/fillDraftStore.ts",
+    "src/components/QuestionnaireV2/fill/draft/useFillAutosave.ts",
+    "src/components/QuestionnaireV2/fill/formSession.ts",
+    "src/components/QuestionnaireV2/fill/submit/useSubmitQuestionnaire.ts",
+    "src/components/QuestionnaireV2/renderer/store.ts",
+    "tests/facility/patient/encounter/fill/fillMultiForm.spec.ts"
+  ],
+  "sessions": [
+    {
+      "metadata": "/f9/d41dece1e0/0/metadata.json",
+      "transcript": "/f9/d41dece1e0/0/full.jsonl",
+      "compact_transcript": "/f9/d41dece1e0/0/transcript.jsonl",
+      "content_hash": "/f9/d41dece1e0/0/content_hash.txt",
+      "prompt": ""
+    }
+  ],
+  "token_usage": {
+    "input_tokens": 0,
+    "cache_creation_tokens": 0,
+    "cache_read_tokens": 0,
+    "output_tokens": 0,
+    "api_call_count": 0
+  }
+}
