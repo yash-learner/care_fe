@@ -1,0 +1,24 @@
+{
+  "cli_version": "0.9.0",
+  "checkpoint_id": "a520f9e227da",
+  "strategy": "manual-commit",
+  "branch": "bodhi/questionnaire-fill",
+  "checkpoints_count": 1,
+  "files_touched": null,
+  "sessions": [
+    {
+      "metadata": "/a5/20f9e227da/0/metadata.json",
+      "transcript": "/a5/20f9e227da/0/full.jsonl",
+      "compact_transcript": "/a5/20f9e227da/0/transcript.jsonl",
+      "content_hash": "/a5/20f9e227da/0/content_hash.txt",
+      "prompt": "/a5/20f9e227da/0/prompt.txt"
+    }
+  ],
+  "token_usage": {
+    "input_tokens": 382,
+    "cache_creation_tokens": 492163,
+    "cache_read_tokens": 68261009,
+    "output_tokens": 215922,
+    "api_call_count": 208
+  }
+}
