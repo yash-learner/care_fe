@@ -1,0 +1,88 @@
+{
+  "cli_version": "0.9.0",
+  "checkpoint_id": "b8b253ac6aed",
+  "session_id": "d9027e2d-e7f0-43f5-9e77-6edffa06a71d",
+  "strategy": "manual-commit",
+  "created_at": "2026-08-02T16:28:16.103198Z",
+  "branch": "bodhi/questionnaire-fill",
+  "checkpoints_count": 1,
+  "save_step_count": 2,
+  "files_touched": [],
+  "agent": "Claude Code",
+  "model": "claude-fable-5",
+  "turn_id": "25f549e764a1",
+  "compact_transcript_start": 0,
+  "token_usage": {
+    "input_tokens": 107,
+    "cache_creation_tokens": 367745,
+    "cache_read_tokens": 5900183,
+    "output_tokens": 43628,
+    "api_call_count": 54
+  },
+  "skill_events_version": 1,
+  "skill_events": [
+    {
+      "id": "claude-skill-toolu_01QhjZNWvtqMTb3oHhzqbFxr",
+      "event_type": "tool_invocation",
+      "skill": {
+        "name": "superpowers:brainstorming"
+      },
+      "source": {
+        "agent": "claude-code",
+        "signal": "skill_tool_use",
+        "confidence": "explicit"
+      },
+      "turn_id": "25f549e764a1",
+      "transcript_anchor": {
+        "unit": "line",
+        "start": 15,
+        "end": 16,
+        "entry_ids": [
+          "8d957d52-b8eb-4fd1-86f5-40d0a1b1de77"
+        ],
+        "tool_use_id": "toolu_01QhjZNWvtqMTb3oHhzqbFxr"
+      },
+      "native": {
+        "tool_name": "Skill",
+        "tool_use_id": "toolu_01QhjZNWvtqMTb3oHhzqbFxr"
+      },
+      "collapse": {
+        "target": "tool_pair",
+        "label": "Skill: superpowers:brainstorming",
+        "default_collapsed": true
+      }
+    }
+  ],
+  "session_metrics": {
+    "turn_count": 4
+  },
+  "prompt_attributions": [
+    {
+      "checkpoint_number": 2,
+      "user_lines_added": 0,
+      "user_lines_removed": 0,
+      "agent_lines_added": 0,
+      "agent_lines_removed": 0
+    },
+    {
+      "checkpoint_number": 3,
+      "user_lines_added": 3107,
+      "user_lines_removed": 0,
+      "agent_lines_added": 293,
+      "agent_lines_removed": 0,
+      "user_added_per_file": {
+        ".context/retros/2026-03-15-1.json": 36,
+        ".husky/commit-msg": 1,
+        ".husky/post-commit": 1,
+        ".husky/post-rewrite": 1,
+        ".husky/pre-push": 1,
+        ".husky/prepare-commit-msg": 1,
+        "docs/superpowers/plans/2026-07-31-questionnaire-v2.md": 2495,
+        "docs/superpowers/plans/2026-08-02-questionnaire-fill.md": 141,
+        "docs/superpowers/plans/2026-08-02-questionnaire-studio.md": 44,
+        "docs/superpowers/specs/2026-07-31-questionnaire-v2-design.md": 205,
+        "docs/superpowers/specs/2026-08-02-questionnaire-studio-design.md": 181
+      }
+    }
+  ]
+}
