@@ -1,0 +1,116 @@
+{
+  "cli_version": "0.9.0",
+  "checkpoint_id": "e9c1a90e6f1d",
+  "session_id": "cff8a518-79d0-4111-83aa-b70a082e704c",
+  "strategy": "manual-commit",
+  "created_at": "2026-08-02T09:48:05.349409Z",
+  "branch": "bodhi/questionnaire-wysiwyg-builder",
+  "checkpoints_count": 1,
+  "save_step_count": 2,
+  "files_touched": [],
+  "agent": "Claude Code",
+  "model": "claude-fable-5",
+  "turn_id": "e5073de22b1b",
+  "compact_transcript_start": 0,
+  "token_usage": {
+    "input_tokens": 775,
+    "cache_creation_tokens": 3411809,
+    "cache_read_tokens": 204042444,
+    "output_tokens": 367290,
+    "api_call_count": 389
+  },
+  "skill_events_version": 1,
+  "skill_events": [
+    {
+      "id": "claude-skill-toolu_01Q2vUWcwaqPSqmcn5xfdtjy",
+      "event_type": "tool_invocation",
+      "skill": {
+        "name": "superpowers:brainstorming"
+      },
+      "source": {
+        "agent": "claude-code",
+        "signal": "skill_tool_use",
+        "confidence": "explicit"
+      },
+      "turn_id": "e5073de22b1b",
+      "transcript_anchor": {
+        "unit": "line",
+        "start": 51,
+        "end": 52,
+        "entry_ids": [
+          "eca9a027-a028-49ee-b061-a6230527617b"
+        ],
+        "tool_use_id": "toolu_01Q2vUWcwaqPSqmcn5xfdtjy"
+      },
+      "native": {
+        "tool_name": "Skill",
+        "tool_use_id": "toolu_01Q2vUWcwaqPSqmcn5xfdtjy"
+      },
+      "collapse": {
+        "target": "tool_pair",
+        "label": "Skill: superpowers:brainstorming",
+        "default_collapsed": true
+      }
+    },
+    {
+      "id": "claude-skill-toolu_0156uEam9esSJH8KCYhPsiBq",
+      "event_type": "tool_invocation",
+      "skill": {
+        "name": "browse"
+      },
+      "source": {
+        "agent": "claude-code",
+        "signal": "skill_tool_use",
+        "confidence": "explicit"
+      },
+      "turn_id": "e5073de22b1b",
+      "transcript_anchor": {
+        "unit": "line",
+        "start": 432,
+        "end": 433,
+        "entry_ids": [
+          "5fb54368-a6df-466c-89c8-3b3cf7c6b57a"
+        ],
+        "tool_use_id": "toolu_0156uEam9esSJH8KCYhPsiBq"
+      },
+      "native": {
+        "tool_name": "Skill",
+        "tool_use_id": "toolu_0156uEam9esSJH8KCYhPsiBq"
+      },
+      "collapse": {
+        "target": "tool_pair",
+        "label": "Skill: browse",
+        "default_collapsed": true
+      }
+    }
+  ],
+  "session_metrics": {
+    "turn_count": 4
+  },
+  "prompt_attributions": [
+    {
+      "checkpoint_number": 2,
+      "user_lines_added": 0,
+      "user_lines_removed": 0,
+      "agent_lines_added": 0,
+      "agent_lines_removed": 0
+    },
+    {
+      "checkpoint_number": 3,
+      "user_lines_added": 2741,
+      "user_lines_removed": 0,
+      "agent_lines_added": 226,
+      "agent_lines_removed": 0,
+      "user_added_per_file": {
+        ".context/retros/2026-03-15-1.json": 36,
+        ".husky/commit-msg": 1,
+        ".husky/post-commit": 1,
+        ".husky/post-rewrite": 1,
+        ".husky/pre-push": 1,
+        ".husky/prepare-commit-msg": 1,
+        "docs/superpowers/plans/2026-07-31-questionnaire-v2.md": 2495,
+        "docs/superpowers/specs/2026-07-31-questionnaire-v2-design.md": 205
+      }
+    }
+  ]
+}
