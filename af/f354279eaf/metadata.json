@@ -1,0 +1,59 @@
+{
+  "cli_version": "0.9.0",
+  "checkpoint_id": "aff354279eaf",
+  "strategy": "manual-commit",
+  "branch": "bodhi/questionnaire-wysiwyg-builder",
+  "checkpoints_count": 1,
+  "files_touched": [
+    "public/locale/en.json",
+    "src/components/QuestionnaireV2/README.md",
+    "src/components/QuestionnaireV2/builder/builderReducer.ts",
+    "src/components/QuestionnaireV2/form/FormCanvas.tsx",
+    "src/components/QuestionnaireV2/form/FormContext.tsx",
+    "src/components/QuestionnaireV2/form/NoteControl.tsx",
+    "src/components/QuestionnaireV2/form/validation.ts",
+    "src/components/QuestionnaireV2/renderer/inputs/ChoiceInput.tsx",
+    "src/components/QuestionnaireV2/renderer/inputs/NumberInput.tsx",
+    "src/components/QuestionnaireV2/renderer/inputs/TextInput.tsx",
+    "src/components/QuestionnaireV2/renderer/inputs/TimeInput.tsx",
+    "src/components/QuestionnaireV2/renderer/store.ts",
+    "src/components/QuestionnaireV2/shared/QuestionTreeNav.tsx",
+    "src/components/QuestionnaireV2/shared/questionTree.ts",
+    "src/components/QuestionnaireV2/studio/BehaviourToggles.tsx",
+    "src/components/QuestionnaireV2/studio/QuestionInspector.tsx",
+    "src/components/QuestionnaireV2/studio/QuestionnaireStudioPage.tsx",
+    "src/components/QuestionnaireV2/studio/StudioOutline.tsx",
+    "src/components/QuestionnaireV2/studio/StudioTopBar.tsx",
+    "src/components/QuestionnaireV2/studio/conditionSummary.ts",
+    "src/components/ui/autocomplete.tsx",
+    "tests/PLAYWRIGHT_GUIDE.md",
+    "tests/README.md",
+    "tests/facility/settings/questionnaires/questionnaireBuilder.spec.ts",
+    "tests/facility/settings/questionnaires/questionnaireBuilderMatrix.spec.ts",
+    "tests/facility/settings/questionnaires/questionnaireBuilderNavigation.spec.ts",
+    "tests/facility/settings/questionnaires/questionnaireChoiceOptions.spec.ts",
+    "tests/facility/settings/questionnaires/questionnaireEnableWhen.spec.ts",
+    "tests/facility/settings/questionnaires/questionnaireEnableWhenMatrix.spec.ts",
+    "tests/facility/settings/questionnaires/questionnaireMobile.spec.ts",
+    "tests/facility/settings/questionnaires/questionnaireQuantityUnit.spec.ts",
+    "tests/facility/settings/questionnaires/questionnaireStudioChrome.spec.ts",
+    "tests/facility/settings/questionnaires/questionnaireUnitSemantics.spec.ts",
+    "tests/helper/questionnaireV2.ts"
+  ],
+  "sessions": [
+    {
+      "metadata": "/af/f354279eaf/0/metadata.json",
+      "transcript": "/af/f354279eaf/0/full.jsonl",
+      "compact_transcript": "/af/f354279eaf/0/transcript.jsonl",
+      "content_hash": "/af/f354279eaf/0/content_hash.txt",
+      "prompt": ""
+    }
+  ],
+  "token_usage": {
+    "input_tokens": 0,
+    "cache_creation_tokens": 0,
+    "cache_read_tokens": 0,
+    "output_tokens": 0,
+    "api_call_count": 0
+  }
+}
