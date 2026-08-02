@@ -1,0 +1,45 @@
+{
+  "cli_version": "0.9.0",
+  "checkpoint_id": "2411fe45272e",
+  "strategy": "manual-commit",
+  "branch": "bodhi/questionnaire-wysiwyg-builder",
+  "checkpoints_count": 1,
+  "files_touched": [
+    "public/locale/en.json",
+    "src/components/QuestionnaireV2/builder/BehaviourSettingsCard.tsx",
+    "src/components/QuestionnaireV2/builder/QuestionCodingCard.tsx",
+    "src/components/QuestionnaireV2/builder/VisibilityConditionsCard.tsx",
+    "src/components/QuestionnaireV2/form/FormCanvas.tsx",
+    "src/components/QuestionnaireV2/form/QuestionBlock.tsx",
+    "src/components/QuestionnaireV2/form/SectionCard.tsx",
+    "src/components/QuestionnaireV2/form/chrome.tsx",
+    "src/components/QuestionnaireV2/shared/QuestionTreeNav.tsx",
+    "src/components/QuestionnaireV2/studio/QuestionInspector.tsx",
+    "src/components/QuestionnaireV2/studio/QuestionnaireStudioPage.tsx",
+    "src/components/QuestionnaireV2/studio/StudioCanvas.tsx",
+    "src/components/QuestionnaireV2/studio/StudioOutline.tsx",
+    "src/components/QuestionnaireV2/studio/conditionSummary.ts",
+    "tests/facility/settings/questionnaires/questionnaireBuilder.spec.ts",
+    "tests/facility/settings/questionnaires/questionnaireBuilderMatrix.spec.ts",
+    "tests/facility/settings/questionnaires/questionnaireConditionsAuthoring.spec.ts",
+    "tests/facility/settings/questionnaires/questionnaireEnableWhen.spec.ts",
+    "tests/facility/settings/questionnaires/questionnaireQuantityUnit.spec.ts",
+    "tests/facility/settings/questionnaires/questionnaireRepeats.spec.ts"
+  ],
+  "sessions": [
+    {
+      "metadata": "/24/11fe45272e/0/metadata.json",
+      "transcript": "/24/11fe45272e/0/full.jsonl",
+      "compact_transcript": "/24/11fe45272e/0/transcript.jsonl",
+      "content_hash": "/24/11fe45272e/0/content_hash.txt",
+      "prompt": ""
+    }
+  ],
+  "token_usage": {
+    "input_tokens": 0,
+    "cache_creation_tokens": 0,
+    "cache_read_tokens": 0,
+    "output_tokens": 0,
+    "api_call_count": 0
+  }
+}
