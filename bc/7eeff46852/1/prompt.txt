@@ -1,0 +1,383 @@
+We have now rebuild the editor but the user needs to be re engineered now.  Here is a reference implementation as 2 tabs, 2nd tab is clinical history section, the user data entry section should also support autosave in local so that simple interruptions doesn't clear the data. The current archeteture is old and we should really plan before building. The structured should be enginered correctly so that we can also add more structured questions later. 
+@https://www.figma.com/design/Z93EYKSa1MdBmXndsMBJSQ/Care---Master?node-id=43604-21509&m=dev
+
+---
+
+Yes, the preview we build in the edior and actual one should be merged so that I don’t have to edit 2 places when adding a new remderer; also in design itself add capability for plugins to extended the structured remderer so that plug-ins an bring in new question types example dental images for easy teeth picking etc
+
+---
+
+The same form that is now user in encounter is also used in patient level, similarly this can now be added to more resources like location and device where most structured maynot make sense, if you check the backend you can see those has observation support, so the same builder supporting these also is a requirement
+
+---
+
+Yes
+
+---
+
+Yes
+
+---
+
+Yes
+
+---
+
+since everything till now looks right, lets get building, assume I accepted
+
+---
+
+<task-notification>
+<task-id>wg7qt6yy2</task-id>
+<tool-use-id>REDACTED</tool-use-id>
+<output-file>/private/tmp/claude-501/-Users-bodhishthomas-code-care-fe/d9027e2d-e7f0-43f5-9e77-6edffa06a71d/tasks/wg7qt6yy2.output</output-file>
+<status>completed</status>
+<summary>Dynamic workflow "Parallel deep-read of care_fe areas feeding the fill-flow implementation plan" completed</summary>
+<result>{"engine":"# QuestionnaireV2 form/renderer — exact contracts report\n\nAll paths absolute under `/Users/bodhishthomas/code/care_fe`. Branch: `bodhi/questionnaire-wysiwyg-builder`.\n\n**Key structural fact discovered while reading:** there are TWO structured registries. `form/StructuredSlot.tsx` uses the NEW `src/components/QuestionnaireV2/structured/registry.ts` (typed `StructuredTypeDefinition`, `StructuredInputProps`). The OLD `src/components/QuestionnaireV2/renderer/structured/registry.tsx` (with the permitted `any`) is consumed only by the legacy paginated renderer (`renderer/QuestionField.tsx` → `renderer/structured/StructuredQuestionSlot.tsx`). A relocation of engine files to `form/engine/` can leave `renderer/structured/*`, `renderer/QuestionField.tsx`, `renderer/QuestionGroupCard.tsx`, `renderer/QuestionnaireRenderer.tsx`, `renderer/TopLevelCard.tsx`, `renderer/NoteAffordance.tsx`, `renderer/RendererContext.tsx`, `renderer/RendererFooter.tsx` behind as legacy-only (their sole external consumer is `builder/QuestionnaireBuilderPage.tsx:39` importing `QuestionnaireRenderer`).\n\n---\n\n## 1. `src/components/QuestionnaireV2/form/FormCanvas.tsx`\n\nExports: `CanvasSlots` (interface), `QuestionnaireFormRendererProps` (interface), `QuestionnaireFormRenderer` (function component), `QuestionnaireFormCanvas` (function component). Private: `CanvasBody` (lines 103–190).\n\nEngine imports: `useHasVisibleTopLevelQuestions` from `@/components/QuestionnaireV2/renderer/store` (line 5); `countLeafQuestions` from `@/components/QuestionnaireV2/shared/questionTree` (line 6). Local imports: `FormChrome, FormChromeProvider, useFormChrome` from `./chrome`; `QuestionnaireFormProvider, useFormRenderer` from `./FormContext`; `QuestionBlock` from `./QuestionBlock`; `FormMode, RendererSubject` from `./types`.\n\n```ts\n// lines 16-27\nexport interface CanvasSlots {\n  /** Replaces the default \"no questions\" text (the studio passes its\n   *  add-first/import affordances). */\n  emptyState?: React.ReactNode;\n  /** Hide the questionnaire title/description header (hosts that already\n   *  show them elsewhere). */\n  hideHeader?: boolean;\n  /** Right-aligned hint next to the header (the studio's \"click any\n   *  question to edit it\"). */\n  headerHint?: React.ReactNode;\n  className?: string;\n}\n\n// lines 29-39\nexport interface QuestionnaireFormRendererProps extends CanvasSlots {\n  questionnaire: QuestionnaireRead;\n  mode: FormMode;\n  subject?: RendererSubject;\n  /** Builder edit canvas: render enable_when-hidden questions too. */\n  revealHidden?: boolean;\n  /** Builder edit canvas: inputs visible but non-interactive. */\n  inert?: boolean;\n  /** Decoration seam — see chrome.tsx. */\n  chrome?: FormChrome;\n}\n```\n\n```ts\n// line 47 — full renderer: mounts QuestionnaireFormProvider + FormChromeProvider + CanvasBody\nexport function QuestionnaireFormRenderer({ questionnaire, mode, subject, revealHidden, inert, chrome = {}, emptyState, hideHeader, headerHint, className }: QuestionnaireFormRendererProps)\n\n// line 84 — canvas body only, for hosts (the studio) that mount QuestionnaireFormProvider themselves\nexport function QuestionnaireFormCanvas({ chrome = {}, emptyState, hideHeader, headerHint, className }: CanvasSlots &amp; { chrome?: FormChrome })\n```\n\n`CanvasBody` behavior (lines 103–190): reads `questionnaire, revealHidden` from `useFormRenderer()`, `AppendZone` from `useFormChrome()`, `useHasVisibleTopLevelQuestions()`. Renders optional header (title/description/`countLine` of \"n_sections · n_questions\"); empty state when `questions.length === 0` (`emptyState ??` default \"no_questions_added_yet\"); \"no_visible_questions\" placeholder when `!revealHidden &amp;&amp; !hasVisibleQuestions` (line 160); else maps top-level questions to `&lt;QuestionBlock key={question.id} question parentId={null} index siblingCount={questions.length} depth={0} number={`${index + 1}.`} /&gt;` (lines 175–185) and appends `{AppendZone &amp;&amp; &lt;AppendZone parentId={null} /&gt;}` (line 186). Wrapper div: `cn(\"mx-auto w-full max-w-3xl\", className)`.\n\n---\n\n## 2. `src/components/QuestionnaireV2/form/chrome.tsx` — decoration seam contract\n\nExports: `QuestionShellProps`, `FormChrome`, `useFormChrome`, `FormChromeProvider`. Context default is `{}` (line 40) — every chrome member is optional, absence = plain form.\n\n```ts\n// lines 12-24\nexport interface QuestionShellProps {\n  question: Question;\n  parentId: string | null;\n  /** Position within the sibling list — drives move up/down affordances. */\n  index: number;\n  siblingCount: number;\n  depth: number;\n  number?: string;\n  /** enable_when currently evaluates false (rendered only under\n   *  `revealHidden`) — chrome shows a \"hidden by conditions\" cue. */\n  hiddenByLogic: boolean;\n  children: ReactNode;\n}\n\n// lines 26-38\nexport interface FormChrome {\n  /** Wraps each question block. Return `children` untouched to opt out at\n   *  a given depth. */\n  QuestionShell?: ComponentType&lt;QuestionShellProps&gt;;\n  /** Rendered after the children of a group (`parentId` = group id) and\n   *  after the top-level list (`parentId` = null) — the \"add question\n   *  here\" affordance. */\n  AppendZone?: ComponentType&lt;{ parentId: string | null }&gt;;\n  /** Rendered in-flow inside each block, between the label/description and\n   *  the input area (and under a section header) — the studio's logic and\n   *  issue chips. */\n  QuestionAnnotation?: ComponentType&lt;{ question: Question }&gt;;\n}\n\n// lines 42-44\nexport function useFormChrome(): FormChrome\n\n// lines 46-56\nexport function FormChromeProvider({ chrome, children }: { chrome: FormChrome; children: ReactNode })\n```\n\n---\n\n## 3. `src/components/QuestionnaireV2/form/StructuredSlot.tsx`\n\nSingle export:\n\n```ts\n// lines 28-34\nexport function StructuredSlot({ question, disabled }: { question: Question; disabled: boolean })\n```\n\nImports: `useClearQuestionErrors, useQuestionErrors, useQuestionResponse` from `@/components/QuestionnaireV2/renderer/store` (lines 4–8); `structuredDefinitionFor` from `@/components/QuestionnaireV2/structured/registry` (line 9 — the NEW registry, not `renderer/structured/`); `ResponseValue` from `@/types/questionnaire/form`; `Question` from `@/types/questionnaire/question`; `useFormRenderer` from `./FormContext`.\n\nBehavior:\n- Reads `{ mode, subject, questionnaire }` from `useFormRenderer()` (line 36).\n- `const [response, updateResponse] = useQuestionResponse(question.id)` (line 37); `errors = useQuestionErrors(question.id)` (38); `clearErrors = useClearQuestionErrors(question.id)` (39).\n- `handleChange` is `useCallback((values: ResponseValue[], note?: string) =&gt; updateResponse({ values, note }), [updateResponse])` (lines 41–45) — memoized because ChargeItemQuestion puts the callback in an effect dep array.\n- `definition = question.structured_type ? structuredDefinitionFor(question.structured_type) : undefined`; returns `null` if `!definition || !response` (line 50).\n- Missing-context placeholder (lines 52–66): `missing = definition.requires.filter((key) =&gt; !subject[key])`; renders dashed box with `t(\\`structured_type__${question.structured_type}\\`)` and `t(\"structured_question_requires_context\", { contexts: missing.map((key) =&gt; t(\\`context__${key}\\`)).join(\", \") })`.\n- Renders `definition.component` (lines 68–87) with: `question, response, onChange={handleChange}, disabled, errors, clearError={clearErrors}, patientId={subject.patientId}, encounterId={subject.encounterId}, facilityId={subject.facilityId}` and, **only when `mode === \"fill\"`**, `questionnaireId={questionnaire.id}, questionnaireSlug={questionnaire.slug}` (preview deliberately withholds them to keep template CRUD off the builder surface).\n\n---\n\n## 4. `src/components/QuestionnaireV2/form/QuestionBlock.tsx`\n\nExports: `QuestionBlockProps` (interface, lines 25–33), `QuestionBlock` (line 42). Private: `LeafBlock` 
+... (truncated 158012 chars, full result in /private/tmp/claude-501/-Users-bodhishthomas-code-care-fe/d9027e2d-e7f0-43f5-9e77-6edffa06a71d/tasks/wg7qt6yy2.output)</result>
+<diagnostics>Per-agent results: /Users/bodhishthomas/.claude/projects/-Users-bodhishthomas-code-care-fe/d9027e2d-e7f0-43f5-9e77-6edffa06a71d/subagents/workflows/wf_d3f0711e-2c8/journal.jsonl — one {"type":"result",...} line per completed agent with its full return value.
+If the result above is empty or unexpected, Read this file BEFORE diagnosing — do not assume agents returned non-empty results.
+To re-run with edited post-processing: Workflow({scriptPath: '/Users/bodhishthomas/.claude/projects/-Users-bodhishthomas-code-care-fe/d9027e2d-e7f0-43f5-9e77-6edffa06a71d/workflows/scripts/fill-flow-plan-recon-wf_d3f0711e-2c8.js', resumeFromRunId: 'wf_d3f0711e-2c8'}) — agents whose (prompt, opts) are unchanged replay from cache.</diagnostics>
+<usage><agent_count>7</agent_count><agents_done>7</agents_done><agents_error>0</agents_error><agents_skipped>0</agents_skipped><agents_empty_result>0</agents_empty_result><subagent_tokens>511599</subagent_tokens><tool_uses>119</tool_uses><duration_ms>207633</duration_ms></usage>
+</task-notification>
+
+---
+
+<task-notification>
+<task-id>a10760ef366af5369</task-id>
+<tool-use-id>toolu_015tXv2aQz69XL1Jhrak6ATz</tool-use-id>
+<output-file>/private/tmp/claude-501/-Users-bodhishthomas-code-care-fe/d9027e2d-e7f0-43f5-9e77-6edffa06a71d/tasks/a10760ef366af5369.output</output-file>
+<status>completed</status>
+<summary>Agent "Implement Task 2 multi-form sessions" finished</summary>
+<note>A task-notification fires each time this agent stops with no live background children of its own. The user can send it another message and resume it, so the same task-id may notify more than once.</note>
+<result>DONE — commits `30b9066c9` (feature) + `b11629895` (fix pass). Fill suite 18/18 green (`fillAutosave` + `fillMultiForm` + `fillPage` + `fillValidation`); all three new regression specs verified RED against a rebuild with only the two fixed source files stashed, and `npx tsc --noEmit` / eslint clean. Concerns: original #1 (duplicate outline landmarks) and #2 (removal not persisted) are closed; still standing are the primary questionnaire object being frozen at mount, the 7 pre-existing `encounter/` legacy-"Submit" failures, and a pre-existing Task-1-shaped behaviour where typing while the restore prompt is still showing overwrites the stored draft (the new guard only prevents the destructive empty-session case).</result>
+<usage><subagent_tokens>300030</subagent_tokens><tool_uses>34</tool_uses><duration_ms>709707</duration_ms></usage>
+</task-notification>
+
+---
+
+<task-notification>
+<task-id>ac6b1999201eedd14</task-id>
+<tool-use-id>REDACTED</tool-use-id>
+<output-file>/private/tmp/claude-501/-Users-bodhishthomas-code-care-fe/d9027e2d-e7f0-43f5-9e77-6edffa06a71d/tasks/ac6b1999201eedd14.output</output-file>
+<status>completed</status>
+<summary>Agent "Review Task 2 (spec + quality)" finished</summary>
+<note>A task-notification fires each time this agent stops with no live background children of its own. The user can send it another message and resume it, so the same task-id may notify more than once.</note>
+<result>### Spec Compliance (fix pass)
+
+- ✅ **Important finding fixed, and fixed at the right layer.** `persistNow` (`useFillAutosave.ts:106-116`) is now the single save body used by the debounce (`:154`), the flush (`:139`) and the new shape effect (`:127-129`). The gate `if (!scopeKey || !dirty) return; persistNow();` with deps `[scopeKey, dirty, storesVersion, persistNow]` fires in the **create** phase, and `persistNow`'s identity tracks `snapshotAll` → `forms`. Since passive mount effects run children-before-parent, the newly added section's `StoreRegistrar` has already registered when this effect runs — so it writes the full session, unlike the cleanup flush that caused the bug. Both directions are covered: Resume (async re-add) and removal (no pending debounce needed).
+- ✅ **No re-render write amplification.** `dirty` flips once, `forms`/`getStore`/`storesVersion` don't change per keystroke, and jotai writes don't re-render `FillPageBody` — so the effect does not fire per keystroke and the 1500 ms debounce still governs ordinary typing. `finishedRef` still short-circuits `persistNow`, so the post-submit path cannot resurrect a cleared draft.
+- ✅ **Inverse-trap guard is correctly scoped and correctly factored.** `restorePendingRef.current = !!restoredDraft &amp;&amp; !restoreDismissed` (`:76-77`); the guard makes an *empty* session a no-op rather than a save while a restore is un-acted (`:110-112`). Crucially, `fillSessionHasDraftContent` (`fillDraftStore.ts:139-143`) and `saveFillDraft`'s clear-on-empty branch (`:148-155`) both derive from the one `snapshotSession` (`:113`), so the predicate cannot drift from the branch it is guarding. That is the right way to add this guard.
+- ✅ **Minor #1 (duplicate landmarks) fixed without moving an existing selector.** `FillOutline({ ariaLabel })` falls back to `t("questions")` (`FillOutline.tsx:24,32`); the host passes the title only when `forms.length &gt; 1` (`QuestionnaireFillPage.tsx:530-532`), so a single-form session keeps the landmark name `fillPage.spec.ts` asserts.
+- ✅ **The three new specs are discriminating, not decorative.** (a) polls `draftFormCount` at the **storage** layer after Resume, then reloads *without typing* and re-resumes — that is exactly the failure I described, asserted where it lives. (b) polls to 2 *before* removing so the removal cannot ride a pending debounce; the report notes the first version passed unfixed, which is why the poll exists — that is the right instinct. The stash-and-rebuild RED run (3 failed) is credible evidence the specs bind.
+- ✅ **No scope creep.** File stat deltas match exactly the claimed work (`FillOutline.tsx` new to the list; `useSubmitQuestionnaire.ts`, `DraftRestoreBar.tsx`, `README.md` byte-identical to the first pass). `composeBatch`/`isQuestionEnabledInState` still untouched — the frozen contract holds.
+
+### Residual (the parked question)
+
+**Acceptable as a parked Minor — not a blocker.** Typing while the prompt is un-acted overwrites the stored draft; the fix guards only the destructive empty-session case. Reasons to park:
+
+- It is Task-1 shape, not introduced here: single-form Task 1 had the identical debounce→overwrite behavior and shipped with it.
+- The harm requires the user to be *shown* a Resume prompt, type over it anyway, then leave and later want the old draft back. Newest-working-state-wins is a defensible product rule for that sequence, and `restoredDraftRef` keeps Resume working in-page the whole time.
+- The genuinely destructive variant (draft *deleted*, not overwritten) is now closed and pinned by spec (c).
+- Every real fix is out of this task's scope: suppressing autosave while the prompt is up trades a stale-draft loss for a *fresh-typing* loss (strictly worse), and keeping both copies is a schema change.
+
+One caveat to make the park informed: the new effect fires on the `dirty` false→true transition, so the overwrite now happens at ≈0 ms instead of ≤1500 ms after the first keystroke. Same outcome, smaller window — worth the sentence in the PR description alongside concern #3.
+
+### New Issues
+
+#### Critical / Important
+None.
+
+#### Minor
+1. **The X (dismiss) lifts the new guard, contradicting the bar's own documented promise.** `restorePendingRef` is `!!restoredDraft &amp;&amp; !restoreDismissed` (`useFillAutosave.ts:77`), and `dismissRestoreBar` sets `restoreDismissed` — so after the X, emptying the session takes `saveFillDraft`'s clear branch and deletes the draft, while `DraftRestoreBar`'s header comment states "X only hides the prompt and keeps the stored draft for the next visit." Not a regression (pre-fix it cleared too), just an incompleteness in the new guard. Cheap fix: predicate on *acted* (resume ∥ discard) rather than on prompt visibility.
+2. **Spec (c)'s name over-promises what it pins.** By the time it removes the added form, the stored draft has already been overwritten by that form's typing, so the surviving entry is not the original `noteA` draft — the test asserts "an entry still exists", which is the guard, not content preservation. Worth one comment line so a future reader doesn't mistake it for a stronger guarantee.
+3. **Multi-form outline announces the title twice** — once as the `&lt;p&gt;` above the nav and once as the landmark name (`FillFormSection.tsx:55-58`). `aria-hidden` on the `&lt;p&gt;`, or `aria-labelledby` pointing at it, would collapse the duplication.
+
+Carried forward unchanged from round 1, none blocking: `FormContext.tsx:149-155` still duplicates the overlay merge (layering rationale accepted); re-selecting an already-added questionnaire is a silent no-op; the server-error panel has no per-form attribution; `discardRestoredDraft` also resets manually-added forms; filenames no longer match their exports (plan-mandated); primary questionnaire frozen at mount (concern #3).
+
+### Assessment
+
+**Task quality:** Approved
+
+**Reasoning:** The fix addresses the root cause rather than the symptom — a `dirty`-gated persist in the create phase, after the registry grows, with the empty-session guard derived from the same `snapshotSession` as the clear branch it protects — and the new specs assert at the storage layer with the pending-debounce path deliberately closed off. The remaining residual is pre-existing Task-1 semantics whose only real fixes are out of scope, and the three new Minors are polish.</result>
+<usage><subagent_tokens>178215</subagent_tokens><tool_uses>10</tool_uses><duration_ms>193608</duration_ms></usage>
+</task-notification>
+
+---
+
+<task-notification>
+<task-id>a4f1369e8eb027c7c</task-id>
+<tool-use-id>REDACTED</tool-use-id>
+<output-file>/private/tmp/claude-501/-Users-bodhishthomas-code-care-fe/d9027e2d-e7f0-43f5-9e77-6edffa06a71d/tasks/a4f1369e8eb027c7c.output</output-file>
+<status>completed</status>
+<summary>Agent "Implement Task 3 subject-generic fill" finished</summary>
+<note>A task-notification fires each time this agent stops with no live background children of its own. The user can send it another message and resume it, so the same task-id may notify more than once.</note>
+<result>DONE
+
+Commits: `1328e27de` (original), `d2184c9f0` (fix pass)
+
+Tests: 21 passed — `tests/facility/patient/encounter/fill/` + `locationQuestionnaire.spec.ts` + new `deviceQuestionnaire.spec.ts`; `npx tsc --noEmit`, eslint, and `npm run build` all clean.
+
+Concerns:
+- No automated assertion that `/consultation` sends `subject_type=encounter` to the picker — it's a one-line `pickerSubjectType="encounter"` prop on a single mount, verified by diff reading; everything downstream is covered by the 21 passing fill specs.
+- Facility-subject mount still has no route (out of the brief's scope); `e2e-subject-facility` is already in the backend fixtures for whenever it lands.
+- Both concerns from the first report are now withdrawn: prior `/consultation` picker behavior is exactly restored (submitted body unchanged), and the device flow has permanent E2E coverage that also guards the raviger registration order.</result>
+<usage><subagent_tokens>266447</subagent_tokens><tool_uses>26</tool_uses><duration_ms>303664</duration_ms></usage>
+</task-notification>
+
+---
+
+<task-notification>
+<task-id>a4cab408ecd12cf5a</task-id>
+<tool-use-id>REDACTED</tool-use-id>
+<output-file>/private/tmp/claude-501/-Users-bodhishthomas-code-care-fe/d9027e2d-e7f0-43f5-9e77-6edffa06a71d/tasks/a4cab408ecd12cf5a.output</output-file>
+<status>completed</status>
+<summary>Agent "Review Task 3 (spec + quality)" finished</summary>
+<note>A task-notification fires each time this agent stops with no live background children of its own. The user can send it another message and resume it, so the same task-id may notify more than once.</note>
+<result>### Verdict on the fixes
+
+**Important 1 — `/consultation` picker filter: fixed, exactly.** `FillPageProps.pickerSubjectType?: SubjectType` (`QuestionnaireFillPage.tsx:89`) defaults at destructure to `subject.type` (`:112`), is threaded into `FillPageBody` as a required, already-resolved prop (`:270`, `:320`, `:338`), and reaches **both** pickers — the no-id picker at `:228` and the add-questionnaire popover at `:576`. `ConsultationRoutes.tsx:150` sets `pickerSubjectType="encounter"` on the `/consultation` mount and nowhere else. I walked all 7 patient/encounter mounts against their pre-union `subjectType` strings: encounter mounts `"encounter"`, patient mounts `"patient"`, consultation `"encounter"` — every one now resolves to the identical value it sent before the union landed. The submitted body is untouched: `subject` on that mount is still `{type:"patient", facilityId, patientId}`, and `composeBatch` never sees `pickerSubjectType`, so `resource_id`/`patient`/`encounter` are byte-identical. The default-parameter form is valid — `subject` is destructured before `pickerSubjectType` in the same pattern.
+
+The typing is stronger than requested: `SubjectType` is `(typeof SUBJECT_TYPES)[number]` over exactly the five members the union carries (`src/types/questionnaire/questionnaire.ts:8-17`), so `subject.type` is assignable by construction and a sixth backend subject type breaks the build here too. `QuestionnaireSearch` accepts it (`src/components/Questionnaire/QuestionnaireSearch.tsx:43`, `subjectType?: string`) and keys its query on it (`:62`), so the filter change actually refetches.
+
+**Important 2 — fixture hygiene + non-vacuous negative: fixed.** `locationQuestionnaire.spec.ts:53-61` resolves `e2e-subject-location` via `getQuestionnaireIdBySlug` in `beforeEach`, before any UI is driven, so a missing fixture fails with the helper's explicit "reload backend E2E fixtures" error. The negative assertion is now guarded by a positive control in the same picker session (`:85-88` option IS visible → `:92-96` encounter title yields zero options *and* "No Results Found"), which closes the vacuous-pass hole. Bonus tightening I did not ask for: the post-pick URL and the batch URL now assert the *resolved* questionnaire id (`:131-134`) instead of a loose `[0-9a-f-]+`/`toContain("/submit_resource/")`.
+
+**Device spec — restored and real.** `tests/facility/deviceQuestionnaire.spec.ts` resolves `e2e-subject-device` by slug (`:44-49`), registers a device through the settings UI, and asserts the intercepted `POST /api/v1/batch_requests/` carries exactly one request to `/api/v1/questionnaire/{resolvedId}/submit_resource/` with `resource_id === device.id` and no `patient`/`encounter` keys (`:99-105`) — real network, no mock, with the success toast and redirect proving the backend accepted it. Its `waitForURL` on `…/devices/{id}/questionnaire` is a live regression guard on the raviger registration order. The device-creation steps match `tests/facility/settings/devices/deviceCreation.spec.ts:20-30` verbatim, including the raw `getByText` toast check, so it follows the house pattern for that directory.
+
+**Minors 3, 5, 9 — all done.** `composeBatch.ts:145` now passes `subject` like `:157` (same value, so no behavior change); `questionnaireApi.ts:66-70` carries the "Documentation/type parity only — composeBatch builds this URL for the batch endpoint by hand" note; the unanswered-fill test navigates straight to the resolved URL and reads its counter after `waitForLoadState("networkidle")` (`locationQuestionnaire.spec.ts:166-167`) with the listener still registered before the click.
+
+Test arithmetic is consistent: 20 → 21 passed is exactly the one added device test.
+
+### New Issues
+
+#### Minor
+1. **The device spec's picker step does not test what its name claims.** `deviceQuestionnaire.spec.ts:70-84` is titled "the picker is scoped to device-subject questionnaires" but only asserts the device fixture is findable — there is no negative control excluding a non-device questionnaire, which is precisely the pair the location spec now has at `:85-96`. Either mirror the location spec's positive-then-negative shape or rename the step to what it verifies.
+
+2. **Both specs still hardcode the fixture title next to the slug** (`locationQuestionnaire.spec.ts:15-16`, `deviceQuestionnaire.spec.ts:13-14`). The slug lookup now guards existence, which was the substance of the original finding, but a fixture whose title drifts while the slug holds still fails opaquely in the picker. Residual and much reduced — noting it only so it is a known limit.
+
+3. **`waitForLoadState("networkidle")` is the one selector Playwright's own docs discourage** (`locationQuestionnaire.spec.ts:166`). It is the right instinct and it passes; a bounded `waitForTimeout` or waiting on a concrete UI settle would be less exposed to any future background refetch holding the connection count above zero.
+
+4. **No automated coverage pins `/consultation` to `subject_type=encounter`.** The report discloses this honestly. It is a one-line prop restoring a pre-existing string, and I verified it by reading, so I would not gate on it — but the restored path also preserves a pre-existing oddity (encounter-subject forms added there still submit with `encounter: undefined`), which is unchanged from before the union and not introduced here.
+
+### Assessment
+
+**Task quality:** Approved
+
+**Reasoning:** Both Important findings are genuinely fixed rather than papered over — the picker filter is restored to a byte-identical pre-union value on all 7 mounts with a type that is total against `SUBJECT_TYPES`, and the location spec's fixture resolution plus positive-control ordering removes both the opaque-failure and vacuous-pass holes. The four remaining items are test-polish nits on new coverage that did not exist before this task.</result>
+<usage><subagent_tokens>152735</subagent_tokens><tool_uses>7</tool_uses><duration_ms>132855</duration_ms></usage>
+</task-notification>
+
+---
+
+<task-notification>
+<task-id>a267a4a0af01a3361</task-id>
+<tool-use-id>toolu_013jFfW3Jq6i4NThn4nQo3E1</tool-use-id>
+<output-file>/private/tmp/claude-501/-Users-bodhishthomas-code-care-fe/d9027e2d-e7f0-43f5-9e77-6edffa06a71d/tasks/a267a4a0af01a3361.output</output-file>
+<status>completed</status>
+<summary>Agent "Implement Task 5 plugin structured types" finished</summary>
+<note>A task-notification fires each time this agent stops with no live background children of its own. The user can send it another message and resume it, so the same task-id may notify more than once.</note>
+<result>Status: fix pass complete. Commits `a06d85584` (feature) + `44c4e4457` (fix pass).
+
+Tests: 89 passed (`tests/facility/settings/questionnaires/` + `tests/facility/patient/encounter/fill/`, `--workers=4`), `npx tsc --noEmit` clean, eslint zero problems on the five changed files, plus re-run registry assertions all passing (overwrite warn fires exactly once, last-wins preserved).
+
+Concerns:
+- One deviation from the literal prescription on the Important fix: `react-hooks/exhaustive-deps` rejects the bare `structuredTypesVersion` dep as *unnecessary* (verified — it's a warning), because the registry read happens inside `findInvalidQuestions` where the rule can't see it. Rather than the `eslint-disable` this file already uses twice, the memo body carries an explicit `void structuredTypesVersion;` with a comment, so the dep is a genuine read and nothing is suppressed. That line is load-bearing — it looks removable and is not.
+- `pluginRegistry.ts` no longer has zero runtime imports (it now imports the shared regex from `types/questionnaire/structured`, a leaf module with no imports of its own). Negligible for PluginEngine's graph; one source for the namespace rule is worth more.
+- `findFirstInvalidQuestion` in the save handlers deliberately has no subscription — it's called imperatively at save time and always reads a fresh registry. Worth knowing before someone adds one there for consistency.</result>
+<usage><subagent_tokens>214049</subagent_tokens><tool_uses>35</tool_uses><duration_ms>359022</duration_ms></usage>
+</task-notification>
+
+---
+
+<task-notification>
+<task-id>a0ebdf9b6349e6018</task-id>
+<tool-use-id>REDACTED</tool-use-id>
+<output-file>/private/tmp/claude-501/-Users-bodhishthomas-code-care-fe/d9027e2d-e7f0-43f5-9e77-6edffa06a71d/tasks/a0ebdf9b6349e6018.output</output-file>
+<status>completed</status>
+<summary>Agent "Review Task 5 (spec + quality)" finished</summary>
+<note>A task-notification fires each time this agent stops with no live background children of its own. The user can send it another message and resume it, so the same task-id may notify more than once.</note>
+<result>### Fix Verification
+
+**(1) Studio staleness — fixed, and the `void` trick works.** `QuestionnaireStudioPage.tsx:203–213`: `structuredTypesVersion` comes from `useSyncExternalStore(subscribeToStructuredTypes, getStructuredTypesVersion, getStructuredTypesVersion)` and is in the `useMemo` dep array alongside `state.questions`. The recompute is driven entirely by the dep array — a `notify()` bumps the module counter, `useSyncExternalStore` forces a re-render with a new value, React sees a changed dep and re-runs `findInvalidQuestions`. The `void structuredTypesVersion;` in the body contributes nothing to that; its only job is putting the identifier inside the callback so `react-hooks/exhaustive-deps` collects it as used and stops calling the dep unnecessary. That mechanism is correct.
+
+Style: acceptable. `no-void` and `no-unused-expressions` are not configured in `eslint.config.mjs` (the only config file; no `.eslintrc*`) and neither is in `eslint:recommended`, so the statement genuinely passes rather than trading one suppression for another. Preferring an explicit read over `eslint-disable` is defensible — the disable comment would have silenced the whole rule for that hook, this doesn't silence anything. The load-bearing-looking-dead-code hazard the report flags is real but mitigated by the comment.
+
+**(2) Second cast — removed, single regex source confirmed.** `PLUGIN_STRUCTURED_TYPE_PATTERN` + `isPluginStructuredTypeName` live at `src/types/questionnaire/structured.ts:38–56`; `pluginRegistry.ts` imports the regex and has no local copy. `QuestionTypePicker.tsx` now uses `.flatMap()` with the guard in the condition (`definition.subjects.includes(...) &amp;&amp; isPluginStructuredTypeName(definition.type)`), and TS narrows `definition.type` through the property-access path into the true branch — no cast. Sweep confirms exactly one `as unknown as` remains in the whole touched surface (`registry.ts:139`, the sanctioned one); the only other hit is pre-existing and untouched (`manage/BasicInformationCard.tsx:44`).
+
+Worth noting the trap that was avoided: the shared regex has no `g`/`y` flag, so `.test()` carries no `lastIndex` state between the registry and the guard. Sharing one module-level regex would have been a genuine bug with `/g`.
+
+**(3) `QuestionTypeBadge` subscribes** — `QuestionTypeBadge.tsx:38–42`. ✓
+
+**(4) Duplicate-registration warning** — `pluginRegistry.ts`, `if (pluginTypes.has(definition.type))` before the `set`. Better than the comment claims: PluginEngine's effect runs its cleanup list *before* the registration loop, deleting the entries first, so ordinary manifest-change re-registration does **not** warn. The warning fires only on a true collision (two plugins claiming one id, or one manifest listing it twice) — exactly the intended signal, no noise.
+
+**(5) `findFirstInvalidQuestion` left unsubscribed — correct.** It is called imperatively inside `handleSave` and in `QuestionnaireBuilderPage.tsx:145`, reading the module `Map` at call time, so it is inherently fresh; it is not a hook and could not subscribe anyway.
+
+**Coverage now complete.** Cross-checked every render-time registry reader against the subscriber list: `StructuredSlot`, `QuestionTypePicker`, `QuestionTypeBadge`, `QuestionnaireStudioPage` all subscribe; `saveValidation`, `composeBatch`, `validateStructured`, `fillDraftStore` are imperative-only. The one remaining file that mentions `findInvalidQuestions` is `StudioCanvas.tsx:35` — a comment; it receives `issueKeysByQuestionId` as a prop. `types/questionnaire/structured.ts` is confirmed import-free, so `pluginRegistry`'s new runtime import is one leaf module.
+
+### New Issues
+
+None material. Two observations, neither worth blocking:
+
+- **`QuestionTypeBadge` subscribes per instance** (`QuestionTypeBadge.tsx:38`), including on the majority of rows where `type !== "structured"`. On a large questionnaire that is hundreds of listeners in one `Set`, iterated on every `notify()`. Registry mutations happen only at plugin load/unload, so the cost is negligible — and leaf placement is what makes the fix correct. Noting it only so nobody is surprised by the listener count.
+- **The `flatMap` guard's `: []` branch is unreachable** (`QuestionTypePicker.tsx`): registration throws on any id failing the same regex, so no registered definition can fail `isPluginStructuredTypeName`. Harmless dead branch; if it ever became reachable, a plugin type would vanish from the picker silently rather than warn.
+
+### Assessment
+
+**Task quality:** Approved
+
+**Reasoning:** All four findings are fixed at the root — the memo genuinely recomputes on registry change, the second cast is gone in favour of a shared-regex type predicate, and subscription coverage across render-time registry readers is now complete with imperative readers correctly left alone. The `void` dependency read is an unusual but sound and non-suppressing way to satisfy exhaustive-deps, and no new defects were introduced.</result>
+<usage><subagent_tokens>146712</subagent_tokens><tool_uses>14</tool_uses><duration_ms>147905</duration_ms></usage>
+</task-notification>
+
+---
+
+<task-notification>
+<task-id>a7c02669441f7ecf9</task-id>
+<tool-use-id>toolu_011ZTPvMdfZ4p1nrTSp8HvCM</tool-use-id>
+<output-file>/private/tmp/claude-501/-Users-bodhishthomas-code-care-fe/d9027e2d-e7f0-43f5-9e77-6edffa06a71d/tasks/a7c02669441f7ecf9.output</output-file>
+<status>completed</status>
+<summary>Agent "Implement Task 6 action registry" finished</summary>
+<note>A task-notification fires each time this agent stops with no live background children of its own. The user can send it another message and resume it, so the same task-id may notify more than once.</note>
+<result>**Status:** fix pass complete — all 2 Important + 5 minor items addressed on `bodhi/questionnaire-fill`.
+
+**Commits:** `c1ead3664` (original task) + `33f29cd07` (`fix(questionnaire-v2): tighten the action choke point after review`).
+
+**Tests:** `npx tsc --noEmit` + eslint clean; node-side assertions extended 23 → **30 passed** (value-set-choice reject, HH:mm accept + 3 rejects, disabled-question and disabled-group-child reject then accept once the gate opens, stale-error clearing, `enabled` flags flipping, `path: message` schema errors, descriptor copy-on-projection); `npm run build` exit 0 and fill Playwright suite **18/18 green** against that build. Report updated with a "Fix pass" section.
+
+**Concerns:**
+- Behaviour change for agents: a gated question must now be answered after its controlling question; `forms.list`'s new `enabled` flag (which walks ancestors, matching `composeBatch`'s skip-without-descending) is what makes that discoverable.
+- Kept the manual `path: message` join instead of `z.prettifyError` so `lib/actions/registry.ts` stays free of runtime imports — say the word if you'd rather have zod's formatter.
+- Unchanged from before: `ScribeComponentType` still needs the lockstep `care_scribe` update in the PR body; registry is a module singleton (last-wins on duplicate ids); audit remains a console stub until the backend endpoint lands.</result>
+<usage><subagent_tokens>185179</subagent_tokens><tool_uses>34</tool_uses><duration_ms>338836</duration_ms></usage>
+</task-notification>
+
+---
+
+<task-notification>
+<task-id>ada0016651835a586</task-id>
+<tool-use-id>REDACTED</tool-use-id>
+<output-file>/private/tmp/claude-501/-Users-bodhishthomas-code-care-fe/d9027e2d-e7f0-43f5-9e77-6edffa06a71d/tasks/ada0016651835a586.output</output-file>
+<status>completed</status>
+<summary>Agent "Review Task 6 (spec + quality)" finished</summary>
+<note>A task-notification fires each time this agent stops with no live background children of its own. The user can send it another message and resume it, so the same task-id may notify more than once.</note>
+<result>All seven claims verified against the diff, plus the two supporting facts they depend on.
+
+### Verdict on the fixes
+
+| # | Claim | Verified |
+|---|---|---|
+| 1 | ValueSet choice rejects free text | `useFillActions.ts:349-361` — `!options?.length` now branches on `question.answer_value_set` before the permissive fallthrough, with an error naming the reason ("requires a coded value from a value set"). The comment records the exact failure mode. Correct fix, correct place. |
+| 2 | Stale errors cleared | `useFillActions.ts:515` — `clearQuestionErrorsInState(store.get, store.set, question.id)` after the write. I checked the unbound-method risk: jotai 2.20.1 builds `store.get`/`store.set` as closures over `store` and `buildingBlocks` (`node_modules/jotai/vanilla/internals.js:786-794`), never touching `this`, so passing them detached is safe. Matches `useQuestionResponse`'s invariant. |
+| 3 | Manual `path: message` join | `registry.ts:835-841`, over `parsed.error.issues`. **Deviation accepted** — and it is the better call: it keeps `registry.ts`'s "no runtime imports" property (stated in its own header) and produces a tighter single-line string than `z.prettifyError`'s multi-line ✖-marked output, for a reader that is a model correcting its own call. |
+| 4 | Audit covers rejections | `registry.ts:822-854` — `unknown-action`, `scope-rejected`, `schema-rejected`, `invoked`, `ok`/`failed`, `threw`. The extracted `audit()` (`:867-869`) takes only `(id, scope, outcome)`; no signature can carry input or result, which is stronger than a comment. |
+| 5 | Time supported | `TIME_PATTERN` `/^([01]\d|2[0-3]):[0-5]\d(:[0-5]\d)?$/` (`:249`) — correct 24-hour bounds, optional seconds, matching what `&lt;input type="time"&gt;` round-trips into `TimeInput`. |
+| 6 | Parameters projection copies | `registry.ts:799-804` — per-parameter spread. Parameter fields are all primitives, so the shallow copy is complete; nothing shared reaches the boundary. |
+| 7 | `enabled` + disabled-write reject | `listFormsSummary` threads `ancestorsEnabled` down the walk (`:547-569`); `applySetResponse` gates on `isPathEnabled(path, previous, buildLinkIndex(...))` (`:486-495`). I verified the parity claim outside the diff: `composeBatch.ts:72-75` tests `isEnabled(question)` *before* descending, so a disabled group takes its whole subtree with it — the ancestor walk is the matching predicate, not an approximation. Rejecting rather than silently accepting a write that `composeBatch` would drop is the right call, and the error tells the agent how to unblock itself. |
+
+The `questionnaire.forms.list` description was updated in lockstep with the payload (`:646`), so the descriptor doesn't drift from what the action returns.
+
+### New Issues
+
+None at Important or above. Nothing in the fix pass introduced a regression: the enable-check sits before coercion (so the more actionable error wins), `isPathEnabled` reads pre-write state (correct), and the added `buildLinkIndex` walks are per-invoke, not per-keystroke — the memoization analysis from the first pass is unaffected.
+
+One observation, **not introduced by this pass** and below the fix bar: `listFormsSummary`'s walk descends into a non-group question's `questions[]`, whereas `initializeResponses` (`renderer/store.ts:53-56`) and `composeBatch` descend only through groups. A question nested under a non-group would therefore be advertised in `forms.list` but rejected on write by the `!current` guard. Unreachable with well-formed questionnaires, and identical in the pre-fix code.
+
+Carried forward unchanged, both previously accepted: the registry is a last-wins module singleton (plan-acknowledged, scope-gated), and `src/lib/**` plus `.ts` hook files sit outside the eslint react-hooks net (`eslint.config.mjs:51-54, 150`) — pre-existing config, out of task scope.
+
+**Task quality:** Approved
+
+**Reasoning:** Both Importants are fixed at the root — the valueset branch now rejects instead of guessing, and the error-clear restores the store's documented clear-on-edit invariant — and the five minors were addressed with the parity checks (composeBatch's subtree skip, jotai's unbound get/set, `&lt;input type="time"&gt;`'s format) actually holding up under verification rather than merely asserted.</result>
+<usage><subagent_tokens>124196</subagent_tokens><tool_uses>6</tool_uses><duration_ms>114491</duration_ms></usage>
+</task-notification>
+
+---
+
+<task-notification>
+<task-id>a5ef52cf1e423b8d0</task-id>
+<tool-use-id>toolu_0122LR9zJvKxJyGjtz8rtHfE</tool-use-id>
+<output-file>/private/tmp/claude-501/-Users-bodhishthomas-code-care-fe/d9027e2d-e7f0-43f5-9e77-6edffa06a71d/tasks/a5ef52cf1e423b8d0.output</output-file>
+<status>completed</status>
+<summary>Agent "Implement Task 7 deletion + relocation" finished</summary>
+<note>A task-notification fires each time this agent stops with no live background children of its own. The user can send it another message and resume it, so the same task-id may notify more than once.</note>
+<result>**Status: DONE** (fix pass appended to `.superpowers/sdd/task-7-report.md`)
+
+**Commit:** `f4c933f05` — feat(questionnaire-v2): restore the explicit server draft on the fill page (on top of the task's four: `e00388e63`, `4d5b5f78b`, `8b141c53d`, `4616fb5ab`)
+
+**Tests:** `tsc`/eslint/prettier clean; flag-on build → `tests/facility/patient/encounter/fill/` 19 passed incl. the new `fillServerDraft.spec.ts` (save → drafts card → **readonly preview asserts the typed value and disabled state** → Continue → restore → submit clears the card); default flag-off build → 18 passed, 1 skipped.
+
+**Concerns:**
+1. `enableQuestionnaireDraft` is a build-time `import.meta.env` value with no runtime seam, so the new spec **skips on CI** (CI builds without it). Covering it there needs `REACT_ENABLE_QUESTIONNAIRE_DRAFT=true` on both the build and test steps — I did not flip the repo default in `.env` (deployment decision) nor touch the untracked `.env.local`.
+2. Structured-free remains a hard precondition inherited from the dump format, same as legacy — a questionnaire with any structured question offers no server draft.
+3. Orphaned-key count drops: `save_as_draft`, `draft_saved_successfully`, `draft_save_failed` are live again; the rest of the main pass's concerns (i18n leftovers, `question.templates` gap) stand.</result>
+<usage><subagent_tokens>255847</subagent_tokens><tool_uses>42</tool_uses><duration_ms>481998</duration_ms></usage>
+</task-notification>
+
+---
+
+<task-notification>
+<task-id>a5ef52cf1e423b8d0</task-id>
+<tool-use-id>toolu_01BHw6i2ww9BsCxvXMpbbUL2</tool-use-id>
+<output-file>/private/tmp/claude-501/-Users-bodhishthomas-code-care-fe/d9027e2d-e7f0-43f5-9e77-6edffa06a71d/tasks/a5ef52cf1e423b8d0.output</output-file>
+<status>completed</status>
+<summary>Agent "Implement Task 7 deletion + relocation" finished</summary>
+<note>A task-notification fires each time this agent stops with no live background children of its own. The user can send it another message and resume it, so the same task-id may notify more than once.</note>
+<result>**Status: DONE** — all 5 findings addressed; "Fix pass 2" appended to `.superpowers/sdd/task-7-report.md`
+
+**Commit:** `251b2e1a1` — fix(questionnaire-v2): encounter-only server drafts, non-mutating drafts preview
+
+**Tests:** flag-on build → fill suite 19 passed; default build → 18 passed + 1 self-skipped; structuredQuestions + forms → 54 passed; tsc clean, eslint 0 errors.
+
+**Concerns:**
+1. The extended PUT-branch spec **failed on first run and exposed a real bug** beyond the review list: `QuestionnaireFormProvider` seeds `initialResponses` once at store creation, so a re-saved draft rendered the answers the card first mounted with. Fixed by keying the preview on `submission.modified_date` (fresh store when the record changes) — worth a reviewer look, since it's a host-side workaround for a deliberate seed-once contract.
+2. Patient-subject mounts now have no server draft at all (local autosave only) — restoring one needs a patient-filtered listing (backend + UI), out of scope.
+3. The spec still skips on CI until the workflow builds with `REACT_ENABLE_QUESTIONNAIRE_DRAFT=true`; with the env var set it now fails loudly instead of skipping, so drift is caught in both directions.</result>
+<usage><subagent_tokens>290288</subagent_tokens><tool_uses>33</tool_uses><duration_ms>563987</duration_ms></usage>
+</task-notification>
+
+---
+
+<task-notification>
+<task-id>a78776b62327d860f</task-id>
+<tool-use-id>toolu_01EjHmvqdEDXXn8cu81qY4Te</tool-use-id>
+<output-file>/private/tmp/claude-501/-Users-bodhishthomas-code-care-fe/d9027e2d-e7f0-43f5-9e77-6edffa06a71d/tasks/a78776b62327d860f.output</output-file>
+<status>completed</status>
+<summary>Agent "Review Task 7 (spec + quality)" finished</summary>
+<note>A task-notification fires each time this agent stops with no live background children of its own. The user can send it another message and resume it, so the same task-id may notify more than once.</note>
+<result>### Verdict per fix
+
+**1. Critical — patient-subject drafts unreachable → FIXED.** `useSaveServerDraft.ts:76` now `const encounterBound = subject.type === "encounter" ? subject : undefined`, threaded through `canSaveDraft` (`:81-86`), the `saveDraft` guard (`:119`) and the POST body (`:138-140`, both ids now come off the encounter subject). `isPatientBound` is no longer imported by this module; the other five importers (`QuestionnaireFillPage.tsx:58`, `useFillActions.ts:47`, `composeBatch.ts:13`) are untouched, so resuming/finalizing a pre-existing patient-scope draft still works — the change only removes the *creation* path. Doc comment states the real constraint (findability, not dump shape).
+
+**2. Query-cache mutation → FIXED.** `FormSubmissionDrafts.tsx:47` clones before reviving (`for (const response of structuredClone(responses))`), so the cached `response_dump` the discard PUT spreads at `:66-74` is pristine. `structuredClone` has precedent in the repo (`CloneQuestionnaireDialog.tsx:130`, `PrintTemplateSheet.tsx:70`). Comment explains why the clone is load-bearing.
+
+**3. Spec skip drift → FIXED, and better than asked.** `fillServerDraft.spec.ts:29-49` probes the served bundle: it first awaits "Save Changes" (proving the mount is healthy, which is what makes the subsequent non-waiting `isVisible()` sound rather than racy), then skips only if the button is genuinely absent, and throws a two-cause error message when `REACT_ENABLE_QUESTIONNAIRE_DRAFT=true` contradicts reality. PUT branch now covered end-to-end: resume → edit → re-save → `toHaveCount(1)` on Continue (proves no second record) → `draftIdFromUrl` equality → preview shows `editedNote`. That last assertion is a direct regression guard for the seed-once bug.
+
+**4. Shape guards → FIXED.** `FormSubmissionDrafts.tsx:104-110` `Array.isArray` on both `questions` and `responses`; `fillDraftStore.ts:184` `response.values ?? []`.
+
+**5. Stale comments → FIXED.** `saveValidation.ts:7,12`, `form/types.ts:3-9`, `form/validation.ts:13-18` all rewritten and now accurate. Re-grepped: zero `renderer/*` path references remain in `src/`, and the relocation gate is still empty.
+
+**6. Spinner → FIXED.** `FillHeader.tsx:169` `Loader2` with `animate-spin` behind `isSavingDraft`.
+
+### Judgment: the keyed remount
+
+**Sound host-side pattern — keep it.** Resetting a subtree via `key` is the canonical React answer to "this component's seed data changed"; it leaves the seed-once contract the studio depends on completely untouched, and the cost is a remount of a card that holds no local state. The alternative — making the provider re-seed on `initialResponses` identity change — would have to be mode-conditional to stay safe, which is a worse contract (a prop that means two different things depending on `mode`).
+
+Two caveats worth recording rather than fixing:
+
+- The key depends on the backend bumping `modified_date` on PUT. That is not a frontend guarantee, but it *is* now empirically verified (the spec's post-PUT `toHaveValue(editedNote)` would fail otherwise), and it is self-detecting: the card's own "saved on" line at `FormSubmissionDrafts.tsx:113-115` reads the same field, so a non-bumping backend shows a visibly wrong timestamp next to the stale preview.
+- The deeper smell is real but not this task's: `initialResponses` + seed-once is a *fill* affordance (restore once, then the user edits). A **readonly** renderer has no user edits to protect, so routing its data through a seeded mutable store is indirection the mode doesn't need. If a third readonly host appears, the right move is a direct `responses` render path for `mode="readonly"`, not a third `key` incantation.
+
+### Confirming the resting point
+
+**Right call, with one correction to the stated rationale.** Patient-mount server drafts were unreachable *in legacy too* — the deleted `EncounterQuestionnaire.tsx:20-24,62-70` took `encounterId?: string` and had a patient-only exit branch (`/patient/{id}/updates`), while legacy `isDraftSaveable` gated on neither. So legacy offered Save as Draft on patient mounts and produced exactly the orphaned records I flagged. Removing the button removes a pre-existing trap rather than regressing anything, and local autosave still covers those mounts. A patient-filtered listing is genuinely backend + UI work and correctly deferred.
+
+### New issues
+
+**Minor — the gate's "why" comment misstates history.** `useSaveServerDraft.ts:57` asserts *"Legacy only ever mounted this encounter-bound"*, contradicted by the deleted `EncounterQuestionnaire.tsx` (optional `encounterId`, patient exit target). Everything else in that comment block is correct and the gate is right; but this is precisely the sentence a future maintainer would lean on when asked to re-widen the gate, and it would lead them to conclude patient mounts are a safe new capability rather than a known trap. Suggested wording: legacy *did* offer it on patient mounts and silently produced unreachable records — the encounter gate is a deliberate narrowing, not a port.
+
+No other new issues; nothing else in the diff changed between passes.
+
+**Task quality: Approved**
+
+**Reasoning:** All five findings are fixed at the root rather than papered over, and the PUT-branch spec the fix pass added caught a real seed-once bug and now guards it. The only remaining item is a one-sentence historical inaccuracy in a comment.</result>
+<usage><subagent_tokens>171174</subagent_tokens><tool_uses>9</tool_uses><duration_ms>118308</duration_ms></usage>
+</task-notification>
