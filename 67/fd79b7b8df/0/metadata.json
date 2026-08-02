@@ -1,0 +1,49 @@
+{
+  "cli_version": "0.9.0",
+  "checkpoint_id": "67fd79b7b8df",
+  "session_id": "771d8259-e78b-45e6-b6f2-87df901040d9",
+  "strategy": "manual-commit",
+  "created_at": "2026-08-02T18:11:54.456754Z",
+  "branch": "bodhi/questionnaire-fill",
+  "checkpoints_count": 1,
+  "files_touched": [
+    "public/locale/en.json",
+    "src/Routers/AppRouter.tsx",
+    "src/Routers/routes/ConsultationRoutes.tsx",
+    "src/components/QuestionnaireV2/fill/QuestionnaireFillPage.tsx",
+    "src/components/QuestionnaireV2/fill/subject.ts",
+    "src/components/QuestionnaireV2/fill/submit/composeBatch.ts",
+    "src/components/QuestionnaireV2/fill/submit/useSubmitQuestionnaire.ts",
+    "src/pages/Facility/locations/LocationLayout.tsx",
+    "src/pages/Facility/settings/devices/DeviceShow.tsx",
+    "src/pages/Facility/settings/layout.tsx",
+    "src/pages/Facility/settings/locations/LocationView.tsx",
+    "src/types/questionnaire/questionnaireApi.ts",
+    "tests/facility/locationQuestionnaire.spec.ts"
+  ],
+  "agent": "Claude Code",
+  "model": "",
+  "turn_id": "dcc719ebb32e",
+  "checkpoint_transcript_start": 15,
+  "transcript_lines_at_start": 15,
+  "compact_transcript_start": 2,
+  "token_usage": {
+    "input_tokens": 0,
+    "cache_creation_tokens": 0,
+    "cache_read_tokens": 0,
+    "output_tokens": 0,
+    "api_call_count": 0
+  },
+  "initial_attribution": {
+    "calculated_at": "2026-08-02T18:11:54.43579Z",
+    "agent_lines": 0,
+    "agent_removed": 0,
+    "human_added": 364,
+    "human_modified": 133,
+    "human_removed": 0,
+    "total_committed": 364,
+    "total_lines_changed": 497,
+    "agent_percentage": 0,
+    "metric_version": 2
+  }
+}

@@ -1,0 +1,38 @@
+{
+  "cli_version": "0.9.0",
+  "checkpoint_id": "67fd79b7b8df",
+  "strategy": "manual-commit",
+  "branch": "bodhi/questionnaire-fill",
+  "checkpoints_count": 1,
+  "files_touched": [
+    "public/locale/en.json",
+    "src/Routers/AppRouter.tsx",
+    "src/Routers/routes/ConsultationRoutes.tsx",
+    "src/components/QuestionnaireV2/fill/QuestionnaireFillPage.tsx",
+    "src/components/QuestionnaireV2/fill/subject.ts",
+    "src/components/QuestionnaireV2/fill/submit/composeBatch.ts",
+    "src/components/QuestionnaireV2/fill/submit/useSubmitQuestionnaire.ts",
+    "src/pages/Facility/locations/LocationLayout.tsx",
+    "src/pages/Facility/settings/devices/DeviceShow.tsx",
+    "src/pages/Facility/settings/layout.tsx",
+    "src/pages/Facility/settings/locations/LocationView.tsx",
+    "src/types/questionnaire/questionnaireApi.ts",
+    "tests/facility/locationQuestionnaire.spec.ts"
+  ],
+  "sessions": [
+    {
+      "metadata": "/67/fd79b7b8df/0/metadata.json",
+      "transcript": "/67/fd79b7b8df/0/full.jsonl",
+      "compact_transcript": "/67/fd79b7b8df/0/transcript.jsonl",
+      "content_hash": "/67/fd79b7b8df/0/content_hash.txt",
+      "prompt": ""
+    }
+  ],
+  "token_usage": {
+    "input_tokens": 0,
+    "cache_creation_tokens": 0,
+    "cache_read_tokens": 0,
+    "output_tokens": 0,
+    "api_call_count": 0
+  }
+}
