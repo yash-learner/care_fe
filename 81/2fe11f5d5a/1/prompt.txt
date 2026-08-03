@@ -1,0 +1,137 @@
+Here’s a copy-ready handoff for Claude:
+Questionnaire V2 PR review summary
+PR: `#16627`
+Frontend: `/Users/bodhishthomas/code/care_fe`
+Backend: `/Users/bodhishthomas/code/care`
+Recommendation: Request changes; do not broadly release yet.
+P1 release blockers
+
+1. Subject mismatch: A location/device/facility questionnaire can mount on a patient route and may be submitted as a patient response. Enforce `questionnaire.subject_type` in both frontend routing and backend submission.
+2. Encounter/patient mismatch: Validate that the patient in the URL matches the encounter’s actual patient before rendering or submitting.
+3. Structured-only edits are not dirty: Changes such as Time of Death can be closed without a warning or recoverable draft because structured values are excluded from dirty/autosave tracking.
+4. Fill remains editable during submission: Editing while batch composition or submission is pending can produce UI/server state divergence. Freeze the session or version the submitted snapshot.
+5. Studio loses edits during Save: Edits made after clicking Save are erased when the PUT response unconditionally resets editor state.
+6. No Studio optimistic concurrency: Full-body PUTs have no expected `internal_revision`/ETag. Two authors silently overwrite one another. Backend should return `409` for stale revisions.
+7. Fill/drafts are not revision-pinned: Local drafts compare semantic `version`, not `internal_revision`; live submissions carry no expected revision. Old answers can be accepted and stamped against a newly edited questionnaire.
+8. New server drafts can 500: Draft creation resolves questionnaires by unscoped slug. Revision clones and cross-facility forms can share a slug, causing `MultipleObjectsReturned`.
+9. Resumed responses are unlinked: Questionnaire submission omits `form_submission` and separately marks the draft submitted. This bypasses the backend linkage/duplicate guard and allows duplicate submissions from concurrent tabs.
+10. Backend batch limit is unmodeled: Frontend creates an unlimited batch, while backend allows at most 20 requests. Twenty files plus one response, or 21 forms, deterministically fails with only a generic error.
+11. Valueset-backed quantity crashes: V2 stores the selected valueset entry as `unit`, while backend validates `value.coding`. `coding=None` causes a backend 500 and full-batch rollback.
+12. `exists:false` differs across layers: Frontend hides a dependent when the controlling answer is absent; backend correctly enables it for `exists:false`. Invisible required questions consequently fail at submission.
+13. Required structured questions fail open: Render errors, missing context, and subject mismatches waive required validation and drop the data, while the rest of the form can submit successfully.
+14. Untouched clinical records are re-upserted: Allergy, symptom, and medication-statement widgets submit all prefetched rows rather than only dirty rows. An unrelated form submission can overwrite another clinician’s concurrent edit.
+15. File uploads are not truly atomic: The DB transaction rolls back on later batch failure, but S3/MinIO writes do not. This leaves orphaned clinical files and retries leak additional objects.
+16. Optional appointment can use an undefined slot: Partial optional appointment data can generate `/slots/undefined/`, rolling back the full form.
+17. Plaintext clinical data in localStorage: Full answers and notes persist in localStorage. TTL cleanup is lazy, auth-expiry does not consistently clear it, and same-origin plugin code can access it. Requires explicit privacy/security approval or protected server-side storage.
+18. Failed login destroys recovery drafts: Drafts are cleared before authentication succeeds, so a mistyped password can delete the same user’s recoverable work.
+19. Agent date/integer coercion is unsafe: Date-only input can shift by timezone or normalize invalid dates; integer questions accept decimals.
+20. No durable agent audit: Agent-written clinical values are only logged with `console.debug`; persisted records do not retain agent provenance. Treat durable audit or explicit clinician acceptance as a release requirement.
+
+P2 architecture and reliability issues
+
+1. Questionnaire submit TypeScript types are stale and disagree with backend (`responses/value` versus `results/values/form_submission`). Raw batch URLs and `any` bodies bypass type checking.
+2. Questionnaire search is subject-scoped but not facility-scoped. Users can complete a form from another facility before receiving a Save-time rejection.
+3. Query data is copied into local fill-session state and can become stale when the cached questionnaire changes.
+4. Changing question type can retain incompatible fields and values from the previous type.
+5. Repeated valueset selections can overwrite the wrong repeated entry.
+6. Missing form stores are silently skipped, allowing the rest of a multi-form session to submit without an entire form.
+7. Plugin error boundaries do not reset when a plugin/type changes or recovers.
+8. Plugin namespace ownership uses the remote manifest’s self-declared name rather than the trusted configured slug.
+9. Action registry IDs are global and last-write-wins; it cannot safely represent multiple concurrently mounted scoped sessions.
+10. Full-session JSON serialization runs synchronously on every answer edit. Studio also walks the full question tree per edit, and fill measures every question during scrolling. Large forms need performance testing and incremental state tracking.
+11. The 885-line fill page mixes fetching, routing, restore, stores, autosave, actions, submission, and navigation. Introduce an explicit lifecycle state machine:
+`loading → restoring → editing → composing → submitting → saved/exiting`.
+12. Test helper only fetches the first 100 questionnaires, causing fixture failures once the backend contains more records. Paginate or filter directly by slug.
+
+Functional verification
+
+* Static checks passed: diff check, TypeScript, production build, and lint with zero errors.
+* Resource questionnaire tests: `10/10` passed.
+* Targeted fill/structured/Studio tests: `33/33` passed.
+* Broad questionnaire run: `170 passed`, `7 failed`, `2 expected skips`.
+* The seven failures were test/environment issues: one parallel flake, dirty diagnosis data, stale slug-length expectation, and four fixture-pagination failures.
+* Backend form-submission tests: `32/32` passed.
+* Backend `exists:false` contract test passed, confirming the frontend divergence.
+* Fourteen backend questionnaire-response tests fail during fixture setup because `auth_context` is missing; repair these before relying on that suite for revision/response coverage.
+* Live reproduction confirmed:
+   * Structured-only Time of Death edit closes without draft/unsaved warning.
+   * Location questionnaire mounts on a patient route with Save enabled.
+   * A 21-request batch is rejected by the backend.
+
+Suggested remediation order
+
+1. Subject/facility/revision enforcement.
+2. Quantity, `exists:false`, draft linkage, structured fail-open, and batch-capacity fixes.
+3. Studio/fill concurrency and save-in-flight handling.
+4. Draft privacy and file-storage transaction design.
+5. Durable agent audit.
+6. Add cross-layer, concurrency, malformed-route, and large-form tests before rollout.
+
+---
+
+<task-notification>
+<task-id>wot4ji92f</task-id>
+<tool-use-id>toolu_01H5sx1LvX5QqhgrpKP1v1cM</tool-use-id>
+<output-file>/private/tmp/claude-501/-Users-bodhishthomas-code-care-fe/2dabe7d0-29e9-45a7-8554-462aec27da99/tasks/wot4ji92f.output</output-file>
+<status>completed</status>
+<summary>Dynamic workflow "Verify each Questionnaire V2 review finding against current code in both repos" completed</summary>
+<result>{"findings":[{"id":"P1-1","verdict":"PARTIAL","evidence":"Frontend half STILL_PRESENT: src/components/QuestionnaireV2/fill/QuestionnaireFillPage.tsx fetches the questionnaire by id (lines 117-127) and mounts FillPageBody unconditionally (lines 328-345) — there is no comparison of questionnaire.subject_type to subject.type anywhere in the fill module (grep confirms subject_type is only read for structured-type gating: composeBatch.ts:157, StructuredSlot.tsx:94, validateStructured.ts:64). composeBatch.ts:214-236 chooses /submit/ vs /submit_resource/ from the ROUTE subject ('patientBound ? submit : submit_resource'), not from questionnaire.subject_type, so a location/device/facility questionnaire id pasted into /facility/:f/patient/:p/questionnaire/:qid mounts, renders and can be fully filled. Backend half DISPUTED — 'may be submitted as a patient response' is factually wrong about current code: (1) submit_resource explicitly validates subject_type in {location, device, facility} and 404s/errors otherwise (care/care/emr/api/viewsets/questionnaire/questionnaire.py:230-242: 'Invalid resource type'), plus facility match (247-250); (2) submit rejects every cross-subject combination: encounter subject_type binds encounter to patient (278-280) with facility check (281-287); any other subject_type forbids an encounter in the request (296-299: 'Encounter cannot be provided for a patient questionnaire'); then handle_response (care/emr/resources/questionnaire/utils.py) requires instance auth_context for subject_type 'patient' (663-667) and for location/device/facility falls into the else branch requiring a real encounter — results.encounter is None so Encounter.objects.filter(...).first() is None → ValidationError 'Encounter not found' (669-674). The batch endpoint wraps everything in transaction.atomic() and rolls back on any sub-request &gt;299 (care/emr/api/viewsets/batch_request.py:45-70), so nothing persists. Net: the mount-gating gap is real (clinician fills the whole mismatched form and fails only at Save with a confusing error), but no path stores a resource questionnaire as a patient response. No fixing commit exists; e13430da9 reworked QuestionnaireFillPage but added no subject_type gate.","files":["/Users/bodhishthomas/code/care_fe/src/components/QuestionnaireV2/fill/QuestionnaireFillPage.tsx","/Users/bodhishthomas/code/care_fe/src/components/QuestionnaireV2/fill/submit/composeBatch.ts","/Users/bodhishthomas/code/care/care/emr/api/viewsets/questionnaire/questionnaire.py","/Users/bodhishthomas/code/care/care/emr/resources/questionnaire/utils.py","/Users/bodhishthomas/code/care/care/emr/api/viewsets/batch_request.py"],"remediation_hint":"In QuestionnaireFillPage, after the questionnaire query resolves (around line 286), compare questionnaire.subject_type against the mount's subject family — patient-bound mounts accept 'patient'/'encounter' (per pickerSubjectType), resource mounts accept exactly subject.type — and render the existing FillErrorPage on mismatch instead of mounting FillPageBody."},{"id":"P1-2","verdict":"PARTIAL","evidence":"Frontend half STILL_PRESENT: QuestionnaireFillPage.tsx fetches the encounter (lines 129-144) and sets 'const patient = encounter?.patient ?? fetchedPatient' (line 173) — the banner shows the ENCOUNTER's actual patient, but the URL patientId is never compared to encounter.patient.id. rendererSubjectOf(subject) (fill/subject.ts:66-73) propagates the URL patientId into ClinicalHistoryTab (QuestionnaireFillPage.tsx:875-878), structured widget context, and the /submit/ body (composeBatch.ts:220-227 'patient: patientBound.patientId'). A URL pairing patient A with patient B's encounter therefore renders B's identity banner next to A's clinical history tab and A's structured-widget data — no error, no guard. Backend half DISPUTED for the persistence claim: the submit viewset DOES validate the encounter belongs to the submitted patient — care/emr/api/viewsets/questionnaire/questionnaire.py:278-280 'get_object_or_404(Encounter, external_id=request_params.encounter, patient=patient)' → mismatch 404s and the atomic batch (batch_request.py:45-70) rolls the whole submission back. Server-draft creation coerces rather than trusts the client: FormSubmissionWriteSpec.perform_extra_deserialization sets 'obj.patient = obj.encounter.patient' (care/emr/resources/form_submission/spec.py), and the completion PUT's FormSubmissionUpdateSpec accepts only status + response_dump, ignoring the patient/encounter the frontend sends. Structured domain writes are likewise coerced (e.g. AllergyIntoleranceWriteSpec.perform_extra_deserialization, care/emr/resources/allergy_intolerance/spec.py:106-108 'obj.patient = obj.encounter.patient'), so a structured-only submission on a mismatched URL commits against the encounter's TRUE patient — though create authorization is checked against the URL patient (allergy_intolerance.py:81-85 can_write_patient_obj on patient_external_id), an authz/data divergence. Net: wrong-patient persistence is blocked server-side, but the fill page still renders mixed-patient clinical context with no validation. No fixing commit; none of e13430da9/f4c933f05/251b2e1a1 added the check.","files":["/Users/bodhishthomas/code/care_fe/src/components/QuestionnaireV2/fill/QuestionnaireFillPage.tsx","/Users/bodhishthomas/code/care_fe/src/components/QuestionnaireV2/fill/subject.ts","/Users/bodhishthomas/code/care_fe/src/components/QuestionnaireV2/fill/submit/composeBatch.ts","/Users/bodhishthomas/code/care/care/emr/api/viewsets/questionnaire/questionnaire.py","/Users/bodhishthomas/code/care/care/emr/resources/form_submission/spec.py","/Users/bodhishthomas/code/care/care/emr/resources/allergy_intolerance/spec.py"],"remediation_hint":"In QuestionnaireFillPage, when subject.type === 'encounter' and the encounter query resolves, verify encounter.patient.id === subject.patientId and render FillErrorPage (fill_context_load_failed or a dedicated message) on mismatch — this closes the mixed-context render (history tab / structured widgets keyed on the URL patient while the form belongs to the encounter's patient)."},{"id":"P2-2","verdict":"STILL_PRESENT","evidence":"Frontend: src/components/Questionnaire/QuestionnaireSearch.tsx:61-73 queries questionnaireApi.list with only { title, subject_type (conditional), status: 'active' } — the component has no facility prop at all (props interface lines 39-46), and both fill-page usages pass subjectType only (QuestionnaireFillPage.tsx:249-263 empty-state picker, 836-853 in-session 'add questionnaire' picker). git log shows QuestionnaireSearch.tsx last changed in d542f8033, long before this branch — no recent commit touched it. Backend: QuestionnaireFilter exposes an OPT-IN facility param (care/emr/api/viewsets/questionnaire/questionnaire.py:73 'facility = filters.UUIDFilter(field_name=\"facility__external_id\")') that the frontend never sends, and get_filtered_questionnaires (care/security/authorization/questionnaire.py:88-108) scopes only by the user's organization/facility-organization memberships — a user with roles at multiple facilities sees every such facility's questionnaires in the picker regardless of the current route's facility. Rejection happens only at Save: submit raises PermissionDenied 'Encounter facility does not match questionnaire facility' (questionnaire.py:281-287); submit_resource raises 'Resource facility does not match questionnaire facility' (246-250); facility-scoped patient questionnaires die in handle_response ('Patient questionnaires are only supported at the instance level', utils.py:663-667). So the review's exact scenario — fully fill another facility's form, rejected only at Save — holds in current code.","files":["/Users/bodhishthomas/code/care_fe/src/components/Questionnaire/QuestionnaireSearch.tsx","/Users/bodhishthomas/code/care_fe/src/components/QuestionnaireV2/fill/QuestionnaireFillPage.tsx","/Users/bodhishthomas/code/care/care/emr/api/viewsets/questionnaire/questionnaire.
+... (truncated 75851 chars, full result in /private/tmp/claude-501/-Users-bodhishthomas-code-care-fe/2dabe7d0-29e9-45a7-8554-462aec27da99/tasks/wot4ji92f.output)</result>
+<diagnostics>Per-agent results: /Users/bodhishthomas/.claude/projects/-Users-bodhishthomas-code-care-fe/2dabe7d0-29e9-45a7-8554-462aec27da99/subagents/workflows/wf_8a41481a-cf6/journal.jsonl — one {"type":"result",...} line per completed agent with its full return value.
+If the result above is empty or unexpected, Read this file BEFORE diagnosing — do not assume agents returned non-empty results.
+To re-run with edited post-processing: Workflow({scriptPath: '/Users/bodhishthomas/.claude/projects/-Users-bodhishthomas-code-care-fe/2dabe7d0-29e9-45a7-8554-462aec27da99/workflows/scripts/verify-qv2-review-findings-wf_8a41481a-cf6.js', resumeFromRunId: 'wf_8a41481a-cf6'}) — agents whose (prompt, opts) are unchanged replay from cache.</diagnostics>
+<usage><agent_count>13</agent_count><agents_done>13</agents_done><agents_error>0</agents_error><agents_skipped>0</agents_skipped><agents_empty_result>0</agents_empty_result><subagent_tokens>1229268</subagent_tokens><tool_uses>396</tool_uses><duration_ms>527903</duration_ms></usage>
+</task-notification>
+
+---
+
+We haven’t cleaned up the structured components, lets also rearchitect them now along with fixing the issues mentioned. 
+
+If you have questions ask me with context so that i can pick a way forwarded 
+
+Goal is long term maintainability, zero bugs, extensive playwright tests and high quality code.
+
+---
+
+yes
+
+---
+
+yes
+
+---
+
+* it will be good to add support for draft restore for fillable fields when a questionnaire changed so that data is not lost
+
+rest looks fine
+
+---
+
+I think we should allow assistant to write everything including the structured questionnaires by design, this enables voice based form filling. The data will only get saved to the patients record only when the users clicks on save so its safe to enable those edits.
+
+---
+
+Feel free to update my backend pullrequest to update fixtures, lets not hack it via frontend, that should be something backend should honestly support that we can clearly write as we are the primary users for playwright test.
+
+---
+
+don't ask me anymore questions, lets get to build.
+
+---
+
+<task-notification>
+<task-id>adc2ea80ea8d593e7</task-id>
+<tool-use-id>REDACTED</tool-use-id>
+<output-file>/private/tmp/claude-501/-Users-bodhishthomas-code-care-fe/2dabe7d0-29e9-45a7-8554-462aec27da99/tasks/adc2ea80ea8d593e7.output</output-file>
+<status>completed</status>
+<summary>Agent "Implement Task 3: auth draft lifecycle" finished</summary>
+<note>A task-notification fires each time this agent stops with no live background children of its own. The user can send it another message and resume it, so the same task-id may notify more than once.</note>
+<result>Status: Applied all four fixes and appended the addendum to the report.
+
+New commit: `a74983b7f` — `fix(questionnaire-v2): scope post-auth draft clear to other users; drop it from token-refresh failure`
+
+Verification: `tsc --noEmit` (root + tests config) and eslint clean on all 5 changed files, prettier clean, pre-commit hooks passed; spec rewritten to discover the real admin user id via the `getcurrentuser` network response (no meta file carries it) and now asserts the other-user draft is cleared while the same-user draft survives both a failed and a successful login.
+
+Concerns: the post-auth clear now makes one extra `callApi(userApi.currentUser)` round-trip per successful login/MFA-verify (best-effort, `silent: true`, swallowed on failure) since neither the JWT nor the stale `user` closure carries the id at that point — flagged in the report as a tradeoff, not a blocker.</result>
+<usage><subagent_tokens>202597</subagent_tokens><tool_uses>44</tool_uses><duration_ms>502476</duration_ms></usage>
+</task-notification>
