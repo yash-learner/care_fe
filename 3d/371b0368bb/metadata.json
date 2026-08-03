@@ -1,0 +1,21 @@
+{
+  "cli_version": "0.9.0",
+  "checkpoint_id": "3d371b0368bb",
+  "strategy": "manual-commit",
+  "branch": "bodhi/questionnaire-fill",
+  "checkpoints_count": 1,
+  "files_touched": [
+    "src/components/QuestionnaireV2/fill/draft/useFillAutosave.ts",
+    "src/components/QuestionnaireV2/studio/QuestionnaireStudioPage.tsx",
+    "tests/facility/patient/encounter/fill/fillMultiForm.spec.ts"
+  ],
+  "sessions": [
+    {
+      "metadata": "/3d/371b0368bb/0/metadata.json",
+      "transcript": "/3d/371b0368bb/0/full.jsonl",
+      "compact_transcript": "/3d/371b0368bb/0/transcript.jsonl",
+      "content_hash": "/3d/371b0368bb/0/content_hash.txt",
+      "prompt": ""
+    }
+  ]
+}
