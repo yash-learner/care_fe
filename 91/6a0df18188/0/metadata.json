@@ -1,0 +1,132 @@
+{
+  "cli_version": "0.9.0",
+  "checkpoint_id": "916a0df18188",
+  "session_id": "31279d46-8734-4b58-91a6-09e6ede634fb",
+  "strategy": "manual-commit",
+  "created_at": "2026-08-03T11:37:16.274314Z",
+  "branch": "bodhi/questionnaire-fill",
+  "checkpoints_count": 1,
+  "save_step_count": 1,
+  "files_touched": [
+    "src/components/Common/PluginErrorBoundary.tsx",
+    "src/components/QuestionnaireV2/fill/submit/composeBatch.ts",
+    "src/components/QuestionnaireV2/fill/submit/useSubmitQuestionnaire.ts",
+    "src/components/QuestionnaireV2/fill/submit/validateStructured.ts",
+    "src/components/QuestionnaireV2/form/StructuredSlot.tsx",
+    "src/components/QuestionnaireV2/form/engine/store.ts",
+    "src/components/QuestionnaireV2/form/validation.ts"
+  ],
+  "agent": "Claude Code",
+  "model": "claude-fable-5",
+  "turn_id": "9ca849bcd5e6",
+  "compact_transcript_start": 0,
+  "token_usage": {
+    "input_tokens": 680,
+    "cache_creation_tokens": 1095991,
+    "cache_read_tokens": 113931309,
+    "output_tokens": 242563,
+    "api_call_count": 323
+  },
+  "skill_events_version": 1,
+  "skill_events": [
+    {
+      "id": "claude-skill-toolu_01P6PDfiBGp4JPoFGmnxBPgx",
+      "event_type": "tool_invocation",
+      "skill": {
+        "name": "figma:figma-design-to-code"
+      },
+      "source": {
+        "agent": "claude-code",
+        "signal": "skill_tool_use",
+        "confidence": "explicit"
+      },
+      "turn_id": "9ca849bcd5e6",
+      "transcript_anchor": {
+        "unit": "line",
+        "start": 54,
+        "end": 55,
+        "entry_ids": [
+          "91e8ed18-5f77-453f-81fc-9a6775a06876"
+        ],
+        "tool_use_id": "toolu_01P6PDfiBGp4JPoFGmnxBPgx"
+      },
+      "native": {
+        "tool_name": "Skill",
+        "tool_use_id": "toolu_01P6PDfiBGp4JPoFGmnxBPgx"
+      },
+      "collapse": {
+        "target": "tool_pair",
+        "label": "Skill: figma:figma-design-to-code",
+        "default_collapsed": true
+      }
+    }
+  ],
+  "session_metrics": {
+    "turn_count": 1
+  },
+  "initial_attribution": {
+    "calculated_at": "2026-08-03T11:37:16.010906Z",
+    "agent_lines": 71,
+    "agent_removed": 10,
+    "human_added": 0,
+    "human_modified": 0,
+    "human_removed": 33,
+    "total_committed": 71,
+    "total_lines_changed": 114,
+    "agent_percentage": 71.05263157894737,
+    "metric_version": 2
+  },
+  "prompt_attributions": [
+    {
+      "checkpoint_number": 1,
+      "user_lines_added": 5088,
+      "user_lines_removed": 33,
+      "agent_lines_added": 0,
+      "agent_lines_removed": 0,
+      "user_added_per_file": {
+        ".context/retros/2026-03-15-1.json": 36,
+        ".gitignore": 1,
+        ".husky/commit-msg": 1,
+        ".husky/post-commit": 1,
+        ".husky/post-rewrite": 1,
+        ".husky/pre-push": 1,
+        ".husky/prepare-commit-msg": 1,
+        "docs/superpowers/plans/2026-07-31-questionnaire-v2.md": 2495,
+        "docs/superpowers/plans/2026-08-02-questionnaire-fill-delta.md": 1376,
+        "docs/superpowers/plans/2026-08-02-questionnaire-fill.md": 141,
+        "docs/superpowers/plans/2026-08-02-questionnaire-studio.md": 44,
+        "docs/superpowers/specs/2026-07-31-questionnaire-v2-design.md": 205,
+        "docs/superpowers/specs/2026-08-02-questionnaire-fill-design.md": 292,
+        "docs/superpowers/specs/2026-08-02-questionnaire-fill-flow-design.md": 179,
+        "docs/superpowers/specs/2026-08-02-questionnaire-studio-design.md": 181,
+        "src/components/Common/PluginErrorBoundary.tsx": 14,
+        "src/components/QuestionnaireV2/fill/submit/useSubmitQuestionnaire.ts": 27,
+        "src/components/QuestionnaireV2/fill/submit/validateStructured.ts": 10,
+        "src/components/QuestionnaireV2/form/StructuredSlot.tsx": 6,
+        "src/components/QuestionnaireV2/form/engine/store.ts": 31,
+        "src/components/QuestionnaireV2/form/validation.ts": 45
+      },
+      "user_removed_per_file": {
+        "src/components/Common/PluginErrorBoundary.tsx": 6,
+        "src/components/QuestionnaireV2/fill/submit/useSubmitQuestionnaire.ts": 4,
+        "src/components/QuestionnaireV2/fill/submit/validateStructured.ts": 5,
+        "src/components/QuestionnaireV2/form/validation.ts": 18
+      }
+    },
+    {
+      "checkpoint_number": 2,
+      "user_lines_added": 41,
+      "user_lines_removed": 0,
+      "agent_lines_added": 6468,
+      "agent_lines_removed": 226,
+      "user_added_per_file": {
+        ".context/retros/2026-03-15-1.json": 36,
+        ".husky/commit-msg": 1,
+        ".husky/post-commit": 1,
+        ".husky/post-rewrite": 1,
+        ".husky/pre-push": 1,
+        ".husky/prepare-commit-msg": 1
+      }
+    }
+  ]
+}
