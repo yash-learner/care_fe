@@ -1,0 +1,43 @@
+{
+  "cli_version": "0.9.0",
+  "checkpoint_id": "190e20e46e89",
+  "strategy": "manual-commit",
+  "branch": "bodhi/questionnaire-fill",
+  "checkpoints_count": 1,
+  "files_touched": [
+    "public/locale/en.json",
+    "src/components/QuestionnaireV2/README.md",
+    "src/components/QuestionnaireV2/fill/FillFormSection.tsx",
+    "src/components/QuestionnaireV2/fill/FillHeader.tsx",
+    "src/components/QuestionnaireV2/fill/FillOutline.tsx",
+    "src/components/QuestionnaireV2/fill/FillOutlineOverlay.tsx",
+    "src/components/QuestionnaireV2/fill/FillOutlineRail.tsx",
+    "src/components/QuestionnaireV2/fill/QuestionnaireFillPage.tsx",
+    "src/components/QuestionnaireV2/fill/draft/useFillAutosave.ts",
+    "src/components/QuestionnaireV2/form/QuestionBlock.tsx",
+    "src/components/QuestionnaireV2/form/engine/inputs/BooleanInput.tsx",
+    "src/components/QuestionnaireV2/form/engine/inputs/ChoiceInput.tsx",
+    "src/components/QuestionnaireV2/form/engine/inputs/DateInput.tsx",
+    "src/components/QuestionnaireV2/form/engine/inputs/DateTimeQuestionInput.tsx",
+    "src/components/QuestionnaireV2/form/engine/inputs/NumberInput.tsx",
+    "src/components/QuestionnaireV2/form/engine/inputs/QuantityInput.tsx",
+    "src/components/QuestionnaireV2/form/engine/inputs/TextInput.tsx",
+    "src/components/QuestionnaireV2/form/engine/inputs/TimeInput.tsx"
+  ],
+  "sessions": [
+    {
+      "metadata": "/19/0e20e46e89/0/metadata.json",
+      "transcript": "/19/0e20e46e89/0/full.jsonl",
+      "compact_transcript": "/19/0e20e46e89/0/transcript.jsonl",
+      "content_hash": "/19/0e20e46e89/0/content_hash.txt",
+      "prompt": "/19/0e20e46e89/0/prompt.txt"
+    }
+  ],
+  "token_usage": {
+    "input_tokens": 682,
+    "cache_creation_tokens": 1096809,
+    "cache_read_tokens": 114512577,
+    "output_tokens": 243528,
+    "api_call_count": 324
+  }
+}
