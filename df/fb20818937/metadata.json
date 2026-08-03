@@ -1,0 +1,21 @@
+{
+  "cli_version": "0.9.0",
+  "checkpoint_id": "dffb20818937",
+  "strategy": "manual-commit",
+  "branch": "bodhi/questionnaire-fill",
+  "checkpoints_count": 1,
+  "files_touched": [
+    "src/components/QuestionnaireV2/form/QuestionBlock.tsx",
+    "src/components/QuestionnaireV2/studio/QuestionnaireStudioPage.tsx",
+    "tests/facility/patient/encounter/fill/fillValuesetRepeatsChoice.spec.ts"
+  ],
+  "sessions": [
+    {
+      "metadata": "/df/fb20818937/0/metadata.json",
+      "transcript": "/df/fb20818937/0/full.jsonl",
+      "compact_transcript": "/df/fb20818937/0/transcript.jsonl",
+      "content_hash": "/df/fb20818937/0/content_hash.txt",
+      "prompt": ""
+    }
+  ]
+}
