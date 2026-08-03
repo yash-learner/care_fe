@@ -1,0 +1,24 @@
+{
+  "cli_version": "0.9.0",
+  "checkpoint_id": "dfd0dc6f96dd",
+  "strategy": "manual-commit",
+  "branch": "bodhi/qv2-structured-alignment",
+  "checkpoints_count": 2,
+  "files_touched": null,
+  "sessions": [
+    {
+      "metadata": "/df/d0dc6f96dd/0/metadata.json",
+      "transcript": "/df/d0dc6f96dd/0/full.jsonl",
+      "compact_transcript": "/df/d0dc6f96dd/0/transcript.jsonl",
+      "content_hash": "/df/d0dc6f96dd/0/content_hash.txt",
+      "prompt": "/df/d0dc6f96dd/0/prompt.txt"
+    }
+  ],
+  "token_usage": {
+    "input_tokens": 802,
+    "cache_creation_tokens": 1161868,
+    "cache_read_tokens": 151458197,
+    "output_tokens": 283492,
+    "api_call_count": 384
+  }
+}
