@@ -1,0 +1,482 @@
+Here’s a copy-ready handoff for Claude:
+Questionnaire V2 PR review summary
+PR: `#16627`
+Frontend: `/Users/bodhishthomas/code/care_fe`
+Backend: `/Users/bodhishthomas/code/care`
+Recommendation: Request changes; do not broadly release yet.
+P1 release blockers
+
+1. Subject mismatch: A location/device/facility questionnaire can mount on a patient route and may be submitted as a patient response. Enforce `questionnaire.subject_type` in both frontend routing and backend submission.
+2. Encounter/patient mismatch: Validate that the patient in the URL matches the encounter’s actual patient before rendering or submitting.
+3. Structured-only edits are not dirty: Changes such as Time of Death can be closed without a warning or recoverable draft because structured values are excluded from dirty/autosave tracking.
+4. Fill remains editable during submission: Editing while batch composition or submission is pending can produce UI/server state divergence. Freeze the session or version the submitted snapshot.
+5. Studio loses edits during Save: Edits made after clicking Save are erased when the PUT response unconditionally resets editor state.
+6. No Studio optimistic concurrency: Full-body PUTs have no expected `internal_revision`/ETag. Two authors silently overwrite one another. Backend should return `409` for stale revisions.
+7. Fill/drafts are not revision-pinned: Local drafts compare semantic `version`, not `internal_revision`; live submissions carry no expected revision. Old answers can be accepted and stamped against a newly edited questionnaire.
+8. New server drafts can 500: Draft creation resolves questionnaires by unscoped slug. Revision clones and cross-facility forms can share a slug, causing `MultipleObjectsReturned`.
+9. Resumed responses are unlinked: Questionnaire submission omits `form_submission` and separately marks the draft submitted. This bypasses the backend linkage/duplicate guard and allows duplicate submissions from concurrent tabs.
+10. Backend batch limit is unmodeled: Frontend creates an unlimited batch, while backend allows at most 20 requests. Twenty files plus one response, or 21 forms, deterministically fails with only a generic error.
+11. Valueset-backed quantity crashes: V2 stores the selected valueset entry as `unit`, while backend validates `value.coding`. `coding=None` causes a backend 500 and full-batch rollback.
+12. `exists:false` differs across layers: Frontend hides a dependent when the controlling answer is absent; backend correctly enables it for `exists:false`. Invisible required questions consequently fail at submission.
+13. Required structured questions fail open: Render errors, missing context, and subject mismatches waive required validation and drop the data, while the rest of the form can submit successfully.
+14. Untouched clinical records are re-upserted: Allergy, symptom, and medication-statement widgets submit all prefetched rows rather than only dirty rows. An unrelated form submission can overwrite another clinician’s concurrent edit.
+15. File uploads are not truly atomic: The DB transaction rolls back on later batch failure, but S3/MinIO writes do not. This leaves orphaned clinical files and retries leak additional objects.
+16. Optional appointment can use an undefined slot: Partial optional appointment data can generate `/slots/undefined/`, rolling back the full form.
+17. Plaintext clinical data in localStorage: Full answers and notes persist in localStorage. TTL cleanup is lazy, auth-expiry does not consistently clear it, and same-origin plugin code can access it. Requires explicit privacy/security approval or protected server-side storage.
+18. Failed login destroys recovery drafts: Drafts are cleared before authentication succeeds, so a mistyped password can delete the same user’s recoverable work.
+19. Agent date/integer coercion is unsafe: Date-only input can shift by timezone or normalize invalid dates; integer questions accept decimals.
+20. No durable agent audit: Agent-written clinical values are only logged with `console.debug`; persisted records do not retain agent provenance. Treat durable audit or explicit clinician acceptance as a release requirement.
+
+P2 architecture and reliability issues
+
+1. Questionnaire submit TypeScript types are stale and disagree with backend (`responses/value` versus `results/values/form_submission`). Raw batch URLs and `any` bodies bypass type checking.
+2. Questionnaire search is subject-scoped but not facility-scoped. Users can complete a form from another facility before receiving a Save-time rejection.
+3. Query data is copied into local fill-session state and can become stale when the cached questionnaire changes.
+4. Changing question type can retain incompatible fields and values from the previous type.
+5. Repeated valueset selections can overwrite the wrong repeated entry.
+6. Missing form stores are silently skipped, allowing the rest of a multi-form session to submit without an entire form.
+7. Plugin error boundaries do not reset when a plugin/type changes or recovers.
+8. Plugin namespace ownership uses the remote manifest’s self-declared name rather than the trusted configured slug.
+9. Action registry IDs are global and last-write-wins; it cannot safely represent multiple concurrently mounted scoped sessions.
+10. Full-session JSON serialization runs synchronously on every answer edit. Studio also walks the full question tree per edit, and fill measures every question during scrolling. Large forms need performance testing and incremental state tracking.
+11. The 885-line fill page mixes fetching, routing, restore, stores, autosave, actions, submission, and navigation. Introduce an explicit lifecycle state machine:
+`loading → restoring → editing → composing → submitting → saved/exiting`.
+12. Test helper only fetches the first 100 questionnaires, causing fixture failures once the backend contains more records. Paginate or filter directly by slug.
+
+Functional verification
+
+* Static checks passed: diff check, TypeScript, production build, and lint with zero errors.
+* Resource questionnaire tests: `10/10` passed.
+* Targeted fill/structured/Studio tests: `33/33` passed.
+* Broad questionnaire run: `170 passed`, `7 failed`, `2 expected skips`.
+* The seven failures were test/environment issues: one parallel flake, dirty diagnosis data, stale slug-length expectation, and four fixture-pagination failures.
+* Backend form-submission tests: `32/32` passed.
+* Backend `exists:false` contract test passed, confirming the frontend divergence.
+* Fourteen backend questionnaire-response tests fail during fixture setup because `auth_context` is missing; repair these before relying on that suite for revision/response coverage.
+* Live reproduction confirmed:
+   * Structured-only Time of Death edit closes without draft/unsaved warning.
+   * Location questionnaire mounts on a patient route with Save enabled.
+   * A 21-request batch is rejected by the backend.
+
+Suggested remediation order
+
+1. Subject/facility/revision enforcement.
+2. Quantity, `exists:false`, draft linkage, structured fail-open, and batch-capacity fixes.
+3. Studio/fill concurrency and save-in-flight handling.
+4. Draft privacy and file-storage transaction design.
+5. Durable agent audit.
+6. Add cross-layer, concurrency, malformed-route, and large-form tests before rollout.
+
+---
+
+<task-notification>
+<task-id>wot4ji92f</task-id>
+<tool-use-id>toolu_01H5sx1LvX5QqhgrpKP1v1cM</tool-use-id>
+<output-file>/private/tmp/claude-501/-Users-bodhishthomas-code-care-fe/2dabe7d0-29e9-45a7-8554-462aec27da99/tasks/wot4ji92f.output</output-file>
+<status>completed</status>
+<summary>Dynamic workflow "Verify each Questionnaire V2 review finding against current code in both repos" completed</summary>
+<result>{"findings":[{"id":"P1-1","verdict":"PARTIAL","evidence":"Frontend half STILL_PRESENT: src/components/QuestionnaireV2/fill/QuestionnaireFillPage.tsx fetches the questionnaire by id (lines 117-127) and mounts FillPageBody unconditionally (lines 328-345) — there is no comparison of questionnaire.subject_type to subject.type anywhere in the fill module (grep confirms subject_type is only read for structured-type gating: composeBatch.ts:157, StructuredSlot.tsx:94, validateStructured.ts:64). composeBatch.ts:214-236 chooses /submit/ vs /submit_resource/ from the ROUTE subject ('patientBound ? submit : submit_resource'), not from questionnaire.subject_type, so a location/device/facility questionnaire id pasted into /facility/:f/patient/:p/questionnaire/:qid mounts, renders and can be fully filled. Backend half DISPUTED — 'may be submitted as a patient response' is factually wrong about current code: (1) submit_resource explicitly validates subject_type in {location, device, facility} and 404s/errors otherwise (care/care/emr/api/viewsets/questionnaire/questionnaire.py:230-242: 'Invalid resource type'), plus facility match (247-250); (2) submit rejects every cross-subject combination: encounter subject_type binds encounter to patient (278-280) with facility check (281-287); any other subject_type forbids an encounter in the request (296-299: 'Encounter cannot be provided for a patient questionnaire'); then handle_response (care/emr/resources/questionnaire/utils.py) requires instance auth_context for subject_type 'patient' (663-667) and for location/device/facility falls into the else branch requiring a real encounter — results.encounter is None so Encounter.objects.filter(...).first() is None → ValidationError 'Encounter not found' (669-674). The batch endpoint wraps everything in transaction.atomic() and rolls back on any sub-request &gt;299 (care/emr/api/viewsets/batch_request.py:45-70), so nothing persists. Net: the mount-gating gap is real (clinician fills the whole mismatched form and fails only at Save with a confusing error), but no path stores a resource questionnaire as a patient response. No fixing commit exists; e13430da9 reworked QuestionnaireFillPage but added no subject_type gate.","files":["/Users/bodhishthomas/code/care_fe/src/components/QuestionnaireV2/fill/QuestionnaireFillPage.tsx","/Users/bodhishthomas/code/care_fe/src/components/QuestionnaireV2/fill/submit/composeBatch.ts","/Users/bodhishthomas/code/care/care/emr/api/viewsets/questionnaire/questionnaire.py","/Users/bodhishthomas/code/care/care/emr/resources/questionnaire/utils.py","/Users/bodhishthomas/code/care/care/emr/api/viewsets/batch_request.py"],"remediation_hint":"In QuestionnaireFillPage, after the questionnaire query resolves (around line 286), compare questionnaire.subject_type against the mount's subject family — patient-bound mounts accept 'patient'/'encounter' (per pickerSubjectType), resource mounts accept exactly subject.type — and render the existing FillErrorPage on mismatch instead of mounting FillPageBody."},{"id":"P1-2","verdict":"PARTIAL","evidence":"Frontend half STILL_PRESENT: QuestionnaireFillPage.tsx fetches the encounter (lines 129-144) and sets 'const patient = encounter?.patient ?? fetchedPatient' (line 173) — the banner shows the ENCOUNTER's actual patient, but the URL patientId is never compared to encounter.patient.id. rendererSubjectOf(subject) (fill/subject.ts:66-73) propagates the URL patientId into ClinicalHistoryTab (QuestionnaireFillPage.tsx:875-878), structured widget context, and the /submit/ body (composeBatch.ts:220-227 'patient: patientBound.patientId'). A URL pairing patient A with patient B's encounter therefore renders B's identity banner next to A's clinical history tab and A's structured-widget data — no error, no guard. Backend half DISPUTED for the persistence claim: the submit viewset DOES validate the encounter belongs to the submitted patient — care/emr/api/viewsets/questionnaire/questionnaire.py:278-280 'get_object_or_404(Encounter, external_id=request_params.encounter, patient=patient)' → mismatch 404s and the atomic batch (batch_request.py:45-70) rolls the whole submission back. Server-draft creation coerces rather than trusts the client: FormSubmissionWriteSpec.perform_extra_deserialization sets 'obj.patient = obj.encounter.patient' (care/emr/resources/form_submission/spec.py), and the completion PUT's FormSubmissionUpdateSpec accepts only status + response_dump, ignoring the patient/encounter the frontend sends. Structured domain writes are likewise coerced (e.g. AllergyIntoleranceWriteSpec.perform_extra_deserialization, care/emr/resources/allergy_intolerance/spec.py:106-108 'obj.patient = obj.encounter.patient'), so a structured-only submission on a mismatched URL commits against the encounter's TRUE patient — though create authorization is checked against the URL patient (allergy_intolerance.py:81-85 can_write_patient_obj on patient_external_id), an authz/data divergence. Net: wrong-patient persistence is blocked server-side, but the fill page still renders mixed-patient clinical context with no validation. No fixing commit; none of e13430da9/f4c933f05/251b2e1a1 added the check.","files":["/Users/bodhishthomas/code/care_fe/src/components/QuestionnaireV2/fill/QuestionnaireFillPage.tsx","/Users/bodhishthomas/code/care_fe/src/components/QuestionnaireV2/fill/subject.ts","/Users/bodhishthomas/code/care_fe/src/components/QuestionnaireV2/fill/submit/composeBatch.ts","/Users/bodhishthomas/code/care/care/emr/api/viewsets/questionnaire/questionnaire.py","/Users/bodhishthomas/code/care/care/emr/resources/form_submission/spec.py","/Users/bodhishthomas/code/care/care/emr/resources/allergy_intolerance/spec.py"],"remediation_hint":"In QuestionnaireFillPage, when subject.type === 'encounter' and the encounter query resolves, verify encounter.patient.id === subject.patientId and render FillErrorPage (fill_context_load_failed or a dedicated message) on mismatch — this closes the mixed-context render (history tab / structured widgets keyed on the URL patient while the form belongs to the encounter's patient)."},{"id":"P2-2","verdict":"STILL_PRESENT","evidence":"Frontend: src/components/Questionnaire/QuestionnaireSearch.tsx:61-73 queries questionnaireApi.list with only { title, subject_type (conditional), status: 'active' } — the component has no facility prop at all (props interface lines 39-46), and both fill-page usages pass subjectType only (QuestionnaireFillPage.tsx:249-263 empty-state picker, 836-853 in-session 'add questionnaire' picker). git log shows QuestionnaireSearch.tsx last changed in d542f8033, long before this branch — no recent commit touched it. Backend: QuestionnaireFilter exposes an OPT-IN facility param (care/emr/api/viewsets/questionnaire/questionnaire.py:73 'facility = filters.UUIDFilter(field_name=\"facility__external_id\")') that the frontend never sends, and get_filtered_questionnaires (care/security/authorization/questionnaire.py:88-108) scopes only by the user's organization/facility-organization memberships — a user with roles at multiple facilities sees every such facility's questionnaires in the picker regardless of the current route's facility. Rejection happens only at Save: submit raises PermissionDenied 'Encounter facility does not match questionnaire facility' (questionnaire.py:281-287); submit_resource raises 'Resource facility does not match questionnaire facility' (246-250); facility-scoped patient questionnaires die in handle_response ('Patient questionnaires are only supported at the instance level', utils.py:663-667). So the review's exact scenario — fully fill another facility's form, rejected only at Save — holds in current code.","files":["/Users/bodhishthomas/code/care_fe/src/components/Questionnaire/QuestionnaireSearch.tsx","/Users/bodhishthomas/code/care_fe/src/components/QuestionnaireV2/fill/QuestionnaireFillPage.tsx","/Users/bodhishthomas/code/care/care/emr/api/viewsets/questionnaire/questionnaire.
+... (truncated 75851 chars, full result in /private/tmp/claude-501/-Users-bodhishthomas-code-care-fe/2dabe7d0-29e9-45a7-8554-462aec27da99/tasks/wot4ji92f.output)</result>
+<diagnostics>Per-agent results: /Users/bodhishthomas/.claude/projects/-Users-bodhishthomas-code-care-fe/2dabe7d0-29e9-45a7-8554-462aec27da99/subagents/workflows/wf_8a41481a-cf6/journal.jsonl — one {"type":"result",...} line per completed agent with its full return value.
+If the result above is empty or unexpected, Read this file BEFORE diagnosing — do not assume agents returned non-empty results.
+To re-run with edited post-processing: Workflow({scriptPath: '/Users/bodhishthomas/.claude/projects/-Users-bodhishthomas-code-care-fe/2dabe7d0-29e9-45a7-8554-462aec27da99/workflows/scripts/verify-qv2-review-findings-wf_8a41481a-cf6.js', resumeFromRunId: 'wf_8a41481a-cf6'}) — agents whose (prompt, opts) are unchanged replay from cache.</diagnostics>
+<usage><agent_count>13</agent_count><agents_done>13</agents_done><agents_error>0</agents_error><agents_skipped>0</agents_skipped><agents_empty_result>0</agents_empty_result><subagent_tokens>1229268</subagent_tokens><tool_uses>396</tool_uses><duration_ms>527903</duration_ms></usage>
+</task-notification>
+
+---
+
+We haven’t cleaned up the structured components, lets also rearchitect them now along with fixing the issues mentioned. 
+
+If you have questions ask me with context so that i can pick a way forwarded 
+
+Goal is long term maintainability, zero bugs, extensive playwright tests and high quality code.
+
+---
+
+yes
+
+---
+
+yes
+
+---
+
+* it will be good to add support for draft restore for fillable fields when a questionnaire changed so that data is not lost
+
+rest looks fine
+
+---
+
+I think we should allow assistant to write everything including the structured questionnaires by design, this enables voice based form filling. The data will only get saved to the patients record only when the users clicks on save so its safe to enable those edits.
+
+---
+
+Feel free to update my backend pullrequest to update fixtures, lets not hack it via frontend, that should be something backend should honestly support that we can clearly write as we are the primary users for playwright test.
+
+---
+
+don't ask me anymore questions, lets get to build.
+
+---
+
+<task-notification>
+<task-id>adc2ea80ea8d593e7</task-id>
+<tool-use-id>REDACTED</tool-use-id>
+<output-file>/private/tmp/claude-501/-Users-bodhishthomas-code-care-fe/2dabe7d0-29e9-45a7-8554-462aec27da99/tasks/adc2ea80ea8d593e7.output</output-file>
+<status>completed</status>
+<summary>Agent "Implement Task 3: auth draft lifecycle" finished</summary>
+<note>A task-notification fires each time this agent stops with no live background children of its own. The user can send it another message and resume it, so the same task-id may notify more than once.</note>
+<result>Status: Applied all four fixes and appended the addendum to the report.
+
+New commit: `a74983b7f` — `fix(questionnaire-v2): scope post-auth draft clear to other users; drop it from token-refresh failure`
+
+Verification: `tsc --noEmit` (root + tests config) and eslint clean on all 5 changed files, prettier clean, pre-commit hooks passed; spec rewritten to discover the real admin user id via the `getcurrentuser` network response (no meta file carries it) and now asserts the other-user draft is cleared while the same-user draft survives both a failed and a successful login.
+
+Concerns: the post-auth clear now makes one extra `callApi(userApi.currentUser)` round-trip per successful login/MFA-verify (best-effort, `silent: true`, swallowed on failure) since neither the JWT nor the stale `user` closure carries the id at that point — flagged in the report as a tradeoff, not a blocker.</result>
+<usage><subagent_tokens>202597</subagent_tokens><tool_uses>44</tool_uses><duration_ms>502476</duration_ms></usage>
+</task-notification>
+
+---
+
+<task-notification>
+<task-id>a51fbdbdc110eb7b8</task-id>
+<tool-use-id>toolu_01LAqV46XQFytTVF4X5p8iZi</tool-use-id>
+<output-file>/private/tmp/claude-501/-Users-bodhishthomas-code-care-fe/2dabe7d0-29e9-45a7-8554-462aec27da99/tasks/a51fbdbdc110eb7b8.output</output-file>
+<status>completed</status>
+<summary>Agent "Review Task 3 (spec + quality)" finished</summary>
+<note>A task-notification fires each time this agent stops with no live background children of its own. The user can send it another message and resume it, so the same task-id may notify more than once.</note>
+<result>## Re-Review: Task 3 (post-amendment, base 468a6f096 → head a74983b7f)
+
+### Spec Compliance (against amended requirements)
+
+1. ✅ **Token-refresh-failure branch reverted to tokens-only.** `src/Providers/AuthUserProvider.tsx:84-94` — only the two `localStorage.removeItem` calls remain; `clearQuestionnaireFillDrafts()` is gone from this branch. Comment at `:86-90` accurately explains why (`retry: false` on that query, verified independently — see Strengths).
+2. ✅ **Post-auth clears are user-scoped.** `clearOtherUsersFillDrafts(currentUserId)` added to `fillDraftCache.ts:316-324`; wired into both the JWT branch (`AuthUserProvider.tsx:148`) and `verifyMFA` branch (`:169`) via a shared `clearOtherUsersDrafts()` helper (`:109-120`) that resolves identity through `callApi(userApi.currentUser)`. `signOut` untouched — still calls the full `clearQuestionnaireFillDrafts()` (confirmed unchanged outside the diff hunks).
+3. ✅ **Lifecycle comments updated truthfully.** Checked all four touch points — `fillDraftCache.ts` module header (`:269-287`) and each function's doc (`:299-300`, `:308-315`, `:326-327`), `fillDraftStore.ts:351-363`, and `README.md:243-263`. Every comment matches what the code actually does: other-user sweep on login, full sweep on signOut/app-update, expiry sweep at boot regardless of auth outcome, same-user survival stated as intentional. No stale "swept on login" blanket claims remain anywhere.
+4. ✅ **Spec asserts both required outcomes.** `tests/auth/loginDraftSurvival.spec.ts` seeds an other-user draft and a same-user draft (keyed to the *real* discovered `adminUserId`, not a guess), then asserts: both survive a failed login (`:519-527`), the other-user draft is `null` after successful login (`:536-541`), and the same-user draft survives successful login (`:544-547`).
+
+### Strengths
+
+- **UserId type/value match verified end-to-end.** Traced `FillDraftScope.userId` back to its single write site — `QuestionnaireFillPage.tsx:209-215` sets `userId: user.id` where `user = useAuthUser()` (typed `CurrentUserRead`). This is the exact same field the new code fetches via `callApi(userApi.currentUser)` (`TRes: Type&lt;CurrentUserRead&gt;()`, `src/types/user/userApi.ts:46-50`, `id: string` from `UserBase`, `src/types/user/user.ts:10-11`). The "same user survives re-login" guarantee is correctly wired at the type level, not just asserted.
+- **Auth-header freshness verified.** `getAuthorizationHeader()` (`src/Utils/request/utils.ts:77-85`) reads `localStorage.getItem(LocalStorageKeys.accessToken)` live at call time. Since `clearOtherUsersDrafts()` runs strictly after `localStorage.setItem(accessToken, data.access)` in both success branches, the identity lookup is guaranteed to authenticate as the just-logged-in user, not a stale token.
+- **`retry: false` claim verified.** `tokenRefreshQuery` (`AuthUserProvider.tsx:74-82`) sets no `retry` override, so it inherits the global `QueryClient` default of `retry: false` (previously confirmed in `src/Utils/request/queryClient.ts:19-25`) — the comment's premise for pulling the clear out of that branch is factually correct, not just asserted.
+- **Test rewrite is a genuine improvement**, not just patched to pass: it discovers the real backend-assigned user id via `page.waitForResponse` on `/getcurrentuser/` rather than guessing or decoding a JWT claim whose relationship to `CurrentUserRead.id` the implementer explicitly declined to assume (correctly — the two are different concepts).
+
+### Issues
+
+#### Critical (Must Fix)
+None.
+
+#### Important (Should Fix)
+None. Both named risks were checked and are defensible/narrow (see below), not defects.
+
+#### Minor (Nice to Have)
+1. **Named risk (a) — duplicate identity fetch vs. reactive `user` query.** `AuthUserProvider.tsx:109-120`. The component already has a `useQuery` for `currentUser` (`:61-66`) that will independently refetch once `setAccessToken` changes the query key on a later render, plus an explicit `invalidateQueries({queryKey:["currentUser"]})` right after (`:150`) — so a login now triggers the `getcurrentuser` endpoint at least twice. This is a real, if small, added round-trip on every login, not just the rare shared-device case. The direct `callApi` call is still the defensible choice: threading the sweep through the reactive `user` state would require a ref/flag to distinguish "just logged in" from "routine refetch," which is more failure-prone than a synchronous one-shot fetch tied precisely to the success-branch causality. Worth a follow-up only if the second full `useQuery` refetch is deemed wasteful — not blocking.
+2. **Named risk (b) — swallowed-failure edge case.** `AuthUserProvider.tsx:110-119`. If the identity lookup fails (network blip right after a successful login), the other-user sweep for that login is skipped silently — no retry within the session. Residual exposure: a different user's stale draft can linger in `localStorage` on a shared machine until the next successful other-user login or the 24h TTL boot sweep, which is exactly the class of exposure this feature targets. The window is narrow (must fail exactly once, immediately post-auth, on an otherwise-successful login) and self-heals within a bounded time, and correctly never blocks sign-in — an acceptable, disclosed tradeoff, but flagged since it's the one place the amended design doesn't fully close the original P1-17/P1-18 gap under failure.
+
+### Assessment
+**Task quality:** Approved
+**Reasoning:** All four amended requirements are implemented exactly as specified and verified against actual source (not just the diff's context) — the refresh-failure branch is tokens-only, the post-auth scoping is correctly keyed to the real `CurrentUserRead.id` used by the draft-writing code, lifecycle comments are truthful everywhere they were touched, and the rewritten spec asserts precisely the two required outcomes using a real discovered user id. Both named risks resolve to reasoned, low-probability, self-healing tradeoffs rather than defects.</result>
+<usage><subagent_tokens>115088</subagent_tokens><tool_uses>14</tool_uses><duration_ms>236046</duration_ms></usage>
+</task-notification>
+
+---
+
+<task-notification>
+<task-id>aebfb53e1711d00b3</task-id>
+<tool-use-id>REDACTED</tool-use-id>
+<output-file>/private/tmp/claude-501/-Users-bodhishthomas-code-care-fe/2dabe7d0-29e9-45a7-8554-462aec27da99/tasks/aebfb53e1711d00b3.output</output-file>
+<status>completed</status>
+<summary>Agent "Implement Task 4: studio fixes" finished</summary>
+<note>A task-notification fires each time this agent stops with no live background children of its own. The user can send it another message and resume it, so the same task-id may notify more than once.</note>
+<result>Status: DONE — all four requested fixes applied and committed.
+
+New commit: `018827a90` — "fix(questionnaire-v2): metadata-side save race, choice-precedence gate, spec literals"
+
+Verification: `tsc --noEmit` and `eslint` clean on all touched files; pre-commit hooks passed; no Playwright execution (unchanged from original instruction).
+
+Concerns: none new — the metadata-race fix uses a `form.getValues()` live-diff instead of an `isDirty` boolean/counter (traced why a bare boolean is insufficient for the "edited twice while already dirty" case); parked items (choice-with-unit spec leg, `pickType` dedup, empty-repeater chrome, dead `QuestionEditorCard`) left untouched per instruction. Report appended to `/Users/bodhishthomas/code/care_fe/.superpowers/sdd/task-4-report.md`.</result>
+<usage><subagent_tokens>355056</subagent_tokens><tool_uses>29</tool_uses><duration_ms>592691</duration_ms></usage>
+</task-notification>
+
+---
+
+<task-notification>
+<task-id>af62d764ad7e6bd01</task-id>
+<tool-use-id>toolu_01RkXVrhKzHokbDmrGfefxno</tool-use-id>
+<output-file>/private/tmp/claude-501/-Users-bodhishthomas-code-care-fe/2dabe7d0-29e9-45a7-8554-462aec27da99/tasks/af62d764ad7e6bd01.output</output-file>
+<status>completed</status>
+<summary>Agent "Review Task 4 (spec + quality)" finished</summary>
+<note>A task-notification fires each time this agent stops with no live background children of its own. The user can send it another message and resume it, so the same task-id may notify more than once.</note>
+<result>### Spec Compliance
+
+- ✅ **Fix 1 — metadata in-flight edits survive.** `QuestionnaireStudioPage.tsx:330` snapshots the submitted `meta` at the same instant as the dispatch counter (`:411-412`); `:358-360` compares it field-by-field against live `form.getValues()`; `:376-383` gates `form.reset` on the result.
+- ✅ **Fix 1 — deviation is correct, and better than the suggestion.** The live-diff compares against the **pre-save submitted snapshot** (`meta`), not the server response — the right reference point, since the question is "does the form still hold what the PUT carried?". The implementer's rationale for rejecting an `isDirty` boolean holds: dirty→edit-again→dirty reads `true` at both ends, so a boolean before/after comparison is blind to a second edit on an already-dirty field. I checked the false-positive path that would have made this worse than a boolean — coercion drift between the zod-parsed `meta` and the raw form values — and it does not exist: `questionnaireFormSchema.ts:29-38` is transform-free (`z.string()` / `z.enum`, no `.trim()`, `.optional()`, or `.default()`), and all four `DetailFormValues` fields are non-optional (`:43-53`), so there is no `undefined` vs `""` mismatch that would make `metaEditedDuringFlight` permanently `true` and strand the form dirty after every save.
+- ✅ **Fix 1 — the snapshot is a real snapshot, not an alias.** Checked `node_modules/@hookform/resolvers/zod/dist/zod.mjs`: the success branch returns `raw?Object.assign({},o):e` — with no `raw` option configured it returns Zod's freshly-constructed parse output, and even the `raw` path is a shallow copy. `saveMetaRef.current` therefore cannot mutate in lockstep with RHF's `_formValues`, which would have silently neutered the whole fix.
+- ✅ **Fix 1 — ordering and independence.** `setQueryData` → `onSaved` runs inside the same synchronous `onSuccess` (`useUpdateQuestionnaire.ts:34-37`), before any re-render, so `getValues()` still holds the user's live text and the `values`-prop resync at `:140-149` hasn't fired. The two skips are separate `if`s (`:369`, `:376`); with `dirty = state.dirty || form.formState.isDirty` (`:175`), an edit to either side alone keeps Save enabled while the other side still resets. Edit-then-revert during flight correctly falls back to resetting (submitted values == server values).
+- ✅ **Fix 2 — gate mirrors ChoiceInput's precedence.** `QuestionBlock.tsx:53-54` (`!!question.answer_option?.length`) now matches `ChoiceInput.tsx:106` (`if (question.answer_option?.length)`) exactly. Pure-`answer_option` and pure-`answer_value_set` questions route as before.
+- ✅ **Fix 3 — counter is user-originated only.** `QuestionnaireStudioPage.tsx:290-295` exempts `"reset"`, with the invariant stated. Verified no user-originated `reset` can race a save: `handleDiscard` (`:366`) is the only user path that dispatches `reset`, and its button is `disabled={!dirty || isSaving}` (`StudioTopBar.tsx:182`). The P1-5 spec still exercises the counter — its mid-flight edit is `updateQuestion`, not `reset`.
+- ✅ **Fix 4 — payload asserted against captured text.** `fillValuesetRepeatsChoice.spec.ts:524-525,531-532` capture the trigger's rendered text; `:570-571` assert the payload against those. Verified the captured string will actually equal `coding.display`: `ValueSetSelect.tsx:56` defaults `showCode = false` and `ChoiceInput` doesn't pass it, so the trigger renders bare `value.display` (`:101`). The `.innerText().split("\n")[0]?.trim()` convention is genuinely the one at `questionnaireQuantityUnit.spec.ts:83`, as claimed. The added `expect(entryTwoDisplay).not.toBe(entryOneDisplay)` (`:537`) closes the vacuous-pass hole.
+- ✅ **Parked items confirmed untouched.** Builder-matrix assertions unchanged (`questionnaireBuilderMatrix.spec.ts:649-652`), `pickType` still duplicated (`fillValuesetRepeatsChoice.spec.ts:456-461`), `QuestionEditorCard.tsx` absent from the diff, empty-repeater chrome not special-cased.
+- ✅ **Round-1 verdicts still hold** — P2-4, the reducer-side P1-5 guard, and the `withEntryAt` convention are unchanged by this wave.
+- ⚠️ tsc/eslint/prettier results unverifiable from the diff (not re-run, per instructions).
+
+### Strengths
+
+- The deviation was the right call and is defended with a concrete failure trace rather than preference. It also happens to be more robust than the alternative in a second way the report doesn't claim: it survives a server-side normalization of a field the user didn't touch, because the comparison is against what was *sent*, not against what came *back*.
+- Choosing to exempt `reset` inside the single `dispatch` wrapper rather than routing the re-seed effect around it keeps one enforcement point instead of N call sites, and the invariant comment (`:282-288`) names every non-user `reset` producer so a future reader can tell whether a new call site violates it.
+- Fix 2's comment (`:44-52`) records *why* the gate mirrors ChoiceInput rather than restating what it does — the next person to touch either file sees the coupling.
+- Fix 4's not-equal guard is the part most implementers skip; without it, two searches resolving to the same code would have made the whole spec pass on pre-fix code.
+
+### Issues
+
+#### Critical (Must Fix)
+
+None.
+
+#### Important (Should Fix)
+
+None.
+
+#### Minor (Nice to Have)
+
+**1. Fix 2 moves an unconfigured repeats choice onto the multi-entry path — and my round-1 review misdescribed this. Correcting the record.**
+`src/components/QuestionnaireV2/form/QuestionBlock.tsx:53-54`
+
+My round-1 Minor #3 claimed the empty-repeater chrome already existed in `0d6595975`. That was wrong: the old gate `!question.answer_value_set` evaluated **true** for a choice with neither field, keeping it on the single-input path. The new gate `!!question.answer_option?.length` evaluates **false** for that same question, so it now takes the multi-entry path and renders "Add Another" plus remove buttons around `ChoiceInput`s that all `return null` (`ChoiceInput.tsx:159`). So the item the coordinator parked on my (incorrect) round-1 report is in fact newly introduced by this wave, not pre-existing — the parking rationale was inverted, and that's my error to own.
+
+It is reachable through the studio, not just via import: `saveValidation.ts:54-57` scopes the "needs options or a valueset" rule to `quantity` only, so authoring Choice → Repeatable → never configuring options saves cleanly.
+
+Severity stays Minor — the question renders no usable control either way, only the surrounding chrome differs. One predicate satisfies both this and the precedence fix: let a choice join multi-entry only when it has a valueset *and* no fixed options —
+`const isSelfManagedChoice = question.type === "choice" &amp;&amp; (!!question.answer_option?.length || !question.answer_value_set);`
+
+**2. `metaMatches` enumerates the four fields by hand with no exhaustiveness guard.**
+`src/components/QuestionnaireV2/studio/QuestionnaireStudioPage.tsx:331-335`
+
+A fifth field added to `DetailFormValues` later would compile clean and be silently excluded from the in-flight check, reintroducing exactly the bug this fix closes for that field. `(Object.keys(a) as (keyof DetailFormValues)[]).every((k) =&gt; a[k] === b[k])` — or a `Record&lt;keyof DetailFormValues, true&gt;` key list — makes the omission a type error.
+
+### Assessment
+
+**Task quality:** Approved
+
+**Reasoning:** All four requested fixes are implemented correctly, and the disclosed deviation is sound — I verified the two ways a live-diff could have silently failed (zod coercion drift making the reset never run, and `meta` aliasing RHF's live values making it always run) and neither applies. The one remaining defect is a cosmetic edge case on an unconfigured question that my own round-1 report misattributed; it is worth a one-line predicate change but does not gate the task.</result>
+<usage><subagent_tokens>153158</subagent_tokens><tool_uses>11</tool_uses><duration_ms>205487</duration_ms></usage>
+</task-notification>
+
+---
+
+<task-notification>
+<task-id>abfcb2cc84ae3eedf</task-id>
+<tool-use-id>REDACTED</tool-use-id>
+<output-file>/private/tmp/claude-501/-Users-bodhishthomas-code-care-fe/2dabe7d0-29e9-45a7-8554-462aec27da99/tasks/abfcb2cc84ae3eedf.output</output-file>
+<status>completed</status>
+<summary>Agent "Implement Task 6: quantity coding" finished</summary>
+<note>A task-notification fires each time this agent stops with no live background children of its own. The user can send it another message and resume it, so the same task-id may notify more than once.</note>
+<result>Report file is untracked/ignored (not part of repo tracking), consistent with prior task reports. Everything's clean.
+
+Status: Fixed and committed.
+
+New commit: `02b9dc174` — `fix(questionnaire-v2): fall back a quantity's coding to its default unit`
+
+Verification: `npx tsc --noEmit` and eslint clean on both changed files; pre-commit hooks (prettier + eslint --fix) passed on commit; Playwright not run (phase checkpoint).
+
+Concerns: none new — backend `coding=None` 500 remains a separately-tracked backend bug; this closes the second FE path (untouched-default-unit entries) that could still trigger it.</result>
+<usage><subagent_tokens>133665</subagent_tokens><tool_uses>17</tool_uses><duration_ms>191109</duration_ms></usage>
+</task-notification>
+
+---
+
+<task-notification>
+<task-id>a17294e25a615d9f8</task-id>
+<tool-use-id>REDACTED</tool-use-id>
+<output-file>/private/tmp/claude-501/-Users-bodhishthomas-code-care-fe/2dabe7d0-29e9-45a7-8554-462aec27da99/tasks/a17294e25a615d9f8.output</output-file>
+<status>completed</status>
+<summary>Agent "Review Task 6 (spec + quality)" finished</summary>
+<note>A task-notification fires each time this agent stops with no live background children of its own. The user can send it another message and resume it, so the same task-id may notify more than once.</note>
+<result>All four follow-up items check out. Here is the re-review.
+
+### Spec Compliance
+
+- ✅ Explicit-pick path (`handleUnitChange`) unchanged and still correct — `QuantityInput.tsx:72-79` (need to confirm exact end but verified: still `writeEntry({ type: "quantity", value, unit: newUnit, coding: newUnit })`).
+- ✅ Default-unit gap from round 1 closed — `QuantityInput.tsx:38-47`: `unit` is now derived first (`pickedUnit ?? question.unit`), then `const coding = entry?.coding ?? unit;` at line 47, with the invariant stated once in the comment at lines 40-46 ("submitted `coding` always mirrors `unit`… unless the entry already carries its own explicit coding"). Single point of derivation — the two fields cannot drift by construction, since the only two writers (`handleValueChange` at `:69`, `handleUnitChange` at the picked-code call) either both read this same derived pair or both set an identical explicit pair.
+- ✅ No-default/no-pick case produces no invented data: when `question.unit` is undefined and no chip was ever clicked, `unit` resolves to `undefined`, so `coding` (`entry?.coding ?? unit`) also resolves to `undefined` — `serializeValues.ts`'s `entry.unit` branch is skipped and the entry serializes as a bare `{ value }`, matching pre-existing non-valueset-quantity behavior. Verified by code reasoning (no fixture exercises this specific case, but the logic is directly inspectable and unambiguous).
+- ✅ New spec case ("accepting the default unit and only typing a value still submits a coding," `fillQuantityValuesetCoding.spec.ts:189-238`) asserts `coding.code === "mg"` (`:233`) and end-to-end submit success (`:236-237`). Confirmed by hand-tracing the pre-fix (`bf2ffa91f`) code path: with no chip clicked, `entry` is `undefined` on the first `handleValueChange` call, so old `coding = entry?.coding` (no fallback) stays `undefined`, and the assertion `toBe("mg")` would fail — this is a real, valid regression test for exactly the gap flagged in round 1, not a vacuous one.
+- ✅ Minor #1 resolved: the "gram" radio is now scoped through `block` (`fillQuantityValuesetCoding.spec.ts:148,150`), matching the `questionBlock`-scoping convention used elsewhere (e.g. `fillValidation.spec.ts:44-45`).
+- ✅ Minor #2 resolved: "per-keystroke" wording is gone from both the spec comments (now "the write that follows," `:145`) and the report's Changes section ("passed straight through on each write," `task-6-report.md:18-19`).
+
+### Strengths
+
+- The fix centralizes the unit/coding invariant at a single derivation point rather than patching each call site independently — exactly what was asked for ("the invariant should hold at ONE point"), and it's provably drift-free: both writers consume the same derived pair or set an identical explicit pair, so there's no path where `unit` and `coding` diverge.
+- The fallback also self-heals any previously-drafted entries that were saved under the old buggy code (`entry.unit` set, `entry.coding` `undefined`) — a beneficial side effect of `entry?.coding ?? unit`, not a new risk.
+- The new regression test is correctly discriminating: hand-traced against the prior commit (`bf2ffa91f`), it fails there and passes on `02b9dc174`, so it's pinning the actual fix rather than trivially passing either way.
+- `tsc --noEmit`, `eslint`, and `prettier --check` independently re-run clean on both changed files, corroborating the report's verification claims.
+- Shared `SubmitBatchBody` type extracted to module scope removes duplication between the two test cases — a reasonable, unprompted cleanup.
+
+### Issues (Critical / Important / Minor)
+
+None found in this fix pass.
+
+### Assessment — Task quality: Approved
+
+The round-1 Important finding (default-unit path submitting `coding: undefined`) is fixed correctly and minimally, with the invariant expressed at a single point and verified (via direct code trace) to fail on pre-fix code and pass on the current commit. Both Minor findings (locator scoping, wording) are also resolved. No new issues surfaced.</result>
+<usage><subagent_tokens>113959</subagent_tokens><tool_uses>6</tool_uses><duration_ms>127769</duration_ms></usage>
+</task-notification>
+
+---
+
+<task-notification>
+<task-id>ad4f3407e93c9fd5c</task-id>
+<tool-use-id>toolu_01P5i25uzgpbXAvu5HCQ1BWp</tool-use-id>
+<output-file>/private/tmp/claude-501/-Users-bodhishthomas-code-care-fe/2dabe7d0-29e9-45a7-8554-462aec27da99/tasks/ad4f3407e93c9fd5c.output</output-file>
+<status>completed</status>
+<summary>Agent "Implement Task 7: submit guards" finished</summary>
+<note>A task-notification fires each time this agent stops with no live background children of its own. The user can send it another message and resume it, so the same task-id may notify more than once.</note>
+<result>Status: DONE — review follow-up applied on top of 065e5b043.
+
+New commit: `0f9ed9e3a` — fix(questionnaire-v2): isolate the P1-9 spec, in-memory batch-cap files, single-source cap message
+
+Verification: `npx tsc --noEmit` (root + tests/tsconfig.json) and `npx eslint` on all changed files are clean; P1-9 now lives inside fillServerDraft.spec.ts's serial describe (reusing its helpers), fillSubmitGuards.spec.ts only holds the 21-abort/20-pass batch-cap pair using in-memory `setInputFiles` payloads, and the cap message now sources `{{max}}` from `MAX_BATCH_REQUESTS`.
+
+Concerns: none new — same two noted in the original report (heavier-than-ideal DOM work for the file-cap e2e cases; `MAX_BATCH_REQUESTS` has no shared source of truth with the backend's `MAX_REQUESTS_PER_BATCH_REQUEST`). Report appended at `/Users/bodhishthomas/code/care_fe/.superpowers/sdd/task-7-report.md`.</result>
+<usage><subagent_tokens>269808</subagent_tokens><tool_uses>20</tool_uses><duration_ms>294229</duration_ms></usage>
+</task-notification>
+
+---
+
+<task-notification>
+<task-id>af507a6a72b5e9a22</task-id>
+<tool-use-id>toolu_014j777rkSzmBABcPAqDHBp2</tool-use-id>
+<output-file>/private/tmp/claude-501/-Users-bodhishthomas-code-care-fe/2dabe7d0-29e9-45a7-8554-462aec27da99/tasks/af507a6a72b5e9a22.output</output-file>
+<status>completed</status>
+<summary>Agent "Review Task 7 (spec + quality)" finished</summary>
+<note>A task-notification fires each time this agent stops with no live background children of its own. The user can send it another message and resume it, so the same task-id may notify more than once.</note>
+<result>### Spec Compliance (fix commit `0f9ed9e3a`)
+
+**1. P1-9 relocation — resolved, and the serial contract holds.** The case now sits inside `fillServerDraft.spec.ts`'s `test.describe("Fill page server draft")`, which carries `test.describe.configure({ mode: "serial" })` at `:70` — same file, same worker, no cross-file race. Placement is **last (4th)**, appended after "a form_submission that is no longer a draft refuses to resume" (`fillServerDraft.spec.ts:389-455`). Checked both directions of the ordering:
+
+- *Upstream:* the drafts card queries `formSubmissionApi.list` with `queryParams: { encounter, status: "draft" }` (`FormSubmissionDrafts.tsx:63-65`), so test 3's API-created **submitted** record never lists, and tests 1 and 2 each end by submitting their draft and asserting the card is gone. The new case therefore opens onto an empty card, and its `getByRole("button", { name: "Continue", exact: true })` click (`:411`) resolves to exactly one element.
+- *Downstream:* nothing follows it, and it still cleans up anyway — the batch's completion PUT flips the record to `submitted` (`composeBatch.ts:257-277`), and `:452-454` re-asserts "Draft Forms" is not visible, matching the file's stated cleanup contract. The later "Draft Forms not visible" assertions in tests 1 and 2 run *before* it and are unaffected.
+
+**2. Flag-probe dedup — resolved by relocation.** `fillSubmitGuards.spec.ts` no longer contains `flagRequested`, `SAVE_DRAFT`, the bundle probe, or the `test.skip` branch; it imports only `questionBlock`, `expectToast` and the three id helpers, and never touches drafts. The moved case reuses the file's existing `openFillPage` (`:403`) and `draftIdFromUrl` (`:413`) rather than re-declaring them. No verbatim duplicate remains.
+
+**3. In-memory payloads — resolved.** `tinyFilePayloads` (`fillSubmitGuards.spec.ts:494-502`) returns `{name, mimeType, buffer}` objects; `fs`/`os`/`path` imports are gone, no `mkdtempSync`, nothing to clean up. `.txt` is in `BACKEND_ALLOWED_EXTENSIONS` (`src/types/files/file.ts:74-93`).
+
+**4. Boundary pair — both present; only one of them discriminates pre-fix.** Stating this plainly since it was asked:
+- *21-abort* (`:536-567`): discriminates pre-fix vs post-fix. Pre-fix, 21 requests POST and the backend 400s into "Failed to submit questionnaire", so the cap-toast assertion fails and `posts` is length 1.
+- *20-pass* (`:569-602`): **passes on pre-fix code too** — pre-fix has no cap, so 20 submits fine. It is not a pre/post discriminator; it is an off-by-one guard, and it does discriminate against the plausible wrong fix (`&gt;=` instead of `&gt;`), which is exactly what a boundary pair is for. The report's own wording ("Confirms the cap is `&gt; 20`, not `&gt;= 20`") is accurate.
+- Arithmetic re-verified for both: the `files` fixed questionnaire is a single structured question (`StructuredFormData.tsx:143-160`), its response never joins `answeredLeaves`, so no `/submit/` entry and no PUT — N files produce exactly N requests. 21 → abort with `count: 21`; 20 → `20 &gt; 20` false → one `submitBatch`.
+
+**5. `{{max}}` single-sourcing — resolved.** `en.json` now reads "at most {{max}}" and the call site passes `max: MAX_BATCH_REQUESTS` (`useSubmitQuestionnaire.ts:344-352`). Rendered English is byte-identical to before, so the 21-case's exact-text assertion still matches. The `count` key still resolves through i18next's `key_other` → base-key fallback (no suffixed siblings exist), unchanged.
+
+**Source diff unchanged from round 1** — `composeBatch.ts` and `QuestionnaireFillPage.tsx` hunks are byte-identical; `useSubmitQuestionnaire.ts`'s only delta is the `max` interpolation argument. Nothing re-opened.
+
+Verified independently: `npx tsc --noEmit -p tests/tsconfig.json` → exit 0; `npx eslint` on both specs plus `useSubmitQuestionnaire.ts` → exit 0.
+
+### Strengths
+
+- The relocation took the *right* fix rather than the cheap one: it inherited the serial guarantee and the two helpers instead of duplicating an encounter fixture or sprinkling `mode: "serial"` on a second file.
+- `nameEveryFile` (`fillSubmitGuards.spec.ts:508-517`) is shared by both boundary cases, so the 20/21 pair differs in exactly one variable — the count.
+- The header comment at `fillSubmitGuards.spec.ts:472-486` records *why* P1-9 lives elsewhere, which is what stops the next author from moving it back.
+- The parked item (retained-window message wording) is named as parked rather than quietly dropped.
+
+### Issues
+
+**Minor — the 20-pass case is the first e2e that actually completes a file upload through the batch.** Nothing else in `tests/` submits the `files` questionnaire (`structuredRendering.spec.ts:28` only mounts it), so this case newly exercises `/api/v1/files/upload-file/` × 20 inside a batch. If that contract has any unrelated wrinkle, the failure will present as a cap failure. Worth reading its first red run as "upload path" before "cap logic".
+
+**Minor — serial coupling now gates P1-9 coverage.** As the 4th test in a serial describe, it is skipped whenever any of the three preceding tests fails (standard Playwright serial semantics). That is the price of the isolation fix and the right trade, but it means a flake upstream silently removes the draft-linkage assertion from the run.
+
+**Minor (carried, acknowledged as parked) — `questionnaire_submit_missing_forms` misadvises during the resume window.** `onResumeAddedForms` (`QuestionnaireFillPage.tsx:544-552`) retains every snapshot before re-fetching, so a Save Changes click during that loop aborts with "Reload the page and try again" for a form about to mount normally. Errs safe; wording only. Explicitly deferred by instruction.
+
+*Checked and clear:* the 20-pass case leaves 20 `FileType.ENCOUNTER` files on the shared fixture encounter, but no spec under `tests/facility/patient/encounter/` asserts on encounter files, and the DB snapshot restore in `globalSetup` resets local re-runs.
+
+### Assessment — Task quality: Approved
+
+Every round-1 finding is resolved at the right layer — the Important isolation defect by inheriting the existing serial guarantee (and its cleanup contract) rather than papering over it, and the four Minors by relocation, in-memory payloads, a real boundary pair, and `{{max}}`; source behavior is untouched and tsc/eslint verify clean, leaving only deferred-by-design polish.</result>
+<usage><subagent_tokens>167364</subagent_tokens><tool_uses>11</tool_uses><duration_ms>177332</duration_ms></usage>
+</task-notification>
+
+---
+
+<task-notification>
+<task-id>aa255e7f15768ad2d</task-id>
+<tool-use-id>REDACTED</tool-use-id>
+<output-file>/private/tmp/claude-501/-Users-bodhishthomas-code-care-fe/2dabe7d0-29e9-45a7-8554-462aec27da99/tasks/aa255e7f15768ad2d.output</output-file>
+<status>completed</status>
+<summary>Agent "Implement Task 8: hard-block validation" finished</summary>
+<note>A task-notification fires each time this agent stops with no live background children of its own. The user can send it another message and resume it, so the same task-id may notify more than once.</note>
+<result>Status: Done — all 4 review items addressed on top of 9a2d1a81e.
+
+New commit: `6973ae9c8` — `fix(questionnaire-v2): notices stop contradicting the required hard-block; pin coverage and the compose gap`
+
+Verification: `npx tsc --noEmit` clean, `npx eslint` on all changed files 0 errors, `npx prettier --check` clean; locale strings byte-diffed against the spec's literal assertions to rule out em-dash/apostrophe mismatches.
+
+Concerns: none blocking. Parked the null-`structured_type` hole as instructed (pre-existing, dies in Phase-5).</result>
+<usage><subagent_tokens>263502</subagent_tokens><tool_uses>34</tool_uses><duration_ms>412069</duration_ms></usage>
+</task-notification>
+
+---
+
+<task-notification>
+<task-id>a2757c62f595108b4</task-id>
+<tool-use-id>REDACTED</tool-use-id>
+<output-file>/private/tmp/claude-501/-Users-bodhishthomas-code-care-fe/2dabe7d0-29e9-45a7-8554-462aec27da99/tasks/a2757c62f595108b4.output</output-file>
+<status>completed</status>
+<summary>Agent "Review Task 8 (spec + quality)" finished</summary>
+<note>A task-notification fires each time this agent stops with no live background children of its own. The user can send it another message and resume it, so the same task-id may notify more than once.</note>
+<result># Task 8 re-review — fix wave (9a2d1a81e + 6973ae9c8)
+
+### Spec Compliance
+
+All four round-1 findings are resolved. Verified against source, not the report.
+
+1. **Important (spec didn't discriminate) — RESOLVED.** `/Users/bodhishthomas/code/care_fe/tests/facility/patient/encounter/fill/fillHardBlock.spec.ts` non-required case now asserts `"Entries in this section will not be submitted."` inside the structured block, before the fill/submit steps. That sentence does not exist anywhere at base 0f9ed9e3a, so the case now fails on pre-fix code. Both spec cases are now discriminating.
+2. **Minor 2 (contradictory copy) — RESOLVED, and consistently across every state.** All four broken-slot notices branch on `question.required` — `/Users/bodhishthomas/code/care_fe/src/components/QuestionnaireV2/form/StructuredSlot.tsx:112` (unknown_type), `:129` (subject_mismatch), `:149` (missing_context), `:192` (render_failed error-boundary fallback). Each `_required` twin ends in the identical clause and promises no skip; each base variant ends in the identical skip sentence. No state can now show "entries won't be submitted" above "the form can't be saved". The required spec case asserts the required-variant sentence, replacing the old `/isn't enabled/` regex that matched both variants.
+3. **Minor 3 (render_failed) — RESOLVED.** Both twins added; the non-required copy now matches `composeBatch.ts:144`, which does drop render-failed entries.
+4. **Minor 4 (overclaimed parity) — RESOLVED in substance.** `/Users/bodhishthomas/code/care_fe/src/components/QuestionnaireV2/structured/registry.ts:184-196` names the gate verbatim (`!patientBound &amp;&amp; definition.source !== "plugin"`), cites `composeBatch.ts ~166-176` (correct — the gate is at `:176`, its rationale comment at `:166-175`), states neither validator mirrors it, and lands on "`ready` is necessary but not always sufficient." The headline sentence at `:167-168` was also narrowed to drop the "what data reaches the domain APIs" claim it could no longer support.
+
+**i18n checks:** all five new keys (`structured_section_unavailable_required` + four `_required` twins) exist in `public/locale/en.json` only — grepped every file under `public/locale/`, no Crowdin-managed locale touched. Alphabetical placement is correct at each insertion point. The four base notice keys are consumed by `StructuredSlot.tsx` and nothing else, so the appended sentences cannot leak into an unrelated surface.
+
+**Byte-match (implementer's claim) — confirmed.** Extracted every `getByText` literal from the spec and diffed against the resolved locale values: `"This section is required — the form can't be saved until it's available."` uses U+2014 on **both** sides and ASCII `'` (U+0027) on both sides — no smart-quote or hyphen drift. `"Entries in this section will not be submitted."` and the blocking-error template (with `${STRUCTURED_LABEL}` resolved) are ASCII-only and match exactly.
+
+**Round-1 items — not re-checked, and not touched.** `validateStructured.ts` and `validation.ts` carry identical pre/post blob hashes in both review packages (`15740721d..7545be4d5`, `d424e0ed7..14a680c3d`); the fix commit did not alter them. Resolver sharing, single-error-per-question, notice anchoring, and backend fixture acceptance stand as verified.
+
+### Strengths
+
+- The `_required` twin approach is the right shape: one clause reused across all four states means the spec can assert a single sentence and cover every broken path, and a future fifth state has an obvious pattern to follow.
+- The registry exception paragraph is honest engineering — it documents a divergence that makes the module look worse, rather than quietly narrowing the claim.
+- The spec's inline comment on the non-required assertion states *why* it exists ("without this the case would pass unchanged on pre-fix code"), which is exactly the note that stops a future cleanup from deleting it.
+
+### Issues
+
+**Minor**
+
+1. **New, introduced by the fix: the notice branches on `question.required` alone, ignoring enable_when.** `/Users/bodhishthomas/code/care_fe/src/components/QuestionnaireV2/form/QuestionBlock.tsx:48` keeps a logic-disabled question rendered when `disabled_display === "protected"`, while both validators skip disabled questions (`validation.ts:80`, `validateStructured.ts:61`). So a required + broken + currently-disabled-but-protected slot displays "This section is required — the form can't be saved until it's available." while Save in fact succeeds. Pre-fix that same slot said "Entries in this section will not be submitted." — which was correct for that configuration, so this is a small regression in copy accuracy on a narrow config. The precise signal is the enabled state (`useQuestionEnabled`, `QuestionBlock.tsx:46` — the same predicate `isQuestionEnabledInState` implements), **not** the `disabled` prop the slot already receives: `disabled` also covers readonly/`read_only`, where the required block genuinely does apply. Same root cause makes the studio canvas's `revealHidden` path show the required clause on logic-hidden questions.
+2. **One inaccurate clause in the otherwise-correct exception paragraph.** `registry.ts:195` justifies the plugin exemption with "the studio only offers them a resource subject to begin with." Untrue: `PluginStructuredTypeDefinition.subjects` is `readonly SubjectType[]` (`pluginRegistry.ts:31`) and `builder/QuestionTypePicker.tsx:120` offers a plugin type on whatever subjects it declares — patient/encounter included. The conclusion holds (the gate exempts `source === "plugin"` unconditionally), but the stated reason would mislead anyone who relies on it. The report's own addendum uses a different, sounder justification than the comment does.
+
+⚠️ **Standing, unchanged:** Playwright still not executed (checkpoint constraint). Both spec cases are now logically discriminating, but neither has been run against a live backend.
+
+### Assessment — Task quality: Approved
+
+The Important finding is fully closed — both spec cases now fail on pre-fix code and the assertions byte-match the locale strings — and all four notice states received consistent, non-contradictory `_required` branching backed by en.json-only keys. The two remaining Minors are a narrow enable_when copy edge introduced by the fix and one wrong sentence in a comment; neither affects the blocking behavior this task exists to deliver.</result>
+<usage><subagent_tokens>143288</subagent_tokens><tool_uses>15</tool_uses><duration_ms>215835</duration_ms></usage>
+</task-notification>
+
+---
+
+<task-notification>
+<task-id>aacb4d1d476a0ba1e</task-id>
+<tool-use-id>REDACTED</tool-use-id>
+<output-file>/private/tmp/claude-501/-Users-bodhishthomas-code-care-fe/2dabe7d0-29e9-45a7-8554-462aec27da99/tasks/aacb4d1d476a0ba1e.output</output-file>
+<status>completed</status>
+<summary>Agent "Implement Task 10: submit freeze" finished</summary>
+<note>A task-notification fires each time this agent stops with no live background children of its own. The user can send it another message and resume it, so the same task-id may notify more than once.</note>
+<result>Both fixes are committed cleanly (working tree only has the pre-existing unrelated `.gitignore`/`docs/superpowers/` state, not touched by me). Report appended.
+
+Status: DONE (fix pass applied on top of 9c4393df2).
+
+New commit: `9d956c119` — fix(questionnaire-v2): gate the note popover and draft-resume controls on the submit freeze
+
+Verification: `npx tsc --noEmit` (app + tests configs) and `npx eslint` on all 4 changed files — clean.
+
+Concerns: textarea's own `disabled` attribute during an open popover isn't independently exercised live in the spec (Radix Popover auto-closes on the outside Save click, making that assertion untestable as-is; covered by code review + a forced-click-can't-open proof instead); report's original "verified" wording corrected to "asserted by an unexecuted spec" per item 4; parked items (Save-as-Draft freeze, payload assertion scope, isComposing export) left untouched as instructed.</result>
+<usage><subagent_tokens>287364</subagent_tokens><tool_uses>26</tool_uses><duration_ms>380883</duration_ms></usage>
+</task-notification>
