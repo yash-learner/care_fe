@@ -1,0 +1,78 @@
+{
+  "cli_version": "0.9.0",
+  "checkpoint_id": "98ae52fe65b0",
+  "session_id": "31279d46-8734-4b58-91a6-09e6ede634fb",
+  "strategy": "manual-commit",
+  "created_at": "2026-08-03T11:38:21.038955Z",
+  "branch": "bodhi/questionnaire-fill",
+  "checkpoints_count": 1,
+  "save_step_count": 1,
+  "files_touched": [
+    "tests/facility/patient/encounter/fill/fillAutosave.spec.ts",
+    "tests/facility/patient/encounter/fill/fillMultiForm.spec.ts",
+    "tests/facility/patient/encounter/fill/fillOutlineNav.spec.ts",
+    "tests/facility/patient/encounter/fill/fillPage.spec.ts",
+    "tests/facility/patient/encounter/fill/fillServerDraft.spec.ts",
+    "tests/facility/patient/fill/fillPatientSubject.spec.ts"
+  ],
+  "agent": "Claude Code",
+  "model": "claude-fable-5",
+  "turn_id": "9ca849bcd5e6",
+  "compact_transcript_start": 0,
+  "token_usage": {
+    "input_tokens": 684,
+    "cache_creation_tokens": 1097882,
+    "cache_read_tokens": 115094663,
+    "output_tokens": 244067,
+    "api_call_count": 325
+  },
+  "skill_events_version": 1,
+  "skill_events": [
+    {
+      "id": "claude-skill-toolu_01P6PDfiBGp4JPoFGmnxBPgx",
+      "event_type": "tool_invocation",
+      "skill": {
+        "name": "figma:figma-design-to-code"
+      },
+      "source": {
+        "agent": "claude-code",
+        "signal": "skill_tool_use",
+        "confidence": "explicit"
+      },
+      "turn_id": "9ca849bcd5e6",
+      "transcript_anchor": {
+        "unit": "line",
+        "start": 54,
+        "end": 55,
+        "entry_ids": [
+          "91e8ed18-5f77-453f-81fc-9a6775a06876"
+        ],
+        "tool_use_id": "toolu_01P6PDfiBGp4JPoFGmnxBPgx"
+      },
+      "native": {
+        "tool_name": "Skill",
+        "tool_use_id": "toolu_01P6PDfiBGp4JPoFGmnxBPgx"
+      },
+      "collapse": {
+        "target": "tool_pair",
+        "label": "Skill: figma:figma-design-to-code",
+        "default_collapsed": true
+      }
+    }
+  ],
+  "session_metrics": {
+    "turn_count": 1
+  },
+  "initial_attribution": {
+    "calculated_at": "2026-08-03T11:38:20.779922Z",
+    "agent_lines": 456,
+    "agent_removed": 3,
+    "human_added": 0,
+    "human_modified": 0,
+    "human_removed": 0,
+    "total_committed": 456,
+    "total_lines_changed": 459,
+    "agent_percentage": 100,
+    "metric_version": 2
+  }
+}
