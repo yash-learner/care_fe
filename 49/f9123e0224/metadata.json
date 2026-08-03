@@ -1,0 +1,22 @@
+{
+  "cli_version": "0.9.0",
+  "checkpoint_id": "49f9123e0224",
+  "strategy": "manual-commit",
+  "branch": "bodhi/questionnaire-fill",
+  "checkpoints_count": 1,
+  "files_touched": [
+    "src/components/QuestionnaireV2/fill/DraftRestoreBar.tsx",
+    "src/components/QuestionnaireV2/fill/QuestionnaireFillPage.tsx",
+    "src/components/QuestionnaireV2/form/NoteControl.tsx",
+    "tests/facility/patient/encounter/fill/fillFreeze.spec.ts"
+  ],
+  "sessions": [
+    {
+      "metadata": "/49/f9123e0224/0/metadata.json",
+      "transcript": "/49/f9123e0224/0/full.jsonl",
+      "compact_transcript": "/49/f9123e0224/0/transcript.jsonl",
+      "content_hash": "/49/f9123e0224/0/content_hash.txt",
+      "prompt": ""
+    }
+  ]
+}
