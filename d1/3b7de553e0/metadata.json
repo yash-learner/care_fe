@@ -1,0 +1,35 @@
+{
+  "cli_version": "0.9.0",
+  "checkpoint_id": "d13b7de553e0",
+  "strategy": "manual-commit",
+  "branch": "try-entire-1",
+  "checkpoints_count": 3,
+  "files_touched": [
+    "src/components/ui/multi-filter/MultiFilter.tsx",
+    "src/components/ui/multi-filter/activityDefinitionFilter.tsx",
+    "src/components/ui/multi-filter/careTeamFilter.tsx",
+    "src/components/ui/multi-filter/dateFilter.tsx",
+    "src/components/ui/multi-filter/departmentFilter.tsx",
+    "src/components/ui/multi-filter/facilityUserFilter.tsx",
+    "src/components/ui/multi-filter/selectedFilterBar.tsx",
+    "src/components/ui/multi-filter/tagFilter.tsx",
+    "src/components/ui/multi-filter/utils/FilterMenuItem.tsx",
+    "src/components/ui/multi-filter/utils/useResponsiveFilterMenu.tsx"
+  ],
+  "sessions": [
+    {
+      "metadata": "/d1/3b7de553e0/0/metadata.json",
+      "transcript": "/d1/3b7de553e0/0/full.jsonl",
+      "compact_transcript": "/d1/3b7de553e0/0/transcript.jsonl",
+      "content_hash": "/d1/3b7de553e0/0/content_hash.txt",
+      "prompt": "/d1/3b7de553e0/0/prompt.txt"
+    }
+  ],
+  "token_usage": {
+    "input_tokens": 13525591,
+    "cache_creation_tokens": 436284,
+    "cache_read_tokens": 13087658,
+    "output_tokens": 58674,
+    "api_call_count": 110
+  }
+}

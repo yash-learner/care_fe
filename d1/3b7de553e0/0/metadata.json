@@ -1,0 +1,120 @@
+{
+  "cli_version": "0.9.0",
+  "checkpoint_id": "d13b7de553e0",
+  "session_id": "0bae69c8-8027-4ae2-a32a-0590d6b7d200",
+  "strategy": "manual-commit",
+  "created_at": "2026-08-03T18:49:35.58766158Z",
+  "branch": "try-entire-1",
+  "checkpoints_count": 3,
+  "save_step_count": 3,
+  "files_touched": [
+    "src/components/ui/multi-filter/MultiFilter.tsx",
+    "src/components/ui/multi-filter/activityDefinitionFilter.tsx",
+    "src/components/ui/multi-filter/careTeamFilter.tsx",
+    "src/components/ui/multi-filter/dateFilter.tsx",
+    "src/components/ui/multi-filter/departmentFilter.tsx",
+    "src/components/ui/multi-filter/facilityUserFilter.tsx",
+    "src/components/ui/multi-filter/selectedFilterBar.tsx",
+    "src/components/ui/multi-filter/tagFilter.tsx",
+    "src/components/ui/multi-filter/utils/FilterMenuItem.tsx",
+    "src/components/ui/multi-filter/utils/useResponsiveFilterMenu.tsx"
+  ],
+  "agent": "Copilot CLI",
+  "model": "claude-sonnet-5",
+  "turn_id": "35dfadac7e94",
+  "compact_transcript_start": 0,
+  "token_usage": {
+    "input_tokens": 13525591,
+    "cache_creation_tokens": 436284,
+    "cache_read_tokens": 13087658,
+    "output_tokens": 58674,
+    "api_call_count": 110
+  },
+  "session_metrics": {
+    "turn_count": 3
+  },
+  "initial_attribution": {
+    "calculated_at": "2026-08-03T18:49:35.537055349Z",
+    "agent_lines": 232,
+    "agent_removed": 94,
+    "human_added": 0,
+    "human_modified": 0,
+    "human_removed": 0,
+    "total_committed": 232,
+    "total_lines_changed": 326,
+    "agent_percentage": 100,
+    "metric_version": 2
+  },
+  "prompt_attributions": [
+    {
+      "checkpoint_number": 1,
+      "user_lines_added": 5114,
+      "user_lines_removed": 190,
+      "agent_lines_added": 0,
+      "agent_lines_removed": 0,
+      "user_added_per_file": {
+        ".env": 67,
+        "apps_backup/care_livekit_fe_1731511714455/.gitignore": 49,
+        "apps_backup/care_livekit_fe_1731511714455/care-package.lock": 4,
+        "apps_backup/care_livekit_fe_1731511714455/package-lock.json": 4702,
+        "apps_backup/care_livekit_fe_1731511714455/package.json": 24,
+        "apps_backup/care_livekit_fe_1731511714455/src/api/api.tsx": 25,
+        "apps_backup/care_livekit_fe_1731511714455/src/components/DoctorConnectButtons.tsx": 39,
+        "apps_backup/care_livekit_fe_1731511714455/src/components/DoctorLiveConnect.tsx": 38,
+        "apps_backup/care_livekit_fe_1731511714455/src/components/LiveKitComponent.tsx": 106,
+        "apps_backup/care_livekit_fe_1731511714455/src/index.ts": 4,
+        "apps_backup/care_livekit_fe_1731511714455/src/manifest.ts": 17,
+        "apps_backup/care_livekit_fe_1731511714455/src/routes.tsx": 10,
+        "playwright.config.ts": 5,
+        "src/pages/Facility/utils/useCurrentFacility.tsx": 24
+      },
+      "user_removed_per_file": {
+        ".env": 2,
+        "playwright.config.ts": 5,
+        "src/pages/Facility/utils/useCurrentFacility.tsx": 6,
+        "tests/setup/patientAccount.setup.ts": 65,
+        "tests/setup/questionnaire.setup.ts": 112
+      }
+    },
+    {
+      "checkpoint_number": 2,
+      "user_lines_added": 5018,
+      "user_lines_removed": 0,
+      "agent_lines_added": 328,
+      "agent_lines_removed": 284,
+      "user_added_per_file": {
+        "apps_backup/care_livekit_fe_1731511714455/.gitignore": 49,
+        "apps_backup/care_livekit_fe_1731511714455/care-package.lock": 4,
+        "apps_backup/care_livekit_fe_1731511714455/package-lock.json": 4702,
+        "apps_backup/care_livekit_fe_1731511714455/package.json": 24,
+        "apps_backup/care_livekit_fe_1731511714455/src/api/api.tsx": 25,
+        "apps_backup/care_livekit_fe_1731511714455/src/components/DoctorConnectButtons.tsx": 39,
+        "apps_backup/care_livekit_fe_1731511714455/src/components/DoctorLiveConnect.tsx": 38,
+        "apps_backup/care_livekit_fe_1731511714455/src/components/LiveKitComponent.tsx": 106,
+        "apps_backup/care_livekit_fe_1731511714455/src/index.ts": 4,
+        "apps_backup/care_livekit_fe_1731511714455/src/manifest.ts": 17,
+        "apps_backup/care_livekit_fe_1731511714455/src/routes.tsx": 10
+      }
+    },
+    {
+      "checkpoint_number": 3,
+      "user_lines_added": 5018,
+      "user_lines_removed": 0,
+      "agent_lines_added": 328,
+      "agent_lines_removed": 284,
+      "user_added_per_file": {
+        "apps_backup/care_livekit_fe_1731511714455/.gitignore": 49,
+        "apps_backup/care_livekit_fe_1731511714455/care-package.lock": 4,
+        "apps_backup/care_livekit_fe_1731511714455/package-lock.json": 4702,
+        "apps_backup/care_livekit_fe_1731511714455/package.json": 24,
+        "apps_backup/care_livekit_fe_1731511714455/src/api/api.tsx": 25,
+        "apps_backup/care_livekit_fe_1731511714455/src/components/DoctorConnectButtons.tsx": 39,
+        "apps_backup/care_livekit_fe_1731511714455/src/components/DoctorLiveConnect.tsx": 38,
+        "apps_backup/care_livekit_fe_1731511714455/src/components/LiveKitComponent.tsx": 106,
+        "apps_backup/care_livekit_fe_1731511714455/src/index.ts": 4,
+        "apps_backup/care_livekit_fe_1731511714455/src/manifest.ts": 17,
+        "apps_backup/care_livekit_fe_1731511714455/src/routes.tsx": 10
+      }
+    }
+  ]
+}
