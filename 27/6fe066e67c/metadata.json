@@ -1,0 +1,21 @@
+{
+  "cli_version": "0.9.0",
+  "checkpoint_id": "276fe066e67c",
+  "strategy": "manual-commit",
+  "branch": "bodhi/questionnaire-fill",
+  "checkpoints_count": 1,
+  "files_touched": [
+    "src/Providers/AuthUserProvider.tsx",
+    "src/components/Auth/Login.tsx",
+    "tests/auth/loginDraftSurvival.spec.ts"
+  ],
+  "sessions": [
+    {
+      "metadata": "/27/6fe066e67c/0/metadata.json",
+      "transcript": "/27/6fe066e67c/0/full.jsonl",
+      "compact_transcript": "/27/6fe066e67c/0/transcript.jsonl",
+      "content_hash": "/27/6fe066e67c/0/content_hash.txt",
+      "prompt": ""
+    }
+  ]
+}
