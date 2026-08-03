@@ -1,0 +1,22 @@
+{
+  "cli_version": "0.9.0",
+  "checkpoint_id": "559ea190b735",
+  "strategy": "manual-commit",
+  "branch": "bodhi/questionnaire-fill",
+  "checkpoints_count": 1,
+  "files_touched": [
+    "public/locale/en.json",
+    "src/components/QuestionnaireV2/fill/submit/useSubmitQuestionnaire.ts",
+    "tests/facility/patient/encounter/fill/fillServerDraft.spec.ts",
+    "tests/facility/patient/encounter/fill/fillSubmitGuards.spec.ts"
+  ],
+  "sessions": [
+    {
+      "metadata": "/55/9ea190b735/0/metadata.json",
+      "transcript": "/55/9ea190b735/0/full.jsonl",
+      "compact_transcript": "/55/9ea190b735/0/transcript.jsonl",
+      "content_hash": "/55/9ea190b735/0/content_hash.txt",
+      "prompt": ""
+    }
+  ]
+}
