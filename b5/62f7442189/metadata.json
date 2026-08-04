@@ -1,0 +1,25 @@
+{
+  "cli_version": "0.9.0",
+  "checkpoint_id": "b562f7442189",
+  "strategy": "manual-commit",
+  "branch": "bodhi/questionnaire-fill",
+  "checkpoints_count": 1,
+  "files_touched": [
+    "src/components/QuestionnaireV2/structured/core/duplicates.test.ts",
+    "src/components/QuestionnaireV2/structured/core/duplicates.ts",
+    "src/components/QuestionnaireV2/structured/core/editLog.test.ts",
+    "src/components/QuestionnaireV2/structured/core/editLog.ts",
+    "src/components/QuestionnaireV2/structured/core/projectRows.test.ts",
+    "src/components/QuestionnaireV2/structured/core/projectRows.ts",
+    "src/components/QuestionnaireV2/structured/core/useStructuredRows.ts"
+  ],
+  "sessions": [
+    {
+      "metadata": "/b5/62f7442189/0/metadata.json",
+      "transcript": "/b5/62f7442189/0/full.jsonl",
+      "compact_transcript": "/b5/62f7442189/0/transcript.jsonl",
+      "content_hash": "/b5/62f7442189/0/content_hash.txt",
+      "prompt": ""
+    }
+  ]
+}
