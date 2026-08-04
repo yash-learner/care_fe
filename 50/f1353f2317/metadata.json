@@ -1,0 +1,24 @@
+{
+  "cli_version": "0.9.0",
+  "checkpoint_id": "50f1353f2317",
+  "strategy": "manual-commit",
+  "branch": "bodhi/questionnaire-fill",
+  "checkpoints_count": 1,
+  "files_touched": [
+    "public/locale/en.json",
+    "src/components/QuestionnaireV2/structured/core/StructuredList.tsx",
+    "src/components/QuestionnaireV2/structured/core/structuredListTracks.test.ts",
+    "src/components/QuestionnaireV2/structured/core/structuredListTracks.ts",
+    "src/components/QuestionnaireV2/structured/definitions/chargeItem.tsx",
+    "src/components/QuestionnaireV2/structured/types/chargeItem/ChargeItemEditor.tsx"
+  ],
+  "sessions": [
+    {
+      "metadata": "/50/f1353f2317/0/metadata.json",
+      "transcript": "/50/f1353f2317/0/full.jsonl",
+      "compact_transcript": "/50/f1353f2317/0/transcript.jsonl",
+      "content_hash": "/50/f1353f2317/0/content_hash.txt",
+      "prompt": ""
+    }
+  ]
+}
