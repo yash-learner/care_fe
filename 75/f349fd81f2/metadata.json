@@ -1,0 +1,30 @@
+{
+  "cli_version": "0.9.0",
+  "checkpoint_id": "75f349fd81f2",
+  "strategy": "manual-commit",
+  "branch": "bodhi/questionnaire-fill",
+  "checkpoints_count": 2,
+  "files_touched": [
+    "src/components/QuestionnaireV2/structured/core/projectRows.test.ts",
+    "src/components/QuestionnaireV2/structured/core/useStructuredRows.orphanPrune.test.ts",
+    "src/components/QuestionnaireV2/structured/core/useStructuredRows.ts",
+    "tests/facility/patient/encounter/structuredQuestions/structuredFixtures.spec.ts",
+    "tests/helper/structuredFixtures.ts"
+  ],
+  "sessions": [
+    {
+      "metadata": "/75/f349fd81f2/0/metadata.json",
+      "transcript": "/75/f349fd81f2/0/full.jsonl",
+      "compact_transcript": "/75/f349fd81f2/0/transcript.jsonl",
+      "content_hash": "/75/f349fd81f2/0/content_hash.txt",
+      "prompt": "/75/f349fd81f2/0/prompt.txt"
+    }
+  ],
+  "token_usage": {
+    "input_tokens": 683,
+    "cache_creation_tokens": 2185027,
+    "cache_read_tokens": 139570609,
+    "output_tokens": 350848,
+    "api_call_count": 325
+  }
+}
