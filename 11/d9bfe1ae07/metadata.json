@@ -1,0 +1,33 @@
+{
+  "cli_version": "0.9.0",
+  "checkpoint_id": "11d9bfe1ae07",
+  "strategy": "manual-commit",
+  "branch": "bodhi/questionnaire-fill",
+  "checkpoints_count": 1,
+  "files_touched": [
+    "src/components/QuestionnaireV2/form/QuestionBlock.tsx",
+    "src/components/QuestionnaireV2/structured/definitions/serviceRequest.tsx",
+    "src/components/QuestionnaireV2/structured/shared/responseTemplates/applyTemplateItems.ts",
+    "src/components/QuestionnaireV2/structured/shared/responseTemplates/useAddToTemplate.tsx",
+    "src/components/QuestionnaireV2/structured/types.ts",
+    "src/components/QuestionnaireV2/structured/types/serviceRequest/ServiceRequestEditor.tsx",
+    "src/components/QuestionnaireV2/structured/types/serviceRequest/model.test.ts",
+    "src/components/QuestionnaireV2/structured/types/serviceRequest/model.ts"
+  ],
+  "sessions": [
+    {
+      "metadata": "/11/d9bfe1ae07/0/metadata.json",
+      "transcript": "/11/d9bfe1ae07/0/full.jsonl",
+      "compact_transcript": "/11/d9bfe1ae07/0/transcript.jsonl",
+      "content_hash": "/11/d9bfe1ae07/0/content_hash.txt",
+      "prompt": "/11/d9bfe1ae07/0/prompt.txt"
+    }
+  ],
+  "token_usage": {
+    "input_tokens": 947,
+    "cache_creation_tokens": 4780242,
+    "cache_read_tokens": 241433301,
+    "output_tokens": 470475,
+    "api_call_count": 458
+  }
+}

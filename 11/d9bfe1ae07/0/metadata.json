@@ -1,0 +1,197 @@
+{
+  "cli_version": "0.9.0",
+  "checkpoint_id": "11d9bfe1ae07",
+  "session_id": "2dabe7d0-29e9-45a7-8554-462aec27da99",
+  "strategy": "manual-commit",
+  "created_at": "2026-08-04T22:51:12.672622Z",
+  "branch": "bodhi/questionnaire-fill",
+  "checkpoints_count": 1,
+  "save_step_count": 2,
+  "files_touched": [
+    "src/components/QuestionnaireV2/form/QuestionBlock.tsx",
+    "src/components/QuestionnaireV2/structured/definitions/serviceRequest.tsx",
+    "src/components/QuestionnaireV2/structured/shared/responseTemplates/applyTemplateItems.ts",
+    "src/components/QuestionnaireV2/structured/shared/responseTemplates/useAddToTemplate.tsx",
+    "src/components/QuestionnaireV2/structured/types.ts",
+    "src/components/QuestionnaireV2/structured/types/serviceRequest/ServiceRequestEditor.tsx",
+    "src/components/QuestionnaireV2/structured/types/serviceRequest/model.test.ts",
+    "src/components/QuestionnaireV2/structured/types/serviceRequest/model.ts"
+  ],
+  "agent": "Claude Code",
+  "model": "claude-fable-5",
+  "turn_id": "6570c324dc48",
+  "compact_transcript_start": 0,
+  "token_usage": {
+    "input_tokens": 947,
+    "cache_creation_tokens": 4780242,
+    "cache_read_tokens": 241433301,
+    "output_tokens": 470475,
+    "api_call_count": 458
+  },
+  "skill_events_version": 1,
+  "skill_events": [
+    {
+      "id": "claude-skill-toolu_01NQFVMaG1aAGGd8DNB83tfE",
+      "event_type": "tool_invocation",
+      "skill": {
+        "name": "superpowers:receiving-code-review"
+      },
+      "source": {
+        "agent": "claude-code",
+        "signal": "skill_tool_use",
+        "confidence": "explicit"
+      },
+      "turn_id": "6570c324dc48",
+      "transcript_anchor": {
+        "unit": "line",
+        "start": 16,
+        "end": 17,
+        "entry_ids": [
+          "c4e05307-e7ab-4ee1-b764-dcf3ec71fceb"
+        ],
+        "tool_use_id": "toolu_01NQFVMaG1aAGGd8DNB83tfE"
+      },
+      "native": {
+        "tool_name": "Skill",
+        "tool_use_id": "toolu_01NQFVMaG1aAGGd8DNB83tfE"
+      },
+      "collapse": {
+        "target": "tool_pair",
+        "label": "Skill: superpowers:receiving-code-review",
+        "default_collapsed": true
+      }
+    },
+    {
+      "id": "claude-skill-toolu_01K3ZiRbhUpFk1D88k5FWTx4",
+      "event_type": "tool_invocation",
+      "skill": {
+        "name": "superpowers:brainstorming"
+      },
+      "source": {
+        "agent": "claude-code",
+        "signal": "skill_tool_use",
+        "confidence": "explicit"
+      },
+      "turn_id": "6570c324dc48",
+      "transcript_anchor": {
+        "unit": "line",
+        "start": 91,
+        "end": 92,
+        "entry_ids": [
+          "4ae7cd73-419f-467c-938c-c11ac5460df8"
+        ],
+        "tool_use_id": "toolu_01K3ZiRbhUpFk1D88k5FWTx4"
+      },
+      "native": {
+        "tool_name": "Skill",
+        "tool_use_id": "toolu_01K3ZiRbhUpFk1D88k5FWTx4"
+      },
+      "collapse": {
+        "target": "tool_pair",
+        "label": "Skill: superpowers:brainstorming",
+        "default_collapsed": true
+      }
+    },
+    {
+      "id": "claude-skill-toolu_019vWbxRJyWf5Qx7n8L7GYqb",
+      "event_type": "tool_invocation",
+      "skill": {
+        "name": "superpowers:writing-plans"
+      },
+      "source": {
+        "agent": "claude-code",
+        "signal": "skill_tool_use",
+        "confidence": "explicit"
+      },
+      "turn_id": "6570c324dc48",
+      "transcript_anchor": {
+        "unit": "line",
+        "start": 270,
+        "end": 271,
+        "entry_ids": [
+          "f4181952-d461-464d-bef7-83eef2759e04"
+        ],
+        "tool_use_id": "toolu_019vWbxRJyWf5Qx7n8L7GYqb"
+      },
+      "native": {
+        "tool_name": "Skill",
+        "tool_use_id": "toolu_019vWbxRJyWf5Qx7n8L7GYqb"
+      },
+      "collapse": {
+        "target": "tool_pair",
+        "label": "Skill: superpowers:writing-plans",
+        "default_collapsed": true
+      }
+    },
+    {
+      "id": "claude-skill-toolu_017UedMXqRpbrWJM8QTRyxdo",
+      "event_type": "tool_invocation",
+      "skill": {
+        "name": "superpowers:subagent-driven-development"
+      },
+      "source": {
+        "agent": "claude-code",
+        "signal": "skill_tool_use",
+        "confidence": "explicit"
+      },
+      "turn_id": "6570c324dc48",
+      "transcript_anchor": {
+        "unit": "line",
+        "start": 289,
+        "end": 290,
+        "entry_ids": [
+          "fc2aa75b-a3ac-43a8-a0ff-19cc31ab5c00"
+        ],
+        "tool_use_id": "toolu_017UedMXqRpbrWJM8QTRyxdo"
+      },
+      "native": {
+        "tool_name": "Skill",
+        "tool_use_id": "toolu_017UedMXqRpbrWJM8QTRyxdo"
+      },
+      "collapse": {
+        "target": "tool_pair",
+        "label": "Skill: superpowers:subagent-driven-development",
+        "default_collapsed": true
+      }
+    }
+  ],
+  "session_metrics": {
+    "turn_count": 76
+  },
+  "initial_attribution": {
+    "calculated_at": "2026-08-04T22:51:12.369336Z",
+    "agent_lines": 50,
+    "agent_removed": 49,
+    "human_added": 1695,
+    "human_modified": 0,
+    "human_removed": 0,
+    "total_committed": 1745,
+    "total_lines_changed": 1794,
+    "agent_percentage": 5.518394648829431,
+    "metric_version": 2
+  },
+  "prompt_attributions": [
+    {
+      "checkpoint_number": 2,
+      "user_lines_added": 2426,
+      "user_lines_removed": 0,
+      "agent_lines_added": 16081,
+      "agent_lines_removed": 129,
+      "user_added_per_file": {
+        ".context/retros/2026-03-15-1.json": 36,
+        ".husky/commit-msg": 1,
+        ".husky/post-commit": 1,
+        ".husky/post-rewrite": 1,
+        ".husky/pre-push": 1,
+        ".husky/prepare-commit-msg": 1,
+        "src/components/QuestionnaireV2/fill/draft/draftMerge.test.ts": 397,
+        "src/components/QuestionnaireV2/fill/draft/draftMerge.ts": 293,
+        "src/components/QuestionnaireV2/structured/shared/responseTemplates/applyTemplateItems.ts": 99,
+        "src/components/QuestionnaireV2/structured/shared/responseTemplates/useAddToTemplate.tsx": 244,
+        "src/components/QuestionnaireV2/structured/types/serviceRequest/ServiceRequestEditor.tsx": 468,
+        "src/components/QuestionnaireV2/structured/types/serviceRequest/model.test.ts": 572,
+        "src/components/QuestionnaireV2/structured/types/serviceRequest/model.ts": 312
+      }
+    }
+  ]
+}
