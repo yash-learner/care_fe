@@ -1,0 +1,26 @@
+{
+  "cli_version": "0.9.0",
+  "checkpoint_id": "5888e707011b",
+  "strategy": "manual-commit",
+  "branch": "bodhi/questionnaire-fill",
+  "checkpoints_count": 1,
+  "files_touched": [
+    "public/locale/en.json",
+    "src/components/QuestionnaireV2/form/QuestionBlock.tsx",
+    "src/components/QuestionnaireV2/structured/core/StructuredFieldError.tsx",
+    "src/components/QuestionnaireV2/structured/core/structuredFieldErrors.test.ts",
+    "src/components/QuestionnaireV2/structured/core/structuredFieldErrors.ts",
+    "src/components/QuestionnaireV2/structured/definitions/appointment.tsx",
+    "src/components/QuestionnaireV2/structured/types/appointment/AppointmentEditor.tsx",
+    "src/types/questionnaire/batch.ts"
+  ],
+  "sessions": [
+    {
+      "metadata": "/58/88e707011b/0/metadata.json",
+      "transcript": "/58/88e707011b/0/full.jsonl",
+      "compact_transcript": "/58/88e707011b/0/transcript.jsonl",
+      "content_hash": "/58/88e707011b/0/content_hash.txt",
+      "prompt": ""
+    }
+  ]
+}
