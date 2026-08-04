@@ -1,0 +1,21 @@
+{
+  "cli_version": "0.9.0",
+  "checkpoint_id": "4640c7f00bd8",
+  "strategy": "manual-commit",
+  "branch": "bodhi/questionnaire-fill",
+  "checkpoints_count": 1,
+  "files_touched": [
+    "src/components/QuestionnaireV2/structured/core/deepEqual.test.ts",
+    "src/components/QuestionnaireV2/structured/core/deepEqual.ts",
+    "src/components/QuestionnaireV2/structured/core/types.ts"
+  ],
+  "sessions": [
+    {
+      "metadata": "/46/40c7f00bd8/0/metadata.json",
+      "transcript": "/46/40c7f00bd8/0/full.jsonl",
+      "compact_transcript": "/46/40c7f00bd8/0/transcript.jsonl",
+      "content_hash": "/46/40c7f00bd8/0/content_hash.txt",
+      "prompt": ""
+    }
+  ]
+}
