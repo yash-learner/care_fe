@@ -1,0 +1,37 @@
+{
+  "cli_version": "0.9.0",
+  "checkpoint_id": "9316d02fdb2b",
+  "strategy": "manual-commit",
+  "branch": "bodhi/questionnaire-fill",
+  "checkpoints_count": 1,
+  "files_touched": [
+    "src/components/QuestionnaireV2/fill/submit/composeBatch.ts",
+    "src/components/QuestionnaireV2/fill/submit/validateStructured.ts",
+    "src/components/QuestionnaireV2/structured/contract.test.ts",
+    "src/components/QuestionnaireV2/structured/contract.ts",
+    "src/components/QuestionnaireV2/structured/definitions/allergyIntolerance.tsx",
+    "src/components/QuestionnaireV2/structured/definitions/appointment.tsx",
+    "src/components/QuestionnaireV2/structured/definitions/chargeItem.tsx",
+    "src/components/QuestionnaireV2/structured/definitions/diagnosis.tsx",
+    "src/components/QuestionnaireV2/structured/definitions/encounter.tsx",
+    "src/components/QuestionnaireV2/structured/definitions/files.tsx",
+    "src/components/QuestionnaireV2/structured/definitions/medicationRequest.tsx",
+    "src/components/QuestionnaireV2/structured/definitions/medicationStatement.tsx",
+    "src/components/QuestionnaireV2/structured/definitions/serviceRequest.tsx",
+    "src/components/QuestionnaireV2/structured/definitions/symptom.tsx",
+    "src/components/QuestionnaireV2/structured/definitions/timeOfDeath.tsx",
+    "src/components/QuestionnaireV2/structured/pluginRegistry.test.ts",
+    "src/components/QuestionnaireV2/structured/pluginRegistry.ts",
+    "src/components/QuestionnaireV2/structured/registry.ts",
+    "src/components/QuestionnaireV2/structured/types.ts"
+  ],
+  "sessions": [
+    {
+      "metadata": "/93/16d02fdb2b/0/metadata.json",
+      "transcript": "/93/16d02fdb2b/0/full.jsonl",
+      "compact_transcript": "/93/16d02fdb2b/0/transcript.jsonl",
+      "content_hash": "/93/16d02fdb2b/0/content_hash.txt",
+      "prompt": ""
+    }
+  ]
+}
