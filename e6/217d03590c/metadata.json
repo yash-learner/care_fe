@@ -1,0 +1,27 @@
+{
+  "cli_version": "0.9.0",
+  "checkpoint_id": "e6217d03590c",
+  "strategy": "manual-commit",
+  "branch": "bodhi/questionnaire-fill",
+  "checkpoints_count": 3,
+  "files_touched": [
+    "src/components/QuestionnaireV2/fill/draft/useSaveServerDraft.ts",
+    "tests/facility/patient/encounter/fill/fillMultiForm.spec.ts"
+  ],
+  "sessions": [
+    {
+      "metadata": "/e6/217d03590c/0/metadata.json",
+      "transcript": "/e6/217d03590c/0/full.jsonl",
+      "compact_transcript": "/e6/217d03590c/0/transcript.jsonl",
+      "content_hash": "/e6/217d03590c/0/content_hash.txt",
+      "prompt": "/e6/217d03590c/0/prompt.txt"
+    }
+  ],
+  "token_usage": {
+    "input_tokens": 337,
+    "cache_creation_tokens": 416000,
+    "cache_read_tokens": 47403535,
+    "output_tokens": 191855,
+    "api_call_count": 152
+  }
+}
