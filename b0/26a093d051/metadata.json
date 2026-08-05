@@ -1,0 +1,27 @@
+{
+  "cli_version": "0.9.0",
+  "checkpoint_id": "b026a093d051",
+  "strategy": "manual-commit",
+  "branch": "ENG-845/fix-batch-request-error-handling",
+  "checkpoints_count": 2,
+  "files_touched": [
+    "src/Utils/request/README.md",
+    "src/Utils/request/batch.ts"
+  ],
+  "sessions": [
+    {
+      "metadata": "/b0/26a093d051/0/metadata.json",
+      "transcript": "/b0/26a093d051/0/full.jsonl",
+      "compact_transcript": "/b0/26a093d051/0/transcript.jsonl",
+      "content_hash": "/b0/26a093d051/0/content_hash.txt",
+      "prompt": "/b0/26a093d051/0/prompt.txt"
+    }
+  ],
+  "token_usage": {
+    "input_tokens": 0,
+    "cache_creation_tokens": 0,
+    "cache_read_tokens": 0,
+    "output_tokens": 15486,
+    "api_call_count": 34
+  }
+}

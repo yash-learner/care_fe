@@ -1,0 +1,49 @@
+{
+  "cli_version": "0.9.0",
+  "checkpoint_id": "b026a093d051",
+  "session_id": "999ba20d-2c1d-4fba-aac5-4e5f34aec62f",
+  "strategy": "manual-commit",
+  "created_at": "2026-08-05T05:46:47.86811Z",
+  "branch": "ENG-845/fix-batch-request-error-handling",
+  "checkpoints_count": 2,
+  "save_step_count": 1,
+  "files_touched": [
+    "src/Utils/request/README.md",
+    "src/Utils/request/batch.ts"
+  ],
+  "agent": "Copilot CLI",
+  "model": "claude-opus-4.8",
+  "turn_id": "f84aba19a3ce",
+  "compact_transcript_start": 0,
+  "token_usage": {
+    "input_tokens": 0,
+    "cache_creation_tokens": 0,
+    "cache_read_tokens": 0,
+    "output_tokens": 15486,
+    "api_call_count": 34
+  },
+  "session_metrics": {
+    "turn_count": 2
+  },
+  "initial_attribution": {
+    "calculated_at": "2026-08-05T05:46:47.848993Z",
+    "agent_lines": 175,
+    "agent_removed": 17,
+    "human_added": 6,
+    "human_modified": 21,
+    "human_removed": 0,
+    "total_committed": 202,
+    "total_lines_changed": 219,
+    "agent_percentage": 87.67123287671232,
+    "metric_version": 2
+  },
+  "prompt_attributions": [
+    {
+      "checkpoint_number": 1,
+      "user_lines_added": 0,
+      "user_lines_removed": 0,
+      "agent_lines_added": 0,
+      "agent_lines_removed": 0
+    }
+  ]
+}

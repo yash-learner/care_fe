@@ -1,0 +1,59 @@
+[[PLAN]] we have a problem with calling our batch_request API. 
+
+In our backend, batch_request API is a special API where the backend basically executes multiple API requests in series within an atomic transaction block. so if any of the request is not successful, all the changes made by any other requests within the batch are rolled back. i.e., if any of the sub-requests fails, the entire batch fails (returning a 4xx).
+
+however, the errors of each response is within the sub-response of each request's response. 
+hence our global error handler fails here. 
+
+because let's say if first error is success, second failed, and third success, the global error handler will toast something went wrong for the success ones, (because the whole batch had a failure status code, but it's some of it's sub-response din't have an error and hence goes with the fallback). 
+
+the solution i was thinking of was, we could create a `mutate.batch` or update `useBatchRequest` which basically where we can pass array of batch request objects, it'd call the original `mutate` fn itself however wraps it in a try catch to catch our HttpErrors only (else re-throw), and call the global httpErrorHandler by ourself for each of the non-successful responses only by iterating through those. this way we wouldn't need to change anything in the global error handler as well, nor write custom onErrors to handle these. (this would be similar to how we wrote query.paginated for paginating through all pages while querying a paginated API, or we could go with editing the behaviour of useBatchRequest itself directly to achieve the same).
+
+the code would be something like:
+
+```
+const { mutate: batchRequest, isPending } = useBatchRequest();
+
+// ...
+
+const submit = () => {
+ const requests = [];
+ // ...
+ batchRequest(requests);
+}
+```
+
+underneath something like this would happen:
+
+```
+const mutation = useMutation({
+ mutationFn: (requests) => {
+ try {
+ // mutate(...)
+ } catch (error) {
+ if (!(error instanceof HTTPError && isBatchResult(error.cause))) {
+ throw error;
+ }
+ 
+ const errorSubResponses = error.cause.results.filter((r) => r.status_code >= 400)
+ // iterate errorSubResponses
+ }
+ }
+})
+```
+
+ensure the reqeust/README.md is also updated (don't touch existing stuff, only about useBatchRequest).
+
+All documentations/texts generated in this session should STRICTLY follow ASD-STE100 simplified technical english.
+
+<system_notification>
+Reminder: This session currently has an auto-generated or placeholder name. Please call the `rename_session` tool to give it a short, descriptive title based on the user's intent.
+</system_notification>
+
+---
+
+implement the plan
+
+<canvas-context>
+- name="plan" type="plan" title="Plan" panel="closed" artifact="workspace:plan.md" media="text/markdown"
+</canvas-context>
