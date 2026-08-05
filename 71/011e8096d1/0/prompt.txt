@@ -1,0 +1,9 @@
+Fix missing permission gate
+
+In EncounterHistory.tsx (around the empty-state "Create Encounter" button, ~line 82), the button is not gated by the can_create_encounter permission, unlike the other 3 creation entry points (Patient home, Appointment "Start Consultation", Appointment "Create Planned Encounter"), which all check it via the permissions hook before rendering.
+Fix: apply the same permission check used at those other entry points so the button only renders when the user has Can Create encounter.
+Create a GitHub issue in ohcnetwork/care_fe, assign it to yourself, and open a PR fixing this (small, isolated diff).
+
+<system_notification>
+Reminder: This session currently has an auto-generated or placeholder name. Before replying to the user, call the `rename_session` tool to give it a short, descriptive title based on the user's intent.
+</system_notification>
