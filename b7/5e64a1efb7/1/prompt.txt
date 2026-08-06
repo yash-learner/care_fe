@@ -1,0 +1,1195 @@
+Clinical / Condition
+
+This is basically Symptom and Diagnosis
+
+---
+
+Clinical / Condition
+
+This is basically Symptom and Diagnosis
+
+---
+
+Research the **Condition** module (Clinical parent) in the CARE **backend** repo at `~/ohc.network/care`.
+
+IMPORTANT SCOPE NOTE: In CARE, the FHIR R5 "Condition" concept is implemented as TWO resources — **Symptom** and **Diagnosis**. Both are FHIR Condition-derived. Document BOTH as parts of one "Condition" module. Also check whether the backend has any other Condition-derived resource (e.g. allergy intolerance is separate — confirm and say so explicitly).
+
+First read `~/ohc.network/care_docs/.github/skills/care-docs-generation/references/codebase-navigation.md` and use its pre-verified paths and grep patterns instead of re-deriving them.
+
+Deliver a structured, VERIFIED dossier covering:
+
+1. **Models** — `care/emr/models/` for symptom and diagnosis. All stored attributes, nullability, defaults, relations (patient, encounter, created_by, updated_by).
+2. **Resource specs** — `care/emr/resources/condition/` (or wherever the symptom/diagnosis pydantic specs live). Create/Update/Read spec fields, required vs optional, validators, computed/derived fields, perform_extra_* hooks (e.g. auto-setting recorded_date, category, encounter/patient linkage).
+3. **Enums with exact backend values** — clinical status, verification status, severity, category, onset structure. Note which values are allowed in which context, and any values the backend rejects (e.g. `entered_in_error` handling).
+4. **API-level behaviors and flows** — viewsets in `care/emr/api/viewsets/` for symptom and diagnosis. Which HTTP verbs exist (list, retrieve, create, update, upsert). Does the diagnosis viewset allow write? Is there an upsert endpoint for each? Any soft-delete or "entered in error" pattern instead of hard delete.
+5. **Permissions — full RBAC trace.** For every write and read operation: viewset `authorize_create` / `authorize_update` / `authorize_retrieve` → AuthorizationController method → permission constant in `care/security/permissions/`. Report the HUMAN-READABLE permission name from the `Permission` dataclass, plus which roles hold it by default (check `care/security/roles/`). Note any encounter-status gating (e.g. writes blocked on a completed/cancelled encounter).
+6. **Valueset / terminology** — which valueset slug backs symptom code search and diagnosis code search (look in valueset fixtures/models). Note the code system (SNOMED CT etc.) and whether the valueset is deployment-configurable.
+7. **Config flags** — anything in `config/settings/` that changes symptom/diagnosis behavior.
+8. **FHIR R5 alignment** — map CARE fields to FHIR R5 Condition (https://build.fhir.org/condition.html) elements. Note deviations.
+9. **Suspected code issues** — anything inconsistent between symptom and diagnosis implementations.
+
+Rules:
+- READ-ONLY. Do not edit any file.
+- NEVER guess. Mark anything you could not verify under an explicit "UNVERIFIED / NEEDS USER INPUT" section with the exact question.
+- Cite file paths for every claim so the orchestrator can spot-check.
+
+Return the dossier as your final message.
+
+---
+
+Research the **Condition** module (Clinical parent) in the CARE **frontend** repo at `~/ohc.network/care_fe`.
+
+IMPORTANT SCOPE NOTE: In CARE, the FHIR R5 "Condition" concept is implemented as TWO things — **Symptom** and **Diagnosis**. Document BOTH as parts of one "Condition" module. Type definitions live at `src/types/emr/symptom/` and `src/types/emr/diagnosis/`.
+
+First read `~/ohc.network/care_docs/.github/skills/care-docs-generation/references/codebase-navigation.md` and use its pre-verified paths and grep patterns instead of re-deriving them.
+
+Deliver a structured, VERIFIED dossier covering:
+
+1. **UI surfaces and routes** — where a user sees and edits symptoms and diagnoses. Look for questionnaire-based entry (structured question types `symptom` / `diagnosis`), encounter tabs/sections, the patient summary/updates pages, and any printable/discharge summary rendering. Give exact route paths and the nav/tab labels as shown to the user.
+2. **Every user-facing flow**, in the order a user meets them. For each: entry point(s), the exact on-screen sequence, field-by-field description, and the confirmation/result. Candidate flows to verify (add/remove based on what the code actually supports): record a symptom, record a diagnosis, edit an existing symptom/diagnosis, mark as entered in error / remove, view symptom & diagnosis history on the encounter, and how these appear in a questionnaire submission.
+3. **Form fields** — for the symptom question and diagnosis question components: every field, its widget (code autocomplete, select, date, textarea), whether it is required, and its default value. Include the code search behavior (valueset-backed autocomplete, minimum characters, debounce if visible to the user).
+4. **Display labels — MANDATORY.** For EVERY enum value below, give the exact string from `public/locale/en.json`. Search for the key pattern and quote the literal value:
+   - clinical status: active, recurrence, relapse, inactive, remission, resolved
+   - verification status: unconfirmed, provisional, differential, confirmed, refuted, entered_in_error
+   - severity: severe, moderate, mild
+   - diagnosis category: encounter_diagnosis, chronic_condition
+   - onset fields and any section/heading labels used in the symptom/diagnosis UI
+   Also give the user-facing labels for the buttons and headings used in each flow. If a key is missing from en.json, say so explicitly rather than inventing a label.
+5. **Status colors/badges** — how each status renders (only if it helps a user interpret the screen).
+6. **Permission gating in the UI** — which permission constants hide or disable the symptom/diagnosis actions, and any encounter-status gating (e.g. actions disabled once an encounter is completed).
+7. **Keyboard shortcuts** — check `src/config/keyboardShortcuts.json` for anything relevant. Verify actual keys; do not assume.
+8. **Config flags** — anything in `care.config.ts` or env vars that changes symptom/diagnosis behavior.
+9. **Suspected code issues** — inconsistencies between the symptom and diagnosis UIs.
+
+Rules:
+- READ-ONLY. Do not edit any file.
+- NEVER guess. Mark anything you could not verify under an explicit "UNVERIFIED / NEEDS USER INPUT" section with the exact question.
+- Cite file paths for every claim.
+
+Return the dossier as your final message.
+
+---
+
+Research the **Condition** module (Clinical parent) in the CARE **frontend** repo at `~/ohc.network/care_fe`.
+
+IMPORTANT SCOPE NOTE: In CARE, the FHIR R5 "Condition" concept is implemented as TWO things — **Symptom** and **Diagnosis**. Document BOTH as parts of one "Condition" module. Type definitions live at `src/types/emr/symptom/` and `src/types/emr/diagnosis/`.
+
+First read `~/ohc.network/care_docs/.github/skills/care-docs-generation/references/codebase-navigation.md` and use its pre-verified paths and grep patterns instead of re-deriving them.
+
+Deliver a structured, VERIFIED dossier covering:
+
+1. **UI surfaces and routes** — where a user sees and edits symptoms and diagnoses. Look for questionnaire-based entry (structured question types `symptom` / `diagnosis`), encounter tabs/sections, the patient summary/updates pages, and any printable/discharge summary rendering. Give exact route paths and the nav/tab labels as shown to the user.
+2. **Every user-facing flow**, in the order a user meets them. For each: entry point(s), the exact on-screen sequence, field-by-field description, and the confirmation/result. Candidate flows to verify (add/remove based on what the code actually supports): record a symptom, record a diagnosis, edit an existing symptom/diagnosis, mark as entered in error / remove, view symptom & diagnosis history on the encounter, and how these appear in a questionnaire submission.
+3. **Form fields** — for the symptom question and diagnosis question components: every field, its widget (code autocomplete, select, date, textarea), whether it is required, and its default value. Include the code search behavior (valueset-backed autocomplete, minimum characters, debounce if visible to the user).
+4. **Display labels — MANDATORY.** For EVERY enum value below, give the exact string from `public/locale/en.json`. Search for the key pattern and quote the literal value:
+   - clinical status: active, recurrence, relapse, inactive, remission, resolved
+   - verification status: unconfirmed, provisional, differential, confirmed, refuted, entered_in_error
+   - severity: severe, moderate, mild
+   - diagnosis category: encounter_diagnosis, chronic_condition
+   - onset fields and any section/heading labels used in the symptom/diagnosis UI
+   Also give the user-facing labels for the buttons and headings used in each flow. If a key is missing from en.json, say so explicitly rather than inventing a label.
+5. **Status colors/badges** — how each status renders (only if it helps a user interpret the screen).
+6. **Permission gating in the UI** — which permission constants hide or disable the symptom/diagnosis actions, and any encounter-status gating (e.g. actions disabled once an encounter is completed).
+7. **Keyboard shortcuts** — check `src/config/keyboardShortcuts.json` for anything relevant. Verify actual keys; do not assume.
+8. **Config flags** — anything in `care.config.ts` or env vars that changes symptom/diagnosis behavior.
+9. **Suspected code issues** — inconsistencies between the symptom and diagnosis UIs.
+
+Rules:
+- READ-ONLY. Do not edit any file.
+- NEVER guess. Mark anything you could not verify under an explicit "UNVERIFIED / NEEDS USER INPUT" section with the exact question.
+- Cite file paths for every claim.
+
+Return the dossier as your final message.
+
+---
+
+Research the **Condition** module (Clinical parent) in the CARE **backend** repo at `~/ohc.network/care`.
+
+IMPORTANT SCOPE NOTE: In CARE, the FHIR R5 "Condition" concept is implemented as TWO resources — **Symptom** and **Diagnosis**. Both are FHIR Condition-derived. Document BOTH as parts of one "Condition" module. Also check whether the backend has any other Condition-derived resource (e.g. allergy intolerance is separate — confirm and say so explicitly).
+
+First read `~/ohc.network/care_docs/.github/skills/care-docs-generation/references/codebase-navigation.md` and use its pre-verified paths and grep patterns instead of re-deriving them.
+
+Deliver a structured, VERIFIED dossier covering:
+
+1. **Models** — `care/emr/models/` for symptom and diagnosis. All stored attributes, nullability, defaults, relations (patient, encounter, created_by, updated_by).
+2. **Resource specs** — `care/emr/resources/condition/` (or wherever the symptom/diagnosis pydantic specs live). Create/Update/Read spec fields, required vs optional, validators, computed/derived fields, perform_extra_* hooks (e.g. auto-setting recorded_date, category, encounter/patient linkage).
+3. **Enums with exact backend values** — clinical status, verification status, severity, category, onset structure. Note which values are allowed in which context, and any values the backend rejects (e.g. `entered_in_error` handling).
+4. **API-level behaviors and flows** — viewsets in `care/emr/api/viewsets/` for symptom and diagnosis. Which HTTP verbs exist (list, retrieve, create, update, upsert). Does the diagnosis viewset allow write? Is there an upsert endpoint for each? Any soft-delete or "entered in error" pattern instead of hard delete.
+5. **Permissions — full RBAC trace.** For every write and read operation: viewset `authorize_create` / `authorize_update` / `authorize_retrieve` → AuthorizationController method → permission constant in `care/security/permissions/`. Report the HUMAN-READABLE permission name from the `Permission` dataclass, plus which roles hold it by default (check `care/security/roles/`). Note any encounter-status gating (e.g. writes blocked on a completed/cancelled encounter).
+6. **Valueset / terminology** — which valueset slug backs symptom code search and diagnosis code search (look in valueset fixtures/models). Note the code system (SNOMED CT etc.) and whether the valueset is deployment-configurable.
+7. **Config flags** — anything in `config/settings/` that changes symptom/diagnosis behavior.
+8. **FHIR R5 alignment** — map CARE fields to FHIR R5 Condition (https://build.fhir.org/condition.html) elements. Note deviations.
+9. **Suspected code issues** — anything inconsistent between symptom and diagnosis implementations.
+
+Rules:
+- READ-ONLY. Do not edit any file.
+- NEVER guess. Mark anything you could not verify under an explicit "UNVERIFIED / NEEDS USER INPUT" section with the exact question.
+- Cite file paths for every claim so the orchestrator can spot-check.
+
+Return the dossier as your final message.
+
+---
+
+Ignore Chronic Condition. that feature will be bought to care later.
+ignore about questionnaire submit permission confusion. structured questions does not check these permissions.
+discharge summary: ignore this, it's part of reports and configurable at instance level.
+hidden quick actions, you can document about the shortcuts. it's intention is only for shortcuts. nto to be a user clickable thing.
+
+code issues:
+backend read spec issue of criticality, don't fix it. i'll handle it separatley.
+diagnosis viewset does not filter by category in get_queryset, but the filtersets contains a category filter and frontend is passing the correct values to filter it by the backend filterset. this is intended, since chronic condition will be built later.
+ignore chronic condition diagnossis updates are gated by read permission.
+ignore chronic condition update spec is dead code and dead columns.
+frontend has upsertSymptoms, ignore for diagnosis.
+unused keys, yes you can clean them up (only for diagnosis).
+
+---
+
+Ignore Chronic Condition. that feature will be bought to care later.
+ignore about questionnaire submit permission confusion. structured questions does not check these permissions.
+discharge summary: ignore this, it's part of reports and configurable at instance level.
+hidden quick actions, you can document about the shortcuts. it's intention is only for shortcuts. nto to be a user clickable thing.
+
+code issues:
+backend read spec issue of criticality, don't fix it. i'll handle it separatley.
+diagnosis viewset does not filter by category in get_queryset, but the filtersets contains a category filter and frontend is passing the correct values to filter it by the backend filterset. this is intended, since chronic condition will be built later.
+ignore chronic condition diagnossis updates are gated by read permission.
+ignore chronic condition update spec is dead code and dead columns.
+frontend has upsertSymptoms, ignore for diagnosis.
+unused keys, yes you can clean them up (only for diagnosis).
+
+---
+
+Write EXACTLY ONE file: `/Users/rithviknishad/ohc.network/care_docs/Clinical/Condition/flows/6. View the clinical history.md`
+
+Doc type: **flow**. Follow `care_docs/.github/skills/care-docs-generation/assets/flow-template.md`, `references/doc-rules.md`, and `references/ste-rules.md`. Do not create or edit any other file.
+
+**DO NOT mention "Chronic Condition" anywhere.**
+
+## Verified facts
+
+This flow describes how to review the symptoms and the diagnoses of a patient, both for the current encounter and across all past encounters.
+
+**Prerequisites**
+- You have the "Can view clinical data about patients" permission or the "Can Read encounter related clinical data" permission. Without one of them, the encounter shows "You do not have permission to view clinical data for this encounter".
+- You do not need write access. This flow is read-only, and it works for an encounter of any status.
+
+**Entry point A — the current encounter**
+1. Open the encounter and go to the **Overview** tab.
+2. The **Symptoms** and **Diagnoses** sections show the records of that encounter.
+3. When nothing is recorded, the sections show "No Symptoms" with "No symptoms have been recorded", or "No Diagnoses" with "No Diagnoses have been recorded".
+
+**Entry point B — the full patient history**
+1. Select **See Clinical History** on the encounter, or press the keyboard shortcut **`h`**.
+2. The patient's clinical history page opens. Its title reads "{patient name}'s clinical history".
+3. Select the **Past Symptoms** tab or the **Past Diagnoses** tab.
+4. The records show grouped by year and then by date, newest first.
+5. Each record shows the clinical term, badges for Status, Verification, and Severity, the onset date, and who reported it.
+6. Select the note control to open or hide the note text.
+7. If the record comes from another encounter, select **Go to Encounter** to open that encounter.
+8. Select **Back to Encounter** or **Back to Patient** to leave the history page.
+
+**Reading the badges**
+- Status values: Active, Recurrence, Relapse, Inactive, Remission, Resolved.
+- Verification values: Unconfirmed, Provisional, Differential, Confirmed, Refuted, Entered in Error.
+- Severity values: Mild, Moderate, Severe.
+- A record with the Verification value "Entered in Error" was retracted. Do not use it for clinical decisions.
+
+**Permissions section content**
+- To view: "Can view clinical data about patients" or "Can Read encounter related clinical data".
+- By default, doctors, nurses, administrators, and facility administrators can read encounter clinical data. Staff can view patient clinical data.
+
+## Related section (relative links, `%20` for spaces)
+- [Condition concept](../concept.md)
+- [Record a symptom](./1.%20Record%20a%20symptom.md)
+- [Record a diagnosis](./2.%20Record%20a%20diagnosis.md)
+- [Add a symptom or diagnosis from past records](./3.%20Add%20a%20symptom%20or%20diagnosis%20from%20past%20records.md)
+- [Update a symptom or diagnosis](./4.%20Update%20a%20symptom%20or%20diagnosis.md)
+- [Mark a symptom or diagnosis as entered in error](./5.%20Mark%20a%20symptom%20or%20diagnosis%20as%20entered%20in%20error.md)
+
+## Hard rules
+- H1 centered with `<h1 align="center">...</h1>`.
+- No code, file paths, endpoints, or class names.
+- NEVER invent a fact that is not in this brief.
+
+---
+
+Write EXACTLY ONE file: `/Users/rithviknishad/ohc.network/care_docs/Clinical/Condition/concept.md`
+
+Doc type: **concept**. Follow `care_docs/.github/skills/care-docs-generation/assets/concept-template.md`, `references/doc-rules.md`, and `references/ste-rules.md`. Do not create or edit any other file.
+
+## Scope
+The module is **Condition**. In CARE, the FHIR R5 `Condition` concept (https://build.fhir.org/condition.html — link it on first mention) is recorded as two related record types: **Symptom** and **Diagnosis**. Document both as parts of one Condition module. Allergy Intolerance is a separate module — do not cover it.
+
+**DO NOT mention "Chronic Condition" anywhere.** That capability is not available yet. Diagnoses recorded in CARE today are always visit-specific and show the category badge "Diagnosis".
+
+## Verified facts (use only these)
+
+**What a condition is in CARE**
+- A symptom is what the patient reports or the clinician observes. A diagnosis is the clinician's determination of the condition.
+- Every symptom and every diagnosis belongs to one patient and is recorded against one encounter. CARE takes the patient from the encounter; you never choose the patient separately.
+- You cannot record a symptom or a diagnosis without an active encounter. The screen then shows "Symptoms cannot be recorded without an active encounter" or "Diagnosis cannot be recorded without an active encounter".
+
+**Attributes (same for symptoms and diagnoses unless stated)**
+| Attribute | Description | Default |
+|---|---|---|
+| Code | The clinical term, selected from a standard SNOMED CT clinical-finding terminology | none, you must select one |
+| Status | The current clinical state | Active |
+| Verification | How certain the record is | Confirmed |
+| Severity | How severe the condition is | Moderate. For a diagnosis you can leave it empty; the field then shows "Choose severity" |
+| Onset Date | When the condition started | Today. A future date is not accepted |
+| Note | Free text | empty |
+
+Diagnoses additionally show a category badge with the label "Diagnosis", which marks the record as specific to that visit.
+
+**Status values (exact labels):** Active, Recurrence, Relapse, Inactive, Remission, Resolved.
+**Verification values (exact labels):** Unconfirmed, Provisional, Differential, Confirmed, Refuted, Entered in Error.
+**Severity values (exact labels):** Mild, Moderate, Severe.
+
+**Lifecycle**
+- You record symptoms and diagnoses from the encounter's Overview tab, in the "Symptoms" and "Diagnoses" sections.
+- You can change the Status, Verification, Severity, and Note of a saved record at any time while the encounter is open. You cannot change the Onset Date after the record is saved.
+- CARE never deletes a saved symptom or diagnosis. To retract one, you set its Verification to "Entered in Error". The record stays visible with that label.
+- Records marked "Entered in Error" are left out of the past-records picker.
+- Symptoms and diagnoses stay with the patient. The patient's clinical history shows them across all encounters, under the "Past Symptoms" and "Past Diagnoses" tabs.
+
+**Terminology**
+- Codes come from a standard SNOMED CT clinical-finding terminology. The same terminology serves symptoms and diagnoses. Your deployment's administrator can change the available terminology.
+
+**Who can do what**
+- To see symptoms and diagnoses you need "Can view clinical data about patients" or "Can Read encounter related clinical data".
+- To record or change them you need "Update Encounter related clinical data".
+- By default, doctors, nurses, administrators, and facility administrators can record and change clinical data. Staff can view patient clinical data but do not have encounter clinical-data access.
+- All add and edit controls become read-only when the encounter status is Completed, Cancelled, Discontinued, or Entered in Error.
+
+**FHIR R5 alignment (describe in user terms, no field names from code)**
+CARE follows FHIR R5 Condition: the code, clinical status, verification status, severity, category, onset, and note all map to the FHIR Condition resource. CARE records the clinical status, verification status, and severity as fixed lists rather than free coded values, and records one note rather than many.
+
+## Related section
+Link to these sibling flow docs (they are written in the same run). Use relative paths with `%20` for spaces:
+- [Record a symptom](./flows/1.%20Record%20a%20symptom.md)
+- [Record a diagnosis](./flows/2.%20Record%20a%20diagnosis.md)
+- [Add a symptom or diagnosis from past records](./flows/3.%20Add%20a%20symptom%20or%20diagnosis%20from%20past%20records.md)
+- [Update a symptom or diagnosis](./flows/4.%20Update%20a%20symptom%20or%20diagnosis.md)
+- [Mark a symptom or diagnosis as entered in error](./flows/5.%20Mark%20a%20symptom%20or%20diagnosis%20as%20entered%20in%20error.md)
+- [View the clinical history](./flows/6.%20View%20the%20clinical%20history.md)
+
+## Hard rules
+- H1 centered with `<h1 align="center">...</h1>`.
+- No code, file paths, endpoints, class names, or internal identifiers in the output.
+- NEVER invent a fact that is not in this brief. Omit anything you are unsure about.
+
+---
+
+Write EXACTLY ONE file: `/Users/rithviknishad/ohc.network/care_docs/Clinical/Condition/flows/2. Record a diagnosis.md`
+
+Doc type: **flow**. Follow `care_docs/.github/skills/care-docs-generation/assets/flow-template.md`, `references/doc-rules.md`, and `references/ste-rules.md`. Do not create or edit any other file.
+
+**DO NOT mention "Chronic Condition" anywhere.** Every diagnosis recorded here is specific to the visit and carries the category badge "Diagnosis".
+
+## Verified facts
+
+**Prerequisites**
+- The patient has an open encounter at the facility, and that encounter is the patient's active encounter.
+- You have the "Update Encounter related clinical data" permission. Doctors, nurses, administrators, and facility administrators have it by default.
+- The encounter is not Completed, Cancelled, Discontinued, or Entered in Error. In those states all add and edit controls are read-only.
+- Without an active encounter the screen shows "Diagnosis cannot be recorded without an active encounter".
+
+**Entry points**
+1. Open the encounter, go to the **Overview** tab, find the **Diagnoses** section, and select the edit (pencil) icon.
+2. Press the keyboard shortcut **`d`** anywhere on the encounter screens. This is the fastest path and it opens the same diagnosis screen. (There is no visible quick-action tile for this; the shortcut is the intended alternative.)
+
+**Steps**
+1. The diagnosis screen opens with the list of diagnoses already recorded for the encounter.
+2. Select **Add Diagnosis**. On a later addition the control reads **Add another Diagnosis**.
+3. A search box opens. Type at least **3 characters**. Below that, the screen shows a message that tells you the minimum length.
+4. Results come from a standard SNOMED CT clinical-finding terminology. The search also offers a **Recents** tab with codes you used before, and a **Starred** tab with codes you pinned. Select the star icon on a result to pin it.
+5. Select a term. A new row appears with these defaults:
+   - Status: **Active**
+   - Verification: **Confirmed**
+   - Severity: **Moderate**
+   - Onset Date: **today**
+   The row also shows a badge with the label **Diagnosis**, which marks the record as specific to this visit.
+6. Change the values if you need to:
+   - **Status** (placeholder "Select diagnosis status"): Active, Recurrence, Relapse, Inactive, Remission, Resolved.
+   - **Verification** (placeholder "Select verification status"): Unconfirmed, Provisional, Differential, Confirmed, Refuted. ("Entered in Error" is not offered for a new diagnosis.)
+   - **Severity**: Mild, Moderate, Severe. You can also leave the severity empty; the field then shows "Choose severity".
+   - **Onset Date**: pick a date. A future date is not accepted.
+7. To add a note, use the row's **Notes** field, available from the row's more-options (**⋮**) menu.
+8. Repeat from step 2 for each further diagnosis. If you select a term that the encounter already has, CARE shows the warning "Diagnosis already exists!" and does not add a second row.
+9. Select **Submit**.
+
+**Result**
+- CARE shows the confirmation "Questionnaire submitted successfully".
+- The diagnoses appear in the **Diagnoses** section of the encounter Overview tab, and in the patient's **Past Diagnoses** clinical history.
+- When no diagnosis is recorded, the section shows "No Diagnoses" with the message "No Diagnoses have been recorded".
+
+**Permissions section content**
+- To view: "Can view clinical data about patients" or "Can Read encounter related clinical data".
+- To record: "Update Encounter related clinical data".
+- Without view access the encounter shows "You do not have permission to view clinical data for this encounter".
+
+**Note about configuration**
+The available clinical terminology is set for your deployment and your administrator can change it.
+
+## Related section (relative links, `%20` for spaces)
+- [Condition concept](../concept.md)
+- [Record a symptom](./1.%20Record%20a%20symptom.md)
+- [Add a symptom or diagnosis from past records](./3.%20Add%20a%20symptom%20or%20diagnosis%20from%20past%20records.md)
+- [Update a symptom or diagnosis](./4.%20Update%20a%20symptom%20or%20diagnosis.md)
+- [Mark a symptom or diagnosis as entered in error](./5.%20Mark%20a%20symptom%20or%20diagnosis%20as%20entered%20in%20error.md)
+- [View the clinical history](./6.%20View%20the%20clinical%20history.md)
+
+## Hard rules
+- H1 centered with `<h1 align="center">...</h1>`.
+- No code, file paths, endpoints, or class names.
+- NEVER invent a fact that is not in this brief.
+
+---
+
+Write EXACTLY ONE file: `/Users/rithviknishad/ohc.network/care_docs/Clinical/Condition/flows/1. Record a symptom.md`
+
+Doc type: **flow**. Follow `care_docs/.github/skills/care-docs-generation/assets/flow-template.md`, `references/doc-rules.md`, and `references/ste-rules.md`. Do not create or edit any other file.
+
+**DO NOT mention "Chronic Condition" anywhere.**
+
+## Verified facts
+
+**Prerequisites**
+- The patient has an open encounter at the facility, and that encounter is the patient's active encounter.
+- You have the "Update Encounter related clinical data" permission. Doctors, nurses, administrators, and facility administrators have it by default.
+- The encounter is not Completed, Cancelled, Discontinued, or Entered in Error. In those states all add and edit controls are read-only.
+- Without an active encounter the screen shows "Symptoms cannot be recorded without an active encounter".
+
+**Entry points**
+1. Open the encounter, go to the **Overview** tab, find the **Symptoms** section, and select the edit (pencil) icon.
+2. Press the keyboard shortcut **`s`** anywhere on the encounter screens. This is the fastest path and it opens the same symptom screen. (There is no visible quick-action tile for this; the shortcut is the intended alternative.)
+
+**Steps**
+1. The symptom screen opens with the list of symptoms already recorded for the encounter.
+2. Select **Add Symptom**. On a later addition the control reads **Add another Symptom**.
+3. A search box opens. Type at least **3 characters**. Below that, the screen shows a message that tells you the minimum length.
+4. Results come from a standard SNOMED CT clinical-finding terminology. The search also offers a **Recents** tab with codes you used before, and a **Starred** tab with codes you pinned. Select the star icon on a result to pin it.
+5. Select a term. A new row appears with these defaults:
+   - Status: **Active**
+   - Verification: **Confirmed**
+   - Severity: **Moderate**
+   - Onset Date: **today**
+6. Change the values if you need to:
+   - **Status**: Active, Recurrence, Relapse, Inactive, Remission, Resolved.
+   - **Verification**: Unconfirmed, Provisional, Differential, Confirmed, Refuted. ("Entered in Error" is not offered for a new symptom.)
+   - **Severity**: Mild, Moderate, Severe.
+   - **Onset Date**: pick a date. A future date is not accepted.
+7. To add a note, open the row's more-options (**⋮**) menu and select **Add notes**. Type the note. You can show or hide notes later.
+8. Repeat from step 2 for each further symptom. If you select a term that the encounter already has, CARE shows the warning "Symptom already exists!" and does not add a second row.
+9. Select **Submit**.
+
+**Result**
+- CARE shows the confirmation "Questionnaire submitted successfully".
+- The symptoms appear in the **Symptoms** section of the encounter Overview tab, and in the patient's **Past Symptoms** clinical history.
+- When no symptom is recorded, the section shows "No Symptoms" with the message "No symptoms have been recorded".
+
+**Permissions section content**
+- To view: "Can view clinical data about patients" or "Can Read encounter related clinical data".
+- To record: "Update Encounter related clinical data".
+- Without view access the encounter shows "You do not have permission to view clinical data for this encounter".
+
+**Note about configuration**
+The available clinical terminology is set for your deployment and your administrator can change it.
+
+## Related section (relative links, `%20` for spaces)
+- [Condition concept](../concept.md)
+- [Record a diagnosis](./2.%20Record%20a%20diagnosis.md)
+- [Add a symptom or diagnosis from past records](./3.%20Add%20a%20symptom%20or%20diagnosis%20from%20past%20records.md)
+- [Update a symptom or diagnosis](./4.%20Update%20a%20symptom%20or%20diagnosis.md)
+- [Mark a symptom or diagnosis as entered in error](./5.%20Mark%20a%20symptom%20or%20diagnosis%20as%20entered%20in%20error.md)
+- [View the clinical history](./6.%20View%20the%20clinical%20history.md)
+
+## Hard rules
+- H1 centered with `<h1 align="center">...</h1>`.
+- No code, file paths, endpoints, or class names.
+- NEVER invent a fact that is not in this brief.
+
+---
+
+Write EXACTLY ONE file: `/Users/rithviknishad/ohc.network/care_docs/Clinical/Condition/flows/4. Update a symptom or diagnosis.md`
+
+Doc type: **flow**. Follow `care_docs/.github/skills/care-docs-generation/assets/flow-template.md`, `references/doc-rules.md`, and `references/ste-rules.md`. Do not create or edit any other file.
+
+**DO NOT mention "Chronic Condition" anywhere.**
+
+## Verified facts
+
+This flow describes how to change a symptom or a diagnosis that is already recorded, for example when the patient improves or when a provisional finding becomes confirmed.
+
+**Prerequisites**
+- The symptom or the diagnosis is already recorded on the encounter.
+- The encounter is the patient's active encounter and its status is not Completed, Cancelled, Discontinued, or Entered in Error. In those states the record is read-only.
+- You have the "Update Encounter related clinical data" permission.
+
+**Entry points**
+- Encounter **Overview** tab → **Symptoms** section edit (pencil) icon, or the keyboard shortcut **`s`**.
+- Encounter **Overview** tab → **Diagnoses** section edit (pencil) icon, or the keyboard shortcut **`d`**.
+
+**Steps**
+1. Open the symptom screen or the diagnosis screen. The records of the encounter show in a list, each in its own row.
+2. Change the values you need. You can change these fields on a saved record:
+   - **Status**: Active, Recurrence, Relapse, Inactive, Remission, Resolved.
+   - **Verification**: Unconfirmed, Provisional, Differential, Confirmed, Refuted. The option "Entered in Error" shows only if the record already has that value. To retract a record, see the related flow.
+   - **Severity**: Mild, Moderate, Severe. For a diagnosis you can also leave it empty; the field then shows "Choose severity".
+   - **Note**: open the row's more-options (**⋮**) menu and select **Add notes**. Use **Show notes** and **Hide notes** to open or close the note text.
+3. You cannot change the **Onset Date** of a saved record. The field is unavailable after the first submission.
+4. You cannot change the clinical term of a saved record. To correct a wrong term, mark the record as entered in error and record the correct one.
+5. Select **Submit**.
+
+**Result**
+- CARE shows the confirmation "Questionnaire submitted successfully".
+- The updated values show in the **Symptoms** or **Diagnoses** section of the encounter Overview tab, and in the patient's clinical history.
+
+**Permissions section content**
+- To view: "Can view clinical data about patients" or "Can Read encounter related clinical data".
+- To change: "Update Encounter related clinical data".
+
+## Related section (relative links, `%20` for spaces)
+- [Condition concept](../concept.md)
+- [Record a symptom](./1.%20Record%20a%20symptom.md)
+- [Record a diagnosis](./2.%20Record%20a%20diagnosis.md)
+- [Add a symptom or diagnosis from past records](./3.%20Add%20a%20symptom%20or%20diagnosis%20from%20past%20records.md)
+- [Mark a symptom or diagnosis as entered in error](./5.%20Mark%20a%20symptom%20or%20diagnosis%20as%20entered%20in%20error.md)
+- [View the clinical history](./6.%20View%20the%20clinical%20history.md)
+
+## Hard rules
+- H1 centered with `<h1 align="center">...</h1>`.
+- No code, file paths, endpoints, or class names.
+- NEVER invent a fact that is not in this brief.
+
+---
+
+Write EXACTLY ONE file: `/Users/rithviknishad/ohc.network/care_docs/Clinical/Condition/flows/3. Add a symptom or diagnosis from past records.md`
+
+Doc type: **flow**. Follow `care_docs/.github/skills/care-docs-generation/assets/flow-template.md`, `references/doc-rules.md`, and `references/ste-rules.md`. Do not create or edit any other file.
+
+**DO NOT mention "Chronic Condition" anywhere.**
+
+## Verified facts
+
+This flow describes how to bring a patient's earlier symptoms or diagnoses into the current encounter, instead of searching for each term again.
+
+**Prerequisites**
+- The patient has an open encounter at the facility, and that encounter is the patient's active encounter.
+- The patient has symptoms or diagnoses recorded in an earlier encounter.
+- You have the "Update Encounter related clinical data" permission.
+- The encounter is not Completed, Cancelled, Discontinued, or Entered in Error.
+
+**Entry points**
+- Open the symptom screen (**Symptoms** section edit icon on the encounter Overview tab, or the keyboard shortcut **`s`**) and select **Symptom History**.
+- Open the diagnosis screen (**Diagnoses** section edit icon, or the keyboard shortcut **`d`**) and select **Diagnosis History**.
+
+**Steps**
+1. Select **Symptom History** or **Diagnosis History**.
+2. A dialog opens with the title **Past Symptoms** or **Past Diagnoses**. It lists the patient's records from all encounters. Records marked "Entered in Error" are left out.
+3. If the patient has nothing to show, the dialog shows **No Records Found**.
+4. Select the checkbox of each record you want. The dialog shows the count under **Selected**.
+5. If the list is longer than one page, select **Load More** to see more records.
+6. Select **Add Selected**. To leave without adding anything, select **Cancel**.
+7. The selected records are added to the current encounter's list. You can change their Status, Verification, Severity, and Note before you submit.
+8. Select **Submit**.
+
+**Result**
+- CARE shows the confirmation "Questionnaire submitted successfully".
+- The added records appear in the **Symptoms** or **Diagnoses** section of the encounter Overview tab.
+- If you select a term the encounter already has, CARE shows "Symptom already exists!" or "Diagnosis already exists!" and does not add a second row.
+
+**Permissions section content**
+- To view: "Can view clinical data about patients" or "Can Read encounter related clinical data".
+- To record: "Update Encounter related clinical data".
+
+## Related section (relative links, `%20` for spaces)
+- [Condition concept](../concept.md)
+- [Record a symptom](./1.%20Record%20a%20symptom.md)
+- [Record a diagnosis](./2.%20Record%20a%20diagnosis.md)
+- [Update a symptom or diagnosis](./4.%20Update%20a%20symptom%20or%20diagnosis.md)
+- [Mark a symptom or diagnosis as entered in error](./5.%20Mark%20a%20symptom%20or%20diagnosis%20as%20entered%20in%20error.md)
+- [View the clinical history](./6.%20View%20the%20clinical%20history.md)
+
+## Hard rules
+- H1 centered with `<h1 align="center">...</h1>`.
+- No code, file paths, endpoints, or class names.
+- NEVER invent a fact that is not in this brief.
+
+---
+
+Write EXACTLY ONE file: `/Users/rithviknishad/ohc.network/care_docs/Clinical/Condition/flows/5. Mark a symptom or diagnosis as entered in error.md`
+
+Doc type: **flow**. Follow `care_docs/.github/skills/care-docs-generation/assets/flow-template.md`, `references/doc-rules.md`, and `references/ste-rules.md`. Do not create or edit any other file.
+
+**DO NOT mention "Chronic Condition" anywhere.**
+
+## Verified facts
+
+This flow describes how to retract a symptom or a diagnosis that you recorded by mistake. CARE never deletes a saved clinical record. It keeps the record and marks it as **Entered in Error**, so the clinical history stays complete and auditable.
+
+**Prerequisites**
+- The encounter is the patient's active encounter and its status is not Completed, Cancelled, Discontinued, or Entered in Error.
+- You have the "Update Encounter related clinical data" permission.
+
+**Entry points**
+- Encounter **Overview** tab → **Symptoms** section edit (pencil) icon, or the keyboard shortcut **`s`**.
+- Encounter **Overview** tab → **Diagnoses** section edit (pencil) icon, or the keyboard shortcut **`d`**.
+
+**Steps**
+1. Open the symptom screen or the diagnosis screen and find the row you want to retract.
+2. Open the row's more-options (**⋮**) menu.
+3. Select the remove action. For a symptom the action reads **Remove Symptom**.
+4. What happens next depends on whether the record is saved:
+   - **The record is not yet submitted.** CARE removes the row from the list completely. Nothing is kept.
+   - **The record is already saved.** CARE sets its Verification to **Entered in Error**. The row stays in the list with that label. The remove action is then unavailable, and its tooltip reads **Already marked as error**.
+5. Select **Submit**.
+
+**Result**
+- CARE shows the confirmation "Questionnaire submitted successfully".
+- The record keeps the Verification value **Entered in Error**.
+- Records marked "Entered in Error" are left out of the past-records picker, so you do not carry them into a later encounter.
+- To record the correct information, add a new symptom or diagnosis.
+
+**Notes**
+- The "Entered in Error" option does not show in the Verification list of a normal record. You set it only with the remove action.
+
+**Permissions section content**
+- To view: "Can view clinical data about patients" or "Can Read encounter related clinical data".
+- To retract: "Update Encounter related clinical data".
+
+## Related section (relative links, `%20` for spaces)
+- [Condition concept](../concept.md)
+- [Record a symptom](./1.%20Record%20a%20symptom.md)
+- [Record a diagnosis](./2.%20Record%20a%20diagnosis.md)
+- [Add a symptom or diagnosis from past records](./3.%20Add%20a%20symptom%20or%20diagnosis%20from%20past%20records.md)
+- [Update a symptom or diagnosis](./4.%20Update%20a%20symptom%20or%20diagnosis.md)
+- [View the clinical history](./6.%20View%20the%20clinical%20history.md)
+
+## Hard rules
+- H1 centered with `<h1 align="center">...</h1>`.
+- No code, file paths, endpoints, or class names.
+- NEVER invent a fact that is not in this brief.
+
+---
+
+Write EXACTLY ONE file: `/Users/rithviknishad/ohc.network/care_docs/Clinical/Condition/flows/3. Add a symptom or diagnosis from past records.md`
+
+Doc type: **flow**. Follow `care_docs/.github/skills/care-docs-generation/assets/flow-template.md`, `references/doc-rules.md`, and `references/ste-rules.md`. Do not create or edit any other file.
+
+**DO NOT mention "Chronic Condition" anywhere.**
+
+## Verified facts
+
+This flow describes how to bring a patient's earlier symptoms or diagnoses into the current encounter, instead of searching for each term again.
+
+**Prerequisites**
+- The patient has an open encounter at the facility, and that encounter is the patient's active encounter.
+- The patient has symptoms or diagnoses recorded in an earlier encounter.
+- You have the "Update Encounter related clinical data" permission.
+- The encounter is not Completed, Cancelled, Discontinued, or Entered in Error.
+
+**Entry points**
+- Open the symptom screen (**Symptoms** section edit icon on the encounter Overview tab, or the keyboard shortcut **`s`**) and select **Symptom History**.
+- Open the diagnosis screen (**Diagnoses** section edit icon, or the keyboard shortcut **`d`**) and select **Diagnosis History**.
+
+**Steps**
+1. Select **Symptom History** or **Diagnosis History**.
+2. A dialog opens with the title **Past Symptoms** or **Past Diagnoses**. It lists the patient's records from all encounters. Records marked "Entered in Error" are left out.
+3. If the patient has nothing to show, the dialog shows **No Records Found**.
+4. Select the checkbox of each record you want. The dialog shows the count under **Selected**.
+5. If the list is longer than one page, select **Load More** to see more records.
+6. Select **Add Selected**. To leave without adding anything, select **Cancel**.
+7. The selected records are added to the current encounter's list. You can change their Status, Verification, Severity, and Note before you submit.
+8. Select **Submit**.
+
+**Result**
+- CARE shows the confirmation "Questionnaire submitted successfully".
+- The added records appear in the **Symptoms** or **Diagnoses** section of the encounter Overview tab.
+- If you select a term the encounter already has, CARE shows "Symptom already exists!" or "Diagnosis already exists!" and does not add a second row.
+
+**Permissions section content**
+- To view: "Can view clinical data about patients" or "Can Read encounter related clinical data".
+- To record: "Update Encounter related clinical data".
+
+## Related section (relative links, `%20` for spaces)
+- [Condition concept](../concept.md)
+- [Record a symptom](./1.%20Record%20a%20symptom.md)
+- [Record a diagnosis](./2.%20Record%20a%20diagnosis.md)
+- [Update a symptom or diagnosis](./4.%20Update%20a%20symptom%20or%20diagnosis.md)
+- [Mark a symptom or diagnosis as entered in error](./5.%20Mark%20a%20symptom%20or%20diagnosis%20as%20entered%20in%20error.md)
+- [View the clinical history](./6.%20View%20the%20clinical%20history.md)
+
+## Hard rules
+- H1 centered with `<h1 align="center">...</h1>`.
+- No code, file paths, endpoints, or class names.
+- NEVER invent a fact that is not in this brief.
+
+---
+
+Write EXACTLY ONE file: `/Users/rithviknishad/ohc.network/care_docs/Clinical/Condition/flows/6. View the clinical history.md`
+
+Doc type: **flow**. Follow `care_docs/.github/skills/care-docs-generation/assets/flow-template.md`, `references/doc-rules.md`, and `references/ste-rules.md`. Do not create or edit any other file.
+
+**DO NOT mention "Chronic Condition" anywhere.**
+
+## Verified facts
+
+This flow describes how to review the symptoms and the diagnoses of a patient, both for the current encounter and across all past encounters.
+
+**Prerequisites**
+- You have the "Can view clinical data about patients" permission or the "Can Read encounter related clinical data" permission. Without one of them, the encounter shows "You do not have permission to view clinical data for this encounter".
+- You do not need write access. This flow is read-only, and it works for an encounter of any status.
+
+**Entry point A — the current encounter**
+1. Open the encounter and go to the **Overview** tab.
+2. The **Symptoms** and **Diagnoses** sections show the records of that encounter.
+3. When nothing is recorded, the sections show "No Symptoms" with "No symptoms have been recorded", or "No Diagnoses" with "No Diagnoses have been recorded".
+
+**Entry point B — the full patient history**
+1. Select **See Clinical History** on the encounter, or press the keyboard shortcut **`h`**.
+2. The patient's clinical history page opens. Its title reads "{patient name}'s clinical history".
+3. Select the **Past Symptoms** tab or the **Past Diagnoses** tab.
+4. The records show grouped by year and then by date, newest first.
+5. Each record shows the clinical term, badges for Status, Verification, and Severity, the onset date, and who reported it.
+6. Select the note control to open or hide the note text.
+7. If the record comes from another encounter, select **Go to Encounter** to open that encounter.
+8. Select **Back to Encounter** or **Back to Patient** to leave the history page.
+
+**Reading the badges**
+- Status values: Active, Recurrence, Relapse, Inactive, Remission, Resolved.
+- Verification values: Unconfirmed, Provisional, Differential, Confirmed, Refuted, Entered in Error.
+- Severity values: Mild, Moderate, Severe.
+- A record with the Verification value "Entered in Error" was retracted. Do not use it for clinical decisions.
+
+**Permissions section content**
+- To view: "Can view clinical data about patients" or "Can Read encounter related clinical data".
+- By default, doctors, nurses, administrators, and facility administrators can read encounter clinical data. Staff can view patient clinical data.
+
+## Related section (relative links, `%20` for spaces)
+- [Condition concept](../concept.md)
+- [Record a symptom](./1.%20Record%20a%20symptom.md)
+- [Record a diagnosis](./2.%20Record%20a%20diagnosis.md)
+- [Add a symptom or diagnosis from past records](./3.%20Add%20a%20symptom%20or%20diagnosis%20from%20past%20records.md)
+- [Update a symptom or diagnosis](./4.%20Update%20a%20symptom%20or%20diagnosis.md)
+- [Mark a symptom or diagnosis as entered in error](./5.%20Mark%20a%20symptom%20or%20diagnosis%20as%20entered%20in%20error.md)
+
+## Hard rules
+- H1 centered with `<h1 align="center">...</h1>`.
+- No code, file paths, endpoints, or class names.
+- NEVER invent a fact that is not in this brief.
+
+---
+
+Write EXACTLY ONE file: `/Users/rithviknishad/ohc.network/care_docs/Clinical/Condition/concept.md`
+
+Doc type: **concept**. Follow `care_docs/.github/skills/care-docs-generation/assets/concept-template.md`, `references/doc-rules.md`, and `references/ste-rules.md`. Do not create or edit any other file.
+
+## Scope
+The module is **Condition**. In CARE, the FHIR R5 `Condition` concept (https://build.fhir.org/condition.html — link it on first mention) is recorded as two related record types: **Symptom** and **Diagnosis**. Document both as parts of one Condition module. Allergy Intolerance is a separate module — do not cover it.
+
+**DO NOT mention "Chronic Condition" anywhere.** That capability is not available yet. Diagnoses recorded in CARE today are always visit-specific and show the category badge "Diagnosis".
+
+## Verified facts (use only these)
+
+**What a condition is in CARE**
+- A symptom is what the patient reports or the clinician observes. A diagnosis is the clinician's determination of the condition.
+- Every symptom and every diagnosis belongs to one patient and is recorded against one encounter. CARE takes the patient from the encounter; you never choose the patient separately.
+- You cannot record a symptom or a diagnosis without an active encounter. The screen then shows "Symptoms cannot be recorded without an active encounter" or "Diagnosis cannot be recorded without an active encounter".
+
+**Attributes (same for symptoms and diagnoses unless stated)**
+| Attribute | Description | Default |
+|---|---|---|
+| Code | The clinical term, selected from a standard SNOMED CT clinical-finding terminology | none, you must select one |
+| Status | The current clinical state | Active |
+| Verification | How certain the record is | Confirmed |
+| Severity | How severe the condition is | Moderate. For a diagnosis you can leave it empty; the field then shows "Choose severity" |
+| Onset Date | When the condition started | Today. A future date is not accepted |
+| Note | Free text | empty |
+
+Diagnoses additionally show a category badge with the label "Diagnosis", which marks the record as specific to that visit.
+
+**Status values (exact labels):** Active, Recurrence, Relapse, Inactive, Remission, Resolved.
+**Verification values (exact labels):** Unconfirmed, Provisional, Differential, Confirmed, Refuted, Entered in Error.
+**Severity values (exact labels):** Mild, Moderate, Severe.
+
+**Lifecycle**
+- You record symptoms and diagnoses from the encounter's Overview tab, in the "Symptoms" and "Diagnoses" sections.
+- You can change the Status, Verification, Severity, and Note of a saved record at any time while the encounter is open. You cannot change the Onset Date after the record is saved.
+- CARE never deletes a saved symptom or diagnosis. To retract one, you set its Verification to "Entered in Error". The record stays visible with that label.
+- Records marked "Entered in Error" are left out of the past-records picker.
+- Symptoms and diagnoses stay with the patient. The patient's clinical history shows them across all encounters, under the "Past Symptoms" and "Past Diagnoses" tabs.
+
+**Terminology**
+- Codes come from a standard SNOMED CT clinical-finding terminology. The same terminology serves symptoms and diagnoses. Your deployment's administrator can change the available terminology.
+
+**Who can do what**
+- To see symptoms and diagnoses you need "Can view clinical data about patients" or "Can Read encounter related clinical data".
+- To record or change them you need "Update Encounter related clinical data".
+- By default, doctors, nurses, administrators, and facility administrators can record and change clinical data. Staff can view patient clinical data but do not have encounter clinical-data access.
+- All add and edit controls become read-only when the encounter status is Completed, Cancelled, Discontinued, or Entered in Error.
+
+**FHIR R5 alignment (describe in user terms, no field names from code)**
+CARE follows FHIR R5 Condition: the code, clinical status, verification status, severity, category, onset, and note all map to the FHIR Condition resource. CARE records the clinical status, verification status, and severity as fixed lists rather than free coded values, and records one note rather than many.
+
+## Related section
+Link to these sibling flow docs (they are written in the same run). Use relative paths with `%20` for spaces:
+- [Record a symptom](./flows/1.%20Record%20a%20symptom.md)
+- [Record a diagnosis](./flows/2.%20Record%20a%20diagnosis.md)
+- [Add a symptom or diagnosis from past records](./flows/3.%20Add%20a%20symptom%20or%20diagnosis%20from%20past%20records.md)
+- [Update a symptom or diagnosis](./flows/4.%20Update%20a%20symptom%20or%20diagnosis.md)
+- [Mark a symptom or diagnosis as entered in error](./flows/5.%20Mark%20a%20symptom%20or%20diagnosis%20as%20entered%20in%20error.md)
+- [View the clinical history](./flows/6.%20View%20the%20clinical%20history.md)
+
+## Hard rules
+- H1 centered with `<h1 align="center">...</h1>`.
+- No code, file paths, endpoints, class names, or internal identifiers in the output.
+- NEVER invent a fact that is not in this brief. Omit anything you are unsure about.
+
+---
+
+Write EXACTLY ONE file: `/Users/rithviknishad/ohc.network/care_docs/Clinical/Condition/flows/1. Record a symptom.md`
+
+Doc type: **flow**. Follow `care_docs/.github/skills/care-docs-generation/assets/flow-template.md`, `references/doc-rules.md`, and `references/ste-rules.md`. Do not create or edit any other file.
+
+**DO NOT mention "Chronic Condition" anywhere.**
+
+## Verified facts
+
+**Prerequisites**
+- The patient has an open encounter at the facility, and that encounter is the patient's active encounter.
+- You have the "Update Encounter related clinical data" permission. Doctors, nurses, administrators, and facility administrators have it by default.
+- The encounter is not Completed, Cancelled, Discontinued, or Entered in Error. In those states all add and edit controls are read-only.
+- Without an active encounter the screen shows "Symptoms cannot be recorded without an active encounter".
+
+**Entry points**
+1. Open the encounter, go to the **Overview** tab, find the **Symptoms** section, and select the edit (pencil) icon.
+2. Press the keyboard shortcut **`s`** anywhere on the encounter screens. This is the fastest path and it opens the same symptom screen. (There is no visible quick-action tile for this; the shortcut is the intended alternative.)
+
+**Steps**
+1. The symptom screen opens with the list of symptoms already recorded for the encounter.
+2. Select **Add Symptom**. On a later addition the control reads **Add another Symptom**.
+3. A search box opens. Type at least **3 characters**. Below that, the screen shows a message that tells you the minimum length.
+4. Results come from a standard SNOMED CT clinical-finding terminology. The search also offers a **Recents** tab with codes you used before, and a **Starred** tab with codes you pinned. Select the star icon on a result to pin it.
+5. Select a term. A new row appears with these defaults:
+   - Status: **Active**
+   - Verification: **Confirmed**
+   - Severity: **Moderate**
+   - Onset Date: **today**
+6. Change the values if you need to:
+   - **Status**: Active, Recurrence, Relapse, Inactive, Remission, Resolved.
+   - **Verification**: Unconfirmed, Provisional, Differential, Confirmed, Refuted. ("Entered in Error" is not offered for a new symptom.)
+   - **Severity**: Mild, Moderate, Severe.
+   - **Onset Date**: pick a date. A future date is not accepted.
+7. To add a note, open the row's more-options (**⋮**) menu and select **Add notes**. Type the note. You can show or hide notes later.
+8. Repeat from step 2 for each further symptom. If you select a term that the encounter already has, CARE shows the warning "Symptom already exists!" and does not add a second row.
+9. Select **Submit**.
+
+**Result**
+- CARE shows the confirmation "Questionnaire submitted successfully".
+- The symptoms appear in the **Symptoms** section of the encounter Overview tab, and in the patient's **Past Symptoms** clinical history.
+- When no symptom is recorded, the section shows "No Symptoms" with the message "No symptoms have been recorded".
+
+**Permissions section content**
+- To view: "Can view clinical data about patients" or "Can Read encounter related clinical data".
+- To record: "Update Encounter related clinical data".
+- Without view access the encounter shows "You do not have permission to view clinical data for this encounter".
+
+**Note about configuration**
+The available clinical terminology is set for your deployment and your administrator can change it.
+
+## Related section (relative links, `%20` for spaces)
+- [Condition concept](../concept.md)
+- [Record a diagnosis](./2.%20Record%20a%20diagnosis.md)
+- [Add a symptom or diagnosis from past records](./3.%20Add%20a%20symptom%20or%20diagnosis%20from%20past%20records.md)
+- [Update a symptom or diagnosis](./4.%20Update%20a%20symptom%20or%20diagnosis.md)
+- [Mark a symptom or diagnosis as entered in error](./5.%20Mark%20a%20symptom%20or%20diagnosis%20as%20entered%20in%20error.md)
+- [View the clinical history](./6.%20View%20the%20clinical%20history.md)
+
+## Hard rules
+- H1 centered with `<h1 align="center">...</h1>`.
+- No code, file paths, endpoints, or class names.
+- NEVER invent a fact that is not in this brief.
+
+---
+
+Write EXACTLY ONE file: `/Users/rithviknishad/ohc.network/care_docs/Clinical/Condition/flows/5. Mark a symptom or diagnosis as entered in error.md`
+
+Doc type: **flow**. Follow `care_docs/.github/skills/care-docs-generation/assets/flow-template.md`, `references/doc-rules.md`, and `references/ste-rules.md`. Do not create or edit any other file.
+
+**DO NOT mention "Chronic Condition" anywhere.**
+
+## Verified facts
+
+This flow describes how to retract a symptom or a diagnosis that you recorded by mistake. CARE never deletes a saved clinical record. It keeps the record and marks it as **Entered in Error**, so the clinical history stays complete and auditable.
+
+**Prerequisites**
+- The encounter is the patient's active encounter and its status is not Completed, Cancelled, Discontinued, or Entered in Error.
+- You have the "Update Encounter related clinical data" permission.
+
+**Entry points**
+- Encounter **Overview** tab → **Symptoms** section edit (pencil) icon, or the keyboard shortcut **`s`**.
+- Encounter **Overview** tab → **Diagnoses** section edit (pencil) icon, or the keyboard shortcut **`d`**.
+
+**Steps**
+1. Open the symptom screen or the diagnosis screen and find the row you want to retract.
+2. Open the row's more-options (**⋮**) menu.
+3. Select the remove action. For a symptom the action reads **Remove Symptom**.
+4. What happens next depends on whether the record is saved:
+   - **The record is not yet submitted.** CARE removes the row from the list completely. Nothing is kept.
+   - **The record is already saved.** CARE sets its Verification to **Entered in Error**. The row stays in the list with that label. The remove action is then unavailable, and its tooltip reads **Already marked as error**.
+5. Select **Submit**.
+
+**Result**
+- CARE shows the confirmation "Questionnaire submitted successfully".
+- The record keeps the Verification value **Entered in Error**.
+- Records marked "Entered in Error" are left out of the past-records picker, so you do not carry them into a later encounter.
+- To record the correct information, add a new symptom or diagnosis.
+
+**Notes**
+- The "Entered in Error" option does not show in the Verification list of a normal record. You set it only with the remove action.
+
+**Permissions section content**
+- To view: "Can view clinical data about patients" or "Can Read encounter related clinical data".
+- To retract: "Update Encounter related clinical data".
+
+## Related section (relative links, `%20` for spaces)
+- [Condition concept](../concept.md)
+- [Record a symptom](./1.%20Record%20a%20symptom.md)
+- [Record a diagnosis](./2.%20Record%20a%20diagnosis.md)
+- [Add a symptom or diagnosis from past records](./3.%20Add%20a%20symptom%20or%20diagnosis%20from%20past%20records.md)
+- [Update a symptom or diagnosis](./4.%20Update%20a%20symptom%20or%20diagnosis.md)
+- [View the clinical history](./6.%20View%20the%20clinical%20history.md)
+
+## Hard rules
+- H1 centered with `<h1 align="center">...</h1>`.
+- No code, file paths, endpoints, or class names.
+- NEVER invent a fact that is not in this brief.
+
+---
+
+Write EXACTLY ONE file: `/Users/rithviknishad/ohc.network/care_docs/Clinical/Condition/flows/4. Update a symptom or diagnosis.md`
+
+Doc type: **flow**. Follow `care_docs/.github/skills/care-docs-generation/assets/flow-template.md`, `references/doc-rules.md`, and `references/ste-rules.md`. Do not create or edit any other file.
+
+**DO NOT mention "Chronic Condition" anywhere.**
+
+## Verified facts
+
+This flow describes how to change a symptom or a diagnosis that is already recorded, for example when the patient improves or when a provisional finding becomes confirmed.
+
+**Prerequisites**
+- The symptom or the diagnosis is already recorded on the encounter.
+- The encounter is the patient's active encounter and its status is not Completed, Cancelled, Discontinued, or Entered in Error. In those states the record is read-only.
+- You have the "Update Encounter related clinical data" permission.
+
+**Entry points**
+- Encounter **Overview** tab → **Symptoms** section edit (pencil) icon, or the keyboard shortcut **`s`**.
+- Encounter **Overview** tab → **Diagnoses** section edit (pencil) icon, or the keyboard shortcut **`d`**.
+
+**Steps**
+1. Open the symptom screen or the diagnosis screen. The records of the encounter show in a list, each in its own row.
+2. Change the values you need. You can change these fields on a saved record:
+   - **Status**: Active, Recurrence, Relapse, Inactive, Remission, Resolved.
+   - **Verification**: Unconfirmed, Provisional, Differential, Confirmed, Refuted. The option "Entered in Error" shows only if the record already has that value. To retract a record, see the related flow.
+   - **Severity**: Mild, Moderate, Severe. For a diagnosis you can also leave it empty; the field then shows "Choose severity".
+   - **Note**: open the row's more-options (**⋮**) menu and select **Add notes**. Use **Show notes** and **Hide notes** to open or close the note text.
+3. You cannot change the **Onset Date** of a saved record. The field is unavailable after the first submission.
+4. You cannot change the clinical term of a saved record. To correct a wrong term, mark the record as entered in error and record the correct one.
+5. Select **Submit**.
+
+**Result**
+- CARE shows the confirmation "Questionnaire submitted successfully".
+- The updated values show in the **Symptoms** or **Diagnoses** section of the encounter Overview tab, and in the patient's clinical history.
+
+**Permissions section content**
+- To view: "Can view clinical data about patients" or "Can Read encounter related clinical data".
+- To change: "Update Encounter related clinical data".
+
+## Related section (relative links, `%20` for spaces)
+- [Condition concept](../concept.md)
+- [Record a symptom](./1.%20Record%20a%20symptom.md)
+- [Record a diagnosis](./2.%20Record%20a%20diagnosis.md)
+- [Add a symptom or diagnosis from past records](./3.%20Add%20a%20symptom%20or%20diagnosis%20from%20past%20records.md)
+- [Mark a symptom or diagnosis as entered in error](./5.%20Mark%20a%20symptom%20or%20diagnosis%20as%20entered%20in%20error.md)
+- [View the clinical history](./6.%20View%20the%20clinical%20history.md)
+
+## Hard rules
+- H1 centered with `<h1 align="center">...</h1>`.
+- No code, file paths, endpoints, or class names.
+- NEVER invent a fact that is not in this brief.
+
+---
+
+Review the module folder `/Users/rithviknishad/ohc.network/care_docs/Clinical/Condition/` and fix issues in place.
+
+Files just written:
+- `concept.md`
+- `flows/1. Record a symptom.md`
+- `flows/2. Record a diagnosis.md`
+- `flows/3. Add a symptom or diagnosis from past records.md`
+- `flows/4. Update a symptom or diagnosis.md`
+- `flows/5. Mark a symptom or diagnosis as entered in error.md`
+- `flows/6. View the clinical history.md`
+
+Module context: **Condition** = Symptom + Diagnosis (CARE's implementation of FHIR R5 Condition, https://build.fhir.org/condition.html).
+
+Check and fix:
+1. ASD-STE100 Simplified Technical English compliance (`references/ste-rules.md`).
+2. Template conformance — concept against `assets/concept-template.md`, flows against `assets/flow-template.md`.
+3. FHIR R5 link present on first mention in the concept doc.
+4. Cross-link integrity — every relative link must resolve to a file that exists in this folder. Spaces must be encoded as `%20`. Verify each target file name character by character against the real file names.
+5. Terminology consistency across all seven docs — the same on-screen labels must be written the same way everywhere: Symptoms, Diagnoses, Overview tab, Add Symptom, Add another Symptom, Add Diagnosis, Add another Diagnosis, Symptom History, Diagnosis History, Past Symptoms, Past Diagnoses, Remove Symptom, Already marked as error, Choose severity, Submit, Questionnaire submitted successfully, No Symptoms, No Diagnoses, See Clinical History, Go to Encounter, Back to Encounter, Back to Patient, Add Selected, Load More, Selected, Cancel, No Records Found, Show notes, Hide notes, Add notes.
+6. Status/Verification/Severity labels must always appear exactly as: Active, Recurrence, Relapse, Inactive, Remission, Resolved / Unconfirmed, Provisional, Differential, Confirmed, Refuted, Entered in Error / Mild, Moderate, Severe.
+7. No code, file paths, API endpoints, class names, or internal identifiers anywhere.
+8. Every H1 must be centered with `<h1 align="center">...</h1>`.
+
+CRITICAL CONSTRAINTS:
+- **The term "Chronic Condition" must not appear in any doc.** That capability does not exist yet. Remove any mention you find.
+- Do NOT add facts. If a writer flagged a gap, leave the gap rather than filling it with a plausible guess. Report it instead.
+- Do NOT create new files. Edit only the seven files listed.
+
+Report: the changes you made per file, plus any unresolved issue that needs human input.
+
+---
+
+Review the module folder `/Users/rithviknishad/ohc.network/care_docs/Clinical/Condition/` and fix issues in place.
+
+Files just written:
+- `concept.md`
+- `flows/1. Record a symptom.md`
+- `flows/2. Record a diagnosis.md`
+- `flows/3. Add a symptom or diagnosis from past records.md`
+- `flows/4. Update a symptom or diagnosis.md`
+- `flows/5. Mark a symptom or diagnosis as entered in error.md`
+- `flows/6. View the clinical history.md`
+
+Module context: **Condition** = Symptom + Diagnosis (CARE's implementation of FHIR R5 Condition, https://build.fhir.org/condition.html).
+
+Check and fix:
+1. ASD-STE100 Simplified Technical English compliance (`references/ste-rules.md`).
+2. Template conformance — concept against `assets/concept-template.md`, flows against `assets/flow-template.md`.
+3. FHIR R5 link present on first mention in the concept doc.
+4. Cross-link integrity — every relative link must resolve to a file that exists in this folder. Spaces must be encoded as `%20`. Verify each target file name character by character against the real file names.
+5. Terminology consistency across all seven docs — the same on-screen labels must be written the same way everywhere: Symptoms, Diagnoses, Overview tab, Add Symptom, Add another Symptom, Add Diagnosis, Add another Diagnosis, Symptom History, Diagnosis History, Past Symptoms, Past Diagnoses, Remove Symptom, Already marked as error, Choose severity, Submit, Questionnaire submitted successfully, No Symptoms, No Diagnoses, See Clinical History, Go to Encounter, Back to Encounter, Back to Patient, Add Selected, Load More, Selected, Cancel, No Records Found, Show notes, Hide notes, Add notes.
+6. Status/Verification/Severity labels must always appear exactly as: Active, Recurrence, Relapse, Inactive, Remission, Resolved / Unconfirmed, Provisional, Differential, Confirmed, Refuted, Entered in Error / Mild, Moderate, Severe.
+7. No code, file paths, API endpoints, class names, or internal identifiers anywhere.
+8. Every H1 must be centered with `<h1 align="center">...</h1>`.
+
+CRITICAL CONSTRAINTS:
+- **The term "Chronic Condition" must not appear in any doc.** That capability does not exist yet. Remove any mention you find.
+- Do NOT add facts. If a writer flagged a gap, leave the gap rather than filling it with a plausible guess. Report it instead.
+- Do NOT create new files. Edit only the seven files listed.
+
+Report: the changes you made per file, plus any unresolved issue that needs human input.
+
+---
+
+go ahead and create a worktree.
+
+
+Also, the @file:care-docs-orchestrator.agent.md says about invoking the @file:care-docs-recorder.agent.md sub agent for each flow right? why was that not done?
+
+---
+
+go ahead and create a worktree.
+
+
+Also, the @file:care-docs-orchestrator.agent.md says about invoking the @file:care-docs-recorder.agent.md sub agent for each flow right? why was that not done?
+
+---
+
+Repository: **care_fe** (`~/ohc.network/care_fe`, branch `develop`).
+
+## Symptom
+`public/locale/en.json` contains five stale translation keys for diagnosis that no code references:
+
+- `diagnosis__confirmed`
+- `diagnosis__differential`
+- `diagnosis__principal`
+- `diagnosis__provisional`
+- `diagnosis__unconfirmed`
+
+They were reported around lines 1859–1863 of `public/locale/en.json`. A workspace-wide search for `diagnosis__` in `src/` returned zero references.
+
+## Expected behavior
+Remove exactly those five keys from `public/locale/en.json`.
+
+## Constraints — read carefully
+1. **Verify before deleting.** Re-run the search for `diagnosis__` across `src/`, `tests/`, and `plugins/` yourself. If ANY of the five keys is referenced anywhere, or referenced dynamically (for example a template literal such as `` t(`diagnosis__${...}`) ``), STOP and report instead of deleting. Dynamic key construction will not show a literal match, so search for the prefix `diagnosis__` and also for any interpolated `diagnosis_` patterns.
+2. **Only English.** Do NOT touch any non-English locale file. Those are managed via Crowdin.
+3. **Scope limit.** Do not remove any other key. Do not touch symptom keys. Do not touch `Diagnosis_encounter_diagnosis__title`, `Diagnosis_chronic_condition__title`, or any other key that does not exactly match the five listed above.
+4. Keep the JSON valid and keep the file's existing formatting and key ordering.
+5. Run `npm run knip` if it is cheap to do so, to confirm nothing regressed. Skip it if it is slow, and say so.
+
+## Delivery settings (settled — do not deviate)
+| Setting | Value |
+|---|---|
+| Workspace | **Isolated git worktree.** Create a new worktree off `develop` with a branch named `issues/i18n/remove-stale-diagnosis-keys`. Do all work there. Do not modify the user's main `care_fe` checkout, which may hold uncommitted work. |
+| Issue | **No issue.** Do not create or reference a GitHub issue. |
+| Assignment | **Unassigned.** |
+| Pull request | **Commit only.** Commit the change on the worktree branch. Do NOT push and do NOT open a pull request. |
+
+## Report back
+The worktree path, the branch name, the commit hash and message, the exact keys removed, the result of your reference search, and anything you refused to delete and why.
+
+---
+
+Repository: **care_fe** (`~/ohc.network/care_fe`, branch `develop`).
+
+## Symptom
+`public/locale/en.json` contains five stale translation keys for diagnosis that no code references:
+
+- `diagnosis__confirmed`
+- `diagnosis__differential`
+- `diagnosis__principal`
+- `diagnosis__provisional`
+- `diagnosis__unconfirmed`
+
+They were reported around lines 1859–1863 of `public/locale/en.json`. A workspace-wide search for `diagnosis__` in `src/` returned zero references.
+
+## Expected behavior
+Remove exactly those five keys from `public/locale/en.json`.
+
+## Constraints — read carefully
+1. **Verify before deleting.** Re-run the search for `diagnosis__` across `src/`, `tests/`, and `plugins/` yourself. If ANY of the five keys is referenced anywhere, or referenced dynamically (for example a template literal such as `` t(`diagnosis__${...}`) ``), STOP and report instead of deleting. Dynamic key construction will not show a literal match, so search for the prefix `diagnosis__` and also for any interpolated `diagnosis_` patterns.
+2. **Only English.** Do NOT touch any non-English locale file. Those are managed via Crowdin.
+3. **Scope limit.** Do not remove any other key. Do not touch symptom keys. Do not touch `Diagnosis_encounter_diagnosis__title`, `Diagnosis_chronic_condition__title`, or any other key that does not exactly match the five listed above.
+4. Keep the JSON valid and keep the file's existing formatting and key ordering.
+5. Run `npm run knip` if it is cheap to do so, to confirm nothing regressed. Skip it if it is slow, and say so.
+
+## Delivery settings (settled — do not deviate)
+| Setting | Value |
+|---|---|
+| Workspace | **Isolated git worktree.** Create a new worktree off `develop` with a branch named `issues/i18n/remove-stale-diagnosis-keys`. Do all work there. Do not modify the user's main `care_fe` checkout, which may hold uncommitted work. |
+| Issue | **No issue.** Do not create or reference a GitHub issue. |
+| Assignment | **Unassigned.** |
+| Pull request | **Commit only.** Commit the change on the worktree branch. Do NOT push and do NOT open a pull request. |
+
+## Report back
+The worktree path, the branch name, the commit hash and message, the exact keys removed, the result of your reference search, and anything you refused to delete and why.
+
+---
+
+go ahead and create pr. 
+
+yes, go ahead and record demo video for ALL flows!
+
+---
+
+go ahead and create pr. 
+
+yes, go ahead and record demo video for ALL flows!
+
+---
+
+Repository: **care_fe**. There is an existing isolated worktree with a finished, committed change. Your ONLY job is to publish it and open a pull request. Do not make further code edits.
+
+## Existing state
+- Worktree: `/Users/rithviknishad/ohc.network/care_fe.worktrees/issues-i18n-remove-stale-diagnosis-keys`
+- Branch: `issues/i18n/remove-stale-diagnosis-keys` (based on `upstream/develop`)
+- Commit: `1c3047fe4a8a630f65ff6ee915fd0eb762111e3d` — "🧹 Remove stale diagnosis__* i18n keys"
+- Change: removed five orphaned keys from `public/locale/en.json` — `diagnosis__confirmed`, `diagnosis__differential`, `diagnosis__principal`, `diagnosis__provisional`, `diagnosis__unconfirmed`. Verified to have zero literal and zero dynamic references in `src/`, `tests/`, and `plugins/`.
+
+## Task
+1. Confirm the worktree is clean and the commit is present. If the working tree has unexpected uncommitted changes, STOP and report.
+2. Push the branch to the correct remote for opening a PR against `ohcnetwork/care_fe`. Determine from the existing git remotes whether to push to `origin` (a fork) or `upstream`. Prefer the fork if one exists. Report which remote you used.
+3. Open a pull request targeting the `develop` branch of `ohcnetwork/care_fe`.
+   - Title: `🧹 Remove stale diagnosis__* i18n keys`
+   - Body: explain that these five English locale keys are orphaned with no references anywhere in the codebase, that they were found while writing user documentation for the Condition module, that only `public/locale/en.json` was touched, and that non-English locales are left to Crowdin. Note that `Diagnosis_{category}__title` keys are intentionally untouched.
+   - Leave it **unassigned**. Do **not** link or create any GitHub issue. Do not request reviewers.
+4. Do not force-push. Do not rebase. Do not amend the commit.
+
+## Report back
+The remote you pushed to, the PR URL, and anything that blocked you.
+
+---
+
+Repository: **care_fe**. There is an existing isolated worktree with a finished, committed change. Your ONLY job is to publish it and open a pull request. Do not make further code edits.
+
+## Existing state
+- Worktree: `/Users/rithviknishad/ohc.network/care_fe.worktrees/issues-i18n-remove-stale-diagnosis-keys`
+- Branch: `issues/i18n/remove-stale-diagnosis-keys` (based on `upstream/develop`)
+- Commit: `1c3047fe4a8a630f65ff6ee915fd0eb762111e3d` — "🧹 Remove stale diagnosis__* i18n keys"
+- Change: removed five orphaned keys from `public/locale/en.json` — `diagnosis__confirmed`, `diagnosis__differential`, `diagnosis__principal`, `diagnosis__provisional`, `diagnosis__unconfirmed`. Verified to have zero literal and zero dynamic references in `src/`, `tests/`, and `plugins/`.
+
+## Task
+1. Confirm the worktree is clean and the commit is present. If the working tree has unexpected uncommitted changes, STOP and report.
+2. Push the branch to the correct remote for opening a PR against `ohcnetwork/care_fe`. Determine from the existing git remotes whether to push to `origin` (a fork) or `upstream`. Prefer the fork if one exists. Report which remote you used.
+3. Open a pull request targeting the `develop` branch of `ohcnetwork/care_fe`.
+   - Title: `🧹 Remove stale diagnosis__* i18n keys`
+   - Body: explain that these five English locale keys are orphaned with no references anywhere in the codebase, that they were found while writing user documentation for the Condition module, that only `public/locale/en.json` was touched, and that non-English locales are left to Crowdin. Note that `Diagnosis_{category}__title` keys are intentionally untouched.
+   - Leave it **unassigned**. Do **not** link or create any GitHub issue. Do not request reviewers.
+4. Do not force-push. Do not rebase. Do not amend the commit.
+
+## Report back
+The remote you pushed to, the PR URL, and anything that blocked you.
+
+---
+
+it will render on github, don't worry. go ahead and record things without wiping the db.
+
+---
+
+it will render on github, don't worry. go ahead and record things without wiping the db.
+
+---
+
+Record the demo video for ONE flow doc:
+
+`/Users/rithviknishad/ohc.network/care_docs/Clinical/Condition/flows/1. Record a symptom.md`
+
+Parent: `Clinical`. Module: `Condition`. Index: `1`. Flow name: `Record a symptom`.
+
+## Context already verified by the orchestrator
+- `care_fe/.env.local` sets `REACT_CARE_API_URL=http://localhost:9000`. The localhost safety check PASSES. Do not re-edit it, but you may re-verify.
+- The `care_docs` Playwright bootstrap already exists (`package.json`, `playwright.config.ts`, `recordings/support/{care,pointer,assertLocalBackend}.ts`, and a prior Encounter demo spec). Reuse it. Do not recreate it.
+
+## CRITICAL constraint from the user
+**Do NOT wipe or restore the database.** Do NOT run `npm run playwright:db-reset`, `npm run playwright:db-restore`, or `npx playwright test --project=setup` — the reference notes that the setup project restores the local database, and the user explicitly asked to keep the current database.
+
+Consequence: if `care_fe/tests/.auth/user.json`, `facilityMeta.json`, or `patientMeta.json` is missing, **STOP and report that** instead of regenerating them. If the stored access token is merely expired, the existing `ensureFreshToken()` helper in `recordings/support/care.ts` refreshes it without touching the database — that path is allowed and preferred.
+
+Because the database is not reset, existing symptom data may already be present on the fixture patient. Generate unique data with `faker` where the flow creates records, and pick a symptom term that makes a clean recording.
+
+## Task
+1. Verify prerequisites: backend on port 9000, `http://localhost:4000` serving the production preview, and the auth/meta files above. Report precisely what is missing and STOP if any are absent. Do not start the backend or the preview server yourself.
+2. Read the flow doc. Its step headings become your `test.step()` titles, one for one.
+3. Write the spec at `care_docs/recordings/Clinical/Condition/1. Record a symptom.demo.ts`, mirroring the style of the existing `recordings/Clinical/Encounter/create_an_encounter.demo.ts` and the `care_fe/tests/` locator conventions.
+4. Run it, convert the WebM to MP4 with the documented ffmpeg command, and write a poster frame.
+5. Embed the video under the `## Overview` heading of the flow doc. Use the `<video>` tag form — the user has confirmed it renders on GitHub. Do not change any other content in the flow doc.
+6. Do not commit anything.
+
+## Report back
+The spec path, the MP4 path and file size, the embed form used, and any step where the actual UI did not match the flow doc. Do NOT silently rewrite the flow doc to match the UI — report the mismatch.
+
+---
+
+Record the demo video for ONE flow doc:
+
+`/Users/rithviknishad/ohc.network/care_docs/Clinical/Condition/flows/1. Record a symptom.md`
+
+Parent: `Clinical`. Module: `Condition`. Index: `1`. Flow name: `Record a symptom`.
+
+## Context already verified by the orchestrator
+- `care_fe/.env.local` sets `REACT_CARE_API_URL=http://localhost:9000`. The localhost safety check PASSES. Do not re-edit it, but you may re-verify.
+- The `care_docs` Playwright bootstrap already exists (`package.json`, `playwright.config.ts`, `recordings/support/{care,pointer,assertLocalBackend}.ts`, and a prior Encounter demo spec). Reuse it. Do not recreate it.
+
+## CRITICAL constraint from the user
+**Do NOT wipe or restore the database.** Do NOT run `npm run playwright:db-reset`, `npm run playwright:db-restore`, or `npx playwright test --project=setup` — the reference notes that the setup project restores the local database, and the user explicitly asked to keep the current database.
+
+Consequence: if `care_fe/tests/.auth/user.json`, `facilityMeta.json`, or `patientMeta.json` is missing, **STOP and report that** instead of regenerating them. If the stored access token is merely expired, the existing `ensureFreshToken()` helper in `recordings/support/care.ts` refreshes it without touching the database — that path is allowed and preferred.
+
+Because the database is not reset, existing symptom data may already be present on the fixture patient. Generate unique data with `faker` where the flow creates records, and pick a symptom term that makes a clean recording.
+
+## Task
+1. Verify prerequisites: backend on port 9000, `http://localhost:4000` serving the production preview, and the auth/meta files above. Report precisely what is missing and STOP if any are absent. Do not start the backend or the preview server yourself.
+2. Read the flow doc. Its step headings become your `test.step()` titles, one for one.
+3. Write the spec at `care_docs/recordings/Clinical/Condition/1. Record a symptom.demo.ts`, mirroring the style of the existing `recordings/Clinical/Encounter/create_an_encounter.demo.ts` and the `care_fe/tests/` locator conventions.
+4. Run it, convert the WebM to MP4 with the documented ffmpeg command, and write a poster frame.
+5. Embed the video under the `## Overview` heading of the flow doc. Use the `<video>` tag form — the user has confirmed it renders on GitHub. Do not change any other content in the flow doc.
+6. Do not commit anything.
+
+## Report back
+The spec path, the MP4 path and file size, the embed form used, and any step where the actual UI did not match the flow doc. Do NOT silently rewrite the flow doc to match the UI — report the mismatch.
