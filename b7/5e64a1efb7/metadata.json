@@ -1,0 +1,27 @@
+{
+  "cli_version": "0.9.0",
+  "checkpoint_id": "b75e64a1efb7",
+  "strategy": "manual-commit",
+  "branch": "develop",
+  "checkpoints_count": 2,
+  "files_touched": [
+    "public/locale/en.json",
+    "src/components/Notes/NoteManager.tsx"
+  ],
+  "sessions": [
+    {
+      "metadata": "/b7/5e64a1efb7/0/metadata.json",
+      "transcript": "/b7/5e64a1efb7/0/full.jsonl",
+      "compact_transcript": "/b7/5e64a1efb7/0/transcript.jsonl",
+      "content_hash": "/b7/5e64a1efb7/0/content_hash.txt",
+      "prompt": "/b7/5e64a1efb7/0/prompt.txt"
+    }
+  ],
+  "token_usage": {
+    "input_tokens": 0,
+    "cache_creation_tokens": 0,
+    "cache_read_tokens": 0,
+    "output_tokens": 0,
+    "api_call_count": 0
+  }
+}
