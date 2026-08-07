@@ -1,0 +1,26 @@
+{
+  "cli_version": "0.9.0",
+  "checkpoint_id": "8f1e0411b238",
+  "strategy": "manual-commit",
+  "branch": "ENG-846/fix-batch-request-error-handling",
+  "checkpoints_count": 2,
+  "files_touched": [
+    "public/locale/en.json"
+  ],
+  "sessions": [
+    {
+      "metadata": "/8f/1e0411b238/0/metadata.json",
+      "transcript": "/8f/1e0411b238/0/full.jsonl",
+      "compact_transcript": "/8f/1e0411b238/0/transcript.jsonl",
+      "content_hash": "/8f/1e0411b238/0/content_hash.txt",
+      "prompt": ""
+    }
+  ],
+  "token_usage": {
+    "input_tokens": 0,
+    "cache_creation_tokens": 0,
+    "cache_read_tokens": 0,
+    "output_tokens": 0,
+    "api_call_count": 0
+  }
+}
