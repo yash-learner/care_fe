@@ -1,0 +1,2037 @@
+Clinical / Encounter. I know we already have that done. But I have updated this agent's instructions and added new sub-agents and rules and all. So re-do the whole thing. you could use the existing one just for reference.
+
+---
+
+Clinical / Encounter. I know we already have that done. But I have updated this agent's instructions and added new sub-agents and rules and all. So re-do the whole thing. you could use the existing one just for reference.
+
+---
+
+You are researching the **Encounter** module (Parent: Clinical) for CARE user-facing documentation.
+
+**Your focus: the BACKEND repository at `~/ohc.network/care`.** Read-only. Do not edit any files.
+
+Before you start, read these files:
+- `/Users/rithviknishad/ohc.network/care_docs/.github/skills/care-docs-generation/references/codebase-navigation.md` — pre-verified paths and grep patterns for both repos. Use it; do not re-derive it.
+- `/Users/rithviknishad/ohc.network/care_docs/.github/skills/care-docs-generation/references/doc-rules.md` — grounding rules.
+
+Existing (older) documentation for this module lives at `/Users/rithviknishad/ohc.network/care_docs/Clinical/Encounter/` — you may skim it for orientation ONLY. It may be stale or wrong. Verify every claim against the current code; explicitly report anything in the old docs that the code contradicts.
+
+Produce a structured dossier covering:
+
+1. **FHIR R5 alignment** — how CARE's Encounter maps to the FHIR R5 Encounter resource (https://build.fhir.org/encounter.html). Which FHIR elements CARE implements, which it omits, and any CARE-specific extensions. Also note the related FHIR resources CARE links from Encounter (e.g., Organization, Location, Patient, EncounterHistory / status history) as evidenced in the code.
+
+2. **Data model** — the Encounter model and its EMR resource spec: every user-relevant attribute, its type, whether it is required, and its default. Include: status, encounter class, priority, admit/discharge period, hospitalisation details (admit source, re-admission, diet preference, discharge disposition), external identifier, facility, patient, organizations/departments, care team / participants, locations, tags/labels, and anything else present.
+
+3. **Enums and coded values** — for EVERY enum on Encounter (status, class, priority, admit source, discharge disposition, diet preference, re-admission, location status/form, care team participant role/period, tag categories, etc.), list every possible raw value exactly as the backend defines it. Note which values are terminal/final and which transitions the backend allows or blocks (status transition validation logic).
+
+4. **Business rules and validations** — creation rules, status transition rules, what closing/completing/discharging does, what restarting does, encounter–location association rules (single active location? presence/status values?), care team assignment rules, department/organization association rules, tag/label rules, and any constraint that produces a user-visible error message.
+
+5. **Permissions — full RBAC trace.** For each Encounter operation (create, read, list, update, complete/close, discharge, manage location, manage care team, manage organizations, manage tags), trace viewset `authorize_*` → AuthorizationController → the permission definition, and report the **human-readable permission name** from the `Permission` dataclass (not the code constant). Note which roles hold each permission if fixture/role definitions show it.
+
+6. **Configuration flags** — anything in `config/settings/*.py` or plug config that changes Encounter behavior or field requirements.
+
+7. **API-level flows** — the distinct operations a user can perform on an Encounter, as evidenced by endpoints/actions. List them as candidate user flows.
+
+8. **SUSPECTED CODE ISSUES** — anything that looks like a bug, inconsistency, dead code, or a mismatch between backend and what the UI would need.
+
+9. **AMBIGUITIES / UNVERIFIED** — an explicit list of anything you could not verify from code. Do NOT guess. This list will be shown to the user.
+
+Return the dossier as structured markdown in your final message. Cite the file path for each significant claim so the orchestrator can verify.
+
+---
+
+You are researching the **Encounter** module (Parent: Clinical) for CARE user-facing documentation.
+
+**Your focus: the FRONTEND repository at `~/ohc.network/care_fe`.** Read-only. Do not edit any files.
+
+Before you start, read these files:
+- `/Users/rithviknishad/ohc.network/care_docs/.github/skills/care-docs-generation/references/codebase-navigation.md` — pre-verified paths and grep patterns for both repos. Use it; do not re-derive it.
+- `/Users/rithviknishad/ohc.network/care_docs/.github/skills/care-docs-generation/references/doc-rules.md` — grounding rules.
+
+Existing (older) documentation for this module lives at `/Users/rithviknishad/ohc.network/care_docs/Clinical/Encounter/` — skim it for orientation ONLY. It may be stale or wrong. Verify every claim against the current code and explicitly report anything the code contradicts.
+
+Produce a structured dossier covering:
+
+1. **Entry points and navigation** — every route that leads to an Encounter (from `src/Routers/routes/`), and the exact user-facing navigation labels/breadcrumbs/tabs that lead there. Include entry from the facility patient list, from an appointment, from the patient page, and any other path you find. Give the real UI label text, resolved from `public/locale/en.json`.
+
+2. **Screens and layout** — the Encounter creation form, the Encounter show/overview page, its tabs and side panels. For each, list the visible sections and every form field with: its exact label, whether it is required, its input type, and its options.
+
+3. **Enum display labels — MANDATORY.** For EVERY Encounter-related enum value (status, class/type, priority, admit source, discharge disposition, diet preference, re-admission, location association status/form, care team participant role, tag categories), resolve the raw value to its user-facing English label from `public/locale/en.json` (key pattern `{PREFIX}__{value}`). Return a raw-value → display-label table. Flag any raw value with NO translation key.
+
+4. **User flows** — walk the UI code and enumerate the distinct end-to-end flows a user can perform: create an encounter, start/admit, update details, assign or move location, manage care team, manage departments/organizations, manage tags, complete/close, discharge, restart/reopen, and anything else present. For each flow give: entry point, the ordered UI steps with real button/menu labels, the confirmation dialogs, and the success/error toast messages. Note which actions are hidden or disabled based on encounter status.
+
+5. **Frontend permission gating** — which permission checks (`usePermissions`, `PermissionContext`, `hasPermission`) hide or disable each Encounter action, and the permission identifiers used.
+
+6. **Keyboard shortcuts** — check `src/config/keyboardShortcuts.json` for any shortcut relevant to Encounter flows. Report the actual key combination; do not assume. Say explicitly if none exist.
+
+7. **Configuration flags** — anything in `care.config.ts` or env-driven config that changes Encounter behavior, field visibility, or field requirements.
+
+8. **SUSPECTED CODE ISSUES** — anything that looks like a bug, inconsistent label, missing i18n key, broken gating, or a mismatch with the backend.
+
+9. **AMBIGUITIES / UNVERIFIED** — an explicit list of anything you could not verify from code. Do NOT guess. This list will be shown to the user.
+
+Return the dossier as structured markdown in your final message. Cite the file path for each significant claim.
+
+---
+
+You are researching the **Encounter** module (Parent: Clinical) for CARE user-facing documentation.
+
+**Your focus: the BACKEND repository at `~/ohc.network/care`.** Read-only. Do not edit any files.
+
+Before you start, read these files:
+- `/Users/rithviknishad/ohc.network/care_docs/.github/skills/care-docs-generation/references/codebase-navigation.md` — pre-verified paths and grep patterns for both repos. Use it; do not re-derive it.
+- `/Users/rithviknishad/ohc.network/care_docs/.github/skills/care-docs-generation/references/doc-rules.md` — grounding rules.
+
+Existing (older) documentation for this module lives at `/Users/rithviknishad/ohc.network/care_docs/Clinical/Encounter/` — you may skim it for orientation ONLY. It may be stale or wrong. Verify every claim against the current code; explicitly report anything in the old docs that the code contradicts.
+
+Produce a structured dossier covering:
+
+1. **FHIR R5 alignment** — how CARE's Encounter maps to the FHIR R5 Encounter resource (https://build.fhir.org/encounter.html). Which FHIR elements CARE implements, which it omits, and any CARE-specific extensions. Also note the related FHIR resources CARE links from Encounter (e.g., Organization, Location, Patient, EncounterHistory / status history) as evidenced in the code.
+
+2. **Data model** — the Encounter model and its EMR resource spec: every user-relevant attribute, its type, whether it is required, and its default. Include: status, encounter class, priority, admit/discharge period, hospitalisation details (admit source, re-admission, diet preference, discharge disposition), external identifier, facility, patient, organizations/departments, care team / participants, locations, tags/labels, and anything else present.
+
+3. **Enums and coded values** — for EVERY enum on Encounter (status, class, priority, admit source, discharge disposition, diet preference, re-admission, location status/form, care team participant role/period, tag categories, etc.), list every possible raw value exactly as the backend defines it. Note which values are terminal/final and which transitions the backend allows or blocks (status transition validation logic).
+
+4. **Business rules and validations** — creation rules, status transition rules, what closing/completing/discharging does, what restarting does, encounter–location association rules (single active location? presence/status values?), care team assignment rules, department/organization association rules, tag/label rules, and any constraint that produces a user-visible error message.
+
+5. **Permissions — full RBAC trace.** For each Encounter operation (create, read, list, update, complete/close, discharge, manage location, manage care team, manage organizations, manage tags), trace viewset `authorize_*` → AuthorizationController → the permission definition, and report the **human-readable permission name** from the `Permission` dataclass (not the code constant). Note which roles hold each permission if fixture/role definitions show it.
+
+6. **Configuration flags** — anything in `config/settings/*.py` or plug config that changes Encounter behavior or field requirements.
+
+7. **API-level flows** — the distinct operations a user can perform on an Encounter, as evidenced by endpoints/actions. List them as candidate user flows.
+
+8. **SUSPECTED CODE ISSUES** — anything that looks like a bug, inconsistency, dead code, or a mismatch between backend and what the UI would need.
+
+9. **AMBIGUITIES / UNVERIFIED** — an explicit list of anything you could not verify from code. Do NOT guess. This list will be shown to the user.
+
+Return the dossier as structured markdown in your final message. Cite the file path for each significant claim so the orchestrator can verify.
+
+---
+
+ambiguities:
+
+1. document the real thing about discharged terminal state.
+2. restart: follow what's there in current docs. respect front-end i guess?
+3. ignore and assume the correcrt thing is rendered. 
+4. care team roles comes from valueset yes. you can generically say about just pick the desired role and continue.
+5. submit, yes it goes through generic questionnaire pipeline. 
+6. yes, go ahead and rename the old snake case flow files. just add it as a follow up instruction for what all to delete. i'll do it. also give me a prompt i can give to another agent to allow this tool in future, to ask the agent to edit the agent/sub-agents's defintion to allow this tool.
+
+
+code issues:
+- go ahead and create a fix for that. Priority field label.
+- you can go ahead and create a fix for the dairy free thing. don't ask for confirmation, just do it.
+- ignore the stray class translation keys and dead lowercase key and asap and readmission thing.
+- restart encounter let it fire immediatley. ignore it.
+- block all restarts is expected default behaviour.
+- care team member re-validation, ignore it.
+- care: no status transition rules, yes, ignore it.
+- stub associate_encounter and typo in action name, ignore it.
+
+don't forget to invoke the @file:care-docs-recorder.agent.md sub agent as mentioned in the @file:care-docs-orchestrator.agent.md .
+
+---
+
+ambiguities:
+
+1. document the real thing about discharged terminal state.
+2. restart: follow what's there in current docs. respect front-end i guess?
+3. ignore and assume the correcrt thing is rendered. 
+4. care team roles comes from valueset yes. you can generically say about just pick the desired role and continue.
+5. submit, yes it goes through generic questionnaire pipeline. 
+6. yes, go ahead and rename the old snake case flow files. just add it as a follow up instruction for what all to delete. i'll do it. also give me a prompt i can give to another agent to allow this tool in future, to ask the agent to edit the agent/sub-agents's defintion to allow this tool.
+
+
+code issues:
+- go ahead and create a fix for that. Priority field label.
+- you can go ahead and create a fix for the dairy free thing. don't ask for confirmation, just do it.
+- ignore the stray class translation keys and dead lowercase key and asap and readmission thing.
+- restart encounter let it fire immediatley. ignore it.
+- block all restarts is expected default behaviour.
+- care team member re-validation, ignore it.
+- care: no status transition rules, yes, ignore it.
+- stub associate_encounter and typo in action name, ignore it.
+
+don't forget to invoke the @file:care-docs-recorder.agent.md sub agent as mentioned in the @file:care-docs-orchestrator.agent.md .
+
+---
+
+Write EXACTLY ONE documentation file.
+
+OUTPUT PATH: `/Users/rithviknishad/ohc.network/care_docs/Clinical/Encounter/flows/3. Assign an Encounter location.md`
+DOC TYPE: flow
+MODULE: Encounter (Parent: Clinical)
+
+Follow `/Users/rithviknishad/ohc.network/care_docs/.github/skills/care-docs-generation/assets/flow-template.md`, `references/doc-rules.md` and `references/ste-rules.md`.
+An older stale version exists at `.../flows/assign_encounter_location.md` — you MAY read it for orientation but do NOT edit or delete it, and do not trust it.
+
+No code, file paths, API endpoint names, or class names in the output.
+
+## SIBLING DOCS (same run — use these exact relative links)
+- `../concept.md` — Encounter
+- `./1.%20Create%20an%20Encounter.md` — Create an Encounter
+- `./2.%20Update%20Encounter%20details.md` — Update Encounter details
+- `./4.%20Manage%20the%20Encounter%20care%20team.md` — Manage the Encounter care team
+- `./5.%20Manage%20Encounter%20departments.md` — Manage Encounter departments
+- `./6.%20Manage%20Encounter%20tags.md` — Manage Encounter tags
+- `./7.%20Discharge%20a%20patient.md` — Discharge a patient
+- `./8.%20Complete%20an%20Encounter.md` — Complete an Encounter
+- `./9.%20Restart%20an%20Encounter.md` — Restart an Encounter
+
+## VERIFIED FACTS
+
+### Who can do this
+Permission "Update Encounter non clinical" — Administrator, Doctor, Nurse and Facility Administrator. You also need permission to see the facility's locations.
+
+### Before you start
+The encounter exists and is still open. The facility has locations set up, and the bed or room you want belongs to the same facility as the encounter.
+
+### Entry points
+- On the encounter page, open **Encounter Actions** (shortcut `Shift+E`) and select **Assign Location**.
+- Or press `l` on the encounter page.
+- Or, on the **Overview** tab side panel, select **Update Location**.
+
+### The location sheet
+The sheet has two tabs: **Assign** and **History**.
+
+**Assign a location**
+1. Browse the facility's locations and select the bed or room the patient occupies. You can only assign a real place, such as a bed or a room. You cannot assign a location category.
+2. Set the state of the stay. A stay can be planned, reserved or active. Only one stay can be active at a time.
+3. Set the start time, and the end time when the stay has one.
+4. Confirm.
+
+**Move the patient to another location**
+1. Select the new bed or room and choose the move action.
+2. Care asks whether to keep the previous bed reserved for the patient, or to free it. Choose one.
+3. Confirm.
+
+**When the bed is taken**
+- If an open encounter already occupies the bed, Care blocks the assignment and tells you the bed is occupied. You cannot override this. Free that bed first.
+- If the encounter that occupies the bed is discharged, Care asks you to confirm before it moves the new patient in.
+
+**History tab**
+The History tab lists the patient's earlier stays for this encounter. From it you can correct the times of a stay, close a stay, or cancel a stay. Care asks you to confirm before it removes a stay.
+
+### Rules Care applies
+- The end time must be the same as or later than the start time. Otherwise Care shows "End Datetime should be greater than Start Datetime".
+- A closed stay needs an end time. Otherwise Care shows "End Datetime is required for completed status".
+- After you close a stay, you cannot change its state again.
+- Two stays cannot overlap at the same location. Care shows "Conflict in schedule".
+- The location and the encounter must belong to the same facility.
+- While a patient occupies a bed, Care shows the bed as reserved. When the stay closes, Care shows the bed as available again.
+- When you set the encounter status to Completed, Cancelled, Discontinued or Entered in error, Care closes any open stay for you.
+- A discharged encounter still holds its location. Care only frees the bed when the stay closes or when someone marks the encounter as complete.
+
+### Vocabulary
+Care groups locations as Site, Building, Wing, Ward, Level, Corridor, Room, Bed, Vehicle, House, Cabinet, Road, Area, Jurisdiction and Virtual.
+
+### Note
+A user who belongs to the department that owns the patient's current bed can open the encounter, even when that user does not belong to the encounter's own departments.
+
+### Related
+Concept doc, Create an Encounter, Manage Encounter departments, Discharge a patient, Complete an Encounter.
+
+Write the file now. Do not write any other file.
+
+---
+
+Write EXACTLY ONE documentation file.
+
+OUTPUT PATH: `/Users/rithviknishad/ohc.network/care_docs/Clinical/Encounter/flows/7. Discharge a patient.md`
+DOC TYPE: flow
+MODULE: Encounter (Parent: Clinical)
+
+Follow `/Users/rithviknishad/ohc.network/care_docs/.github/skills/care-docs-generation/assets/flow-template.md`, `references/doc-rules.md` and `references/ste-rules.md`.
+An older stale version exists at `.../flows/discharge_an_encounter.md` — you MAY read it for orientation but do NOT edit or delete it, and do not trust it. It wrongly implies that discharge closes the encounter.
+
+No code, file paths, API endpoint names, or class names in the output.
+
+## SIBLING DOCS (same run — use these exact relative links)
+- `../concept.md` — Encounter
+- `./1.%20Create%20an%20Encounter.md` — Create an Encounter
+- `./2.%20Update%20Encounter%20details.md` — Update Encounter details
+- `./3.%20Assign%20an%20Encounter%20location.md` — Assign an Encounter location
+- `./4.%20Manage%20the%20Encounter%20care%20team.md` — Manage the Encounter care team
+- `./5.%20Manage%20Encounter%20departments.md` — Manage Encounter departments
+- `./6.%20Manage%20Encounter%20tags.md` — Manage Encounter tags
+- `./8.%20Complete%20an%20Encounter.md` — Complete an Encounter
+- `./9.%20Restart%20an%20Encounter.md` — Restart an Encounter
+
+## VERIFIED FACTS
+
+### Who can do this
+Permission "Update Encounter non clinical" — Administrator, Doctor, Nurse and Facility Administrator.
+
+### Before you start
+The patient has an open encounter of the type Inpatient, Observation or Emergency, and the patient is ready to leave the facility.
+
+### Entry points
+- On the **Overview** tab side panel, select the bottom button **Mark for discharge**.
+- Or open **Encounter Actions** (shortcut `Shift+E`) and select **Mark for discharge**. The keyboard shortcut is `m` then `c`.
+- Or open the encounter form (shortcut `Shift+U`) and select **Discharge Patient**.
+
+For an Inpatient encounter that is not discharged yet, Care does not show the completion dialog. Care opens the encounter form with the discharge already selected, so that you can fill in the discharge details.
+
+### Steps
+1. Start the discharge from one of the entry points above. Care sets the **Encounter Status** to **Discharged** and disables the field.
+2. **Discharge Disposition** (required) — select where the patient goes. The choices are Home, Alternate home, Other health care facility, Hospice, Long term care, Left against advice, Expired, Psychiatric hospital, Rehabilitation, Skilled nursing facility and Other. Care marks this field with an asterisk and refuses the form until you fill it in, for Inpatient, Observation and Emergency encounters. Your deployment can pre-fill a default choice.
+3. **Discharge Date and Time** — set when the patient leaves. Care shows this field once the status is Discharged. The time cannot be earlier than the start of the encounter.
+4. **Discharge Summary Advice** (optional) — write the advice the patient takes home.
+5. Check the rest of the **Hospitalization Details**, such as **Admit Source**, **Re-admission** and **Diet Preference**.
+6. Submit the form.
+
+### What happens after the discharge — read this carefully
+Care marks the encounter as **Discharged**, but the encounter stays open. This is deliberate:
+- The care team can still change the encounter, the location, the care team, the departments and the tags.
+- The patient keeps the bed until someone closes the location stay. Care only frees the bed when the stay closes or when someone marks the encounter as complete.
+- To close the encounter, someone must mark it as complete. See the Complete an Encounter flow.
+- Care can move a discharged encounter to another status, because Care applies no rules about which status follows which.
+
+### Note
+Your deployment can set a default discharge disposition, and it decides which encounter types your facility uses.
+
+### Related
+Concept doc, Update Encounter details, Complete an Encounter, Assign an Encounter location.
+
+Write the file now. Do not write any other file.
+
+---
+
+Write EXACTLY ONE documentation file.
+
+OUTPUT PATH: `/Users/rithviknishad/ohc.network/care_docs/Clinical/Encounter/flows/6. Manage Encounter tags.md`
+DOC TYPE: flow
+MODULE: Encounter (Parent: Clinical)
+
+Follow `/Users/rithviknishad/ohc.network/care_docs/.github/skills/care-docs-generation/assets/flow-template.md`, `references/doc-rules.md` and `references/ste-rules.md`.
+An older stale version exists at `.../flows/manage_encounter_tags.md` — you MAY read it for orientation but do NOT edit or delete it, and do not trust it.
+
+No code, file paths, API endpoint names, or class names in the output.
+
+## SIBLING DOCS (same run — use these exact relative links)
+- `../concept.md` — Encounter
+- `./1.%20Create%20an%20Encounter.md` — Create an Encounter
+- `./2.%20Update%20Encounter%20details.md` — Update Encounter details
+- `./3.%20Assign%20an%20Encounter%20location.md` — Assign an Encounter location
+- `./4.%20Manage%20the%20Encounter%20care%20team.md` — Manage the Encounter care team
+- `./5.%20Manage%20Encounter%20departments.md` — Manage Encounter departments
+- `./7.%20Discharge%20a%20patient.md` — Discharge a patient
+- `./8.%20Complete%20an%20Encounter.md` — Complete an Encounter
+- `./9.%20Restart%20an%20Encounter.md` — Restart an Encounter
+
+## VERIFIED FACTS
+
+### Who can do this
+Permission "Update Encounter non clinical" — Administrator, Doctor, Nurse and Facility Administrator. You also need permission for each tag you apply, because an administrator can restrict a tag.
+
+### Before you start
+The encounter exists and is still open. An administrator has set up tags for encounters at your facility.
+
+### What tags are for
+A tag is a label your facility configures to mark an encounter, so that staff can find it and filter for it later. An administrator groups tags into these categories: Diet, Drug, Lab, Admin, Contact, Clinical, Behavioral, Research, Advance Directive and Safety.
+
+### Entry point
+On the encounter page, go to the **Overview** tab and find the **Encounter Tags** panel. Select the edit icon on the panel. Care shows the edit icon only when you can change the encounter.
+Care does not list this action in the Encounter Actions palette. You can also set tags when you create the encounter.
+
+### Steps
+1. Select the edit icon on the Encounter Tags panel.
+2. In the sheet, select the tags to apply. Care shows only the tags your facility configured for encounters.
+3. To take a tag off the encounter, remove it from the same sheet.
+
+### Rules Care applies
+- A tag must be set up for encounters. Otherwise Care shows "Tag resource does not match resource type".
+- You cannot apply the same tag twice. Care shows "Tag already set".
+- Some tags belong to a group in which only one tag can apply at a time. When one of them is already on the encounter, Care shows "Tag Parent is already set". Remove the other tag first.
+
+### Where tags help
+You can filter the patient's encounters by tag in the encounter selector on the encounter page.
+
+### Related
+Concept doc, Create an Encounter, Update Encounter details.
+
+Write the file now. Do not write any other file.
+
+---
+
+Write EXACTLY ONE documentation file.
+
+OUTPUT PATH: `/Users/rithviknishad/ohc.network/care_docs/Clinical/Encounter/flows/1. Create an Encounter.md`
+DOC TYPE: flow
+MODULE: Encounter (Parent: Clinical)
+
+Follow `/Users/rithviknishad/ohc.network/care_docs/.github/skills/care-docs-generation/assets/flow-template.md`, `references/doc-rules.md` and `references/ste-rules.md`.
+An older stale version exists at `/Users/rithviknishad/ohc.network/care_docs/Clinical/Encounter/flows/create_an_encounter.md` — you MAY read it for orientation but do NOT edit or delete it, and do not trust it. Use only the verified facts below.
+
+No code, file paths, API endpoint names, or class names in the output.
+
+## SIBLING DOCS (same run — use these exact relative links)
+- `../concept.md` — Encounter
+- `./2.%20Update%20Encounter%20details.md` — Update Encounter details
+- `./3.%20Assign%20an%20Encounter%20location.md` — Assign an Encounter location
+- `./4.%20Manage%20the%20Encounter%20care%20team.md` — Manage the Encounter care team
+- `./5.%20Manage%20Encounter%20departments.md` — Manage Encounter departments
+- `./6.%20Manage%20Encounter%20tags.md` — Manage Encounter tags
+- `./7.%20Discharge%20a%20patient.md` — Discharge a patient
+- `./8.%20Complete%20an%20Encounter.md` — Complete an Encounter
+- `./9.%20Restart%20an%20Encounter.md` — Restart an Encounter
+
+## VERIFIED FACTS
+
+### Who can do this
+Permission "Can Create encounter" — Administrator, Doctor, Nurse and Facility Administrator. Users without it do not see the action.
+
+### Before you start
+The patient is registered in Care and you have opened the patient at the facility. If you start from an appointment, the patient has a booked or checked-in appointment at that facility.
+
+### Entry points
+1. **From the patient page.** Open the patient at the facility and select the **Create Encounter** quick action. Keyboard shortcut: `e`.
+2. **From the patient's Encounters tab.** Open the patient, go to the **Encounters** tab, and select **Create Encounter** when the patient has no encounter yet.
+3. **From an appointment — Start Consultation.** On the appointment page, in **Quick Actions**, select **Start Consultation** (shortcut `1`). Care opens the same form with the status already set to **In Progress** and links the encounter to the appointment. When you confirm, Care also moves the appointment to In Consultation.
+   - If the appointment already has an encounter, **Start Consultation** does not open the form. Care moves the appointment to In Consultation and opens the existing encounter on its Overview tab.
+4. **From an appointment — Create Planned Encounter.** In the same Quick Actions panel, select **Create Planned Encounter** (shortcut `2`). Care opens the form with the status already set to **Planned**.
+
+### The form
+Title: **Initiate Patient Encounter**. Below it Care shows "Begin a new clinical encounter for" and the patient's name.
+
+Steps and fields, in the order they appear:
+1. **Date and Time** (required) — pick the date and enter the time the encounter starts. You can only pick a future date when the status is Planned.
+2. **Type of Encounter** (required) — select one tile. The tiles show Inpatient, Ambulatory, Observation, Emergency, Virtual and Home Health with a short description each. Your deployment decides which tiles appear and which one Care preselects.
+3. **Status** (required) — choose **In Progress**, **Planned** or **On Hold**. These are the only statuses you can set at creation.
+4. **Priority** (required) — choose from Stat, ASAP, Emergency, Urgent, Routine, Elective, Rush reporting, Timing critical, Callback results, Callback for scheduling, Pre-op, As needed and Use as directed. Care preselects **Routine**.
+5. **Tags** (optional) — select one or more tags your facility configured for encounters.
+6. **Departments** (required) — select at least one department. Departments control who can see the encounter, so choose the teams that look after the patient.
+7. Select **Create Encounter**. The button shows "Creating…" while Care saves. Select **Cancel** to close the form without saving.
+
+### Result
+Care shows "Encounter created successfully" and opens the new encounter on its Overview tab.
+
+### Errors the user can meet
+- "Future date is only allowed for planned encounters" — the start date is in the future but the status is not Planned. Either move the date back or set the status to Planned.
+- "At least one department is required" — the Create Encounter button stays disabled until you select a department.
+- "Patient already has maximum number of active encounters (5) in the facility" — the patient already has the maximum number of open encounters at this facility. Close one of them first, or continue in the existing encounter. Your deployment sets this maximum; 5 is the default.
+- "Encounter already has an associated booking" — the appointment you started from already has an encounter. Open that encounter instead.
+
+### Notes
+- Which encounter types you can choose, and which one Care preselects, depend on your deployment's configuration.
+- The maximum number of open encounters per patient at a facility depends on your deployment's configuration.
+
+### Related
+Link to the concept doc, and to Update Encounter details, Assign an Encounter location, Manage the Encounter care team, Manage Encounter departments and Manage Encounter tags as the natural next steps.
+
+Write the file now. Do not write any other file.
+
+---
+
+Write EXACTLY ONE documentation file.
+
+OUTPUT PATH: `/Users/rithviknishad/ohc.network/care_docs/Clinical/Encounter/concept.md`
+DOC TYPE: concept
+MODULE: Encounter (Parent: Clinical)
+
+Follow `/Users/rithviknishad/ohc.network/care_docs/.github/skills/care-docs-generation/assets/concept-template.md`, `references/doc-rules.md` and `references/ste-rules.md`. An older version of this file exists at that path — OVERWRITE it. You may read it for orientation, but it is stale; use only the verified facts below.
+
+No code, file paths, API endpoint names, or class names in the output.
+
+## SIBLING DOCS (all being written in this same run — use these exact relative links)
+- `./flows/1.%20Create%20an%20Encounter.md` — Create an Encounter
+- `./flows/2.%20Update%20Encounter%20details.md` — Update Encounter details
+- `./flows/3.%20Assign%20an%20Encounter%20location.md` — Assign an Encounter location
+- `./flows/4.%20Manage%20the%20Encounter%20care%20team.md` — Manage the Encounter care team
+- `./flows/5.%20Manage%20Encounter%20departments.md` — Manage Encounter departments
+- `./flows/6.%20Manage%20Encounter%20tags.md` — Manage Encounter tags
+- `./flows/7.%20Discharge%20a%20patient.md` — Discharge a patient
+- `./flows/8.%20Complete%20an%20Encounter.md` — Complete an Encounter
+- `./flows/9.%20Restart%20an%20Encounter.md` — Restart an Encounter
+
+## VERIFIED FACTS
+
+### FHIR R5 alignment
+Care's Encounter follows the FHIR R5 Encounter resource (https://build.fhir.org/encounter.html). Link it on first mention.
+Care implements: status, class, priority, subject (the patient), the facility that provides the service, location, participant (as the care team), appointment, period (start and end), and the admission details (admit source, re-admission, diet preference, discharge disposition). Care records one encounter class at a time and keeps a history of every status change and class change on the encounter itself, instead of a separate FHIR EncounterHistory resource. Care stores a single free-text hospital identifier rather than the structured FHIR identifier. Care's Encounter has no diagnosis element.
+Related resources an Encounter links to: Patient, Organization (the facility and its departments), Location (the bed or room), and Appointment (the booking the encounter started from).
+
+### What an Encounter is, for the reader
+An Encounter records one interaction between a patient and the facility — an outpatient visit, an admission, an observation stay, an emergency visit, a virtual consultation, or a home visit. It groups everything the care team records for that interaction. A patient can have several encounters at a facility at the same time; the deployment sets the maximum (5 unless the deployment changes it).
+
+### Key attributes (use these user-facing labels)
+- Status
+- Type of Encounter (called Encounter Class on the update form)
+- Priority
+- Date and Time (the start), and Discharge Date and Time (the end)
+- Hospital Identifier — a free-text reference number the facility uses, such as an IP, OP, OBS or EMR number
+- Departments — at least one is required, and they control who can see the encounter
+- Care team — the staff who look after the patient, each with a clinical role, and one marked as primary
+- Current location — the bed, room or ward the patient occupies
+- Tags — labels the facility configures
+- Hospitalization details — Re-admission, Admit Source, Discharge Disposition, Diet Preference. These appear only for Inpatient, Observation and Emergency encounters.
+- Discharge Summary Advice — free text, available once the patient is discharged
+
+### Status values (display labels)
+Planned, In Progress, On Hold, Discharged, Completed, Cancelled, Discontinued, Entered in error, Unknown.
+Terminal statuses that lock the encounter: Completed, Cancelled, Discontinued, Entered in error. Once an encounter reaches one of these, nobody can edit it or record new clinical data on it.
+IMPORTANT AND DELIBERATE: **Discharged is not a terminal status in Care.** A discharged encounter stays editable — the care team can still change the location, the care team, the departments and the tags. To close a discharged encounter, someone must still mark it as complete. State this plainly; it is the real behavior and the reader must know it.
+Care applies no rules about which status can follow which. Any status can move to any other status while the encounter is still open.
+
+### Type of Encounter values (display labels and meanings)
+- Inpatient — Patient is admitted to the hospital
+- Ambulatory — Patient visits for outpatient care
+- Observation — Patient is under observation
+- Emergency — Mark as emergency if immediate attention is required
+- Virtual — Virtual/telehealth consultation
+- Home Health — Care provided at patient's home
+Note: the deployment decides which of these appear, and which one is preselected.
+
+### Priority values (display labels)
+Stat, ASAP, Emergency, Urgent, Routine, Elective, Rush reporting, Timing critical, Callback results, Callback for scheduling, Pre-op, As needed, Use as directed. Routine is the default on the create form.
+
+### Admit Source values (display labels)
+Transferred from other hospital, From accident/emergency department, From outpatient department, Born in hospital, General Practitioner referral, Medical Practitioner/physician referral, From nursing home, From psychiatric hospital, From rehabilitation facility, Other.
+
+### Discharge Disposition values (display labels)
+Home, Alternate home, Other health care facility, Hospice, Long term care, Left against advice, Expired, Psychiatric hospital, Rehabilitation, Skilled nursing facility, Other.
+
+### Diet Preference values (display labels)
+Vegetarian, Dairy free, Nut free, Gluten free, Vegan, Halal, Kosher, None.
+(The product currently shows a misspelling for the Dairy free option; do not mention this in the doc — write "Dairy free".)
+
+### Tag categories (display labels)
+Diet, Drug, Lab, Admin, Contact, Clinical, Behavioral, Research, Advance Directive, Safety.
+
+### Where an Encounter appears in the product
+- The facility sidebar has a Patients group with Search Patients, All Encounters (only when the deployment allows more than one encounter type), one list per allowed encounter type, and Locations.
+- The encounter page has an Encounter Actions command palette (open it with Shift+E) and these tabs: Overview, Plots, Observations, Medicines, Responses, Service Requests, Diagnostic Reports, Files, Notes, Devices, Consents. Every tab except Overview, Devices and Consents needs permission to read clinical data.
+- The Overview tab carries a side panel with Manage Consents, Manage Care Team, Update Location, Update Department and Dispense, plus a button to mark the encounter for discharge or as completed.
+- A left rail lets the user switch between the patient's encounters and filter them by status, department, care team, date and tags.
+
+### Permissions (human-readable names) — held by Administrator, Doctor, Nurse and Facility Administrator
+- "Can Create encounter" — create an encounter
+- "Can Read encounter" — open an encounter
+- "Can list encounters" — see the encounter lists
+- "Update Encounter non clinical" — change the encounter's own details, and manage its departments, care team, location, tags, completion and restart
+- "Can Read encounter related clinical data" — open the clinical tabs
+- "Update Encounter related clinical data" — record clinical data
+- "Can submit questionnaire about patient encounters" — also held by Staff
+A user can also reach an encounter through the department that owns the patient's current bed, not only through the encounter's own departments.
+
+### Deployment configuration that changes behavior
+- Which encounter types staff can choose, and which one is preselected.
+- A default discharge disposition that Care pre-fills.
+- The maximum number of open encounters one patient can have at a facility (5 by default).
+- How long after its last change a completed encounter can be restarted (zero hours by default, which stops restarts until the deployment raises it).
+- The default date filter on the encounter lists.
+
+Write the file now. Do not write any other file.
+
+---
+
+Write EXACTLY ONE documentation file.
+
+OUTPUT PATH: `/Users/rithviknishad/ohc.network/care_docs/Clinical/Encounter/flows/5. Manage Encounter departments.md`
+DOC TYPE: flow
+MODULE: Encounter (Parent: Clinical)
+
+Follow `/Users/rithviknishad/ohc.network/care_docs/.github/skills/care-docs-generation/assets/flow-template.md`, `references/doc-rules.md` and `references/ste-rules.md`.
+An older stale version exists at `.../flows/manage_encounter_departments.md` — you MAY read it for orientation but do NOT edit or delete it, and do not trust it.
+
+No code, file paths, API endpoint names, or class names in the output.
+
+## SIBLING DOCS (same run — use these exact relative links)
+- `../concept.md` — Encounter
+- `./1.%20Create%20an%20Encounter.md` — Create an Encounter
+- `./2.%20Update%20Encounter%20details.md` — Update Encounter details
+- `./3.%20Assign%20an%20Encounter%20location.md` — Assign an Encounter location
+- `./4.%20Manage%20the%20Encounter%20care%20team.md` — Manage the Encounter care team
+- `./6.%20Manage%20Encounter%20tags.md` — Manage Encounter tags
+- `./7.%20Discharge%20a%20patient.md` — Discharge a patient
+- `./8.%20Complete%20an%20Encounter.md` — Complete an Encounter
+- `./9.%20Restart%20an%20Encounter.md` — Restart an Encounter
+
+## VERIFIED FACTS
+
+### Who can do this
+Permission "Update Encounter non clinical" — Administrator, Doctor, Nurse and Facility Administrator.
+
+### Before you start
+The encounter exists and is still open. The departments you want belong to the same facility as the encounter.
+
+### Why departments matter
+Departments decide who can see the encounter. Staff of a linked department can open the encounter. Every encounter must have at least one department; you choose the first one when you create the encounter.
+
+### Entry points
+- On the encounter page, open **Encounter Actions** (shortcut `Shift+E`) and select **Update Department**. Care defines no keyboard shortcut for this action.
+- Or, on the **Overview** tab side panel, select **Update Department**.
+
+### Steps
+**Add a department**
+1. Open the sheet.
+2. Select one or more departments from the selector. Care links each one to the encounter as you select it.
+
+**Remove a department**
+1. Find the department in the list of linked departments.
+2. Select the delete icon beside it. Care shows "Organization removed successfully".
+
+### Rules Care applies
+- The department must belong to the encounter's facility. Otherwise Care shows "Organization Incompatible with Encounter".
+- You cannot link the same department twice. Care shows "Organization already exists".
+- You cannot remove a department that is not linked. Care shows "Organization does not exist".
+
+### Note
+A user who belongs to the department that owns the patient's current bed can also open the encounter, even when that department is not linked to the encounter.
+
+### Related
+Concept doc, Create an Encounter, Manage the Encounter care team, Assign an Encounter location.
+
+Write the file now. Do not write any other file.
+
+---
+
+Write EXACTLY ONE documentation file.
+
+OUTPUT PATH: `/Users/rithviknishad/ohc.network/care_docs/Clinical/Encounter/flows/8. Complete an Encounter.md`
+DOC TYPE: flow
+MODULE: Encounter (Parent: Clinical)
+
+Follow `/Users/rithviknishad/ohc.network/care_docs/.github/skills/care-docs-generation/assets/flow-template.md`, `references/doc-rules.md` and `references/ste-rules.md`.
+An older stale version exists at `.../flows/complete_an_encounter.md` — you MAY read it for orientation but do NOT edit or delete it, and do not trust it.
+
+No code, file paths, API endpoint names, or class names in the output.
+
+## SIBLING DOCS (same run — use these exact relative links)
+- `../concept.md` — Encounter
+- `./1.%20Create%20an%20Encounter.md` — Create an Encounter
+- `./2.%20Update%20Encounter%20details.md` — Update Encounter details
+- `./3.%20Assign%20an%20Encounter%20location.md` — Assign an Encounter location
+- `./4.%20Manage%20the%20Encounter%20care%20team.md` — Manage the Encounter care team
+- `./5.%20Manage%20Encounter%20departments.md` — Manage Encounter departments
+- `./6.%20Manage%20Encounter%20tags.md` — Manage Encounter tags
+- `./7.%20Discharge%20a%20patient.md` — Discharge a patient
+- `./9.%20Restart%20an%20Encounter.md` — Restart an Encounter
+
+## VERIFIED FACTS
+
+### Who can do this
+Permission "Update Encounter non clinical" — Administrator, Doctor, Nurse and Facility Administrator.
+
+### Before you start
+The care team has recorded everything for this interaction. If the patient was admitted, the patient is discharged first — see the Discharge a patient flow.
+
+### Entry points
+- On the **Overview** tab side panel, select the bottom button **Mark as Completed**.
+- Or open **Encounter Actions** (shortcut `Shift+E`) and select **Mark as Completed**. The keyboard shortcut is `m` then `c`.
+
+If the encounter is Inpatient and the patient is not discharged yet, Care does not show the confirmation dialog. Care opens the encounter form with the discharge already selected, so that you complete the discharge first.
+
+### Steps
+1. Select **Mark as Completed**.
+2. Care shows the dialog **Mark as complete** with the question "Are you sure you would like to mark this encounter as complete?".
+3. Confirm. Press `Enter` to confirm, or `Escape` to cancel.
+
+### Result
+- Care shows "Encounter Completed".
+- Care sets the status to **Completed** and records the end of the encounter.
+- If the encounter came from an appointment, Care closes the appointment and its token as fulfilled, and shows "Appointment closed successfully".
+- Care closes any open location stay and frees the bed.
+- Care releases any device linked to the encounter.
+
+### After the encounter closes
+Nobody can change a Completed encounter, and nobody can record new clinical data on it. The encounter stays available to read. To open it again, see the Restart an Encounter flow.
+The same lock applies to the statuses Cancelled, Discontinued and Entered in error.
+
+### Related
+Concept doc, Discharge a patient, Restart an Encounter, Update Encounter details.
+
+Write the file now. Do not write any other file.
+
+---
+
+Write EXACTLY ONE documentation file.
+
+OUTPUT PATH: `/Users/rithviknishad/ohc.network/care_docs/Clinical/Encounter/flows/2. Update Encounter details.md`
+DOC TYPE: flow
+MODULE: Encounter (Parent: Clinical)
+
+Follow `/Users/rithviknishad/ohc.network/care_docs/.github/skills/care-docs-generation/assets/flow-template.md`, `references/doc-rules.md` and `references/ste-rules.md`.
+An older stale version exists at `.../flows/update_encounter_details.md` — you MAY read it for orientation but do NOT edit or delete it, and do not trust it.
+
+No code, file paths, API endpoint names, or class names in the output.
+
+## SIBLING DOCS (same run — use these exact relative links)
+- `../concept.md` — Encounter
+- `./1.%20Create%20an%20Encounter.md` — Create an Encounter
+- `./3.%20Assign%20an%20Encounter%20location.md` — Assign an Encounter location
+- `./4.%20Manage%20the%20Encounter%20care%20team.md` — Manage the Encounter care team
+- `./5.%20Manage%20Encounter%20departments.md` — Manage Encounter departments
+- `./6.%20Manage%20Encounter%20tags.md` — Manage Encounter tags
+- `./7.%20Discharge%20a%20patient.md` — Discharge a patient
+- `./8.%20Complete%20an%20Encounter.md` — Complete an Encounter
+- `./9.%20Restart%20an%20Encounter.md` — Restart an Encounter
+
+## VERIFIED FACTS
+
+### Who can do this
+Permission "Update Encounter non clinical" — Administrator, Doctor, Nurse and Facility Administrator.
+
+### Before you start
+The encounter exists and is still open. Care refuses every change to an encounter that is Completed, Cancelled, Discontinued or Entered in error. A **Discharged** encounter is still open, so you can still update it.
+
+### Entry points
+- On the encounter page, open **Encounter Actions** (shortcut `Shift+E`) and select **Update Encounter Details**.
+- Or press `Shift+U` on the encounter page to open the same form directly.
+
+### The form
+Care opens the encounter form. It has these fields:
+1. **Encounter Status** (required) — the list holds Planned, In Progress, On Hold, Completed, Cancelled, Discontinued and Entered in error. Care leaves Discharged out of the list, because you set that status with the discharge button described below. Once the patient is discharged, Care disables this field.
+2. **Encounter Class** (required) — Inpatient, Ambulatory, Observation, Emergency, Virtual or Home Health. Your deployment decides which of these appear.
+3. **Priority** (required) — Stat, ASAP, Emergency, Urgent, Routine, Elective, Rush reporting, Timing critical, Callback results, Callback for scheduling, Pre-op, As needed or Use as directed.
+4. **Hospital Identifier** (optional) — the facility's reference number for this encounter. The field shows the hint "IP/OP/OBS/EMR Number".
+5. **Discharge Summary Advice** (optional) — a free-text box. Care shows it after the patient is discharged, or when the encounter already holds advice.
+6. **Hospitalization Details** — Care shows this section only for Inpatient, Observation and Emergency encounters. It holds:
+   - **Re-admission** — a switch. Turn it on when the patient comes back for the same problem.
+   - **Admit Source** — Transferred from other hospital, From accident/emergency department, From outpatient department, Born in hospital, General Practitioner referral, Medical Practitioner/physician referral, From nursing home, From psychiatric hospital, From rehabilitation facility, or Other.
+   - **Discharge Disposition** — Home, Alternate home, Other health care facility, Hospice, Long term care, Left against advice, Expired, Psychiatric hospital, Rehabilitation, Skilled nursing facility, or Other.
+   - **Diet Preference** — Vegetarian, Dairy free, Nut free, Gluten free, Vegan, Halal, Kosher, or None.
+7. Submit the form. Care saves the encounter through the standard form submission.
+
+The form also holds a **Mark for discharge** button. It is covered in the Discharge a patient flow — cross-link to it rather than describing it here.
+
+### Behavior to record
+- Care keeps a history of every status change and every encounter class change on the encounter.
+- Care applies no rules about which status can follow which. While the encounter is open, you can set any status.
+- When you set a status of Completed, Cancelled, Discontinued or Entered in error, Care closes any open location stay for the encounter and releases any device linked to it. After that, nobody can edit the encounter.
+- If you clear Discharge Summary Advice and save, Care removes the earlier text.
+
+### Notes
+- Which encounter classes you can choose depends on your deployment's configuration.
+
+### Related
+Concept doc, Create an Encounter, Discharge a patient, Complete an Encounter.
+
+Write the file now. Do not write any other file.
+
+---
+
+Write EXACTLY ONE documentation file.
+
+OUTPUT PATH: `/Users/rithviknishad/ohc.network/care_docs/Clinical/Encounter/flows/4. Manage the Encounter care team.md`
+DOC TYPE: flow
+MODULE: Encounter (Parent: Clinical)
+
+Follow `/Users/rithviknishad/ohc.network/care_docs/.github/skills/care-docs-generation/assets/flow-template.md`, `references/doc-rules.md` and `references/ste-rules.md`.
+An older stale version exists at `.../flows/manage_encounter_care_team.md` — you MAY read it for orientation but do NOT edit or delete it, and do not trust it.
+
+No code, file paths, API endpoint names, or class names in the output.
+
+## SIBLING DOCS (same run — use these exact relative links)
+- `../concept.md` — Encounter
+- `./1.%20Create%20an%20Encounter.md` — Create an Encounter
+- `./2.%20Update%20Encounter%20details.md` — Update Encounter details
+- `./3.%20Assign%20an%20Encounter%20location.md` — Assign an Encounter location
+- `./5.%20Manage%20Encounter%20departments.md` — Manage Encounter departments
+- `./6.%20Manage%20Encounter%20tags.md` — Manage Encounter tags
+- `./7.%20Discharge%20a%20patient.md` — Discharge a patient
+- `./8.%20Complete%20an%20Encounter.md` — Complete an Encounter
+- `./9.%20Restart%20an%20Encounter.md` — Restart an Encounter
+
+## VERIFIED FACTS
+
+### Who can do this
+Permission "Update Encounter non clinical" — Administrator, Doctor, Nurse and Facility Administrator. A user who can open the encounter but cannot change it sees the same list in read-only form.
+
+### Before you start
+The encounter exists and is still open. The staff you want to add are members of a department at the facility.
+
+### Entry points
+- On the encounter page, open **Encounter Actions** (shortcut `Shift+E`) and select **Manage Care Team**. Care defines no keyboard shortcut for this action.
+- Or, on the **Overview** tab side panel, select **Manage Care Team**.
+
+### The sheet
+The sheet is titled **Manage Care Team** when you can change the team, and **View Care Team** when you can only read it.
+
+**Add a member**
+1. Select the department the person belongs to.
+2. Select the person. Care lists only the users of the department you chose.
+3. Select the person's role. Care searches a clinical role list and shows the matching roles; pick the role that fits and continue.
+4. Add the member. Care shows "Member added successfully".
+
+**Set the primary member**
+Select **Make Primary** on a member. Care moves that person to the top of the list and shows "Primary member updated". Care asks for no confirmation.
+
+**Remove a member**
+Select the remove action on the member and confirm in the dialog. Care shows "Member removed successfully".
+
+### Rules Care applies
+- You cannot add the same person twice. Care shows "Member already added".
+- Care saves the whole team together each time you change it.
+- Care keeps the first person in the list as the primary member.
+
+### Why it matters
+Membership of the care team can give a user access to the encounter. Add only the staff who look after the patient.
+
+### Note
+The list of roles comes from a clinical terminology set, so your deployment can offer a different set of roles from another deployment.
+
+### Related
+Concept doc, Create an Encounter, Manage Encounter departments, Assign an Encounter location.
+
+Write the file now. Do not write any other file.
+
+---
+
+Write EXACTLY ONE documentation file.
+
+OUTPUT PATH: `/Users/rithviknishad/ohc.network/care_docs/Clinical/Encounter/flows/9. Restart an Encounter.md`
+DOC TYPE: flow
+MODULE: Encounter (Parent: Clinical)
+
+Follow `/Users/rithviknishad/ohc.network/care_docs/.github/skills/care-docs-generation/assets/flow-template.md`, `references/doc-rules.md` and `references/ste-rules.md`.
+An older stale version exists at `.../flows/restart_an_encounter.md` — you MAY read it for orientation but do NOT edit or delete it, and do not trust it.
+
+No code, file paths, API endpoint names, or class names in the output.
+
+## SIBLING DOCS (same run — use these exact relative links)
+- `../concept.md` — Encounter
+- `./1.%20Create%20an%20Encounter.md` — Create an Encounter
+- `./2.%20Update%20Encounter%20details.md` — Update Encounter details
+- `./3.%20Assign%20an%20Encounter%20location.md` — Assign an Encounter location
+- `./4.%20Manage%20the%20Encounter%20care%20team.md` — Manage the Encounter care team
+- `./5.%20Manage%20Encounter%20departments.md` — Manage Encounter departments
+- `./6.%20Manage%20Encounter%20tags.md` — Manage Encounter tags
+- `./7.%20Discharge%20a%20patient.md` — Discharge a patient
+- `./8.%20Complete%20an%20Encounter.md` — Complete an Encounter
+
+## VERIFIED FACTS
+
+### Who can do this
+Permission "Update Encounter non clinical" — Administrator, Doctor, Nurse and Facility Administrator.
+
+### When the action appears
+Care shows **Restart Encounter** only when all of these are true:
+- the encounter status is **Completed**,
+- you work within the facility that owns the encounter,
+- you look at the encounter itself, and not at another encounter of the same patient in the side selector.
+
+### Before you start
+Someone marked the encounter as complete by mistake, or the care team must record more for the same interaction. Your deployment allows restarts — see the note below.
+
+### Steps
+1. On the encounter page, open **Encounter Actions** (shortcut `Shift+E`).
+2. Select **Restart Encounter**. Care defines no keyboard shortcut for this action.
+3. Care acts at once. It asks for no confirmation.
+
+### Result
+- Care shows "Encounter restarted successfully" and opens the encounter on its **Overview** tab.
+- Care sets the status back to **In Progress**. The care team can record clinical data again.
+- If the restart fails, Care shows "Failed to restart encounter".
+
+### Note about the time limit — read this before you try
+Your deployment sets how many hours after the last change a completed encounter can be restarted. **The default is zero hours, and with that setting Care refuses every restart.** When the limit stops you, Care shows "Encounter cannot be restarted after 0 hours" with the number your deployment set. Ask your administrator to raise the limit if your facility needs restarts.
+
+### Related
+Concept doc, Complete an Encounter, Update Encounter details, Create an Encounter.
+
+Write the file now. Do not write any other file.
+
+---
+
+Write EXACTLY ONE documentation file.
+
+OUTPUT PATH: `/Users/rithviknishad/ohc.network/care_docs/Clinical/Encounter/flows/3. Assign an Encounter location.md`
+DOC TYPE: flow
+MODULE: Encounter (Parent: Clinical)
+
+Follow `/Users/rithviknishad/ohc.network/care_docs/.github/skills/care-docs-generation/assets/flow-template.md`, `references/doc-rules.md` and `references/ste-rules.md`.
+An older stale version exists at `.../flows/assign_encounter_location.md` — you MAY read it for orientation but do NOT edit or delete it, and do not trust it.
+
+No code, file paths, API endpoint names, or class names in the output.
+
+## SIBLING DOCS (same run — use these exact relative links)
+- `../concept.md` — Encounter
+- `./1.%20Create%20an%20Encounter.md` — Create an Encounter
+- `./2.%20Update%20Encounter%20details.md` — Update Encounter details
+- `./4.%20Manage%20the%20Encounter%20care%20team.md` — Manage the Encounter care team
+- `./5.%20Manage%20Encounter%20departments.md` — Manage Encounter departments
+- `./6.%20Manage%20Encounter%20tags.md` — Manage Encounter tags
+- `./7.%20Discharge%20a%20patient.md` — Discharge a patient
+- `./8.%20Complete%20an%20Encounter.md` — Complete an Encounter
+- `./9.%20Restart%20an%20Encounter.md` — Restart an Encounter
+
+## VERIFIED FACTS
+
+### Who can do this
+Permission "Update Encounter non clinical" — Administrator, Doctor, Nurse and Facility Administrator. You also need permission to see the facility's locations.
+
+### Before you start
+The encounter exists and is still open. The facility has locations set up, and the bed or room you want belongs to the same facility as the encounter.
+
+### Entry points
+- On the encounter page, open **Encounter Actions** (shortcut `Shift+E`) and select **Assign Location**.
+- Or press `l` on the encounter page.
+- Or, on the **Overview** tab side panel, select **Update Location**.
+
+### The location sheet
+The sheet has two tabs: **Assign** and **History**.
+
+**Assign a location**
+1. Browse the facility's locations and select the bed or room the patient occupies. You can only assign a real place, such as a bed or a room. You cannot assign a location category.
+2. Set the state of the stay. A stay can be planned, reserved or active. Only one stay can be active at a time.
+3. Set the start time, and the end time when the stay has one.
+4. Confirm.
+
+**Move the patient to another location**
+1. Select the new bed or room and choose the move action.
+2. Care asks whether to keep the previous bed reserved for the patient, or to free it. Choose one.
+3. Confirm.
+
+**When the bed is taken**
+- If an open encounter already occupies the bed, Care blocks the assignment and tells you the bed is occupied. You cannot override this. Free that bed first.
+- If the encounter that occupies the bed is discharged, Care asks you to confirm before it moves the new patient in.
+
+**History tab**
+The History tab lists the patient's earlier stays for this encounter. From it you can correct the times of a stay, close a stay, or cancel a stay. Care asks you to confirm before it removes a stay.
+
+### Rules Care applies
+- The end time must be the same as or later than the start time. Otherwise Care shows "End Datetime should be greater than Start Datetime".
+- A closed stay needs an end time. Otherwise Care shows "End Datetime is required for completed status".
+- After you close a stay, you cannot change its state again.
+- Two stays cannot overlap at the same location. Care shows "Conflict in schedule".
+- The location and the encounter must belong to the same facility.
+- While a patient occupies a bed, Care shows the bed as reserved. When the stay closes, Care shows the bed as available again.
+- When you set the encounter status to Completed, Cancelled, Discontinued or Entered in error, Care closes any open stay for you.
+- A discharged encounter still holds its location. Care only frees the bed when the stay closes or when someone marks the encounter as complete.
+
+### Vocabulary
+Care groups locations as Site, Building, Wing, Ward, Level, Corridor, Room, Bed, Vehicle, House, Cabinet, Road, Area, Jurisdiction and Virtual.
+
+### Note
+A user who belongs to the department that owns the patient's current bed can open the encounter, even when that user does not belong to the encounter's own departments.
+
+### Related
+Concept doc, Create an Encounter, Manage Encounter departments, Discharge a patient, Complete an Encounter.
+
+Write the file now. Do not write any other file.
+
+---
+
+Write EXACTLY ONE documentation file.
+
+OUTPUT PATH: `/Users/rithviknishad/ohc.network/care_docs/Clinical/Encounter/flows/1. Create an Encounter.md`
+DOC TYPE: flow
+MODULE: Encounter (Parent: Clinical)
+
+Follow `/Users/rithviknishad/ohc.network/care_docs/.github/skills/care-docs-generation/assets/flow-template.md`, `references/doc-rules.md` and `references/ste-rules.md`.
+An older stale version exists at `/Users/rithviknishad/ohc.network/care_docs/Clinical/Encounter/flows/create_an_encounter.md` — you MAY read it for orientation but do NOT edit or delete it, and do not trust it. Use only the verified facts below.
+
+No code, file paths, API endpoint names, or class names in the output.
+
+## SIBLING DOCS (same run — use these exact relative links)
+- `../concept.md` — Encounter
+- `./2.%20Update%20Encounter%20details.md` — Update Encounter details
+- `./3.%20Assign%20an%20Encounter%20location.md` — Assign an Encounter location
+- `./4.%20Manage%20the%20Encounter%20care%20team.md` — Manage the Encounter care team
+- `./5.%20Manage%20Encounter%20departments.md` — Manage Encounter departments
+- `./6.%20Manage%20Encounter%20tags.md` — Manage Encounter tags
+- `./7.%20Discharge%20a%20patient.md` — Discharge a patient
+- `./8.%20Complete%20an%20Encounter.md` — Complete an Encounter
+- `./9.%20Restart%20an%20Encounter.md` — Restart an Encounter
+
+## VERIFIED FACTS
+
+### Who can do this
+Permission "Can Create encounter" — Administrator, Doctor, Nurse and Facility Administrator. Users without it do not see the action.
+
+### Before you start
+The patient is registered in Care and you have opened the patient at the facility. If you start from an appointment, the patient has a booked or checked-in appointment at that facility.
+
+### Entry points
+1. **From the patient page.** Open the patient at the facility and select the **Create Encounter** quick action. Keyboard shortcut: `e`.
+2. **From the patient's Encounters tab.** Open the patient, go to the **Encounters** tab, and select **Create Encounter** when the patient has no encounter yet.
+3. **From an appointment — Start Consultation.** On the appointment page, in **Quick Actions**, select **Start Consultation** (shortcut `1`). Care opens the same form with the status already set to **In Progress** and links the encounter to the appointment. When you confirm, Care also moves the appointment to In Consultation.
+   - If the appointment already has an encounter, **Start Consultation** does not open the form. Care moves the appointment to In Consultation and opens the existing encounter on its Overview tab.
+4. **From an appointment — Create Planned Encounter.** In the same Quick Actions panel, select **Create Planned Encounter** (shortcut `2`). Care opens the form with the status already set to **Planned**.
+
+### The form
+Title: **Initiate Patient Encounter**. Below it Care shows "Begin a new clinical encounter for" and the patient's name.
+
+Steps and fields, in the order they appear:
+1. **Date and Time** (required) — pick the date and enter the time the encounter starts. You can only pick a future date when the status is Planned.
+2. **Type of Encounter** (required) — select one tile. The tiles show Inpatient, Ambulatory, Observation, Emergency, Virtual and Home Health with a short description each. Your deployment decides which tiles appear and which one Care preselects.
+3. **Status** (required) — choose **In Progress**, **Planned** or **On Hold**. These are the only statuses you can set at creation.
+4. **Priority** (required) — choose from Stat, ASAP, Emergency, Urgent, Routine, Elective, Rush reporting, Timing critical, Callback results, Callback for scheduling, Pre-op, As needed and Use as directed. Care preselects **Routine**.
+5. **Tags** (optional) — select one or more tags your facility configured for encounters.
+6. **Departments** (required) — select at least one department. Departments control who can see the encounter, so choose the teams that look after the patient.
+7. Select **Create Encounter**. The button shows "Creating…" while Care saves. Select **Cancel** to close the form without saving.
+
+### Result
+Care shows "Encounter created successfully" and opens the new encounter on its Overview tab.
+
+### Errors the user can meet
+- "Future date is only allowed for planned encounters" — the start date is in the future but the status is not Planned. Either move the date back or set the status to Planned.
+- "At least one department is required" — the Create Encounter button stays disabled until you select a department.
+- "Patient already has maximum number of active encounters (5) in the facility" — the patient already has the maximum number of open encounters at this facility. Close one of them first, or continue in the existing encounter. Your deployment sets this maximum; 5 is the default.
+- "Encounter already has an associated booking" — the appointment you started from already has an encounter. Open that encounter instead.
+
+### Notes
+- Which encounter types you can choose, and which one Care preselects, depend on your deployment's configuration.
+- The maximum number of open encounters per patient at a facility depends on your deployment's configuration.
+
+### Related
+Link to the concept doc, and to Update Encounter details, Assign an Encounter location, Manage the Encounter care team, Manage Encounter departments and Manage Encounter tags as the natural next steps.
+
+Write the file now. Do not write any other file.
+
+---
+
+Write EXACTLY ONE documentation file.
+
+OUTPUT PATH: `/Users/rithviknishad/ohc.network/care_docs/Clinical/Encounter/flows/7. Discharge a patient.md`
+DOC TYPE: flow
+MODULE: Encounter (Parent: Clinical)
+
+Follow `/Users/rithviknishad/ohc.network/care_docs/.github/skills/care-docs-generation/assets/flow-template.md`, `references/doc-rules.md` and `references/ste-rules.md`.
+An older stale version exists at `.../flows/discharge_an_encounter.md` — you MAY read it for orientation but do NOT edit or delete it, and do not trust it. It wrongly implies that discharge closes the encounter.
+
+No code, file paths, API endpoint names, or class names in the output.
+
+## SIBLING DOCS (same run — use these exact relative links)
+- `../concept.md` — Encounter
+- `./1.%20Create%20an%20Encounter.md` — Create an Encounter
+- `./2.%20Update%20Encounter%20details.md` — Update Encounter details
+- `./3.%20Assign%20an%20Encounter%20location.md` — Assign an Encounter location
+- `./4.%20Manage%20the%20Encounter%20care%20team.md` — Manage the Encounter care team
+- `./5.%20Manage%20Encounter%20departments.md` — Manage Encounter departments
+- `./6.%20Manage%20Encounter%20tags.md` — Manage Encounter tags
+- `./8.%20Complete%20an%20Encounter.md` — Complete an Encounter
+- `./9.%20Restart%20an%20Encounter.md` — Restart an Encounter
+
+## VERIFIED FACTS
+
+### Who can do this
+Permission "Update Encounter non clinical" — Administrator, Doctor, Nurse and Facility Administrator.
+
+### Before you start
+The patient has an open encounter of the type Inpatient, Observation or Emergency, and the patient is ready to leave the facility.
+
+### Entry points
+- On the **Overview** tab side panel, select the bottom button **Mark for discharge**.
+- Or open **Encounter Actions** (shortcut `Shift+E`) and select **Mark for discharge**. The keyboard shortcut is `m` then `c`.
+- Or open the encounter form (shortcut `Shift+U`) and select **Discharge Patient**.
+
+For an Inpatient encounter that is not discharged yet, Care does not show the completion dialog. Care opens the encounter form with the discharge already selected, so that you can fill in the discharge details.
+
+### Steps
+1. Start the discharge from one of the entry points above. Care sets the **Encounter Status** to **Discharged** and disables the field.
+2. **Discharge Disposition** (required) — select where the patient goes. The choices are Home, Alternate home, Other health care facility, Hospice, Long term care, Left against advice, Expired, Psychiatric hospital, Rehabilitation, Skilled nursing facility and Other. Care marks this field with an asterisk and refuses the form until you fill it in, for Inpatient, Observation and Emergency encounters. Your deployment can pre-fill a default choice.
+3. **Discharge Date and Time** — set when the patient leaves. Care shows this field once the status is Discharged. The time cannot be earlier than the start of the encounter.
+4. **Discharge Summary Advice** (optional) — write the advice the patient takes home.
+5. Check the rest of the **Hospitalization Details**, such as **Admit Source**, **Re-admission** and **Diet Preference**.
+6. Submit the form.
+
+### What happens after the discharge — read this carefully
+Care marks the encounter as **Discharged**, but the encounter stays open. This is deliberate:
+- The care team can still change the encounter, the location, the care team, the departments and the tags.
+- The patient keeps the bed until someone closes the location stay. Care only frees the bed when the stay closes or when someone marks the encounter as complete.
+- To close the encounter, someone must mark it as complete. See the Complete an Encounter flow.
+- Care can move a discharged encounter to another status, because Care applies no rules about which status follows which.
+
+### Note
+Your deployment can set a default discharge disposition, and it decides which encounter types your facility uses.
+
+### Related
+Concept doc, Update Encounter details, Complete an Encounter, Assign an Encounter location.
+
+Write the file now. Do not write any other file.
+
+---
+
+Write EXACTLY ONE documentation file.
+
+OUTPUT PATH: `/Users/rithviknishad/ohc.network/care_docs/Clinical/Encounter/flows/6. Manage Encounter tags.md`
+DOC TYPE: flow
+MODULE: Encounter (Parent: Clinical)
+
+Follow `/Users/rithviknishad/ohc.network/care_docs/.github/skills/care-docs-generation/assets/flow-template.md`, `references/doc-rules.md` and `references/ste-rules.md`.
+An older stale version exists at `.../flows/manage_encounter_tags.md` — you MAY read it for orientation but do NOT edit or delete it, and do not trust it.
+
+No code, file paths, API endpoint names, or class names in the output.
+
+## SIBLING DOCS (same run — use these exact relative links)
+- `../concept.md` — Encounter
+- `./1.%20Create%20an%20Encounter.md` — Create an Encounter
+- `./2.%20Update%20Encounter%20details.md` — Update Encounter details
+- `./3.%20Assign%20an%20Encounter%20location.md` — Assign an Encounter location
+- `./4.%20Manage%20the%20Encounter%20care%20team.md` — Manage the Encounter care team
+- `./5.%20Manage%20Encounter%20departments.md` — Manage Encounter departments
+- `./7.%20Discharge%20a%20patient.md` — Discharge a patient
+- `./8.%20Complete%20an%20Encounter.md` — Complete an Encounter
+- `./9.%20Restart%20an%20Encounter.md` — Restart an Encounter
+
+## VERIFIED FACTS
+
+### Who can do this
+Permission "Update Encounter non clinical" — Administrator, Doctor, Nurse and Facility Administrator. You also need permission for each tag you apply, because an administrator can restrict a tag.
+
+### Before you start
+The encounter exists and is still open. An administrator has set up tags for encounters at your facility.
+
+### What tags are for
+A tag is a label your facility configures to mark an encounter, so that staff can find it and filter for it later. An administrator groups tags into these categories: Diet, Drug, Lab, Admin, Contact, Clinical, Behavioral, Research, Advance Directive and Safety.
+
+### Entry point
+On the encounter page, go to the **Overview** tab and find the **Encounter Tags** panel. Select the edit icon on the panel. Care shows the edit icon only when you can change the encounter.
+Care does not list this action in the Encounter Actions palette. You can also set tags when you create the encounter.
+
+### Steps
+1. Select the edit icon on the Encounter Tags panel.
+2. In the sheet, select the tags to apply. Care shows only the tags your facility configured for encounters.
+3. To take a tag off the encounter, remove it from the same sheet.
+
+### Rules Care applies
+- A tag must be set up for encounters. Otherwise Care shows "Tag resource does not match resource type".
+- You cannot apply the same tag twice. Care shows "Tag already set".
+- Some tags belong to a group in which only one tag can apply at a time. When one of them is already on the encounter, Care shows "Tag Parent is already set". Remove the other tag first.
+
+### Where tags help
+You can filter the patient's encounters by tag in the encounter selector on the encounter page.
+
+### Related
+Concept doc, Create an Encounter, Update Encounter details.
+
+Write the file now. Do not write any other file.
+
+---
+
+Write EXACTLY ONE documentation file.
+
+OUTPUT PATH: `/Users/rithviknishad/ohc.network/care_docs/Clinical/Encounter/concept.md`
+DOC TYPE: concept
+MODULE: Encounter (Parent: Clinical)
+
+Follow `/Users/rithviknishad/ohc.network/care_docs/.github/skills/care-docs-generation/assets/concept-template.md`, `references/doc-rules.md` and `references/ste-rules.md`. An older version of this file exists at that path — OVERWRITE it. You may read it for orientation, but it is stale; use only the verified facts below.
+
+No code, file paths, API endpoint names, or class names in the output.
+
+## SIBLING DOCS (all being written in this same run — use these exact relative links)
+- `./flows/1.%20Create%20an%20Encounter.md` — Create an Encounter
+- `./flows/2.%20Update%20Encounter%20details.md` — Update Encounter details
+- `./flows/3.%20Assign%20an%20Encounter%20location.md` — Assign an Encounter location
+- `./flows/4.%20Manage%20the%20Encounter%20care%20team.md` — Manage the Encounter care team
+- `./flows/5.%20Manage%20Encounter%20departments.md` — Manage Encounter departments
+- `./flows/6.%20Manage%20Encounter%20tags.md` — Manage Encounter tags
+- `./flows/7.%20Discharge%20a%20patient.md` — Discharge a patient
+- `./flows/8.%20Complete%20an%20Encounter.md` — Complete an Encounter
+- `./flows/9.%20Restart%20an%20Encounter.md` — Restart an Encounter
+
+## VERIFIED FACTS
+
+### FHIR R5 alignment
+Care's Encounter follows the FHIR R5 Encounter resource (https://build.fhir.org/encounter.html). Link it on first mention.
+Care implements: status, class, priority, subject (the patient), the facility that provides the service, location, participant (as the care team), appointment, period (start and end), and the admission details (admit source, re-admission, diet preference, discharge disposition). Care records one encounter class at a time and keeps a history of every status change and class change on the encounter itself, instead of a separate FHIR EncounterHistory resource. Care stores a single free-text hospital identifier rather than the structured FHIR identifier. Care's Encounter has no diagnosis element.
+Related resources an Encounter links to: Patient, Organization (the facility and its departments), Location (the bed or room), and Appointment (the booking the encounter started from).
+
+### What an Encounter is, for the reader
+An Encounter records one interaction between a patient and the facility — an outpatient visit, an admission, an observation stay, an emergency visit, a virtual consultation, or a home visit. It groups everything the care team records for that interaction. A patient can have several encounters at a facility at the same time; the deployment sets the maximum (5 unless the deployment changes it).
+
+### Key attributes (use these user-facing labels)
+- Status
+- Type of Encounter (called Encounter Class on the update form)
+- Priority
+- Date and Time (the start), and Discharge Date and Time (the end)
+- Hospital Identifier — a free-text reference number the facility uses, such as an IP, OP, OBS or EMR number
+- Departments — at least one is required, and they control who can see the encounter
+- Care team — the staff who look after the patient, each with a clinical role, and one marked as primary
+- Current location — the bed, room or ward the patient occupies
+- Tags — labels the facility configures
+- Hospitalization details — Re-admission, Admit Source, Discharge Disposition, Diet Preference. These appear only for Inpatient, Observation and Emergency encounters.
+- Discharge Summary Advice — free text, available once the patient is discharged
+
+### Status values (display labels)
+Planned, In Progress, On Hold, Discharged, Completed, Cancelled, Discontinued, Entered in error, Unknown.
+Terminal statuses that lock the encounter: Completed, Cancelled, Discontinued, Entered in error. Once an encounter reaches one of these, nobody can edit it or record new clinical data on it.
+IMPORTANT AND DELIBERATE: **Discharged is not a terminal status in Care.** A discharged encounter stays editable — the care team can still change the location, the care team, the departments and the tags. To close a discharged encounter, someone must still mark it as complete. State this plainly; it is the real behavior and the reader must know it.
+Care applies no rules about which status can follow which. Any status can move to any other status while the encounter is still open.
+
+### Type of Encounter values (display labels and meanings)
+- Inpatient — Patient is admitted to the hospital
+- Ambulatory — Patient visits for outpatient care
+- Observation — Patient is under observation
+- Emergency — Mark as emergency if immediate attention is required
+- Virtual — Virtual/telehealth consultation
+- Home Health — Care provided at patient's home
+Note: the deployment decides which of these appear, and which one is preselected.
+
+### Priority values (display labels)
+Stat, ASAP, Emergency, Urgent, Routine, Elective, Rush reporting, Timing critical, Callback results, Callback for scheduling, Pre-op, As needed, Use as directed. Routine is the default on the create form.
+
+### Admit Source values (display labels)
+Transferred from other hospital, From accident/emergency department, From outpatient department, Born in hospital, General Practitioner referral, Medical Practitioner/physician referral, From nursing home, From psychiatric hospital, From rehabilitation facility, Other.
+
+### Discharge Disposition values (display labels)
+Home, Alternate home, Other health care facility, Hospice, Long term care, Left against advice, Expired, Psychiatric hospital, Rehabilitation, Skilled nursing facility, Other.
+
+### Diet Preference values (display labels)
+Vegetarian, Dairy free, Nut free, Gluten free, Vegan, Halal, Kosher, None.
+(The product currently shows a misspelling for the Dairy free option; do not mention this in the doc — write "Dairy free".)
+
+### Tag categories (display labels)
+Diet, Drug, Lab, Admin, Contact, Clinical, Behavioral, Research, Advance Directive, Safety.
+
+### Where an Encounter appears in the product
+- The facility sidebar has a Patients group with Search Patients, All Encounters (only when the deployment allows more than one encounter type), one list per allowed encounter type, and Locations.
+- The encounter page has an Encounter Actions command palette (open it with Shift+E) and these tabs: Overview, Plots, Observations, Medicines, Responses, Service Requests, Diagnostic Reports, Files, Notes, Devices, Consents. Every tab except Overview, Devices and Consents needs permission to read clinical data.
+- The Overview tab carries a side panel with Manage Consents, Manage Care Team, Update Location, Update Department and Dispense, plus a button to mark the encounter for discharge or as completed.
+- A left rail lets the user switch between the patient's encounters and filter them by status, department, care team, date and tags.
+
+### Permissions (human-readable names) — held by Administrator, Doctor, Nurse and Facility Administrator
+- "Can Create encounter" — create an encounter
+- "Can Read encounter" — open an encounter
+- "Can list encounters" — see the encounter lists
+- "Update Encounter non clinical" — change the encounter's own details, and manage its departments, care team, location, tags, completion and restart
+- "Can Read encounter related clinical data" — open the clinical tabs
+- "Update Encounter related clinical data" — record clinical data
+- "Can submit questionnaire about patient encounters" — also held by Staff
+A user can also reach an encounter through the department that owns the patient's current bed, not only through the encounter's own departments.
+
+### Deployment configuration that changes behavior
+- Which encounter types staff can choose, and which one is preselected.
+- A default discharge disposition that Care pre-fills.
+- The maximum number of open encounters one patient can have at a facility (5 by default).
+- How long after its last change a completed encounter can be restarted (zero hours by default, which stops restarts until the deployment raises it).
+- The default date filter on the encounter lists.
+
+Write the file now. Do not write any other file.
+
+---
+
+Write EXACTLY ONE documentation file.
+
+OUTPUT PATH: `/Users/rithviknishad/ohc.network/care_docs/Clinical/Encounter/flows/9. Restart an Encounter.md`
+DOC TYPE: flow
+MODULE: Encounter (Parent: Clinical)
+
+Follow `/Users/rithviknishad/ohc.network/care_docs/.github/skills/care-docs-generation/assets/flow-template.md`, `references/doc-rules.md` and `references/ste-rules.md`.
+An older stale version exists at `.../flows/restart_an_encounter.md` — you MAY read it for orientation but do NOT edit or delete it, and do not trust it.
+
+No code, file paths, API endpoint names, or class names in the output.
+
+## SIBLING DOCS (same run — use these exact relative links)
+- `../concept.md` — Encounter
+- `./1.%20Create%20an%20Encounter.md` — Create an Encounter
+- `./2.%20Update%20Encounter%20details.md` — Update Encounter details
+- `./3.%20Assign%20an%20Encounter%20location.md` — Assign an Encounter location
+- `./4.%20Manage%20the%20Encounter%20care%20team.md` — Manage the Encounter care team
+- `./5.%20Manage%20Encounter%20departments.md` — Manage Encounter departments
+- `./6.%20Manage%20Encounter%20tags.md` — Manage Encounter tags
+- `./7.%20Discharge%20a%20patient.md` — Discharge a patient
+- `./8.%20Complete%20an%20Encounter.md` — Complete an Encounter
+
+## VERIFIED FACTS
+
+### Who can do this
+Permission "Update Encounter non clinical" — Administrator, Doctor, Nurse and Facility Administrator.
+
+### When the action appears
+Care shows **Restart Encounter** only when all of these are true:
+- the encounter status is **Completed**,
+- you work within the facility that owns the encounter,
+- you look at the encounter itself, and not at another encounter of the same patient in the side selector.
+
+### Before you start
+Someone marked the encounter as complete by mistake, or the care team must record more for the same interaction. Your deployment allows restarts — see the note below.
+
+### Steps
+1. On the encounter page, open **Encounter Actions** (shortcut `Shift+E`).
+2. Select **Restart Encounter**. Care defines no keyboard shortcut for this action.
+3. Care acts at once. It asks for no confirmation.
+
+### Result
+- Care shows "Encounter restarted successfully" and opens the encounter on its **Overview** tab.
+- Care sets the status back to **In Progress**. The care team can record clinical data again.
+- If the restart fails, Care shows "Failed to restart encounter".
+
+### Note about the time limit — read this before you try
+Your deployment sets how many hours after the last change a completed encounter can be restarted. **The default is zero hours, and with that setting Care refuses every restart.** When the limit stops you, Care shows "Encounter cannot be restarted after 0 hours" with the number your deployment set. Ask your administrator to raise the limit if your facility needs restarts.
+
+### Related
+Concept doc, Complete an Encounter, Update Encounter details, Create an Encounter.
+
+Write the file now. Do not write any other file.
+
+---
+
+Write EXACTLY ONE documentation file.
+
+OUTPUT PATH: `/Users/rithviknishad/ohc.network/care_docs/Clinical/Encounter/flows/8. Complete an Encounter.md`
+DOC TYPE: flow
+MODULE: Encounter (Parent: Clinical)
+
+Follow `/Users/rithviknishad/ohc.network/care_docs/.github/skills/care-docs-generation/assets/flow-template.md`, `references/doc-rules.md` and `references/ste-rules.md`.
+An older stale version exists at `.../flows/complete_an_encounter.md` — you MAY read it for orientation but do NOT edit or delete it, and do not trust it.
+
+No code, file paths, API endpoint names, or class names in the output.
+
+## SIBLING DOCS (same run — use these exact relative links)
+- `../concept.md` — Encounter
+- `./1.%20Create%20an%20Encounter.md` — Create an Encounter
+- `./2.%20Update%20Encounter%20details.md` — Update Encounter details
+- `./3.%20Assign%20an%20Encounter%20location.md` — Assign an Encounter location
+- `./4.%20Manage%20the%20Encounter%20care%20team.md` — Manage the Encounter care team
+- `./5.%20Manage%20Encounter%20departments.md` — Manage Encounter departments
+- `./6.%20Manage%20Encounter%20tags.md` — Manage Encounter tags
+- `./7.%20Discharge%20a%20patient.md` — Discharge a patient
+- `./9.%20Restart%20an%20Encounter.md` — Restart an Encounter
+
+## VERIFIED FACTS
+
+### Who can do this
+Permission "Update Encounter non clinical" — Administrator, Doctor, Nurse and Facility Administrator.
+
+### Before you start
+The care team has recorded everything for this interaction. If the patient was admitted, the patient is discharged first — see the Discharge a patient flow.
+
+### Entry points
+- On the **Overview** tab side panel, select the bottom button **Mark as Completed**.
+- Or open **Encounter Actions** (shortcut `Shift+E`) and select **Mark as Completed**. The keyboard shortcut is `m` then `c`.
+
+If the encounter is Inpatient and the patient is not discharged yet, Care does not show the confirmation dialog. Care opens the encounter form with the discharge already selected, so that you complete the discharge first.
+
+### Steps
+1. Select **Mark as Completed**.
+2. Care shows the dialog **Mark as complete** with the question "Are you sure you would like to mark this encounter as complete?".
+3. Confirm. Press `Enter` to confirm, or `Escape` to cancel.
+
+### Result
+- Care shows "Encounter Completed".
+- Care sets the status to **Completed** and records the end of the encounter.
+- If the encounter came from an appointment, Care closes the appointment and its token as fulfilled, and shows "Appointment closed successfully".
+- Care closes any open location stay and frees the bed.
+- Care releases any device linked to the encounter.
+
+### After the encounter closes
+Nobody can change a Completed encounter, and nobody can record new clinical data on it. The encounter stays available to read. To open it again, see the Restart an Encounter flow.
+The same lock applies to the statuses Cancelled, Discontinued and Entered in error.
+
+### Related
+Concept doc, Discharge a patient, Restart an Encounter, Update Encounter details.
+
+Write the file now. Do not write any other file.
+
+---
+
+Write EXACTLY ONE documentation file.
+
+OUTPUT PATH: `/Users/rithviknishad/ohc.network/care_docs/Clinical/Encounter/flows/2. Update Encounter details.md`
+DOC TYPE: flow
+MODULE: Encounter (Parent: Clinical)
+
+Follow `/Users/rithviknishad/ohc.network/care_docs/.github/skills/care-docs-generation/assets/flow-template.md`, `references/doc-rules.md` and `references/ste-rules.md`.
+An older stale version exists at `.../flows/update_encounter_details.md` — you MAY read it for orientation but do NOT edit or delete it, and do not trust it.
+
+No code, file paths, API endpoint names, or class names in the output.
+
+## SIBLING DOCS (same run — use these exact relative links)
+- `../concept.md` — Encounter
+- `./1.%20Create%20an%20Encounter.md` — Create an Encounter
+- `./3.%20Assign%20an%20Encounter%20location.md` — Assign an Encounter location
+- `./4.%20Manage%20the%20Encounter%20care%20team.md` — Manage the Encounter care team
+- `./5.%20Manage%20Encounter%20departments.md` — Manage Encounter departments
+- `./6.%20Manage%20Encounter%20tags.md` — Manage Encounter tags
+- `./7.%20Discharge%20a%20patient.md` — Discharge a patient
+- `./8.%20Complete%20an%20Encounter.md` — Complete an Encounter
+- `./9.%20Restart%20an%20Encounter.md` — Restart an Encounter
+
+## VERIFIED FACTS
+
+### Who can do this
+Permission "Update Encounter non clinical" — Administrator, Doctor, Nurse and Facility Administrator.
+
+### Before you start
+The encounter exists and is still open. Care refuses every change to an encounter that is Completed, Cancelled, Discontinued or Entered in error. A **Discharged** encounter is still open, so you can still update it.
+
+### Entry points
+- On the encounter page, open **Encounter Actions** (shortcut `Shift+E`) and select **Update Encounter Details**.
+- Or press `Shift+U` on the encounter page to open the same form directly.
+
+### The form
+Care opens the encounter form. It has these fields:
+1. **Encounter Status** (required) — the list holds Planned, In Progress, On Hold, Completed, Cancelled, Discontinued and Entered in error. Care leaves Discharged out of the list, because you set that status with the discharge button described below. Once the patient is discharged, Care disables this field.
+2. **Encounter Class** (required) — Inpatient, Ambulatory, Observation, Emergency, Virtual or Home Health. Your deployment decides which of these appear.
+3. **Priority** (required) — Stat, ASAP, Emergency, Urgent, Routine, Elective, Rush reporting, Timing critical, Callback results, Callback for scheduling, Pre-op, As needed or Use as directed.
+4. **Hospital Identifier** (optional) — the facility's reference number for this encounter. The field shows the hint "IP/OP/OBS/EMR Number".
+5. **Discharge Summary Advice** (optional) — a free-text box. Care shows it after the patient is discharged, or when the encounter already holds advice.
+6. **Hospitalization Details** — Care shows this section only for Inpatient, Observation and Emergency encounters. It holds:
+   - **Re-admission** — a switch. Turn it on when the patient comes back for the same problem.
+   - **Admit Source** — Transferred from other hospital, From accident/emergency department, From outpatient department, Born in hospital, General Practitioner referral, Medical Practitioner/physician referral, From nursing home, From psychiatric hospital, From rehabilitation facility, or Other.
+   - **Discharge Disposition** — Home, Alternate home, Other health care facility, Hospice, Long term care, Left against advice, Expired, Psychiatric hospital, Rehabilitation, Skilled nursing facility, or Other.
+   - **Diet Preference** — Vegetarian, Dairy free, Nut free, Gluten free, Vegan, Halal, Kosher, or None.
+7. Submit the form. Care saves the encounter through the standard form submission.
+
+The form also holds a **Mark for discharge** button. It is covered in the Discharge a patient flow — cross-link to it rather than describing it here.
+
+### Behavior to record
+- Care keeps a history of every status change and every encounter class change on the encounter.
+- Care applies no rules about which status can follow which. While the encounter is open, you can set any status.
+- When you set a status of Completed, Cancelled, Discontinued or Entered in error, Care closes any open location stay for the encounter and releases any device linked to it. After that, nobody can edit the encounter.
+- If you clear Discharge Summary Advice and save, Care removes the earlier text.
+
+### Notes
+- Which encounter classes you can choose depends on your deployment's configuration.
+
+### Related
+Concept doc, Create an Encounter, Discharge a patient, Complete an Encounter.
+
+Write the file now. Do not write any other file.
+
+---
+
+Write EXACTLY ONE documentation file.
+
+OUTPUT PATH: `/Users/rithviknishad/ohc.network/care_docs/Clinical/Encounter/flows/4. Manage the Encounter care team.md`
+DOC TYPE: flow
+MODULE: Encounter (Parent: Clinical)
+
+Follow `/Users/rithviknishad/ohc.network/care_docs/.github/skills/care-docs-generation/assets/flow-template.md`, `references/doc-rules.md` and `references/ste-rules.md`.
+An older stale version exists at `.../flows/manage_encounter_care_team.md` — you MAY read it for orientation but do NOT edit or delete it, and do not trust it.
+
+No code, file paths, API endpoint names, or class names in the output.
+
+## SIBLING DOCS (same run — use these exact relative links)
+- `../concept.md` — Encounter
+- `./1.%20Create%20an%20Encounter.md` — Create an Encounter
+- `./2.%20Update%20Encounter%20details.md` — Update Encounter details
+- `./3.%20Assign%20an%20Encounter%20location.md` — Assign an Encounter location
+- `./5.%20Manage%20Encounter%20departments.md` — Manage Encounter departments
+- `./6.%20Manage%20Encounter%20tags.md` — Manage Encounter tags
+- `./7.%20Discharge%20a%20patient.md` — Discharge a patient
+- `./8.%20Complete%20an%20Encounter.md` — Complete an Encounter
+- `./9.%20Restart%20an%20Encounter.md` — Restart an Encounter
+
+## VERIFIED FACTS
+
+### Who can do this
+Permission "Update Encounter non clinical" — Administrator, Doctor, Nurse and Facility Administrator. A user who can open the encounter but cannot change it sees the same list in read-only form.
+
+### Before you start
+The encounter exists and is still open. The staff you want to add are members of a department at the facility.
+
+### Entry points
+- On the encounter page, open **Encounter Actions** (shortcut `Shift+E`) and select **Manage Care Team**. Care defines no keyboard shortcut for this action.
+- Or, on the **Overview** tab side panel, select **Manage Care Team**.
+
+### The sheet
+The sheet is titled **Manage Care Team** when you can change the team, and **View Care Team** when you can only read it.
+
+**Add a member**
+1. Select the department the person belongs to.
+2. Select the person. Care lists only the users of the department you chose.
+3. Select the person's role. Care searches a clinical role list and shows the matching roles; pick the role that fits and continue.
+4. Add the member. Care shows "Member added successfully".
+
+**Set the primary member**
+Select **Make Primary** on a member. Care moves that person to the top of the list and shows "Primary member updated". Care asks for no confirmation.
+
+**Remove a member**
+Select the remove action on the member and confirm in the dialog. Care shows "Member removed successfully".
+
+### Rules Care applies
+- You cannot add the same person twice. Care shows "Member already added".
+- Care saves the whole team together each time you change it.
+- Care keeps the first person in the list as the primary member.
+
+### Why it matters
+Membership of the care team can give a user access to the encounter. Add only the staff who look after the patient.
+
+### Note
+The list of roles comes from a clinical terminology set, so your deployment can offer a different set of roles from another deployment.
+
+### Related
+Concept doc, Create an Encounter, Manage Encounter departments, Assign an Encounter location.
+
+Write the file now. Do not write any other file.
+
+---
+
+Write EXACTLY ONE documentation file.
+
+OUTPUT PATH: `/Users/rithviknishad/ohc.network/care_docs/Clinical/Encounter/flows/5. Manage Encounter departments.md`
+DOC TYPE: flow
+MODULE: Encounter (Parent: Clinical)
+
+Follow `/Users/rithviknishad/ohc.network/care_docs/.github/skills/care-docs-generation/assets/flow-template.md`, `references/doc-rules.md` and `references/ste-rules.md`.
+An older stale version exists at `.../flows/manage_encounter_departments.md` — you MAY read it for orientation but do NOT edit or delete it, and do not trust it.
+
+No code, file paths, API endpoint names, or class names in the output.
+
+## SIBLING DOCS (same run — use these exact relative links)
+- `../concept.md` — Encounter
+- `./1.%20Create%20an%20Encounter.md` — Create an Encounter
+- `./2.%20Update%20Encounter%20details.md` — Update Encounter details
+- `./3.%20Assign%20an%20Encounter%20location.md` — Assign an Encounter location
+- `./4.%20Manage%20the%20Encounter%20care%20team.md` — Manage the Encounter care team
+- `./6.%20Manage%20Encounter%20tags.md` — Manage Encounter tags
+- `./7.%20Discharge%20a%20patient.md` — Discharge a patient
+- `./8.%20Complete%20an%20Encounter.md` — Complete an Encounter
+- `./9.%20Restart%20an%20Encounter.md` — Restart an Encounter
+
+## VERIFIED FACTS
+
+### Who can do this
+Permission "Update Encounter non clinical" — Administrator, Doctor, Nurse and Facility Administrator.
+
+### Before you start
+The encounter exists and is still open. The departments you want belong to the same facility as the encounter.
+
+### Why departments matter
+Departments decide who can see the encounter. Staff of a linked department can open the encounter. Every encounter must have at least one department; you choose the first one when you create the encounter.
+
+### Entry points
+- On the encounter page, open **Encounter Actions** (shortcut `Shift+E`) and select **Update Department**. Care defines no keyboard shortcut for this action.
+- Or, on the **Overview** tab side panel, select **Update Department**.
+
+### Steps
+**Add a department**
+1. Open the sheet.
+2. Select one or more departments from the selector. Care links each one to the encounter as you select it.
+
+**Remove a department**
+1. Find the department in the list of linked departments.
+2. Select the delete icon beside it. Care shows "Organization removed successfully".
+
+### Rules Care applies
+- The department must belong to the encounter's facility. Otherwise Care shows "Organization Incompatible with Encounter".
+- You cannot link the same department twice. Care shows "Organization already exists".
+- You cannot remove a department that is not linked. Care shows "Organization does not exist".
+
+### Note
+A user who belongs to the department that owns the patient's current bed can also open the encounter, even when that department is not linked to the encounter.
+
+### Related
+Concept doc, Create an Encounter, Manage the Encounter care team, Assign an Encounter location.
+
+Write the file now. Do not write any other file.
+
+---
+
+Fix two small, independent issues in the **care_fe** repository at `/Users/rithviknishad/ohc.network/care_fe`.
+
+## Delivery settings — follow these exactly, do not deviate
+- **Workspace:** edit the local checkout in place. Do NOT create a worktree.
+- **Issue:** do not create a GitHub issue, and do not reference one.
+- **Assignment:** none.
+- **Pull request:** do NOT open a pull request, and do NOT commit. Leave the changes uncommitted in the working tree.
+
+Before you touch anything, check whether the working tree already has uncommitted changes and report what you find.
+
+## Fix 1 — Priority field label is hardcoded English
+
+**File:** `src/components/Encounter/CreateEncounterForm.tsx`, around line 339.
+
+**Symptom:** The Priority field on the "Initiate Patient Encounter" form renders a literal `<FormLabel>Priority</FormLabel>` instead of using i18next. The label therefore stays in English in every other locale, unlike every other field on the same form.
+
+**Expected behavior:** The label uses the translation function, consistent with the other fields in the same form. The key `priority` already exists in `public/locale/en.json` with the value "Priority" and is already used by `src/components/Questionnaire/QuestionTypes/EncounterQuestion.tsx` for the same field. Reuse that key — do NOT add a new one.
+
+## Fix 2 — Misspelt diet preference label
+
+**File:** `public/locale/en.json`, around line 2238.
+
+**Symptom:** The key `encounter_diet_preference__dairy_free` has the value `"Diary free"`.
+
+**Expected behavior:** The value reads `"Dairy free"`. Change the value only. Do NOT rename the key, and do NOT touch any non-English locale file — those are managed through Crowdin.
+
+## After the changes
+Run lint and formatting on the changed files as the repository's conventions require, and confirm the type check passes. Do not run the Playwright suite — it needs a backend that may not be running.
+
+Report: the working-tree state you found before you started, the exact edits you made, and the result of the lint/format/type checks.om other hospital, From accident/emergency department, From outpatient department, Born in hospital, General Practitioner referral, Medical Practitioner/physician referral, From nursing home, From psychiatric hospital, From rehabilitation facility, Other.
+  - **Re-admission** — a switch. Turn it on when the patient comes back for the same problem.
+  - **Diet Preference** — the patient's dietary requirement. Choices: Vegetarian, Dairy free, Nut free, Gluten free, Vegan, Halal, Kosher, None.
+- Flow 1 (Create an Encounter) omitted the tile descriptions for Type of Encounter. The verified descriptions are: Inpatient — "Patient is admitted to the hospital"; Ambulatory — "Patient visits for outpatient care"; Observation — "Patient is under observation"; Emergency — "Mark as emergency if immediate attention is required"; Virtual — "Virtual/telehealth consultation"; Home Health — "Care provided at patient's home". Add them if the template allows.
+- Flow 1's Related section is missing links to flows 7, 8 and 9. Add them.
+- Flow 2 (Update Encounter details): the submit button label and the post-save confirmation text were NOT verified. Do NOT invent them. Leave the wording generic.
+- Flow 3 (Assign an Encounter location): the exact labels for the move action, the keep-reserved choice, and the History tab actions were NOT verified. Do NOT invent labels. Leave the descriptions generic.
+- Flow 4 (Manage the Encounter care team): the field and button labels in the add-member form were NOT verified. Do NOT invent them.
+
+## Cross-cutting fact that MUST be consistent everywhere
+**Discharged is not a terminal status in Care.** A discharged encounter stays open and editable; only Completed, Cancelled, Discontinued and Entered in error lock an encounter. Verify that no doc implies discharge closes an encounter.
+
+Edit the files in place, then report every change you made plus any issue you could not resolve.
+
+---
+
+Fix two small, independent issues in the **care_fe** repository at `/Users/rithviknishad/ohc.network/care_fe`.
+
+## Delivery settings — follow these exactly, do not deviate
+- **Workspace:** edit the local checkout in place. Do NOT create a worktree.
+- **Issue:** do not create a GitHub issue, and do not reference one.
+- **Assignment:** none.
+- **Pull request:** do NOT open a pull request, and do NOT commit. Leave the changes uncommitted in the working tree.
+
+Before you touch anything, check whether the working tree already has uncommitted changes and report what you find.
+
+## Fix 1 — Priority field label is hardcoded English
+
+**File:** `src/components/Encounter/CreateEncounterForm.tsx`, around line 339.
+
+**Symptom:** The Priority field on the "Initiate Patient Encounter" form renders a literal `<FormLabel>Priority</FormLabel>` instead of using i18next. The label therefore stays in English in every other locale, unlike every other field on the same form.
+
+**Expected behavior:** The label uses the translation function, consistent with the other fields in the same form. The key `priority` already exists in `public/locale/en.json` with the value "Priority" and is already used by `src/components/Questionnaire/QuestionTypes/EncounterQuestion.tsx` for the same field. Reuse that key — do NOT add a new one.
+
+## Fix 2 — Misspelt diet preference label
+
+**File:** `public/locale/en.json`, around line 2238.
+
+**Symptom:** The key `encounter_diet_preference__dairy_free` has the value `"Diary free"`.
+
+**Expected behavior:** The value reads `"Dairy free"`. Change the value only. Do NOT rename the key, and do NOT touch any non-English locale file — those are managed through Crowdin.
+
+## After the changes
+Run lint and formatting on the changed files as the repository's conventions require, and confirm the type check passes. Do not run the Playwright suite — it needs a backend that may not be running.
+
+Report: the working-tree state you found before you started, the exact edits you made, and the result of the lint/format/type checks.
+
+---
+
+Review the CARE documentation module at `/Users/rithviknishad/ohc.network/care_docs/Clinical/Encounter/`.
+
+## Files written in this run — review and fix these, in place
+- `concept.md`
+- `flows/1. Create an Encounter.md`
+- `flows/2. Update Encounter details.md`
+- `flows/3. Assign an Encounter location.md`
+- `flows/4. Manage the Encounter care team.md`
+- `flows/5. Manage Encounter departments.md`
+- `flows/6. Manage Encounter tags.md`
+- `flows/7. Discharge a patient.md`
+- `flows/8. Complete an Encounter.md`
+- `flows/9. Restart an Encounter.md`
+
+## IMPORTANT — files to leave completely alone
+The same `flows/` folder still holds ten obsolete snake_case files from a previous run:
+`assign_encounter_location.md`, `complete_an_encounter.md`, `create_an_encounter.md`, `discharge_an_encounter.md`, `manage_encounter_care_team.md`, `manage_encounter_departments.md`, `manage_encounter_tags.md`, `restart_an_encounter.md`, `start_an_encounter.md`, `update_encounter_details.md`.
+Do NOT review, edit, delete or link to any of them. The user will remove them. Ignore them entirely, including when you check cross-link integrity.
+
+## What to check
+1. STE compliance per `references/ste-rules.md`.
+2. Template conformance per `assets/concept-template.md` and `assets/flow-template.md`.
+3. FHIR R5 link present and correct in the concept doc.
+4. Cross-link integrity across the ten files above only. Links must use relative paths with `%20` for spaces, and must resolve to one of the ten files.
+5. Terminology consistency across the module — the same UI label must read the same everywhere.
+6. Centered H1 with `<h1 align="center">`.
+7. No code, file paths, API endpoint names or class names.
+
+## Facts the writers were unsure about — resolve them with these verified values
+- The writer of flow 7 (Discharge a patient) invented short descriptions for **Admit Source**, **Re-admission** and **Diet Preference**, and omitted their choices. Correct them with these verified values:
+  - **Admit Source** — where the patient came from. Choices: Transferred from other hospital, From accident/emergency department, From outpatient department, Born in hospital, General Practitioner referral, Medical Practitioner/physician referral, From nursing home, From psychiatric hospital, From rehabilitation facility, Other.
+  - **Re-admission** — a switch. Turn it on when the patient comes back for the same problem.
+  - **Diet Preference** — the patient's dietary requirement. Choices: Vegetarian, Dairy free, Nut free, Gluten free, Vegan, Halal, Kosher, None.
+- Flow 1 (Create an Encounter) omitted the tile descriptions for Type of Encounter. The verified descriptions are: Inpatient — "Patient is admitted to the hospital"; Ambulatory — "Patient visits for outpatient care"; Observation — "Patient is under observation"; Emergency — "Mark as emergency if immediate attention is required"; Virtual — "Virtual/telehealth consultation"; Home Health — "Care provided at patient's home". Add them if the template allows.
+- Flow 1's Related section is missing links to flows 7, 8 and 9. Add them.
+- Flow 2 (Update Encounter details): the submit button label and the post-save confirmation text were NOT verified. Do NOT invent them. Leave the wording generic.
+- Flow 3 (Assign an Encounter location): the exact labels for the move action, the keep-reserved choice, and the History tab actions were NOT verified. Do NOT invent labels. Leave the descriptions generic.
+- Flow 4 (Manage the Encounter care team): the field and button labels in the add-member form were NOT verified. Do NOT invent them.
+
+## Cross-cutting fact that MUST be consistent everywhere
+**Discharged is not a terminal status in Care.** A discharged encounter stays open and editable; only Completed, Cancelled, Discontinued and Entered in error lock an encounter. Verify that no doc implies discharge closes an encounter.
+
+Edit the files in place, then report every change you made plus any issue you could not resolve.
+
+---
+
+backend and front-end is running. do not restore the db, record against existing data.
+
+---
+
+backend and front-end is running. do not restore the db, record against existing data.
+
+---
+
+Record demo videos for ALL NINE flow docs of the **Clinical / Encounter** module, and embed them in the flow markdown.
+
+Read `/Users/rithviknishad/ohc.network/care_docs/.github/skills/care-docs-generation/references/flow-recording.md` first and follow it exactly.
+
+## Stack state — confirmed by the user
+- The care backend is running on port 9000.
+- The care_fe frontend is running on port 4000.
+- **Do NOT restore the database snapshot.** Record against the existing data. Do not run any database reset, restore or fixture-load command.
+- `care_fe/tests/.auth/` is EMPTY, so no Playwright storage state exists. Run the care_fe `setup` project first to create the auth state, then record.
+
+## Run them in ONE Playwright pass
+Record all nine flows in a single Playwright run so the workers coordinate. Do NOT start several separate Playwright processes against the same app and database — they corrupt each other's data.
+
+## Flow docs to cover
+All under `/Users/rithviknishad/ohc.network/care_docs/Clinical/Encounter/flows/`:
+1. `1. Create an Encounter.md`
+2. `2. Update Encounter details.md`
+3. `3. Assign an Encounter location.md`
+4. `4. Manage the Encounter care team.md`
+5. `5. Manage Encounter departments.md`
+6. `6. Manage Encounter tags.md`
+7. `7. Discharge a patient.md`
+8. `8. Complete an Encounter.md`
+9. `9. Restart an Encounter.md`
+
+Read each doc's steps and reproduce them in the recording. Recording scripts go under `care_docs/recordings/Clinical/Encounter/`, and the media under `care_docs/Clinical/Encounter/media/`.
+
+An earlier script exists at `care_docs/recordings/Clinical/Encounter/create_an_encounter.demo.ts` from a previous run whose docs used snake_case names. Reuse its patterns, but name the new scripts to match the new numbered doc file names. You may replace that old script.
+
+## Flow-specific cautions, so you do not waste a run
+- **Flow 1** has four entry points. Record the patient-page entry point (the **Create Encounter** quick action). Departments is a required field and the submit button stays disabled until you pick one. A patient cannot exceed five open encounters at a facility, so pick a patient with room, or create a fresh patient.
+- **Flow 2** opens with `Shift+U` on the encounter page, or through **Encounter Actions** (`Shift+E`) → **Update Encounter Details**. The Hospitalization Details section appears only for Inpatient, Observation and Emergency encounters, so use an Inpatient encounter if you want that section on camera.
+- **Flow 3** needs a facility that has bed-level locations set up. If the bed you pick is occupied by an open encounter, Care blocks you with no override — pick a free bed.
+- **Flow 7** needs an Inpatient, Observation or Emergency encounter. Discharge Disposition is mandatory for those classes.
+- **Flow 8** on an Inpatient encounter that is not discharged yet does NOT show the confirm dialog — Care redirects to the discharge form instead. To record the **Mark as Complete** dialog, use an Ambulatory encounter, or discharge the patient first.
+- **Flow 9** is the risky one. Restart is only offered when the status is Completed, and the backend refuses the restart when the deployment's restart window has passed. **That window defaults to zero hours, which refuses every restart.** Attempt the recording; if the backend rejects it, record whatever you can of the action being offered and REPORT the failure. Do NOT change any backend setting or environment variable to work around it, and do NOT edit the care repository.
+
+## Constraints
+- Do not edit anything in `/Users/rithviknishad/ohc.network/care` or `/Users/rithviknishad/ohc.network/care_fe` other than the Playwright auth state the setup project generates.
+- Only touch the nine flow docs listed above, plus files under `care_docs/recordings/` and `care_docs/Clinical/Encounter/media/`. Do not touch `concept.md`, and do not touch the ten obsolete snake_case files in the same `flows/` folder — the user will delete those.
+
+Report: which flows recorded successfully, which failed and why, the paths of every video and script you wrote, and every doc you edited.
+
+---
+
+Record demo videos for ALL NINE flow docs of the **Clinical / Encounter** module, and embed them in the flow markdown.
+
+Read `/Users/rithviknishad/ohc.network/care_docs/.github/skills/care-docs-generation/references/flow-recording.md` first and follow it exactly.
+
+## Stack state — confirmed by the user
+- The care backend is running on port 9000.
+- The care_fe frontend is running on port 4000.
+- **Do NOT restore the database snapshot.** Record against the existing data. Do not run any database reset, restore or fixture-load command.
+- `care_fe/tests/.auth/` is EMPTY, so no Playwright storage state exists. Run the care_fe `setup` project first to create the auth state, then record.
+
+## Run them in ONE Playwright pass
+Record all nine flows in a single Playwright run so the workers coordinate. Do NOT start several separate Playwright processes against the same app and database — they corrupt each other's data.
+
+## Flow docs to cover
+All under `/Users/rithviknishad/ohc.network/care_docs/Clinical/Encounter/flows/`:
+1. `1. Create an Encounter.md`
+2. `2. Update Encounter details.md`
+3. `3. Assign an Encounter location.md`
+4. `4. Manage the Encounter care team.md`
+5. `5. Manage Encounter departments.md`
+6. `6. Manage Encounter tags.md`
+7. `7. Discharge a patient.md`
+8. `8. Complete an Encounter.md`
+9. `9. Restart an Encounter.md`
+
+Read each doc's steps and reproduce them in the recording. Recording scripts go under `care_docs/recordings/Clinical/Encounter/`, and the media under `care_docs/Clinical/Encounter/media/`.
+
+An earlier script exists at `care_docs/recordings/Clinical/Encounter/create_an_encounter.demo.ts` from a previous run whose docs used snake_case names. Reuse its patterns, but name the new scripts to match the new numbered doc file names. You may replace that old script.
+
+## Flow-specific cautions, so you do not waste a run
+- **Flow 1** has four entry points. Record the patient-page entry point (the **Create Encounter** quick action). Departments is a required field and the submit button stays disabled until you pick one. A patient cannot exceed five open encounters at a facility, so pick a patient with room, or create a fresh patient.
+- **Flow 2** opens with `Shift+U` on the encounter page, or through **Encounter Actions** (`Shift+E`) → **Update Encounter Details**. The Hospitalization Details section appears only for Inpatient, Observation and Emergency encounters, so use an Inpatient encounter if you want that section on camera.
+- **Flow 3** needs a facility that has bed-level locations set up. If the bed you pick is occupied by an open encounter, Care blocks you with no override — pick a free bed.
+- **Flow 7** needs an Inpatient, Observation or Emergency encounter. Discharge Disposition is mandatory for those classes.
+- **Flow 8** on an Inpatient encounter that is not discharged yet does NOT show the confirm dialog — Care redirects to the discharge form instead. To record the **Mark as Complete** dialog, use an Ambulatory encounter, or discharge the patient first.
+- **Flow 9** is the risky one. Restart is only offered when the status is Completed, and the backend refuses the restart when the deployment's restart window has passed. **That window defaults to zero hours, which refuses every restart.** Attempt the recording; if the backend rejects it, record whatever you can of the action being offered and REPORT the failure. Do NOT change any backend setting or environment variable to work around it, and do NOT edit the care repository.
+
+## Constraints
+- Do not edit anything in `/Users/rithviknishad/ohc.network/care` or `/Users/rithviknishad/ohc.network/care_fe` other than the Playwright auth state the setup project generates.
+- Only touch the nine flow docs listed above, plus files under `care_docs/recordings/` and `care_docs/Clinical/Encounter/media/`. Do not touch `concept.md`, and do not touch the ten obsolete snake_case files in the same `flows/` folder — the user will delete those.
+
+Report: which flows recorded successfully, which failed and why, the paths of every video and script you wrote, and every doc you edited.
+
+---
+
+Record demo videos for the nine flow docs of the **Clinical / Encounter** module and embed them in the markdown.
+
+A previous attempt produced nothing at all. Do not re-explore from scratch — the groundwork below is already verified, so spend your effort on writing the specs and running them.
+
+## Already verified — do not re-check these
+- Backend is running on port 9000, frontend on port 4000. The user confirmed both.
+- `care_fe/.env.local` sets `REACT_CARE_API_URL=http://localhost:9000`, which overrides the hosted value in `care_fe/.env`. The localhost safety gate PASSES.
+- **Do NOT restore or reset the database.** The user chose to record against existing data. Run no db-restore, db-reset or fixture-load command.
+- `care_fe/tests/.auth/` is empty, so run `npx playwright test --project=setup` in `care_fe` once, first, to mint auth state and fixture IDs.
+- `care_docs` is already bootstrapped: `package.json`, `playwright.config.ts` and the support helpers all exist. No bootstrap needed.
+
+## Copy the existing pattern instead of inventing one
+Working, already-shipped examples of exactly this task live at:
+- `care_docs/recordings/Clinical/Condition/1. Record a symptom.demo.ts` (and its five siblings)
+- `care_docs/recordings/Clinical/Clinical Notes/1. Start a discussion.demo.ts` (and its two siblings)
+
+Use them as the template: `installCursor` before `page.goto`, one `Pointer`, `test.step()` titles that match the flow doc step headings word for word, `saveRecording` and the helpers in `care_docs/recordings/support/care.ts`, fixture IDs, and `faker` for unique data. Read `references/flow-recording.md` for the rules you do not find in those examples.
+
+Replace the obsolete `care_docs/recordings/Clinical/Encounter/create_an_encounter.demo.ts`; it belongs to a previous naming scheme.
+
+## Output naming
+- Specs: `care_docs/recordings/Clinical/Encounter/<index>. <Flow name>.demo.ts`
+- Videos: `care_docs/Clinical/Encounter/media/<index>. <Flow name>.mp4`, with poster frames, embedded in the matching flow doc.
+
+## The nine flows
+Under `/Users/rithviknishad/ohc.network/care_docs/Clinical/Encounter/flows/`:
+`1. Create an Encounter.md`, `2. Update Encounter details.md`, `3. Assign an Encounter location.md`, `4. Manage the Encounter care team.md`, `5. Manage Encounter departments.md`, `6. Manage Encounter tags.md`, `7. Discharge a patient.md`, `8. Complete an Encounter.md`, `9. Restart an Encounter.md`.
+
+Run them all in ONE Playwright invocation. Never start two Playwright processes against this app and database at once.
+
+## Data isolation — this module needs it more than Condition did
+Flows 7, 8 and 9 change encounter state irreversibly, and flows 2 and 3 mutate an encounter. They must NOT share the fixture encounter, and they must not run against each other's data. Each of those flows creates its own patient or its own encounter off camera before the recorded page opens, using the `prepPage` pattern. Only flows that purely read shared data may reuse the fixture.
+
+## Flow-specific cautions
+- **1**: record the patient-page entry point, the **Create Encounter** quick action. Departments is required and the submit button stays disabled until you pick one. A patient may hold at most five open encounters at a facility.
+- **2**: open with `Shift+U`. Use an Inpatient encounter so the Hospitalization Details section is on screen.
+- **3**: needs a facility with bed-level locations. An occupied bed blocks you with no override — pick a free one.
+- **7**: needs an Inpatient, Observation or Emergency encounter. Discharge Disposition is mandatory there.
+- **8**: on an undischarged Inpatient encounter, Care skips the confirm dialog and redirects to the discharge form. To film the **Mark as Complete** dialog, use an Ambulatory encounter.
+- **9**: restart is offered only when the status is Completed, and the backend refuses it once the deployment's restart window has passed. **That window defaults to zero hours, which refuses every restart.** Try it; if the backend rejects it, film what you can and REPORT the failure. Do NOT change any backend setting or environment variable, and do NOT edit the care repository.
+
+## Constraints
+- Do not edit `~/ohc.network/care`. In `~/ohc.network/care_fe`, touch nothing except the auth state the setup project writes.
+- Edit only the nine flow docs, plus files under `care_docs/recordings/` and `care_docs/Clinical/Encounter/media/`. Do not touch `concept.md`, and do not touch the ten obsolete snake_case files in the same `flows/` folder.
+- Partial success is acceptable and useful. If you run low on budget, finish and report what you completed rather than returning nothing.
+
+Report: which flows recorded, which failed and why, every file you wrote, and every doc you edited.
+
+---
+
+Record demo videos for the nine flow docs of the **Clinical / Encounter** module and embed them in the markdown.
+
+A previous attempt produced nothing at all. Do not re-explore from scratch — the groundwork below is already verified, so spend your effort on writing the specs and running them.
+
+## Already verified — do not re-check these
+- Backend is running on port 9000, frontend on port 4000. The user confirmed both.
+- `care_fe/.env.local` sets `REACT_CARE_API_URL=http://localhost:9000`, which overrides the hosted value in `care_fe/.env`. The localhost safety gate PASSES.
+- **Do NOT restore or reset the database.** The user chose to record against existing data. Run no db-restore, db-reset or fixture-load command.
+- `care_fe/tests/.auth/` is empty, so run `npx playwright test --project=setup` in `care_fe` once, first, to mint auth state and fixture IDs.
+- `care_docs` is already bootstrapped: `package.json`, `playwright.config.ts` and the support helpers all exist. No bootstrap needed.
+
+## Copy the existing pattern instead of inventing one
+Working, already-shipped examples of exactly this task live at:
+- `care_docs/recordings/Clinical/Condition/1. Record a symptom.demo.ts` (and its five siblings)
+- `care_docs/recordings/Clinical/Clinical Notes/1. Start a discussion.demo.ts` (and its two siblings)
+
+Use them as the template: `installCursor` before `page.goto`, one `Pointer`, `test.step()` titles that match the flow doc step headings word for word, `saveRecording` and the helpers in `care_docs/recordings/support/care.ts`, fixture IDs, and `faker` for unique data. Read `references/flow-recording.md` for the rules you do not find in those examples.
+
+Replace the obsolete `care_docs/recordings/Clinical/Encounter/create_an_encounter.demo.ts`; it belongs to a previous naming scheme.
+
+## Output naming
+- Specs: `care_docs/recordings/Clinical/Encounter/<index>. <Flow name>.demo.ts`
+- Videos: `care_docs/Clinical/Encounter/media/<index>. <Flow name>.mp4`, with poster frames, embedded in the matching flow doc.
+
+## The nine flows
+Under `/Users/rithviknishad/ohc.network/care_docs/Clinical/Encounter/flows/`:
+`1. Create an Encounter.md`, `2. Update Encounter details.md`, `3. Assign an Encounter location.md`, `4. Manage the Encounter care team.md`, `5. Manage Encounter departments.md`, `6. Manage Encounter tags.md`, `7. Discharge a patient.md`, `8. Complete an Encounter.md`, `9. Restart an Encounter.md`.
+
+Run them all in ONE Playwright invocation. Never start two Playwright processes against this app and database at once.
+
+## Data isolation — this module needs it more than Condition did
+Flows 7, 8 and 9 change encounter state irreversibly, and flows 2 and 3 mutate an encounter. They must NOT share the fixture encounter, and they must not run against each other's data. Each of those flows creates its own patient or its own encounter off camera before the recorded page opens, using the `prepPage` pattern. Only flows that purely read shared data may reuse the fixture.
+
+## Flow-specific cautions
+- **1**: record the patient-page entry point, the **Create Encounter** quick action. Departments is required and the submit button stays disabled until you pick one. A patient may hold at most five open encounters at a facility.
+- **2**: open with `Shift+U`. Use an Inpatient encounter so the Hospitalization Details section is on screen.
+- **3**: needs a facility with bed-level locations. An occupied bed blocks you with no override — pick a free one.
+- **7**: needs an Inpatient, Observation or Emergency encounter. Discharge Disposition is mandatory there.
+- **8**: on an undischarged Inpatient encounter, Care skips the confirm dialog and redirects to the discharge form. To film the **Mark as Complete** dialog, use an Ambulatory encounter.
+- **9**: restart is offered only when the status is Completed, and the backend refuses it once the deployment's restart window has passed. **That window defaults to zero hours, which refuses every restart.** Try it; if the backend rejects it, film what you can and REPORT the failure. Do NOT change any backend setting or environment variable, and do NOT edit the care repository.
+
+## Constraints
+- Do not edit `~/ohc.network/care`. In `~/ohc.network/care_fe`, touch nothing except the auth state the setup project writes.
+- Edit only the nine flow docs, plus files under `care_docs/recordings/` and `care_docs/Clinical/Encounter/media/`. Do not touch `concept.md`, and do not touch the ten obsolete snake_case files in the same `flows/` folder.
+- Partial success is acceptable and useful. If you run low on budget, finish and report what you completed rather than returning nothing.
+
+Report: which flows recorded, which failed and why, every file you wrote, and every doc you edited.
+
+---
+
+**Write Playwright demo specs only. DO NOT run Playwright at all in this task.** A later invocation runs the whole suite in one pass. If you start a Playwright run you will corrupt the work.
+
+## Context — already done, do not redo
+A previous pass already wrote these four specs in `care_docs/recordings/Clinical/Encounter/`:
+- `1. Create an Encounter.demo.ts`
+- `2. Update Encounter details.demo.ts`
+- `3. Assign an Encounter location.demo.ts`
+- `4. Manage the Encounter care team.demo.ts`
+
+**Read all four first.** They establish the conventions for this module — the prep/off-camera data setup, the fixture helpers, the pointer usage, the pause constants and the naming. Match them exactly. Do not modify them.
+
+Also already verified, do not re-check:
+- Backend on port 9000, frontend on port 4000, both running.
+- `care_fe/.env.local` points at `http://localhost:9000`. The localhost safety gate PASSES.
+- The database must NOT be restored or reset. Recording runs against existing data.
+- `care_docs` is bootstrapped; `package.json`, `playwright.config.ts` and `recordings/support/` all exist.
+
+## Your task: write these five specs
+In `care_docs/recordings/Clinical/Encounter/`:
+- `5. Manage Encounter departments.demo.ts`
+- `6. Manage Encounter tags.demo.ts`
+- `7. Discharge a patient.demo.ts`
+- `8. Complete an Encounter.demo.ts`
+- `9. Restart an Encounter.demo.ts`
+
+Also DELETE the obsolete `care_docs/recordings/Clinical/Encounter/create_an_encounter.demo.ts`, which belongs to a previous naming scheme and would record a duplicate.
+
+Read the matching flow doc in `care_docs/Clinical/Encounter/flows/` for each one. **Every `test.step()` title must equal the step heading in that doc, word for word.**
+
+## Rules that matter most here
+- **Data isolation.** Flows 7, 8 and 9 change encounter state irreversibly. Each must create its own patient and its own encounter off camera, before the recorded page opens, using the prep pattern from specs 1–4. They must never touch the shared fixture encounter, because the suite runs in parallel workers.
+- Off-camera setup may use `fill()` and direct API or navigation shortcuts. Anything the recorded page shows must be real UI interaction with `pointer.click` and `pointer.type`.
+- One `page.goto` per spec, at the very start. Never navigate by URL after recording begins.
+- Keep assertions minimal — just enough to wait for the UI to settle.
+
+## Flow-specific facts
+- **5 — Manage Encounter departments.** Entry: **Encounter Actions** (`Shift+E`) → **Update Department**, or the **Update Department** button on the Overview side panel. The sheet adds departments through a multi-select and removes each linked one with a delete icon. Removal shows "Organization removed successfully". Safe to run on a shared encounter as long as it re-adds what it removes; even so, prefer its own encounter.
+- **6 — Manage Encounter tags.** Entry: the Overview tab's **Encounter Tags** panel, then its edit icon. It is NOT in the command palette. The facility must have tags configured for encounters; if none exist, the panel has nothing to offer — report that rather than creating tag configuration.
+- **7 — Discharge a patient.** Needs its own Inpatient encounter. Entry: the Overview side panel's **Mark for discharge** button, or `m` then `c`. **Discharge Disposition** is mandatory. **Discharge Date and Time** appears once the status is Discharged. Then submit the form.
+- **8 — Complete an Encounter.** Use its own **Ambulatory** encounter, because an undischarged Inpatient encounter skips the dialog and redirects to the discharge form. Entry: **Mark as Completed** (`m` then `c`). The dialog is titled **Mark as Complete** and asks "Are you sure you would like to mark this encounter as complete?". Confirm it.
+- **9 — Restart an Encounter.** Needs its own encounter that it completes off camera first, so the status is Completed when recording starts. Entry: **Encounter Actions** (`Shift+E`) → **Restart Encounter**. There is no confirmation dialog. **Expect this one to fail**: the backend's restart window defaults to zero hours and refuses every restart, so the toast will read "Failed to restart encounter". Write the spec so it still produces a usable video of the action being offered and selected, and does not throw on the failed toast. Do NOT change any backend setting to work around it, and do NOT edit the care repository.
+
+## Constraints
+- Do not edit `~/ohc.network/care` or `~/ohc.network/care_fe`.
+- Do not edit any markdown in `care_docs` in this task — embedding happens in the recording pass.
+- Do not run `npx playwright test`, `npm test`, or any recording or ffmpeg command.
+
+Report: each spec you wrote with a one-line description of what it records, anything the flow docs describe that you could not express in a spec, and confirmation that you deleted the obsolete file.
+
+---
+
+**Write Playwright demo specs only. DO NOT run Playwright at all in this task.** A later invocation runs the whole suite in one pass. If you start a Playwright run you will corrupt the work.
+
+## Context — already done, do not redo
+A previous pass already wrote these four specs in `care_docs/recordings/Clinical/Encounter/`:
+- `1. Create an Encounter.demo.ts`
+- `2. Update Encounter details.demo.ts`
+- `3. Assign an Encounter location.demo.ts`
+- `4. Manage the Encounter care team.demo.ts`
+
+**Read all four first.** They establish the conventions for this module — the prep/off-camera data setup, the fixture helpers, the pointer usage, the pause constants and the naming. Match them exactly. Do not modify them.
+
+Also already verified, do not re-check:
+- Backend on port 9000, frontend on port 4000, both running.
+- `care_fe/.env.local` points at `http://localhost:9000`. The localhost safety gate PASSES.
+- The database must NOT be restored or reset. Recording runs against existing data.
+- `care_docs` is bootstrapped; `package.json`, `playwright.config.ts` and `recordings/support/` all exist.
+
+## Your task: write these five specs
+In `care_docs/recordings/Clinical/Encounter/`:
+- `5. Manage Encounter departments.demo.ts`
+- `6. Manage Encounter tags.demo.ts`
+- `7. Discharge a patient.demo.ts`
+- `8. Complete an Encounter.demo.ts`
+- `9. Restart an Encounter.demo.ts`
+
+Also DELETE the obsolete `care_docs/recordings/Clinical/Encounter/create_an_encounter.demo.ts`, which belongs to a previous naming scheme and would record a duplicate.
+
+Read the matching flow doc in `care_docs/Clinical/Encounter/flows/` for each one. **Every `test.step()` title must equal the step heading in that doc, word for word.**
+
+## Rules that matter most here
+- **Data isolation.** Flows 7, 8 and 9 change encounter state irreversibly. Each must create its own patient and its own encounter off camera, before the recorded page opens, using the prep pattern from specs 1–4. They must never touch the shared fixture encounter, because the suite runs in parallel workers.
+- Off-camera setup may use `fill()` and direct API or navigation shortcuts. Anything the recorded page shows must be real UI interaction with `pointer.click` and `pointer.type`.
+- One `page.goto` per spec, at the very start. Never navigate by URL after recording begins.
+- Keep assertions minimal — just enough to wait for the UI to settle.
+
+## Flow-specific facts
+- **5 — Manage Encounter departments.** Entry: **Encounter Actions** (`Shift+E`) → **Update Department**, or the **Update Department** button on the Overview side panel. The sheet adds departments through a multi-select and removes each linked one with a delete icon. Removal shows "Organization removed successfully". Safe to run on a shared encounter as long as it re-adds what it removes; even so, prefer its own encounter.
+- **6 — Manage Encounter tags.** Entry: the Overview tab's **Encounter Tags** panel, then its edit icon. It is NOT in the command palette. The facility must have tags configured for encounters; if none exist, the panel has nothing to offer — report that rather than creating tag configuration.
+- **7 — Discharge a patient.** Needs its own Inpatient encounter. Entry: the Overview side panel's **Mark for discharge** button, or `m` then `c`. **Discharge Disposition** is mandatory. **Discharge Date and Time** appears once the status is Discharged. Then submit the form.
+- **8 — Complete an Encounter.** Use its own **Ambulatory** encounter, because an undischarged Inpatient encounter skips the dialog and redirects to the discharge form. Entry: **Mark as Completed** (`m` then `c`). The dialog is titled **Mark as Complete** and asks "Are you sure you would like to mark this encounter as complete?". Confirm it.
+- **9 — Restart an Encounter.** Needs its own encounter that it completes off camera first, so the status is Completed when recording starts. Entry: **Encounter Actions** (`Shift+E`) → **Restart Encounter**. There is no confirmation dialog. **Expect this one to fail**: the backend's restart window defaults to zero hours and refuses every restart, so the toast will read "Failed to restart encounter". Write the spec so it still produces a usable video of the action being offered and selected, and does not throw on the failed toast. Do NOT change any backend setting to work around it, and do NOT edit the care repository.
+
+## Constraints
+- Do not edit `~/ohc.network/care` or `~/ohc.network/care_fe`.
+- Do not edit any markdown in `care_docs` in this task — embedding happens in the recording pass.
+- Do not run `npx playwright test`, `npm test`, or any recording or ffmpeg command.
+
+Report: each spec you wrote with a one-line description of what it records, anything the flow docs describe that you could not express in a spec, and confirmation that you deleted the obsolete file.
+
+---
+
+**Write Playwright demo specs only. DO NOT run Playwright at all in this task.** A later invocation runs the whole suite in one pass. If you start a Playwright run you will corrupt the work.
+
+## Context — already done, do not redo
+A previous pass already wrote these four specs in `care_docs/recordings/Clinical/Encounter/`:
+- `1. Create an Encounter.demo.ts`
+- `2. Update Encounter details.demo.ts`
+- `3. Assign an Encounter location.demo.ts`
+- `4. Manage the Encounter care team.demo.ts`
+
+**Read all four first.** They establish the conventions for this module — the prep/off-camera data setup, the fixture helpers, the pointer usage, the pause constants and the naming. Match them exactly. Do not modify them.
+
+Also already verified, do not re-check:
+- Backend on port 9000, frontend on port 4000, both running.
+- `care_fe/.env.local` points at `http://localhost:9000`. The localhost safety gate PASSES.
+- The database must NOT be restored or reset. Recording runs against existing data.
+- `care_docs` is bootstrapped; `package.json`, `playwright.config.ts` and `recordings/support/` all exist.
+
+## Your task: write these five specs
+In `care_docs/recordings/Clinical/Encounter/`:
+- `5. Manage Encounter departments.demo.ts`
+- `6. Manage Encounter tags.demo.ts`
+- `7. Discharge a patient.demo.ts`
+- `8. Complete an Encounter.demo.ts`
+- `9. Restart an Encounter.demo.ts`
+
+Also DELETE the obsolete `care_docs/recordings/Clinical/Encounter/create_an_encounter.demo.ts`, which belongs to a previous naming scheme and would record a duplicate.
+
+Read the matching flow doc in `care_docs/Clinical/Encounter/flows/` for each one. **Every `test.step()` title must equal the step heading in that doc, word for word.**
+
+## Rules that matter most here
+- **Data isolation.** Flows 7, 8 and 9 change encounter state irreversibly. Each must create its own patient and its own encounter off camera, before the recorded page opens, using the prep pattern from specs 1–4. They must never touch the shared fixture encounter, because the suite runs in parallel workers.
+- Off-camera setup may use `fill()` and direct navigation shortcuts. Anything the recorded page shows must be real UI interaction with `pointer.click` and `pointer.type`.
+- One `page.goto` per spec, at the very start. Never navigate by URL after recording begins.
+- Keep assertions minimal — just enough to wait for the UI to settle.
+
+## Flow-specific facts
+- **5 — Manage Encounter departments.** Entry: **Encounter Actions** (`Shift+E`) → **Update Department**, or the **Update Department** button on the Overview side panel. The sheet adds departments through a multi-select and removes each linked one with a delete icon. Removal shows "Organization removed successfully". Give it its own encounter.
+- **6 — Manage Encounter tags.** Entry: the Overview tab's **Encounter Tags** panel, then its edit icon. It is NOT in the command palette. The facility must have tags configured for encounters; if none exist, the panel has nothing to offer — report that rather than creating tag configuration.
+- **7 — Discharge a patient.** Needs its own Inpatient encounter. Entry: the Overview side panel's **Mark for discharge** button, or `m` then `c`. **Discharge Disposition** is mandatory. **Discharge Date and Time** appears once the status is Discharged. Then submit the form.
+- **8 — Complete an Encounter.** Use its own **Ambulatory** encounter, because an undischarged Inpatient encounter skips the dialog and redirects to the discharge form. Entry: **Mark as Completed** (`m` then `c`). The dialog is titled **Mark as Complete** and asks "Are you sure you would like to mark this encounter as complete?". Confirm it.
+- **9 — Restart an Encounter.** Needs its own encounter that it completes off camera first, so the status is Completed when recording starts. Entry: **Encounter Actions** (`Shift+E`) → **Restart Encounter**. There is no confirmation dialog. **Expect this one to fail**: the backend's restart window defaults to zero hours and refuses every restart, so the toast will read "Failed to restart encounter". Write the spec so it still produces a usable video of the action being offered and selected, and does not throw on the failed toast. Do NOT change any backend setting to work around it, and do NOT edit the care repository.
+
+## Constraints
+- Do not edit `~/ohc.network/care` or `~/ohc.network/care_fe`.
+- Do not edit any markdown in `care_docs` in this task — embedding happens in the recording pass.
+- Do not run `npx playwright test`, `npm test`, or any recording or ffmpeg command.
+
+Report: each spec you wrote with a one-line description of what it records, anything the flow docs describe that you could not express in a spec, and confirmation that you deleted the obsolete file.
+
+---
+
+**Write Playwright demo specs only. DO NOT run Playwright at all in this task.** A later invocation runs the whole suite in one pass. If you start a Playwright run you will corrupt the work.
+
+## Context — already done, do not redo
+A previous pass already wrote these four specs in `care_docs/recordings/Clinical/Encounter/`:
+- `1. Create an Encounter.demo.ts`
+- `2. Update Encounter details.demo.ts`
+- `3. Assign an Encounter location.demo.ts`
+- `4. Manage the Encounter care team.demo.ts`
+
+**Read all four first.** They establish the conventions for this module — the prep/off-camera data setup, the fixture helpers, the pointer usage, the pause constants and the naming. Match them exactly. Do not modify them.
+
+Also already verified, do not re-check:
+- Backend on port 9000, frontend on port 4000, both running.
+- `care_fe/.env.local` points at `http://localhost:9000`. The localhost safety gate PASSES.
+- The database must NOT be restored or reset. Recording runs against existing data.
+- `care_docs` is bootstrapped; `package.json`, `playwright.config.ts` and `recordings/support/` all exist.
+
+## Your task: write these five specs
+In `care_docs/recordings/Clinical/Encounter/`:
+- `5. Manage Encounter departments.demo.ts`
+- `6. Manage Encounter tags.demo.ts`
+- `7. Discharge a patient.demo.ts`
+- `8. Complete an Encounter.demo.ts`
+- `9. Restart an Encounter.demo.ts`
+
+Also DELETE the obsolete `care_docs/recordings/Clinical/Encounter/create_an_encounter.demo.ts`, which belongs to a previous naming scheme and would record a duplicate.
+
+Read the matching flow doc in `care_docs/Clinical/Encounter/flows/` for each one. **Every `test.step()` title must equal the step heading in that doc, word for word.**
+
+## Rules that matter most here
+- **Data isolation.** Flows 7, 8 and 9 change encounter state irreversibly. Each must create its own patient and its own encounter off camera, before the recorded page opens, using the prep pattern from specs 1–4. They must never touch the shared fixture encounter, because the suite runs in parallel workers.
+- Off-camera setup may use `fill()` and direct navigation shortcuts. Anything the recorded page shows must be real UI interaction with `pointer.click` and `pointer.type`.
+- One `page.goto` per spec, at the very start. Never navigate by URL after recording begins.
+- Keep assertions minimal — just enough to wait for the UI to settle.
+
+## Flow-specific facts
+- **5 — Manage Encounter departments.** Entry: **Encounter Actions** (`Shift+E`) → **Update Department**, or the **Update Department** button on the Overview side panel. The sheet adds departments through a multi-select and removes each linked one with a delete icon. Removal shows "Organization removed successfully". Give it its own encounter.
+- **6 — Manage Encounter tags.** Entry: the Overview tab's **Encounter Tags** panel, then its edit icon. It is NOT in the command palette. The facility must have tags configured for encounters; if none exist, the panel has nothing to offer — report that rather than creating tag configuration.
+- **7 — Discharge a patient.** Needs its own Inpatient encounter. Entry: the Overview side panel's **Mark for discharge** button, or `m` then `c`. **Discharge Disposition** is mandatory. **Discharge Date and Time** appears once the status is Discharged. Then submit the form.
+- **8 — Complete an Encounter.** Use its own **Ambulatory** encounter, because an undischarged Inpatient encounter skips the dialog and redirects to the discharge form. Entry: **Mark as Completed** (`m` then `c`). The dialog is titled **Mark as Complete** and asks "Are you sure you would like to mark this encounter as complete?". Confirm it.
+- **9 — Restart an Encounter.** Needs its own encounter that it completes off camera first, so the status is Completed when recording starts. Entry: **Encounter Actions** (`Shift+E`) → **Restart Encounter**. There is no confirmation dialog. **Expect this one to fail**: the backend's restart window defaults to zero hours and refuses every restart, so the toast will read "Failed to restart encounter". Write the spec so it still produces a usable video of the action being offered and selected, and does not throw on the failed toast. Do NOT change any backend setting to work around it, and do NOT edit the care repository.
+
+## Constraints
+- Do not edit `~/ohc.network/care` or `~/ohc.network/care_fe`.
+- Do not edit any markdown in `care_docs` in this task — embedding happens in the recording pass.
+- Do not run `npx playwright test`, `npm test`, or any recording or ffmpeg command.
+
+Report: each spec you wrote with a one-line description of what it records, anything the flow docs describe that you could not express in a spec, and confirmation that you deleted the obsolete file.
