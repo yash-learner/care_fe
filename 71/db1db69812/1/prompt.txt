@@ -1,0 +1,217 @@
+Record demo videos for ALL SIX flow docs of the **Clinical / Condition** module, in ONE serial Playwright pass.
+
+Flow docs, in order:
+1. `/Users/rithviknishad/ohc.network/care_docs/Clinical/Condition/flows/1. Record a symptom.md`
+2. `/Users/rithviknishad/ohc.network/care_docs/Clinical/Condition/flows/2. Record a diagnosis.md`
+3. `/Users/rithviknishad/ohc.network/care_docs/Clinical/Condition/flows/3. Add a symptom or diagnosis from past records.md`
+4. `/Users/rithviknishad/ohc.network/care_docs/Clinical/Condition/flows/4. Update a symptom or diagnosis.md`
+5. `/Users/rithviknishad/ohc.network/care_docs/Clinical/Condition/flows/5. Mark a symptom or diagnosis as entered in error.md`
+6. `/Users/rithviknishad/ohc.network/care_docs/Clinical/Condition/flows/6. View the clinical history.md`
+
+Parent: `Clinical`. Module: `Condition`.
+
+## Stack state — already verified in your previous attempt
+- Preview responds on `http://localhost:4000`. Backend up on port 9000. Localhost safety check PASSES (`care_fe/.env.local` → `http://localhost:9000`). Do not edit that value.
+- Fixture meta files and `care_fe/tests/support/*Id.ts` exist and match.
+- The `care_docs` Playwright bootstrap exists. Reuse it.
+
+## STEP 0 — Refresh the auth state WITHOUT touching the database
+
+Both the stored access token and the refresh token in `care_fe/tests/.auth/user.json` are expired, so `ensureFreshToken()` cannot recover. The user has authorized this specific workaround:
+
+1. Obtain a fresh token pair by calling the **local backend login endpoint directly** with the fixture credentials for the `user.json` storage state: username `admin`, password `admin` (documented in `care_fe/CLAUDE.md` under "Playwright E2E test credentials"). Find the exact login route and payload shape by reading the frontend auth code or the backend auth routes — do not guess the path.
+2. Write the new access and refresh tokens back into `care_fe/tests/.auth/user.json`, preserving the file's existing structure. The existing `writeAccessToken()` helper in `recordings/support/care.ts` shows the shape: tokens live in `origins[].localStorage[]` under the names `care_access_token` and `care_refresh_token`. Update BOTH.
+3. Verify by calling `/api/v1/users/getcurrentuser/` with the new access token. It must return 200.
+
+**Still forbidden:** `npm run playwright:db-reset`, `npm run playwright:db-restore`, and `npx playwright test --project=setup`. All three touch the database, and the user is recording against the existing data on purpose. Only `care_fe/tests/.auth/user.json` may be modified, and only its token values.
+
+If the login call fails, STOP and report the exact response.
+
+## Ordering matters, because the database is not reset
+Record in the numbered order and design each spec so it leaves the next in a sensible state:
+- Flow 1 records a symptom. Flow 2 records a diagnosis.
+- Flow 3 uses the **Symptom History** / **Diagnosis History** picker, so it needs records from an earlier encounter.
+- Flow 4 edits an existing record. Flow 5 retracts one — retract a record you created for that purpose, not the one flow 4 just demonstrated.
+- Flow 6 is read-only and shows the accumulated result, so it reads well last.
+
+Generate unique terms and data with `faker`. Pick clinical terms that make clean, legible recordings.
+
+## Task
+1. Do STEP 0 above.
+2. Read each flow doc. Its step headings become the `test.step()` titles of its spec, one for one.
+3. Write one spec per flow at `care_docs/recordings/Clinical/Condition/<index>. <Flow name>.demo.ts`, mirroring `recordings/Clinical/Encounter/create_an_encounter.demo.ts` and the `care_fe/tests/` locator conventions.
+4. Run the six specs serially in a single Playwright pass, so the runs do not clear each other's `test-results/` output.
+5. Convert each WebM to MP4 with the documented ffmpeg command and write a poster frame for each.
+6. Embed each video under the `## Overview` heading of its own flow doc, using the `<video>` tag form. Change nothing else in the flow docs.
+7. Do not commit anything. Do not commit raw `.webm` intermediates.
+
+## Report back
+For each of the six flows: spec path, MP4 path, file size, duration. Then list every place where the actual UI did not match the flow doc. **Do NOT silently rewrite a flow doc to match the UI** — report the mismatch.
+
+---
+
+Record demo videos for ALL SIX flow docs of the **Clinical / Condition** module, in ONE serial Playwright pass.
+
+Flow docs, in order:
+1. `/Users/rithviknishad/ohc.network/care_docs/Clinical/Condition/flows/1. Record a symptom.md`
+2. `/Users/rithviknishad/ohc.network/care_docs/Clinical/Condition/flows/2. Record a diagnosis.md`
+3. `/Users/rithviknishad/ohc.network/care_docs/Clinical/Condition/flows/3. Add a symptom or diagnosis from past records.md`
+4. `/Users/rithviknishad/ohc.network/care_docs/Clinical/Condition/flows/4. Update a symptom or diagnosis.md`
+5. `/Users/rithviknishad/ohc.network/care_docs/Clinical/Condition/flows/5. Mark a symptom or diagnosis as entered in error.md`
+6. `/Users/rithviknishad/ohc.network/care_docs/Clinical/Condition/flows/6. View the clinical history.md`
+
+Parent: `Clinical`. Module: `Condition`.
+
+## Stack state — already verified in your previous attempt
+- Preview responds on `http://localhost:4000`. Backend up on port 9000. Localhost safety check PASSES (`care_fe/.env.local` → `http://localhost:9000`). Do not edit that value.
+- Fixture meta files and `care_fe/tests/support/*Id.ts` exist and match.
+- The `care_docs` Playwright bootstrap exists. Reuse it.
+
+## STEP 0 — Refresh the auth state WITHOUT touching the database
+
+Both the stored access token and the refresh token in `care_fe/tests/.auth/user.json` are expired, so `ensureFreshToken()` cannot recover. The user has authorized this specific workaround:
+
+1. Obtain a fresh token pair by calling the **local backend login endpoint directly** with the fixture credentials for the `user.json` storage state: username `admin`, password `admin` (documented in `care_fe/CLAUDE.md` under "Playwright E2E test credentials"). Find the exact login route and payload shape by reading the frontend auth code or the backend auth routes — do not guess the path.
+2. Write the new access and refresh tokens back into `care_fe/tests/.auth/user.json`, preserving the file's existing structure. The existing `writeAccessToken()` helper in `recordings/support/care.ts` shows the shape: tokens live in `origins[].localStorage[]` under the names `care_access_token` and `care_refresh_token`. Update BOTH.
+3. Verify by calling `/api/v1/users/getcurrentuser/` with the new access token. It must return 200.
+
+**Still forbidden:** `npm run playwright:db-reset`, `npm run playwright:db-restore`, and `npx playwright test --project=setup`. All three touch the database, and the user is recording against the existing data on purpose. Only `care_fe/tests/.auth/user.json` may be modified, and only its token values.
+
+If the login call fails, STOP and report the exact response.
+
+## Ordering matters, because the database is not reset
+Record in the numbered order and design each spec so it leaves the next in a sensible state:
+- Flow 1 records a symptom. Flow 2 records a diagnosis.
+- Flow 3 uses the **Symptom History** / **Diagnosis History** picker, so it needs records from an earlier encounter.
+- Flow 4 edits an existing record. Flow 5 retracts one — retract a record you created for that purpose, not the one flow 4 just demonstrated.
+- Flow 6 is read-only and shows the accumulated result, so it reads well last.
+
+Generate unique terms and data with `faker`. Pick clinical terms that make clean, legible recordings.
+
+## Task
+1. Do STEP 0 above.
+2. Read each flow doc. Its step headings become the `test.step()` titles of its spec, one for one.
+3. Write one spec per flow at `care_docs/recordings/Clinical/Condition/<index>. <Flow name>.demo.ts`, mirroring `recordings/Clinical/Encounter/create_an_encounter.demo.ts` and the `care_fe/tests/` locator conventions.
+4. Run the six specs serially in a single Playwright pass, so the runs do not clear each other's `test-results/` output.
+5. Convert each WebM to MP4 with the documented ffmpeg command and write a poster frame for each.
+6. Embed each video under the `## Overview` heading of its own flow doc, using the `<video>` tag form. Change nothing else in the flow docs.
+7. Do not commit anything. Do not commit raw `.webm` intermediates.
+
+## Report back
+For each of the six flows: spec path, MP4 path, file size, duration. Then list every place where the actual UI did not match the flow doc. **Do NOT silently rewrite a flow doc to match the UI** — report the mismatch.
+
+---
+
+RESUME an interrupted recording run for the **Clinical / Condition** module. A previous run ended without reporting. Do not start over.
+
+## Current state on disk — verify each of these yourself first
+- All six demo specs already exist in `care_docs/recordings/Clinical/Condition/`:
+  `1. Record a symptom.demo.ts`, `2. Record a diagnosis.demo.ts`, `3. Add a symptom or diagnosis from past records.demo.ts`, `4. Update a symptom or diagnosis.demo.ts`, `5. Mark a symptom or diagnosis as entered in error.demo.ts`, `6. View the clinical history.demo.ts`.
+- Only two videos exist in `care_docs/Clinical/Condition/media/`: `1. Record a symptom.mp4` + `.png`, and `2. Record a diagnosis.mp4` + `.png`.
+- **No flow doc has a video embed yet.** A search for `<video` in `care_docs/Clinical/Condition/` returns nothing.
+- The auth state in `care_fe/tests/.auth/user.json` was refreshed in the previous run and flows 1 and 2 recorded successfully, so the session should work. Re-verify with a call to `/api/v1/users/getcurrentuser/` before recording.
+
+## Remaining work
+1. **Record flows 3, 4, 5, and 6**, serially, in that order, in a single Playwright pass. Reuse the existing specs. Fix a spec only where it actually fails.
+2. Convert each to MP4 with the documented ffmpeg command and write a poster frame, into `care_docs/Clinical/Condition/media/` using the same naming as flows 1 and 2.
+3. **Add the video embed to ALL SIX flow docs**, including flows 1 and 2 whose videos already exist. Place it directly under the `## Overview` heading, using the `<video>` tag form with a raw GitHub URL, matching however the existing Encounter flow docs embed theirs. Check `care_docs/Clinical/Encounter/flows/` for the established embed pattern and follow it exactly. Change nothing else in any flow doc.
+
+## Constraints — unchanged and firm
+- **Do NOT wipe or restore the database.** No `npm run playwright:db-reset`, no `npm run playwright:db-restore`, no `npx playwright test --project=setup`.
+- If the session is expired again, re-mint tokens by calling the local backend login endpoint directly with fixture credentials `admin` / `admin`, and write both `care_access_token` and `care_refresh_token` back into `care_fe/tests/.auth/user.json`. That is the only file you may modify outside `care_docs`.
+- Localhost only: `care_fe/.env.local` must still read `REACT_CARE_API_URL=http://localhost:9000`. Verify, do not edit.
+- Do not commit anything. Do not leave raw `.webm` intermediates in the repository.
+- Do NOT silently rewrite a flow doc to match the UI. If the UI does not match a documented step, report the mismatch.
+
+## Report back — keep it SHORT
+A six-row table: flow number, MP4 path, file size, duration, embed added yes/no. Then a brief list of any UI/doc mismatches. Nothing else.
+
+---
+
+RESUME an interrupted recording run for the **Clinical / Condition** module. A previous run ended without reporting. Do not start over.
+
+## Current state on disk — verify each of these yourself first
+- All six demo specs already exist in `care_docs/recordings/Clinical/Condition/`:
+  `1. Record a symptom.demo.ts`, `2. Record a diagnosis.demo.ts`, `3. Add a symptom or diagnosis from past records.demo.ts`, `4. Update a symptom or diagnosis.demo.ts`, `5. Mark a symptom or diagnosis as entered in error.demo.ts`, `6. View the clinical history.demo.ts`.
+- Only two videos exist in `care_docs/Clinical/Condition/media/`: `1. Record a symptom.mp4` + `.png`, and `2. Record a diagnosis.mp4` + `.png`.
+- **No flow doc has a video embed yet.** A search for `<video` in `care_docs/Clinical/Condition/` returns nothing.
+- The auth state in `care_fe/tests/.auth/user.json` was refreshed in the previous run and flows 1 and 2 recorded successfully, so the session should work. Re-verify with a call to `/api/v1/users/getcurrentuser/` before recording.
+
+## Remaining work
+1. **Record flows 3, 4, 5, and 6**, serially, in that order, in a single Playwright pass. Reuse the existing specs. Fix a spec only where it actually fails.
+2. Convert each to MP4 with the documented ffmpeg command and write a poster frame, into `care_docs/Clinical/Condition/media/` using the same naming as flows 1 and 2.
+3. **Add the video embed to ALL SIX flow docs**, including flows 1 and 2 whose videos already exist. Place it directly under the `## Overview` heading, using the `<video>` tag form with a raw GitHub URL, matching however the existing Encounter flow docs embed theirs. Check `care_docs/Clinical/Encounter/flows/` for the established embed pattern and follow it exactly. Change nothing else in any flow doc.
+
+## Constraints — unchanged and firm
+- **Do NOT wipe or restore the database.** No `npm run playwright:db-reset`, no `npm run playwright:db-restore`, no `npx playwright test --project=setup`.
+- If the session is expired again, re-mint tokens by calling the local backend login endpoint directly with fixture credentials `admin` / `admin`, and write both `care_access_token` and `care_refresh_token` back into `care_fe/tests/.auth/user.json`. That is the only file you may modify outside `care_docs`.
+- Localhost only: `care_fe/.env.local` must still read `REACT_CARE_API_URL=http://localhost:9000`. Verify, do not edit.
+- Do not commit anything. Do not leave raw `.webm` intermediates in the repository.
+- Do NOT silently rewrite a flow doc to match the UI. If the UI does not match a documented step, report the mismatch.
+
+## Report back — keep it SHORT
+A six-row table: flow number, MP4 path, file size, duration, embed added yes/no. Then a brief list of any UI/doc mismatches. Nothing else.
+
+---
+
+RESUME an interrupted recording run for the **Clinical / Condition** module. Do not start over.
+
+## Current state on disk — verify each yourself first, it may have moved on
+- All six demo specs already exist in `care_docs/recordings/Clinical/Condition/`:
+  `1. Record a symptom.demo.ts`, `2. Record a diagnosis.demo.ts`, `3. Add a symptom or diagnosis from past records.demo.ts`, `4. Update a symptom or diagnosis.demo.ts`, `5. Mark a symptom or diagnosis as entered in error.demo.ts`, `6. View the clinical history.demo.ts`.
+- `care_docs/Clinical/Condition/media/` held only `1. Record a symptom.mp4`/`.png` and `2. Record a diagnosis.mp4`/`.png`.
+- No flow doc had a video embed yet.
+- Auth state in `care_fe/tests/.auth/user.json` was refreshed earlier and flows 1 and 2 recorded successfully. Re-verify the session with `/api/v1/users/getcurrentuser/` before recording.
+
+**Skip any flow whose MP4 and poster already exist.** Only produce what is missing.
+
+## Remaining work
+1. **Record flows 3, 4, 5, 6**, serially, in that order, in a single Playwright pass. Reuse the existing specs; fix one only where it actually fails.
+2. Convert each to MP4 with the documented ffmpeg command plus a poster frame, into `care_docs/Clinical/Condition/media/`, naming them like flows 1 and 2.
+3. **Add the video embed to all six flow docs**, directly under the `## Overview` heading. Follow the exact embed pattern already used in `care_docs/Clinical/Encounter/flows/`. Change nothing else in any flow doc.
+
+## Constraints — firm
+- **Do NOT wipe or restore the database.** No `playwright:db-reset`, no `playwright:db-restore`, no `npx playwright test --project=setup`.
+- If the session expired again, re-mint tokens by calling the local backend login endpoint directly with fixture credentials `admin` / `admin`, writing both `care_access_token` and `care_refresh_token` back into `care_fe/tests/.auth/user.json`. That is the only file you may touch outside `care_docs`.
+- Localhost only: verify `care_fe/.env.local` still reads `REACT_CARE_API_URL=http://localhost:9000`. Do not edit it.
+- Do not commit anything. Leave no raw `.webm` in the repository.
+- Do NOT rewrite a flow doc to match the UI. Report mismatches instead.
+
+## Report back — SHORT
+A six-row table: flow number, MP4 path, size, duration, embed added yes/no. Then any UI/doc mismatches. Nothing else.
+
+---
+
+RESUME an interrupted recording run for the **Clinical / Condition** module. Do not start over.
+
+## Current state on disk — verify each yourself first, it may have moved on
+- All six demo specs already exist in `care_docs/recordings/Clinical/Condition/`:
+  `1. Record a symptom.demo.ts`, `2. Record a diagnosis.demo.ts`, `3. Add a symptom or diagnosis from past records.demo.ts`, `4. Update a symptom or diagnosis.demo.ts`, `5. Mark a symptom or diagnosis as entered in error.demo.ts`, `6. View the clinical history.demo.ts`.
+- `care_docs/Clinical/Condition/media/` held only `1. Record a symptom.mp4`/`.png` and `2. Record a diagnosis.mp4`/`.png`.
+- No flow doc had a video embed yet.
+- Auth state in `care_fe/tests/.auth/user.json` was refreshed earlier and flows 1 and 2 recorded successfully. Re-verify the session with `/api/v1/users/getcurrentuser/` before recording.
+
+**Skip any flow whose MP4 and poster already exist.** Only produce what is missing.
+
+## Remaining work
+1. **Record flows 3, 4, 5, 6**, serially, in that order, in a single Playwright pass. Reuse the existing specs; fix one only where it actually fails.
+2. Convert each to MP4 with the documented ffmpeg command plus a poster frame, into `care_docs/Clinical/Condition/media/`, naming them like flows 1 and 2.
+3. **Add the video embed to all six flow docs**, directly under the `## Overview` heading. Follow the exact embed pattern already used in `care_docs/Clinical/Encounter/flows/`. Change nothing else in any flow doc.
+
+## Constraints — firm
+- **Do NOT wipe or restore the database.** No `playwright:db-reset`, no `playwright:db-restore`, no `npx playwright test --project=setup`.
+- If the session expired again, re-mint tokens by calling the local backend login endpoint directly with fixture credentials `admin` / `admin`, writing both `care_access_token` and `care_refresh_token` back into `care_fe/tests/.auth/user.json`. That is the only file you may touch outside `care_docs`.
+- Localhost only: verify `care_fe/.env.local` still reads `REACT_CARE_API_URL=http://localhost:9000`. Do not edit it.
+- Do not commit anything. Leave no raw `.webm` in the repository.
+- Do NOT rewrite a flow doc to match the UI. Report mismatches instead.
+
+## Report back — SHORT
+A six-row table: flow number, MP4 path, size, duration, embed added yes/no. Then any UI/doc mismatches. Nothing else.
+
+---
+
+Try Again
+
+---
+
+Try Again
