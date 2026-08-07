@@ -1,0 +1,97 @@
+each of the flow recording should prefer running in parallel
+
+---
+
+each of the flow recording should prefer running in parallel
+
+---
+
+Edit the VS Code chat mode and subagent definitions for the CARE documentation pipeline so that obsolete files can be removed without human help.
+
+Files to change, in the `care_docs` workspace folder:
+
+- the Care Documentation Intern chat mode definition (the `.chatmode.md` file whose mode name is "Ezhuthachan")
+- [care-docs-reviewer.agent.md](vscode-file://vscode-app/Applications/Visual%20Studio%20Code.app/Contents/Resources/app/out/vs/code/electron-browser/workbench/workbench.html)
+Make these changes:
+
+1. Add a file-deletion capability to the reviewer subagent's allowed tools, so it can remove files inside `care_docs/` — for example by including the terminal-run tool, or whatever deletion-capable tool this VS Code setup exposes. Inspect the existing `tools:` frontmatter lists in the sibling agent files first, and use the exact tool names already in use in this repository. Do not invent tool names.
+2. In the reviewer's instructions, add a section titled "Removing superseded files". It must state that the reviewer may delete a file only when the orchestrator explicitly names it in the brief, only when the path is inside `care_docs/`, and only after confirming that no remaining document links to it. It must never delete a file it was not told to delete, and never anything outside `care_docs/`.
+3. In the Care Documentation Intern mode instructions, in the Review step, add that the orchestrator passes the reviewer an explicit list of superseded files to delete when a rewrite renames or replaces earlier documents, and that the reviewer reports every deletion in its change summary.
+4. Keep the orchestrator itself without any edit or delete tool. It must continue to delegate all file changes.
+Do not change any other behavior. Validate the YAML frontmatter of both files after editing.
+
+---
+
+Edit the VS Code chat mode and subagent definitions for the CARE documentation pipeline so that obsolete files can be removed without human help.
+
+Files to change, in the `care_docs` workspace folder:
+
+- the Care Documentation Intern chat mode definition (the `.chatmode.md` file whose mode name is "Ezhuthachan")
+- [care-docs-reviewer.agent.md](vscode-file://vscode-app/Applications/Visual%20Studio%20Code.app/Contents/Resources/app/out/vs/code/electron-browser/workbench/workbench.html)
+Make these changes:
+
+1. Add a file-deletion capability to the reviewer subagent's allowed tools, so it can remove files inside `care_docs/` — for example by including the terminal-run tool, or whatever deletion-capable tool this VS Code setup exposes. Inspect the existing `tools:` frontmatter lists in the sibling agent files first, and use the exact tool names already in use in this repository. Do not invent tool names.
+2. In the reviewer's instructions, add a section titled "Removing superseded files". It must state that the reviewer may delete a file only when the orchestrator explicitly names it in the brief, only when the path is inside `care_docs/`, and only after confirming that no remaining document links to it. It must never delete a file it was not told to delete, and never anything outside `care_docs/`.
+3. In the Care Documentation Intern mode instructions, in the Review step, add that the orchestrator passes the reviewer an explicit list of superseded files to delete when a rewrite renames or replaces earlier documents, and that the reviewer reports every deletion in its change summary.
+4. Keep the orchestrator itself without any edit or delete tool. It must continue to delegate all file changes.
+Do not change any other behavior. Validate the YAML frontmatter of both files after editing.
+
+---
+
+VIDEO EMBEDS IN care_docs FLOW DOCS — use relative paths, never absolute URLs.
+
+Place the embed directly under the `## Overview` heading of the flow doc:
+
+<video src="../media/<file>.mp4" poster="../media/<file>.png" controls width="720"></video>
+
+[Watch the demo](../media/<file>.mp4) — <short phrase describing the clip>.
+
+Rules:
+- The path is relative to the flow doc: `../media/...`. It is confirmed to render
+  on github.com. Do NOT use an absolute https://github.com/<org>/<repo>/raw/... URL.
+- <file> is the flow doc's own filename without the extension, e.g.
+  `1. Start a discussion`. Video, poster, spec, and doc all share that stem.
+- Filenames contain spaces. Encode every space as %20 in the src, the poster,
+  and the markdown link.
+- The `poster` attribute supplies the thumbnail. Do NOT add a
+  [![Watch the demo](...png)](...mp4) fallback line — it is redundant.
+- Keep `controls width="720"`.
+
+Reference implementation: care_docs/Clinical/Encounter/flows/create_an_encounter.md
+
+---
+
+VIDEO EMBEDS IN care_docs FLOW DOCS — use relative paths, never absolute URLs.
+
+Place the embed directly under the `## Overview` heading of the flow doc:
+
+<video src="../media/<file>.mp4" poster="../media/<file>.png" controls width="720"></video>
+
+[Watch the demo](../media/<file>.mp4) — <short phrase describing the clip>.
+
+Rules:
+- The path is relative to the flow doc: `../media/...`. It is confirmed to render
+  on github.com. Do NOT use an absolute https://github.com/<org>/<repo>/raw/... URL.
+- <file> is the flow doc's own filename without the extension, e.g.
+  `1. Start a discussion`. Video, poster, spec, and doc all share that stem.
+- Filenames contain spaces. Encode every space as %20 in the src, the poster,
+  and the markdown link.
+- The `poster` attribute supplies the thumbnail. Do NOT add a
+  [![Watch the demo](...png)](...mp4) fallback line — it is redundant.
+- Keep `controls width="720"`.
+
+Reference implementation: care_docs/Clinical/Encounter/flows/create_an_encounter.md
+
+---
+
+when typing stuff to inputs, can we type like a human instead instead? that is like a typewriter thing? it can be fast, but shouldn't appear like baaam, it landed out of nowhere.
+
+also, when recording videos, never jump between pages! 
+instrucdt the skill/agent that you should never write playwright code that humans can't do. things like jumping to a page directly to a url.
+
+---
+
+when typing stuff to inputs, can we type like a human instead instead? that is like a typewriter thing? it can be fast, but shouldn't appear like baaam, it landed out of nowhere.
+
+also, when recording videos, never jump between pages! 
+instrucdt the skill/agent that you should never write playwright code that humans can't do. things like jumping to a page directly to a url.
