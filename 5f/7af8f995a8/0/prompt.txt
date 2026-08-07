@@ -1,0 +1,10 @@
+Do you find any tests related to QuestionnaireV2 in this project?
+I need to test the input for decimal question.
+
+---
+
+So I found a bug in frontend that when I try to type 0 after "." then it clears the "." for some reason. Also it is not allowing to type 0 after decimal and other values.
+For eq: if I type : 0.01 it is somehow becoming 1.
+If I type 1.3000, it wont allow zero, so basically stuck at 1.3.
+
+I need to write tests for these. Expectation should be typed value, which will fail I know. But need tests now as TDD. Also don't fix any broken code to fix this. let's just focus on writing test
