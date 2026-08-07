@@ -1,0 +1,1142 @@
+Clinical / Clinical Notes
+
+This is the notes/discussions/threads that works for both encounter and patient profile page
+
+---
+
+Clinical / Clinical Notes
+
+This is the notes/discussions/threads that works for both encounter and patient profile page
+
+---
+
+Research the **Clinical Notes** module (note threads / discussions / messages) in the CARE **backend** repository at `~/ohc.network/care`. This is read-only research. Produce a verified dossier.
+
+Read `~/ohc.network/care_docs/.github/skills/care-docs-generation/references/codebase-navigation.md` FIRST for pre-verified paths and grep patterns. Do not re-derive navigation.
+
+Scope: the notes feature that works in BOTH contexts — encounter-scoped notes (Encounter "Notes" tab) and patient-scoped notes (Patient profile "Notes" tab). Key known entry points (verify and expand):
+- `care/emr/models/notes.py` (`NoteThread`, `NoteMessage`)
+- `care/emr/api/viewsets/notes.py` (`NoteThreadViewSet`, `NoteMessageViewSet`)
+- `care/emr/resources/notes/thread_spec.py` and `care/emr/resources/notes/notes_spec.py`
+- `config/api_router.py` for route nesting (patient → thread → note)
+- `care/security/` for the permissions used: `can_update_encounter_clinical_data`, `can_write_patient_obj`, `can_view_clinical_data`, `can_view_encounter_clinical_data` — trace each through AuthorizationController to the `Permission` dataclass definition and report the HUMAN-READABLE permission name and description, plus which roles hold it (check role/permission fixtures or role definitions).
+
+Report, with file:line evidence for every claim:
+1. **Attributes** of a thread and of a message: every field, type, required/optional, defaults, max lengths, nullability. Include `message_history` semantics (how edit history is stored) and any audit fields (created_by, updated_by, created_date, modified_date) from EMRBaseModel.
+2. **Enums / coded values** — if any. State explicitly if there are none.
+3. **Behavioral rules and validations**: patient/encounter mismatch checks, thread-belongs-to-patient checks, message-belongs-to-thread checks, "cannot update message created by another user", whether messages/threads can be deleted, whether threads can be renamed (update spec fields), ordering of threads and messages, filtering (`encounter`, `encounter_isnull`).
+4. **Permissions** for each operation: list threads, create thread, update thread, list messages, create message, update message — for both the encounter-scoped and the patient-scoped case. Human-readable permission names.
+5. **FHIR R5 alignment**: which FHIR R5 resource(s) this maps to, if any (consider Communication, DocumentReference, ClinicalImpression). Check whether the code claims an FHIR mapping anywhere. If there is no explicit mapping in code, say so plainly rather than inventing one.
+6. **Config flags** in `config/settings/` that change notes behavior, if any.
+7. **API-level flows** a user can perform.
+8. **SUSPECTED CODE ISSUES** — note the `# TODO Authorise Based on encounter and permission` in `get_object`, the `# TODO Add organizations to further restrict access`, and anything else that looks wrong or inconsistent.
+9. **AMBIGUITIES / UNVERIFIED** — an explicit list of anything you could not confirm.
+
+Do not write any files. Return the dossier as your final message.
+
+---
+
+Research the **Clinical Notes** module (notes / discussions / threads) in the CARE **frontend** repository at `~/ohc.network/care_fe`. This is read-only research. Produce a verified dossier.
+
+Read `~/ohc.network/care_docs/.github/skills/care-docs-generation/references/codebase-navigation.md` FIRST for pre-verified paths and grep patterns. Do not re-derive navigation.
+
+Scope: the notes feature that appears in BOTH the Encounter "Notes" tab and the Patient profile "Notes" tab. Known entry points (verify and expand):
+- `src/components/Notes/` — especially `NoteManager.tsx` and every component in that folder
+- `src/pages/Encounters/tabs/notes.tsx`
+- `src/components/Patient/PatientDetailsTab/PatientNotes.tsx`
+- `src/types/notes/thread.ts`, `src/types/notes/messages.ts`, `src/types/notes/threadApi.ts`
+- `src/Routers/routes/` for the routes/URLs of both tabs, and the tab registration for Encounter tabs and Patient detail tabs
+
+Report, with file:line evidence for every claim:
+1. **Navigation** — exact route paths and the exact user-facing tab labels (resolve i18n keys against `public/locale/en.json`). How does a user reach notes from the encounter, and from the patient profile?
+2. **Difference between the two contexts** — the `hideEncounterNotes` prop, `canAccess` / `canWrite` gating (patient tab passes `true`/`true`; encounter tab uses `canReadSelectedEncounter` / `canWriteSelectedEncounter`). Explain precisely what a user sees in each context: which threads are listed, whether patient-level threads appear inside an encounter, and vice versa.
+3. **UI flows step by step**, with the real button/label text resolved from `en.json`:
+   - creating a new discussion/thread (including the `threadTemplates` list in `src/types/notes/thread.ts` — how are these presented? are they suggestions/quick picks?)
+   - selecting a thread and reading messages
+   - posting a message (any markdown/rich text support, mentions, attachments, character limits)
+   - editing a message (who can edit, how edit history is shown)
+   - any empty states, loading states, pagination / infinite scroll behavior
+4. **All user-facing strings** for this feature from `public/locale/en.json` — list the keys and their English values (grep for note/thread/discussion keys).
+5. **Keyboard shortcuts** — check `src/config/keyboardShortcuts.json` for anything related. State plainly if there are none.
+6. **Config flags** in `care.config.ts` that affect notes. State plainly if there are none.
+7. **Permission gating in the frontend** — which permission strings gate the notes tabs and the write actions; where `canReadSelectedEncounter` / `canWriteSelectedEncounter` come from.
+8. **SUSPECTED CODE ISSUES** — e.g., the patient notes tab hardcoding `canAccess={true} canWrite={true}` with no permission check; anything else inconsistent.
+9. **AMBIGUITIES / UNVERIFIED** — explicit list of anything you could not confirm.
+
+Do not write any files. Return the dossier as your final message.
+
+---
+
+Research the **Clinical Notes** module (note threads / discussions / messages) in the CARE **backend** repository at `~/ohc.network/care`. This is read-only research. Produce a verified dossier.
+
+Read `~/ohc.network/care_docs/.github/skills/care-docs-generation/references/codebase-navigation.md` FIRST for pre-verified paths and grep patterns. Do not re-derive navigation.
+
+Scope: the notes feature that works in BOTH contexts — encounter-scoped notes (Encounter "Notes" tab) and patient-scoped notes (Patient profile "Notes" tab). Key known entry points (verify and expand):
+- `care/emr/models/notes.py` (`NoteThread`, `NoteMessage`)
+- `care/emr/api/viewsets/notes.py` (`NoteThreadViewSet`, `NoteMessageViewSet`)
+- `care/emr/resources/notes/thread_spec.py` and `care/emr/resources/notes/notes_spec.py`
+- `config/api_router.py` for route nesting (patient → thread → note)
+- `care/security/` for the permissions used: `can_update_encounter_clinical_data`, `can_write_patient_obj`, `can_view_clinical_data`, `can_view_encounter_clinical_data` — trace each through AuthorizationController to the `Permission` dataclass definition and report the HUMAN-READABLE permission name and description, plus which roles hold it (check role/permission fixtures or role definitions).
+
+Report, with file:line evidence for every claim:
+1. **Attributes** of a thread and of a message: every field, type, required/optional, defaults, max lengths, nullability. Include `message_history` semantics (how edit history is stored) and any audit fields (created_by, updated_by, created_date, modified_date) from EMRBaseModel.
+2. **Enums / coded values** — if any. State explicitly if there are none.
+3. **Behavioral rules and validations**: patient/encounter mismatch checks, thread-belongs-to-patient checks, message-belongs-to-thread checks, "cannot update message created by another user", whether messages/threads can be deleted, whether threads can be renamed (update spec fields), ordering of threads and messages, filtering (`encounter`, `encounter_isnull`).
+4. **Permissions** for each operation: list threads, create thread, update thread, list messages, create message, update message — for both the encounter-scoped and the patient-scoped case. Human-readable permission names.
+5. **FHIR R5 alignment**: which FHIR R5 resource(s) this maps to, if any (consider Communication, DocumentReference, ClinicalImpression). Check whether the code claims an FHIR mapping anywhere. If there is no explicit mapping in code, say so plainly rather than inventing one.
+6. **Config flags** in `config/settings/` that change notes behavior, if any.
+7. **API-level flows** a user can perform.
+8. **SUSPECTED CODE ISSUES** — note the `# TODO Authorise Based on encounter and permission` in `get_object`, the `# TODO Add organizations to further restrict access`, and anything else that looks wrong or inconsistent.
+9. **AMBIGUITIES / UNVERIFIED** — an explicit list of anything you could not confirm.
+
+Do not write any files. Return the dossier as your final message.
+
+---
+
+Folder name, let's keep it "Clinical Notes".
+yes, this module does not has FHIR mapping. this is a care internal stuff.
+about editing message/discussion title, leave it for now, i'll discuss with the team and decide. 
+
+code issues:
+
+- RBAC issue with frontend: just create an issue in care_fe with proposed solution/fix. do not assign or create a fix. i'll create a JIRA ticket based on that.
+- encounter is only for authzn. purpose, not as a filter. thread is the real filter for notes. and threads are already filtered by encounter.
+- note message encounter in spec, this is intended. encounter is used only for authzn. purpose. notes thread is the real filter here.
+- you can cleanup this: notes__failed_send_message (remove from other langs as well)
+- you can fix the notes__all_discussions_description typo
+- you can rename the sheet title to what you think is right to go there. not patient/encounter. All Disucssions is what i think is correct.
+
+---
+
+Folder name, let's keep it "Clinical Notes".
+yes, this module does not has FHIR mapping. this is a care internal stuff.
+about editing message/discussion title, leave it for now, i'll discuss with the team and decide. 
+
+code issues:
+
+- RBAC issue with frontend: just create an issue in care_fe with proposed solution/fix. do not assign or create a fix. i'll create a JIRA ticket based on that.
+- encounter is only for authzn. purpose, not as a filter. thread is the real filter for notes. and threads are already filtered by encounter.
+- note message encounter in spec, this is intended. encounter is used only for authzn. purpose. notes thread is the real filter here.
+- you can cleanup this: notes__failed_send_message (remove from other langs as well)
+- you can fix the notes__all_discussions_description typo
+- you can rename the sheet title to what you think is right to go there. not patient/encounter. All Disucssions is what i think is correct.
+
+---
+
+**Repository:** `ohcnetwork/care_fe`, local checkout at `/Users/rithviknishad/ohc.network/care_fe`.
+
+**Delivery settings — follow these exactly, do not deviate:**
+| Setting | Value |
+|---|---|
+| Workspace | None. **Do NOT change any code.** Do not create a branch or worktree. Do not edit, stage, or commit any file. |
+| Issue | **Create a GitHub issue** in `ohcnetwork/care_fe` describing the problem and a proposed fix. |
+| Assignment | **Unassigned.** Do not assign the issue to anybody. |
+| Pull request | **None.** Do not open a PR. |
+
+This is an **issue-filing task only**. Investigate, confirm the facts, and file a well-written issue. The user will convert it into a JIRA ticket. Report the issue URL back.
+
+**Symptom:** The patient profile "Notes" tab applies no role-based access control on the frontend. Any user who can open a patient profile sees the tab, and the notes UI is rendered with read and write both hardcoded to true.
+
+**Evidence to verify before filing:**
+- `src/components/Patient/PatientDetailsTab/PatientNotes.tsx` — renders `<NoteManager canAccess={true} canWrite={true} ... hideEncounterNotes={true} />`. Both flags are literal `true`, with no permission lookup.
+- `src/components/Patient/PatientDetailsTab/index.tsx` — the tab-visibility switch has no `case "notes":`, so it falls to the `default` branch, `visible` stays `undefined`, and the later `.filter(tab => tab.visible ?? true)` always keeps the tab.
+- Contrast with the encounter side, `src/pages/Encounters/tabs/notes.tsx`, which correctly passes `canReadSelectedEncounter` and `canWriteSelectedEncounter` from `src/pages/Encounters/utils/EncounterProvider.tsx`.
+
+**Expected behavior:** The patient Notes tab should be gated by the same permissions the backend enforces for patient-scoped note threads:
+- read → `can_view_clinical_data` ("Can view clinical data about patients")
+- write → `can_write_patient` ("Can Update a Patient's data")
+
+Backend reference (do not change the backend): `care/emr/api/viewsets/notes.py` — `NoteThreadViewSet.get_queryset` requires `can_view_clinical_data` on the patient, and `authorize_create` / `authorize_update` require `can_write_patient_obj` when the thread has no encounter.
+
+**Note this in the issue:** the backend does enforce these permissions, so this is not a data-exposure hole at the API layer. The impact is a misleading UI — a user without the permission still sees the Notes tab and a working composer, and only discovers the refusal after the request fails.
+
+**Proposed fix to describe in the issue:**
+1. In `PatientDetailsTab/index.tsx`, add a `case "notes":` to the visibility switch that sets `visible` from the patient permission for viewing clinical data.
+2. In `PatientNotes.tsx`, derive `canAccess` and `canWrite` from the patient permissions hook the rest of the patient tabs already use, instead of the hardcoded `true` values. Investigate and name the exact hook/context the sibling patient tabs use, so the issue gives an actionable pointer.
+3. Keep the encounter path unchanged.
+
+Include in the issue: a clear title, the reproduction path (open a patient profile as a user without patient clinical-data permission → the Notes tab is present and writable-looking), the affected file paths with line references, the expected behavior, and the proposed fix. Use the repository's issue template if one exists.
+
+Report back: the issue URL, and confirmation that you changed no code.
+
+---
+
+Write EXACTLY ONE file: `/Users/rithviknishad/ohc.network/care_docs/Clinical/Clinical Notes/flows/2. Post a message to a discussion.md`
+
+Parent = `Clinical`, Module = `Clinical Notes`. Doc type: **flow**. Follow `care_docs/.github/skills/care-docs-generation/assets/flow-template.md`, `references/doc-rules.md`, and `references/ste-rules.md`.
+
+This module has **NO FHIR mapping** — it is a CARE-internal feature. Do not mention FHIR.
+
+## Scope
+How a user selects a discussion, reads the messages in it, and posts a new message. Applies to both the encounter Notes tab and the patient profile Notes tab; the screen is identical in both.
+
+## Verified facts (use ONLY these)
+
+**Before you start**
+- A discussion exists in the list you look at. If none exists, start one first.
+- To post in an encounter discussion, the encounter must not be complete.
+
+**Steps**
+1. Go to the **Notes** tab of the encounter or of the patient profile. In an encounter, press `g` then `n` to go to the Notes tab.
+2. Select a discussion in the list on the left. On a small screen, open the list first and then select the discussion. Care opens the most recent discussion for you if you select none.
+   - Before you select a discussion, the screen shows "Welcome to Discussions" and "Start a new discussion or select an existing thread to begin messaging". The heading area shows "Select or create a thread to start messaging".
+3. Read the messages. The newest message is at the bottom. Each message shows the author's picture and name, and how long ago the message was sent. Point at the time to see the full date and time. Select the author's name or picture to open that user's profile.
+4. Care loads older messages while you scroll up, 20 messages at a time.
+5. Type in the box with the placeholder "Type your message...". The box gets taller as you type more lines.
+6. Select the send button. On a computer, you can also press `Shift` and `Enter` together to send. On a touch screen, use the send button.
+7. Care adds your message at the bottom of the discussion and moves the view to it.
+
+**What a message can hold**
+- Text with Markdown formatting. Care shows the formatted result.
+- Care does not support file attachments.
+- Care does not support mentions of other users.
+- The heading of the discussion shows how many people took part and how many messages the discussion holds.
+
+**Rules and limits**
+- You cannot delete a message.
+- Care shows no way to change a message after you send it.
+- You cannot post a message in an encounter that is complete.
+
+**Permissions** (backend-enforced, human-readable names)
+- To read messages in an encounter discussion: **"Can Read encounter related clinical data"** — Doctor, Nurse, Administrator, Facility Admin.
+- To post a message in an encounter discussion: **"Update Encounter related clinical data"** — Doctor, Nurse, Administrator, Facility Admin.
+- To read messages in a patient discussion: **"Can view clinical data about patients"** — Staff, Doctor, Nurse, Administrator, Facility Admin.
+- To post a message in a patient discussion: **"Can Update a Patient's data"** — Staff, Doctor, Nurse, Administrator, Facility Admin.
+
+**Configuration:** no deployment setting changes this flow.
+
+**Known limitation worth a short note to the reader:** if the message cannot be sent, Care gives no message on screen. Mention this once, plainly, as a caution — do not speculate about causes.
+
+## Sibling documents (relative links from inside `flows/`)
+- `[Clinical Notes concept](../concept.md)`
+- `[Start a discussion](./1.%20Start%20a%20discussion.md)`
+- `[Find discussions for a patient or an encounter](./3.%20Find%20discussions%20for%20a%20patient%20or%20an%20encounter.md)`
+
+Write the file. Return a short summary and anything you left out.
+
+---
+
+Write EXACTLY ONE file: `/Users/rithviknishad/ohc.network/care_docs/Clinical/Clinical Notes/flows/3. Find discussions for a patient or an encounter.md`
+
+Parent = `Clinical`, Module = `Clinical Notes`. Doc type: **flow**. Follow `care_docs/.github/skills/care-docs-generation/assets/flow-template.md`, `references/doc-rules.md`, and `references/ste-rules.md`.
+
+This module has **NO FHIR mapping** — it is a CARE-internal feature. Do not mention FHIR.
+
+## Scope
+How a user reaches the two Notes tabs, and which discussions each tab shows. The most important message of this doc: the two lists are separate and never overlap, so a reader who cannot find a discussion knows where to look.
+
+## Verified facts (use ONLY these)
+
+**Encounter discussions**
+1. Open the encounter.
+2. Select the **Notes** tab. Keyboard shortcut: press `g` then `n`.
+3. The list shows only the discussions that belong to this encounter. Discussions that belong to the patient alone do not appear here.
+- The Notes tab appears only for a user who can read clinical data for the patient or for the encounter.
+
+**Patient discussions**
+1. Open the patient profile.
+2. Select the **Notes** tab.
+3. The list shows only the discussions that belong to the patient and to no encounter. Discussions that belong to an encounter do not appear here.
+
+**What you see in the list**
+- Discussions appear with the most recent first.
+- Select a discussion to read its messages.
+- If the list holds no discussion, Care shows "No discussions yet".
+- On a small screen, open the list of discussions from the button above the messages.
+- Care shows no search box and no filter for discussions. To find a discussion, read the titles in the list.
+
+**A patient with more than one encounter:** each encounter keeps its own discussions. To read the discussions of a different encounter, open that encounter and go to its Notes tab.
+
+**Permissions** (backend-enforced, human-readable names)
+- To see encounter discussions: **"Can Read encounter related clinical data"** — Doctor, Nurse, Administrator, Facility Admin.
+- To see patient discussions: **"Can view clinical data about patients"** — Staff, Doctor, Nurse, Administrator, Facility Admin.
+
+**Configuration:** no deployment setting changes this flow.
+
+## Sibling documents (relative links from inside `flows/`)
+- `[Clinical Notes concept](../concept.md)`
+- `[Start a discussion](./1.%20Start%20a%20discussion.md)`
+- `[Post a message to a discussion](./2.%20Post%20a%20message%20to%20a%20discussion.md)`
+
+Write the file. Return a short summary and anything you left out.
+
+---
+
+Write EXACTLY ONE file: `/Users/rithviknishad/ohc.network/care_docs/Clinical Notes/concept.md`
+
+CORRECTION — the output path is `/Users/rithviknishad/ohc.network/care_docs/Clinical/Clinical Notes/concept.md`. Use that path. Parent = `Clinical`, Module = `Clinical Notes`.
+
+Doc type: **concept**. Follow `care_docs/.github/skills/care-docs-generation/assets/concept-template.md`, `references/doc-rules.md`, and `references/ste-rules.md`.
+
+## CRITICAL: FHIR
+This module has **NO FHIR R5 mapping**. The user has explicitly confirmed this is a CARE-internal collaboration feature. Do NOT link or claim any FHIR resource (not Communication, not DocumentReference, not ClinicalImpression). State plainly that Clinical Notes is a CARE-internal feature for staff collaboration and is not backed by an FHIR resource. Do not invent a mapping to satisfy the template — adapt the template section instead.
+
+## Verified facts (use ONLY these; do not add anything else)
+
+**Naming.** The tab is labelled **"Notes"** in both places. The panel inside is labelled **"Discussions"**. A discussion is a titled thread of messages. Use "discussion" for the thread and "message" for an entry inside it. Prefer the product's own words.
+
+**Purpose.** Staff record and exchange written notes about a patient. Messages are grouped into titled discussions, so different topics stay separate.
+
+**Two separate spaces, which never overlap:**
+- **Encounter discussions** — attached to one encounter. Visible only in that encounter's Notes tab.
+- **Patient discussions** — attached to the patient and not to any encounter. Visible only in the Notes tab of the patient profile.
+- A patient discussion never appears inside an encounter, and an encounter discussion never appears on the patient profile. The two lists are strictly separate.
+
+**What a discussion holds.** Only a title (maximum 255 characters). There is no status, no category, and no coded value anywhere in this module.
+
+**What a message holds.** Only the message text. The text supports Markdown formatting. Care records who wrote each message and when.
+
+**Permanence.** You cannot delete a discussion or a message. Once you send a message, it stays.
+
+**Attachments and mentions.** Care does not support file attachments or user mentions in messages.
+
+**Ordering.** Discussions are listed with the most recent first. Messages appear with the newest at the bottom. Care loads older messages as you scroll up, 20 at a time.
+
+**Who can see and write** (backend-enforced permissions, human-readable names):
+| Action | Permission | Roles |
+|---|---|---|
+| See encounter discussions and messages | "Can Read encounter related clinical data" | Doctor, Nurse, Administrator, Facility Admin |
+| Start an encounter discussion, or post a message in one | "Update Encounter related clinical data" | Doctor, Nurse, Administrator, Facility Admin |
+| See patient discussions and messages | "Can view clinical data about patients" | Staff, Doctor, Nurse, Administrator, Facility Admin |
+| Start a patient discussion, or post a message in one | "Can Update a Patient's data" | Staff, Doctor, Nurse, Administrator, Facility Admin |
+
+**Completed encounters.** You cannot start a discussion or post a message in an encounter that is complete.
+
+**Configuration.** No deployment setting changes how Clinical Notes behaves.
+
+**Do NOT document:** editing a message, editing an edit history, and renaming a discussion. Care shows no way to do any of these. The user has decided to leave them out.
+
+## Sibling documents (for the Related section, relative links from `concept.md`)
+- `[Start a discussion](./flows/1.%20Start%20a%20discussion.md)`
+- `[Post a message to a discussion](./flows/2.%20Post%20a%20message%20to%20a%20discussion.md)`
+- `[Find discussions for a patient or an encounter](./flows/3.%20Find%20discussions%20for%20a%20patient%20or%20an%20encounter.md)`
+- Also link the existing Encounter concept: `[Encounter](../Encounter/concept.md)`
+
+Write the file. Return a short summary of what you wrote and anything you had to leave out.
+
+---
+
+Write EXACTLY ONE file: `/Users/rithviknishad/ohc.network/care_docs/Clinical/Clinical Notes/flows/3. Find discussions for a patient or an encounter.md`
+
+Parent = `Clinical`, Module = `Clinical Notes`. Doc type: **flow**. Follow `care_docs/.github/skills/care-docs-generation/assets/flow-template.md`, `references/doc-rules.md`, and `references/ste-rules.md`.
+
+This module has **NO FHIR mapping** — it is a CARE-internal feature. Do not mention FHIR.
+
+## Scope
+How a user reaches the two Notes tabs, and which discussions each tab shows. The most important message of this doc: the two lists are separate and never overlap, so a reader who cannot find a discussion knows where to look.
+
+## Verified facts (use ONLY these)
+
+**Encounter discussions**
+1. Open the encounter.
+2. Select the **Notes** tab. Keyboard shortcut: press `g` then `n`.
+3. The list shows only the discussions that belong to this encounter. Discussions that belong to the patient alone do not appear here.
+- The Notes tab appears only for a user who can read clinical data for the patient or for the encounter.
+
+**Patient discussions**
+1. Open the patient profile.
+2. Select the **Notes** tab.
+3. The list shows only the discussions that belong to the patient and to no encounter. Discussions that belong to an encounter do not appear here.
+
+**What you see in the list**
+- Discussions appear with the most recent first.
+- Select a discussion to read its messages.
+- If the list holds no discussion, Care shows "No discussions yet".
+- On a small screen, open the list of discussions from the button above the messages.
+- Care shows no search box and no filter for discussions. To find a discussion, read the titles in the list.
+
+**A patient with more than one encounter:** each encounter keeps its own discussions. To read the discussions of a different encounter, open that encounter and go to its Notes tab.
+
+**Permissions** (backend-enforced, human-readable names)
+- To see encounter discussions: **"Can Read encounter related clinical data"** — Doctor, Nurse, Administrator, Facility Admin.
+- To see patient discussions: **"Can view clinical data about patients"** — Staff, Doctor, Nurse, Administrator, Facility Admin.
+
+**Configuration:** no deployment setting changes this flow.
+
+## Sibling documents (relative links from inside `flows/`)
+- `[Clinical Notes concept](../concept.md)`
+- `[Start a discussion](./1.%20Start%20a%20discussion.md)`
+- `[Post a message to a discussion](./2.%20Post%20a%20message%20to%20a%20discussion.md)`
+
+Write the file. Return a short summary and anything you left out.
+
+---
+
+Write EXACTLY ONE file: `/Users/rithviknishad/ohc.network/care_docs/Clinical/Clinical Notes/flows/1. Start a discussion.md`
+
+Parent = `Clinical`, Module = `Clinical Notes`. Doc type: **flow**. Follow `care_docs/.github/skills/care-docs-generation/assets/flow-template.md`, `references/doc-rules.md`, and `references/ste-rules.md`.
+
+This module has **NO FHIR mapping** — it is a CARE-internal feature. Do not mention FHIR.
+
+## Scope
+How a user starts a new discussion (a titled thread of notes). The same dialog serves both contexts: inside an encounter, and on the patient profile. Cover both in this one doc, and make the difference explicit.
+
+## Verified facts (use ONLY these)
+
+**Where you start from**
+- **Encounter context:** open the encounter and go to the **Notes** tab. Keyboard shortcut: press `g` then `n` to go to the Notes tab. A discussion you start here belongs to that encounter.
+- **Patient profile context:** open the patient profile and go to the **Notes** tab. A discussion you start here belongs to the patient and to no encounter.
+- The two lists never overlap. A discussion you start in an encounter does not appear on the patient profile, and the reverse is also true.
+
+**Steps**
+1. Go to the Notes tab in either context.
+2. Select **New** above the discussion list. On a small screen, use the **New Thread** button. If no discussion exists yet, you can also select **Start New Discussion** in the middle of the screen.
+3. Care opens the **Start New Discussion** dialog. An information icon next to the title explains: "Create a new discussion thread to organize your conversation topics."
+4. The dialog shows "Choose a template or enter a custom title". Select one of these suggested titles, or type your own in the box with the placeholder "Enter discussion title...":
+   - Treatment Plan
+   - Medication Notes
+   - Care Coordination
+   - General Notes
+   - Patient History
+   - Referral Notes
+   - Lab Results Discussion
+   A suggested title disappears from the list after a discussion in this list already uses it. After all suggestions are used, the dialog shows "Please enter a custom title for thread" instead.
+5. Select **Create**. The button stays unavailable while the title box is empty.
+6. Care shows "Thread created successfully" and opens the new discussion. You can now post the first message.
+- To stop without creating a discussion, select **Cancel**.
+
+**Rules and limits**
+- A title can hold a maximum of 255 characters.
+- Two discussions in the same list cannot share a title. If the title is already in use, Care shows "Thread with this title already exists" and does not create the discussion.
+- If the discussion cannot be created, Care shows "Failed to create thread".
+- You cannot start a discussion in an encounter that is complete.
+- You cannot delete a discussion after you create it.
+- Care shows no way to rename a discussion.
+
+**Permissions** (backend-enforced, human-readable names)
+- To start a discussion inside an encounter: **"Update Encounter related clinical data"** — held by Doctor, Nurse, Administrator, and Facility Admin.
+- To start a discussion on the patient profile: **"Can Update a Patient's data"** — held by Staff, Doctor, Nurse, Administrator, and Facility Admin.
+
+**Configuration:** no deployment setting changes this flow.
+
+## Sibling documents (relative links from inside `flows/`)
+- `[Clinical Notes concept](../concept.md)`
+- `[Post a message to a discussion](./2.%20Post%20a%20message%20to%20a%20discussion.md)`
+- `[Find discussions for a patient or an encounter](./3.%20Find%20discussions%20for%20a%20patient%20or%20an%20encounter.md)`
+
+Write the file. Return a short summary and anything you left out.
+
+---
+
+**Repository:** `ohcnetwork/care_fe`, local checkout at `/Users/rithviknishad/ohc.network/care_fe`.
+
+**Delivery settings — follow these exactly, do not deviate:**
+| Setting | Value |
+|---|---|
+| Workspace | None. **Do NOT change any code.** Do not create a branch or worktree. Do not edit, stage, or commit any file. |
+| Issue | **Create a GitHub issue** in `ohcnetwork/care_fe` describing the problem and a proposed fix. |
+| Assignment | **Unassigned.** Do not assign the issue to anybody. |
+| Pull request | **None.** Do not open a PR. |
+
+This is an **issue-filing task only**. Investigate, confirm the facts, and file a well-written issue. The user will convert it into a JIRA ticket. Report the issue URL back.
+
+**Symptom:** The patient profile "Notes" tab applies no role-based access control on the frontend. Any user who can open a patient profile sees the tab, and the notes UI is rendered with read and write both hardcoded to true.
+
+**Evidence to verify before filing:**
+- `src/components/Patient/PatientDetailsTab/PatientNotes.tsx` — renders `<NoteManager canAccess={true} canWrite={true} ... hideEncounterNotes={true} />`. Both flags are literal `true`, with no permission lookup.
+- `src/components/Patient/PatientDetailsTab/index.tsx` — the tab-visibility switch has no `case "notes":`, so it falls to the `default` branch, `visible` stays `undefined`, and the later `.filter(tab => tab.visible ?? true)` always keeps the tab.
+- Contrast with the encounter side, `src/pages/Encounters/tabs/notes.tsx`, which correctly passes `canReadSelectedEncounter` and `canWriteSelectedEncounter` from `src/pages/Encounters/utils/EncounterProvider.tsx`.
+
+**Expected behavior:** The patient Notes tab should be gated by the same permissions the backend enforces for patient-scoped note threads:
+- read → `can_view_clinical_data` ("Can view clinical data about patients")
+- write → `can_write_patient` ("Can Update a Patient's data")
+
+Backend reference (do not change the backend): `care/emr/api/viewsets/notes.py` — `NoteThreadViewSet.get_queryset` requires `can_view_clinical_data` on the patient, and `authorize_create` / `authorize_update` require `can_write_patient_obj` when the thread has no encounter.
+
+**Note this in the issue:** the backend does enforce these permissions, so this is not a data-exposure hole at the API layer. The impact is a misleading UI — a user without the permission still sees the Notes tab and a working composer, and only discovers the refusal after the request fails.
+
+**Proposed fix to describe in the issue:**
+1. In `PatientDetailsTab/index.tsx`, add a `case "notes":` to the visibility switch that sets `visible` from the patient permission for viewing clinical data.
+2. In `PatientNotes.tsx`, derive `canAccess` and `canWrite` from the patient permissions hook the rest of the patient tabs already use, instead of the hardcoded `true` values. Investigate and name the exact hook/context the sibling patient tabs use, so the issue gives an actionable pointer.
+3. Keep the encounter path unchanged.
+
+Include in the issue: a clear title, the reproduction path (open a patient profile as a user without patient clinical-data permission → the Notes tab is present and writable-looking), the affected file paths with line references, the expected behavior, and the proposed fix. Use the repository's issue template if one exists.
+
+Report back: the issue URL, and confirmation that you changed no code.
+
+---
+
+Write EXACTLY ONE file: `/Users/rithviknishad/ohc.network/care_docs/Clinical/Clinical Notes/flows/2. Post a message to a discussion.md`
+
+Parent = `Clinical`, Module = `Clinical Notes`. Doc type: **flow**. Follow `care_docs/.github/skills/care-docs-generation/assets/flow-template.md`, `references/doc-rules.md`, and `references/ste-rules.md`.
+
+This module has **NO FHIR mapping** — it is a CARE-internal feature. Do not mention FHIR.
+
+## Scope
+How a user selects a discussion, reads the messages in it, and posts a new message. Applies to both the encounter Notes tab and the patient profile Notes tab; the screen is identical in both.
+
+## Verified facts (use ONLY these)
+
+**Before you start**
+- A discussion exists in the list you look at. If none exists, start one first.
+- To post in an encounter discussion, the encounter must not be complete.
+
+**Steps**
+1. Go to the **Notes** tab of the encounter or of the patient profile. In an encounter, press `g` then `n` to go to the Notes tab.
+2. Select a discussion in the list on the left. On a small screen, open the list first and then select the discussion. Care opens the most recent discussion for you if you select none.
+   - Before you select a discussion, the screen shows "Welcome to Discussions" and "Start a new discussion or select an existing thread to begin messaging". The heading area shows "Select or create a thread to start messaging".
+3. Read the messages. The newest message is at the bottom. Each message shows the author's picture and name, and how long ago the message was sent. Point at the time to see the full date and time. Select the author's name or picture to open that user's profile.
+4. Care loads older messages while you scroll up, 20 messages at a time.
+5. Type in the box with the placeholder "Type your message...". The box gets taller as you type more lines.
+6. Select the send button. On a computer, you can also press `Shift` and `Enter` together to send. On a touch screen, use the send button.
+7. Care adds your message at the bottom of the discussion and moves the view to it.
+
+**What a message can hold**
+- Text with Markdown formatting. Care shows the formatted result.
+- Care does not support file attachments.
+- Care does not support mentions of other users.
+- The heading of the discussion shows how many people took part and how many messages the discussion holds.
+
+**Rules and limits**
+- You cannot delete a message.
+- Care shows no way to change a message after you send it.
+- You cannot post a message in an encounter that is complete.
+
+**Permissions** (backend-enforced, human-readable names)
+- To read messages in an encounter discussion: **"Can Read encounter related clinical data"** — Doctor, Nurse, Administrator, Facility Admin.
+- To post a message in an encounter discussion: **"Update Encounter related clinical data"** — Doctor, Nurse, Administrator, Facility Admin.
+- To read messages in a patient discussion: **"Can view clinical data about patients"** — Staff, Doctor, Nurse, Administrator, Facility Admin.
+- To post a message in a patient discussion: **"Can Update a Patient's data"** — Staff, Doctor, Nurse, Administrator, Facility Admin.
+
+**Configuration:** no deployment setting changes this flow.
+
+**Known limitation worth a short note to the reader:** if the message cannot be sent, Care gives no message on screen. Mention this once, plainly, as a caution — do not speculate about causes.
+
+## Sibling documents (relative links from inside `flows/`)
+- `[Clinical Notes concept](../concept.md)`
+- `[Start a discussion](./1.%20Start%20a%20discussion.md)`
+- `[Find discussions for a patient or an encounter](./3.%20Find%20discussions%20for%20a%20patient%20or%20an%20encounter.md)`
+
+Write the file. Return a short summary and anything you left out.
+
+---
+
+Review the module folder `/Users/rithviknishad/ohc.network/care_docs/Clinical/Clinical Notes/` and fix issues in place.
+
+Files just written:
+- `concept.md`
+- `flows/1. Start a discussion.md`
+- `flows/2. Post a message to a discussion.md`
+- `flows/3. Find discussions for a patient or an encounter.md`
+
+Apply `references/doc-rules.md`, `references/ste-rules.md`, `assets/concept-template.md`, and `assets/flow-template.md`.
+
+## Module-specific rules for this review — these override any default expectation
+
+1. **This module has NO FHIR mapping.** The user confirmed Clinical Notes is a CARE-internal collaboration feature. The concept doc must state this plainly. **Do not add an FHIR resource link or an FHIR framing to any of these files.** If the concept doc's FHIR statement reads awkwardly, improve the wording, but keep the fact.
+2. **Do not add sections about editing a message, edit history, or renaming a discussion.** The product shows no way to do any of these. The user decided to leave the topic out for now.
+3. **There are no statuses and no enums in this module.** A missing Status section in the concept doc is correct, not a defect.
+4. **Remove invented content.** The writer of `flows/1. Start a discussion.md` self-reported that it added a "What it captures" column describing each of the seven suggested discussion titles. Those descriptions are NOT verified from the codebase — the seven titles are plain free-text suggestions with no defined meaning. **Delete that column and keep only the list of the seven titles verbatim:** Treatment Plan, Medication Notes, Care Coordination, General Notes, Patient History, Referral Notes, Lab Results Discussion.
+5. **Terminology consistency across all four files.** The tab is "Notes". The panel is "Discussions". A thread is a "discussion". An entry inside it is a "message". Check that no file drifts into "thread" or "note thread" in prose, except where it quotes a real on-screen string such as "Thread with this title already exists" or the "New Thread" button.
+6. **Cross-link integrity.** All relative links must resolve, with spaces encoded as `%20`. Expected targets: `../concept.md` from the flows, `./flows/1.%20Start%20a%20discussion.md` and siblings from the concept, `./1.%20Start%20a%20discussion.md` style between flows, and `../Encounter/concept.md` from the concept doc. Verify each target file exists on disk.
+7. **H1 must be centered HTML** in every file.
+
+## Also check
+- Every doc reads from the user's situation, not the data model.
+- No code, file paths, API endpoints, class names, or permission slugs. Permission names must be the human-readable ones: "Can Read encounter related clinical data", "Update Encounter related clinical data", "Can view clinical data about patients", "Can Update a Patient's data".
+- The keyboard shortcut is `g` then `n`, and it works in the encounter context only.
+- ASD-STE100 compliance throughout.
+
+Edit in place. Report every change you made, and list anything unresolved that needs human input.
+
+---
+
+Review the module folder `/Users/rithviknishad/ohc.network/care_docs/Clinical/Clinical Notes/` and fix issues in place.
+
+Files just written:
+- `concept.md`
+- `flows/1. Start a discussion.md`
+- `flows/2. Post a message to a discussion.md`
+- `flows/3. Find discussions for a patient or an encounter.md`
+
+Apply `references/doc-rules.md`, `references/ste-rules.md`, `assets/concept-template.md`, and `assets/flow-template.md`.
+
+## Module-specific rules for this review — these override any default expectation
+
+1. **This module has NO FHIR mapping.** The user confirmed Clinical Notes is a CARE-internal collaboration feature. The concept doc must state this plainly. **Do not add an FHIR resource link or an FHIR framing to any of these files.** If the concept doc's FHIR statement reads awkwardly, improve the wording, but keep the fact.
+2. **Do not add sections about editing a message, edit history, or renaming a discussion.** The product shows no way to do any of these. The user decided to leave the topic out for now.
+3. **There are no statuses and no enums in this module.** A missing Status section in the concept doc is correct, not a defect.
+4. **Remove invented content.** The writer of `flows/1. Start a discussion.md` self-reported that it added a "What it captures" column describing each of the seven suggested discussion titles. Those descriptions are NOT verified from the codebase — the seven titles are plain free-text suggestions with no defined meaning. **Delete that column and keep only the list of the seven titles verbatim:** Treatment Plan, Medication Notes, Care Coordination, General Notes, Patient History, Referral Notes, Lab Results Discussion.
+5. **Terminology consistency across all four files.** The tab is "Notes". The panel is "Discussions". A thread is a "discussion". An entry inside it is a "message". Check that no file drifts into "thread" or "note thread" in prose, except where it quotes a real on-screen string such as "Thread with this title already exists" or the "New Thread" button.
+6. **Cross-link integrity.** All relative links must resolve, with spaces encoded as `%20`. Expected targets: `../concept.md` from the flows, `./flows/1.%20Start%20a%20discussion.md` and siblings from the concept, `./1.%20Start%20a%20discussion.md` style between flows, and `../Encounter/concept.md` from the concept doc. Verify each target file exists on disk.
+7. **H1 must be centered HTML** in every file.
+
+## Also check
+- Every doc reads from the user's situation, not the data model.
+- No code, file paths, API endpoints, class names, or permission slugs. Permission names must be the human-readable ones: "Can Read encounter related clinical data", "Update Encounter related clinical data", "Can view clinical data about patients", "Can Update a Patient's data".
+- The keyboard shortcut is `g` then `n`, and it works in the encounter context only.
+- ASD-STE100 compliance throughout.
+
+Edit in place. Report every change you made, and list anything unresolved that needs human input.
+
+---
+
+let's not add onError handler. the global error handler takes care of it. just cleanup stuff. 
+
+@file:care-docs-orchestrator.agent.md mentions about invoking recorder sub-agent, don't forget that.
+
+---
+
+let's not add onError handler. the global error handler takes care of it. just cleanup stuff. 
+
+@file:care-docs-orchestrator.agent.md mentions about invoking recorder sub-agent, don't forget that.
+
+---
+
+Record a demo video for ONE flow doc: `/Users/rithviknishad/ohc.network/care_docs/Clinical/Clinical Notes/flows/1. Start a discussion.md`
+
+This is a **pilot recording**. Record only this one flow. The user will confirm the video renders on GitHub before we batch the rest.
+
+Follow `care_docs/.github/skills/care-docs-generation/references/flow-recording.md` exactly.
+
+## HARD SAFETY GATE — do this first, before anything else
+
+Check that the frontend targets a **localhost** backend:
+
+```sh
+grep -h "^REACT_CARE_API_URL" ~/ohc.network/care_fe/.env.local ~/ohc.network/care_fe/.env
+```
+
+If the value is NOT a localhost address, **STOP immediately**. Do not record. Do not edit the value. Return a report saying what the value is and that the user must fix it. Recording against a hosted backend would create real patient data on a live system.
+
+## Verify the rest of the stack, and report instead of guessing
+
+Confirm each prerequisite. If any is missing, **stop and report exactly what is missing** rather than trying to bring the stack up yourself:
+1. Backend running on port 9000.
+2. Frontend production build served at `http://localhost:4000`.
+3. A restored clean database.
+4. Fresh Playwright auth state in `care_fe/tests/.auth/`.
+
+Note: step 3 and step 4 both restore the local database. If you need to run either, say so in your report — do not run a database restore without warning.
+
+## What to record
+
+**Context: the encounter Notes tab.** Flow 1 covers both the encounter and the patient-profile context; record the encounter one, since it is the primary path.
+
+Read the flow doc first. **Every `test.step()` title MUST be the exact step heading text from that doc**, so the recording and the written steps stay aligned by construction.
+
+The user journey to capture:
+1. Open an encounter from the fixture data and go to its **Notes** tab.
+2. Select **New** above the discussion list to open the **Start New Discussion** dialog.
+3. Select one of the suggested title chips — use **Treatment Plan**.
+4. Select **Create**.
+5. Hold on the result: the new discussion is open and the message composer is ready.
+
+Use fixture IDs from `care_fe/tests/support/*Id.ts`. Use `faker` for anything that must be unique. Keep the whole recording under 30 seconds. Keep assertions to the minimum needed to let the UI settle — a spec that fails mid-way produces a useless video.
+
+## Output paths
+
+- Spec: `care_docs/recordings/Clinical/Clinical Notes/1. Start a discussion.demo.ts`
+- Video: `care_docs/Clinical/Clinical Notes/media/1. Start a discussion.mp4`
+- Poster frame: `care_docs/Clinical/Clinical Notes/media/1. Start a discussion.png`
+
+Note the naming convention has changed since the existing Encounter recording: use `<index>. <Flow name>` (sentence case, with the index prefix), not snake_case. `care_docs/recordings/Clinical/Encounter/create_an_encounter.demo.ts` is a good structural reference for the spec, but do not copy its file naming.
+
+Follow the pointer-helper rules: `installCursor(page)` before `page.goto`, `new Pointer(page)`, `pointer.click(locator)` rather than `locator.click()`, and `pointer.reset()` once after the first load.
+
+## Embedding
+
+Add the video to the flow doc directly under the `## Overview` section. Since this is the first test of GitHub rendering, add **both** forms so the user can compare:
+- the `<video src="https://github.com/ohcnetwork/care_docs/raw/<branch>/<path>.mp4" controls></video>` HTML form, and
+- the poster-image fallback `[![Watch the demo](../media/1.%20Start%20a%20discussion.png)](../media/1.%20Start%20a%20discussion.mp4)`.
+
+Commit the MP4 and the PNG. Do NOT commit the raw `.webm`.
+
+## Report back
+- Whether the safety gate passed, and the API URL you found.
+- Any prerequisite that was missing and what you did about it.
+- The video duration and file size.
+- The exact paths written.
+
+---
+
+Record a demo video for ONE flow doc: `/Users/rithviknishad/ohc.network/care_docs/Clinical/Clinical Notes/flows/1. Start a discussion.md`
+
+This is a **pilot recording**. Record only this one flow. The user will confirm the video renders on GitHub before we batch the rest.
+
+Follow `care_docs/.github/skills/care-docs-generation/references/flow-recording.md` exactly.
+
+## HARD SAFETY GATE — do this first, before anything else
+
+Check that the frontend targets a **localhost** backend:
+
+```sh
+grep -h "^REACT_CARE_API_URL" ~/ohc.network/care_fe/.env.local ~/ohc.network/care_fe/.env
+```
+
+If the value is NOT a localhost address, **STOP immediately**. Do not record. Do not edit the value. Return a report saying what the value is and that the user must fix it. Recording against a hosted backend would create real patient data on a live system.
+
+## Verify the rest of the stack, and report instead of guessing
+
+Confirm each prerequisite. If any is missing, **stop and report exactly what is missing** rather than trying to bring the stack up yourself:
+1. Backend running on port 9000.
+2. Frontend production build served at `http://localhost:4000`.
+3. A restored clean database.
+4. Fresh Playwright auth state in `care_fe/tests/.auth/`.
+
+Note: step 3 and step 4 both restore the local database. If you need to run either, say so in your report — do not run a database restore without warning.
+
+## What to record
+
+**Context: the encounter Notes tab.** Flow 1 covers both the encounter and the patient-profile context; record the encounter one, since it is the primary path.
+
+Read the flow doc first. **Every `test.step()` title MUST be the exact step heading text from that doc**, so the recording and the written steps stay aligned by construction.
+
+The user journey to capture:
+1. Open an encounter from the fixture data and go to its **Notes** tab.
+2. Select **New** above the discussion list to open the **Start New Discussion** dialog.
+3. Select one of the suggested title chips — use **Treatment Plan**.
+4. Select **Create**.
+5. Hold on the result: the new discussion is open and the message composer is ready.
+
+Use fixture IDs from `care_fe/tests/support/*Id.ts`. Use `faker` for anything that must be unique. Keep the whole recording under 30 seconds. Keep assertions to the minimum needed to let the UI settle — a spec that fails mid-way produces a useless video.
+
+## Output paths
+
+- Spec: `care_docs/recordings/Clinical/Clinical Notes/1. Start a discussion.demo.ts`
+- Video: `care_docs/Clinical/Clinical Notes/media/1. Start a discussion.mp4`
+- Poster frame: `care_docs/Clinical/Clinical Notes/media/1. Start a discussion.png`
+
+Note the naming convention has changed since the existing Encounter recording: use `<index>. <Flow name>` (sentence case, with the index prefix), not snake_case. `care_docs/recordings/Clinical/Encounter/create_an_encounter.demo.ts` is a good structural reference for the spec, but do not copy its file naming.
+
+Follow the pointer-helper rules: `installCursor(page)` before `page.goto`, `new Pointer(page)`, `pointer.click(locator)` rather than `locator.click()`, and `pointer.reset()` once after the first load.
+
+## Embedding
+
+Add the video to the flow doc directly under the `## Overview` section. Since this is the first test of GitHub rendering, add **both** forms so the user can compare:
+- the `<video src="https://github.com/ohcnetwork/care_docs/raw/<branch>/<path>.mp4" controls></video>` HTML form, and
+- the poster-image fallback `[![Watch the demo](../media/1.%20Start%20a%20discussion.png)](../media/1.%20Start%20a%20discussion.mp4)`.
+
+Commit the MP4 and the PNG. Do NOT commit the raw `.webm`.
+
+## Report back
+- Whether the safety gate passed, and the API URL you found.
+- Any prerequisite that was missing and what you did about it.
+- The video duration and file size.
+- The exact paths written.
+
+---
+
+about snake case, ignore it. it'll be updated in another phase. go ahead and follow index based user readable convention, follow the rules.
+
+go ahead with existing database, no need to cleanup things. 
+
+go with your suggestions. do not create additional onError handlers anyways.
+
+---
+
+about snake case, ignore it. it'll be updated in another phase. go ahead and follow index based user readable convention, follow the rules.
+
+go ahead with existing database, no need to cleanup things. 
+
+go with your suggestions. do not create additional onError handlers anyways.
+
+---
+
+**Repository:** `ohcnetwork/care_fe`, local checkout at `/Users/rithviknishad/ohc.network/care_fe`.
+
+**Delivery settings — follow these exactly, do not deviate:**
+| Setting | Value |
+|---|---|
+| Workspace | **Edit the local checkout in place.** Do not create a worktree or a new branch. Stay on the current branch. |
+| Issue | **None.** Do not create a GitHub issue. |
+| Assignment | n/a |
+| Pull request | **Commit only.** Commit your changes. Do NOT push and do NOT open a PR. |
+
+**Important — the checkout may hold unrelated uncommitted work.** Check `git status` first. Stage and commit ONLY the files you change for this task. Never use `git add -A` or `git add .`, and never discard or stash anything you did not create. If unrelated changes already touch the same files, stop and report instead of guessing.
+
+## Three small cleanups in the Clinical Notes feature
+
+**1. Remove the unused string `notes__failed_send_message`.**
+It exists in the locale files but nothing in the codebase references it. Confirm this with a repo-wide search before deleting. Remove the key from `public/locale/en.json` **and from every other locale file** that defines it.
+Do NOT add an `onError` handler to the message-send mutation in `src/components/Notes/NoteManager.tsx`. The user has explicitly decided against that — the global error handler already covers it. This is a string removal only, with no behavior change.
+
+**2. Fix the typo in `notes__all_discussions_description`.**
+Current value in `public/locale/en.json`: `"View and manage encounternotes discussion threads"` — "encounternotes" is missing a space. Correct it to `"View and manage encounter notes discussion threads"`.
+Change **English only**. Do not touch the other locale files for this key — they are managed through Crowdin.
+
+**3. Rename the mobile sheet title.**
+In `src/components/Notes/NoteManager.tsx`, the mobile `Sheet`'s `SheetTitle` is hardcoded to `{t("encounter")}`. It renders as "Encounter" even on the patient profile, where no encounter is in scope. Change it to use the existing key `notes__all_discussions`, whose English value is already "All Discussions". Do not add a new key — reuse that one. Verify the key exists and that its value is correct before you wire it up.
+
+## Leave alone
+Do NOT touch `notes__inactive_encounter`. It is also unused, but the user has not decided on it yet.
+
+## Finish up
+Run lint and formatting on the files you changed, and make sure the type check passes. Commit with a clear message. Report back: the files changed, the exact locale files you removed the key from, the commit hash, and confirmation that you pushed nothing and opened no PR.e Encounter recordings will be migrated in a later phase; leave them alone.
+- Spec: `care_docs/recordings/Clinical/Clinical Notes/1. Start a discussion.demo.ts`
+- Video: `care_docs/Clinical/Clinical Notes/media/1. Start a discussion.mp4`
+- Poster: `care_docs/Clinical/Clinical Notes/media/1. Start a discussion.png`
+
+`care_docs/recordings/Clinical/Encounter/create_an_encounter.demo.ts` is a good structural reference for the spec body, but do not copy its file naming.
+
+Pointer rules: `installCursor(page)` before `page.goto`, `new Pointer(page)`, `pointer.click(locator)` rather than `locator.click()`, `pointer.reset()` once after the first load.
+
+## Embedding
+Add the video to the flow doc directly under the `## Overview` section. This is the first test of GitHub rendering, so add **both** forms so the user can compare:
+- `<video src="https://github.com/ohcnetwork/care_docs/raw/<current-branch>/<path>.mp4" controls></video>`
+- the poster fallback `[![Watch the demo](../media/1.%20Start%20a%20discussion.png)](../media/1.%20Start%20a%20discussion.mp4)`
+
+Keep the MP4 and PNG. Do NOT keep or commit the raw `.webm`.
+
+## Report back
+- Safety gate result and the API URL found.
+- Whether port 4000 was up; if not, stop there and say so.
+- Which discussion title you ended up using and why.
+- Video duration and file size.
+- Exact paths written.
+
+---
+
+**Repository:** `ohcnetwork/care_fe`, local checkout at `/Users/rithviknishad/ohc.network/care_fe`.
+
+**Delivery settings — follow these exactly, do not deviate:**
+| Setting | Value |
+|---|---|
+| Workspace | **Edit the local checkout in place.** Do not create a worktree or a new branch. Stay on the current branch. |
+| Issue | **None.** Do not create a GitHub issue. |
+| Assignment | n/a |
+| Pull request | **Commit only.** Commit your changes. Do NOT push and do NOT open a PR. |
+
+**Important — the checkout may hold unrelated uncommitted work.** Check `git status` first. Stage and commit ONLY the files you change for this task. Never use `git add -A` or `git add .`, and never discard or stash anything you did not create. If unrelated changes already touch the same files, stop and report instead of guessing.
+
+## Three small cleanups in the Clinical Notes feature
+
+**1. Remove the unused string `notes__failed_send_message`.**
+It exists in the locale files but nothing in the codebase references it. Confirm this with a repo-wide search before deleting. Remove the key from `public/locale/en.json` **and from every other locale file** that defines it.
+Do NOT add an `onError` handler to the message-send mutation in `src/components/Notes/NoteManager.tsx`. The user has explicitly decided against that — the global error handler already covers it. This is a string removal only, with no behavior change.
+
+**2. Fix the typo in `notes__all_discussions_description`.**
+Current value in `public/locale/en.json`: `"View and manage encounternotes discussion threads"` — "encounternotes" is missing a space. Correct it to `"View and manage encounter notes discussion threads"`.
+Change **English only**. Do not touch the other locale files for this key — they are managed through Crowdin.
+
+**3. Rename the mobile sheet title.**
+In `src/components/Notes/NoteManager.tsx`, the mobile `Sheet`'s `SheetTitle` is hardcoded to `{t("encounter")}`. It renders as "Encounter" even on the patient profile, where no encounter is in scope. Change it to use the existing key `notes__all_discussions`, whose English value is already "All Discussions". Do not add a new key — reuse that one. Verify the key exists and that its value is correct before you wire it up.
+
+## Leave alone
+Do NOT touch `notes__inactive_encounter`. It is also unused, but the user has not decided on it yet.
+
+## Finish up
+Run lint and formatting on the files you changed, and make sure the type check passes. Commit with a clear message. Report back: the files changed, the exact locale files you removed the key from, the commit hash, and confirmation that you pushed nothing and opened no PR.
+
+---
+
+Record a demo video for ONE flow doc: `/Users/rithviknishad/ohc.network/care_docs/Clinical/Clinical Notes/flows/1. Start a discussion.md`
+
+This is a **pilot recording** — record only this one flow. The user will confirm the video renders on GitHub before we batch the rest. You previously planned this spec and stopped because port 4000 had no listener; the user has now been asked to start the preview server.
+
+Follow `care_docs/.github/skills/care-docs-generation/references/flow-recording.md` exactly.
+
+## Safety gate — re-verify, it is cheap
+`care_fe/.env.local` should set `REACT_CARE_API_URL=http://localhost:9000`. If it is NOT a localhost address, **STOP**, record nothing, and report. Do not edit the value yourself.
+
+## Stack
+- Backend on port 9000 — confirmed running earlier, re-check.
+- Frontend preview on `http://localhost:4000` — this was the blocker. Re-check it. **If it is still not listening, stop and report; do not start it yourself.**
+- **Database: the user has decided to record against the database as it stands. Do NOT run `playwright:db-restore`, `playwright:db-reset`, or any fixture reload.** Nothing may wipe the local database.
+- Auth state: `care_fe/tests/.auth/` files exist. The `care_docs` globalSetup rotates the access token via the refresh token. Do not run `--project=setup` in `care_fe`, because that restores the database.
+
+Since the database is not being reset, generate any data you create with `faker` so a re-run does not collide with what is already there.
+
+## What to record
+**Context: the encounter Notes tab** — the primary path. Read the flow doc first. **Every `test.step()` title MUST be the exact step heading text from that doc.**
+
+Journey:
+1. Open an encounter from the fixture data and go to its **Notes** tab.
+2. Select **New** above the discussion list to open the **Start New Discussion** dialog.
+3. Select a suggested title chip — use **Treatment Plan** if it is still offered. Care removes a suggestion once a discussion already uses that title, so if **Treatment Plan** is gone (likely, since the database is not clean), pick another suggestion that is still shown, or type a unique custom title with `faker`. Handle this gracefully rather than failing.
+4. Select **Create**.
+5. Hold on the result: the new discussion is open and the message composer is ready.
+
+Use fixture IDs from `care_fe/tests/support/*Id.ts`. Keep the recording under 30 seconds. Keep assertions to the minimum needed to let the UI settle — a spec that fails mid-way produces a useless video.
+
+## Output paths — use the index-based readable convention
+The user has confirmed this convention. The existing snake_case Encounter recordings will be migrated in a later phase; leave them alone.
+- Spec: `care_docs/recordings/Clinical/Clinical Notes/1. Start a discussion.demo.ts`
+- Video: `care_docs/Clinical/Clinical Notes/media/1. Start a discussion.mp4`
+- Poster: `care_docs/Clinical/Clinical Notes/media/1. Start a discussion.png`
+
+`care_docs/recordings/Clinical/Encounter/create_an_encounter.demo.ts` is a good structural reference for the spec body, but do not copy its file naming.
+
+Pointer rules: `installCursor(page)` before `page.goto`, `new Pointer(page)`, `pointer.click(locator)` rather than `locator.click()`, `pointer.reset()` once after the first load.
+
+## Embedding
+Add the video to the flow doc directly under the `## Overview` section. This is the first test of GitHub rendering, so add **both** forms so the user can compare:
+- `<video src="https://github.com/ohcnetwork/care_docs/raw/<current-branch>/<path>.mp4" controls></video>`
+- the poster fallback `[![Watch the demo](../media/1.%20Start%20a%20discussion.png)](../media/1.%20Start%20a%20discussion.mp4)`
+
+Keep the MP4 and PNG. Do NOT keep or commit the raw `.webm`.
+
+## Report back
+- Safety gate result and the API URL found.
+- Whether port 4000 was up; if not, stop there and say so.
+- Which discussion title you ended up using and why.
+- Video duration and file size.
+- Exact paths written.
+
+---
+
+the preview server is runing now, go ahead.
+
+---
+
+the preview server is runing now, go ahead.
+
+---
+
+Record a demo video for ONE flow doc: `/Users/rithviknishad/ohc.network/care_docs/Clinical/Clinical Notes/flows/1. Start a discussion.md`
+
+This is a **pilot recording** — record only this one flow. The user has now started the preview server on port 4000, so the earlier blocker is cleared.
+
+Follow `care_docs/.github/skills/care-docs-generation/references/flow-recording.md` exactly.
+
+## Safety gate — re-verify before anything else
+`care_fe/.env.local` must set `REACT_CARE_API_URL` to a **localhost** address. If it is not, **STOP**, record nothing, and report. Do not edit it yourself.
+
+## Stack
+- Backend on port 9000 — re-check.
+- Frontend preview on `http://localhost:4000` — the user says it is now running. Re-check and confirm.
+- **Database: record against the database as it stands. Do NOT run `playwright:db-restore`, `playwright:db-reset`, `--project=setup`, or any fixture reload.** Nothing may wipe or reload the local database.
+- Auth: `care_docs` globalSetup rotates the access token via the stored refresh token.
+
+Because the database is not clean, generate anything you create with `faker` so a re-run does not collide with existing data.
+
+## What to record
+**Context: the encounter Notes tab.** Read the flow doc first. **Every `test.step()` title MUST be the exact step heading text from that doc**, so the caption and the written steps stay aligned.
+
+Journey:
+1. Open an encounter from the fixture data and go to its **Notes** tab.
+2. Select **New** above the discussion list to open the **Start New Discussion** dialog.
+3. Select a suggested title chip — prefer **Treatment Plan**. Care removes a suggestion once a discussion in that list already uses the title, so if **Treatment Plan** is not offered, pick another suggestion that is still shown, or type a unique custom title with `faker`. Handle this gracefully instead of failing.
+4. Select **Create**.
+5. Hold on the result: the new discussion is open and the message composer is ready.
+
+Use fixture IDs from `care_fe/tests/support/*Id.ts`. Keep the recording under 30 seconds. Keep assertions to the minimum needed to let the UI settle — a spec that fails mid-way produces a useless video.
+
+**Note:** `src/components/Notes/NoteManager.tsx` was edited a moment ago (the mobile sheet title now reads "All Discussions"). If the preview build predates that change, it does not affect this desktop recording, but mention in your report whether the build looked current.
+
+## Output paths — index-based readable convention, confirmed by the user
+- Spec: `care_docs/recordings/Clinical/Clinical Notes/1. Start a discussion.demo.ts`
+- Video: `care_docs/Clinical/Clinical Notes/media/1. Start a discussion.mp4`
+- Poster: `care_docs/Clinical/Clinical Notes/media/1. Start a discussion.png`
+
+`care_docs/recordings/Clinical/Encounter/create_an_encounter.demo.ts` is a structural reference for the spec body only — do not copy its snake_case naming. Leave the existing Encounter recordings alone; they are migrated in a later phase.
+
+Pointer rules: `installCursor(page)` before `page.goto`, `new Pointer(page)`, `pointer.click(locator)` rather than `locator.click()`, `pointer.reset()` once after the first load. Do not set `slowMo`. Do not enable the `video.show` annotation options.
+
+## Embedding
+Add the video to the flow doc directly under the `## Overview` section. This is the first test of GitHub rendering, so add **both** forms so the user can compare:
+- `<video src="https://github.com/ohcnetwork/care_docs/raw/<current-branch>/<path>.mp4" controls></video>`
+- the poster fallback `[![Watch the demo](../media/1.%20Start%20a%20discussion.png)](../media/1.%20Start%20a%20discussion.mp4)`
+
+Keep the MP4 and the PNG. Delete the raw `.webm` intermediate.
+
+## Report back
+- Safety gate result and the API URL found.
+- Which discussion title you used and why.
+- Video duration and file size.
+- Exact paths written.
+- Anything that looked wrong in the captured footage.
+
+---
+
+Record a demo video for ONE flow doc: `/Users/rithviknishad/ohc.network/care_docs/Clinical/Clinical Notes/flows/1. Start a discussion.md`
+
+This is a **pilot recording** — record only this one flow. The user has now started the preview server on port 4000, so the earlier blocker is cleared.
+
+Follow `care_docs/.github/skills/care-docs-generation/references/flow-recording.md` exactly.
+
+## Safety gate — re-verify before anything else
+`care_fe/.env.local` must set `REACT_CARE_API_URL` to a **localhost** address. If it is not, **STOP**, record nothing, and report. Do not edit it yourself.
+
+## Stack
+- Backend on port 9000 — re-check.
+- Frontend preview on `http://localhost:4000` — the user says it is now running. Re-check and confirm.
+- **Database: record against the database as it stands. Do NOT run `playwright:db-restore`, `playwright:db-reset`, `--project=setup`, or any fixture reload.** Nothing may wipe or reload the local database.
+- Auth: `care_docs` globalSetup rotates the access token via the stored refresh token.
+
+Because the database is not clean, generate anything you create with `faker` so a re-run does not collide with existing data.
+
+## What to record
+**Context: the encounter Notes tab.** Read the flow doc first. **Every `test.step()` title MUST be the exact step heading text from that doc**, so the caption and the written steps stay aligned.
+
+Journey:
+1. Open an encounter from the fixture data and go to its **Notes** tab.
+2. Select **New** above the discussion list to open the **Start New Discussion** dialog.
+3. Select a suggested title chip — prefer **Treatment Plan**. Care removes a suggestion once a discussion in that list already uses the title, so if **Treatment Plan** is not offered, pick another suggestion that is still shown, or type a unique custom title with `faker`. Handle this gracefully instead of failing.
+4. Select **Create**.
+5. Hold on the result: the new discussion is open and the message composer is ready.
+
+Use fixture IDs from `care_fe/tests/support/*Id.ts`. Keep the recording under 30 seconds. Keep assertions to the minimum needed to let the UI settle — a spec that fails mid-way produces a useless video.
+
+**Note:** `src/components/Notes/NoteManager.tsx` was edited a moment ago (the mobile sheet title now reads "All Discussions"). If the preview build predates that change, it does not affect this desktop recording, but mention in your report whether the build looked current.
+
+## Output paths — index-based readable convention, confirmed by the user
+- Spec: `care_docs/recordings/Clinical/Clinical Notes/1. Start a discussion.demo.ts`
+- Video: `care_docs/Clinical/Clinical Notes/media/1. Start a discussion.mp4`
+- Poster: `care_docs/Clinical/Clinical Notes/media/1. Start a discussion.png`
+
+`care_docs/recordings/Clinical/Encounter/create_an_encounter.demo.ts` is a structural reference for the spec body only — do not copy its snake_case naming. Leave the existing Encounter recordings alone; they are migrated in a later phase.
+
+Pointer rules: `installCursor(page)` before `page.goto`, `new Pointer(page)`, `pointer.click(locator)` rather than `locator.click()`, `pointer.reset()` once after the first load. Do not set `slowMo`. Do not enable the `video.show` annotation options.
+
+## Embedding
+Add the video to the flow doc directly under the `## Overview` section. This is the first test of GitHub rendering, so add **both** forms so the user can compare:
+- `<video src="https://github.com/ohcnetwork/care_docs/raw/<current-branch>/<path>.mp4" controls></video>`
+- the poster fallback `[![Watch the demo](../media/1.%20Start%20a%20discussion.png)](../media/1.%20Start%20a%20discussion.mp4)`
+
+Keep the MP4 and the PNG. Delete the raw `.webm` intermediate.
+
+## Report back
+- Safety gate result and the API URL found.
+- Which discussion title you used and why.
+- Video duration and file size.
+- Exact paths written.
+- Anything that looked wrong in the captured footage.
+
+---
+
+yes, it does render fine! 
+use relative paths to render the video to ../media/... just like how it's in @file:create_an_encounter.md 
+
+also generate a small concise prompt i can give for to another agent to that i can avoid the confusion later on about this using relative thing.
+
+---
+
+yes, it does render fine! 
+use relative paths to render the video to ../media/... just like how it's in @file:create_an_encounter.md 
+
+also generate a small concise prompt i can give for to another agent to that i can avoid the confusion later on about this using relative thing.
+
+---
+
+Record demo videos for TWO flow docs in the Clinical Notes module, in a SINGLE Playwright pass. Do not spawn separate runs against the app.
+
+1. `/Users/rithviknishad/ohc.network/care_docs/Clinical/Clinical Notes/flows/2. Post a message to a discussion.md`
+2. `/Users/rithviknishad/ohc.network/care_docs/Clinical/Clinical Notes/flows/3. Find discussions for a patient or an encounter.md`
+
+The pilot for flow 1 succeeded, so the setup is proven. Reuse it: `care_docs/recordings/Clinical/Clinical Notes/1. Start a discussion.demo.ts` and the helpers you added to `care_docs/recordings/support/care.ts` (`getEncounterId`, `getEncounterNotesUrl`).
+
+Follow `care_docs/.github/skills/care-docs-generation/references/flow-recording.md`.
+
+## Safety gate
+Re-verify `care_fe/.env.local` sets `REACT_CARE_API_URL` to a localhost address. If not, STOP and report. Backend is on 9000 and the preview server is on 4000, both confirmed up.
+
+## Database
+**Record against the database as it stands. Do NOT run `playwright:db-restore`, `playwright:db-reset`, `--project=setup`, or any fixture reload.** The pilot already created a "Treatment Plan" discussion in the fixture encounter — use that to your advantage rather than fighting it. Generate any new data with `faker` so re-runs do not collide.
+
+## EMBED CONVENTION — this changed since the pilot, read carefully
+The user confirmed that **relative paths render on github.com**. Use the house style from `care_docs/Clinical/Encounter/flows/create_an_encounter.md`. Place this directly under `## Overview` in each flow doc:
+
+```html
+<video src="../media/<file>.mp4" poster="../media/<file>.png" controls width="720"></video>
+
+[Watch the demo](../media/<file>.mp4) — <one short phrase describing what the clip shows>.
+```
+
+- Encode every space in a path as `%20`, since these filenames contain spaces.
+- Do NOT use an absolute `https://github.com/...` URL.
+- Do NOT add the `[![Watch the demo](...png)](...mp4)` poster-link fallback. The `poster` attribute covers it.
+
+## What to record
+
+**Flow 2 — Post a message to a discussion.** Open the fixture encounter's **Notes** tab, select the existing "Treatment Plan" discussion, type a short realistic clinical message into the box with the placeholder "Type your message...", and send it. Hold on the posted message. Keep the message text generic and clinical — this is baked into the video permanently, so use nothing that resembles real patient information.
+
+**Flow 3 — Find discussions for a patient or an encounter.** This flow is about the two separate lists. Show the encounter Notes tab and its discussion list, then navigate to the patient profile Notes tab and show that list, making the separation visible. If the patient profile has no patient-level discussion yet, the "No discussions yet" empty state is itself a good illustration of the separation — record it as it is rather than creating data to fill it.
+
+For both: **every `test.step()` title MUST be the exact step heading text from the matching flow doc.** Read each doc first and take the headings from it. Keep each recording under 30 seconds, and keep assertions to the minimum needed to let the UI settle.
+
+## Output paths
+- Specs: `care_docs/recordings/Clinical/Clinical Notes/2. Post a message to a discussion.demo.ts` and `.../3. Find discussions for a patient or an encounter.demo.ts`
+- Videos: `care_docs/Clinical/Clinical Notes/media/2. Post a message to a discussion.mp4` and `.../3. Find discussions for a patient or an encounter.mp4`
+- Posters: the matching `.png` files in the same folder
+
+Pointer rules as before: `installCursor(page)` before `page.goto`, `new Pointer(page)`, `pointer.click(locator)` rather than `locator.click()`, `pointer.reset()` once after the first load. No `slowMo`, no `video.show` annotations. Delete the raw `.webm` intermediates after conversion.
+
+## Report back
+- Safety gate result.
+- Duration and file size of each video.
+- Exact paths written.
+- Anything in the captured footage that contradicts what the flow docs say — that is a signal the docs need correcting.
+
+---
+
+Record demo videos for TWO flow docs in the Clinical Notes module, in a SINGLE Playwright pass. Do not spawn separate runs against the app.
+
+1. `/Users/rithviknishad/ohc.network/care_docs/Clinical/Clinical Notes/flows/2. Post a message to a discussion.md`
+2. `/Users/rithviknishad/ohc.network/care_docs/Clinical/Clinical Notes/flows/3. Find discussions for a patient or an encounter.md`
+
+The pilot for flow 1 succeeded, so the setup is proven. Reuse it: `care_docs/recordings/Clinical/Clinical Notes/1. Start a discussion.demo.ts` and the helpers you added to `care_docs/recordings/support/care.ts` (`getEncounterId`, `getEncounterNotesUrl`).
+
+Follow `care_docs/.github/skills/care-docs-generation/references/flow-recording.md`.
+
+## Safety gate
+Re-verify `care_fe/.env.local` sets `REACT_CARE_API_URL` to a localhost address. If not, STOP and report. Backend is on 9000 and the preview server is on 4000, both confirmed up.
+
+## Database
+**Record against the database as it stands. Do NOT run `playwright:db-restore`, `playwright:db-reset`, `--project=setup`, or any fixture reload.** The pilot already created a "Treatment Plan" discussion in the fixture encounter — use that to your advantage rather than fighting it. Generate any new data with `faker` so re-runs do not collide.
+
+## EMBED CONVENTION — this changed since the pilot, read carefully
+The user confirmed that **relative paths render on github.com**. Use the house style from `care_docs/Clinical/Encounter/flows/create_an_encounter.md`. Place this directly under `## Overview` in each flow doc:
+
+```html
+<video src="../media/<file>.mp4" poster="../media/<file>.png" controls width="720"></video>
+
+[Watch the demo](../media/<file>.mp4) — <one short phrase describing what the clip shows>.
+```
+
+- Encode every space in a path as `%20`, since these filenames contain spaces.
+- Do NOT use an absolute `https://github.com/...` URL.
+- Do NOT add the `[![Watch the demo](...png)](...mp4)` poster-link fallback. The `poster` attribute covers it.
+
+## What to record
+
+**Flow 2 — Post a message to a discussion.** Open the fixture encounter's **Notes** tab, select the existing "Treatment Plan" discussion, type a short realistic clinical message into the box with the placeholder "Type your message...", and send it. Hold on the posted message. Keep the message text generic and clinical — this is baked into the video permanently, so use nothing that resembles real patient information.
+
+**Flow 3 — Find discussions for a patient or an encounter.** This flow is about the two separate lists. Show the encounter Notes tab and its discussion list, then navigate to the patient profile Notes tab and show that list, making the separation visible. If the patient profile has no patient-level discussion yet, the "No discussions yet" empty state is itself a good illustration of the separation — record it as it is rather than creating data to fill it.
+
+For both: **every `test.step()` title MUST be the exact step heading text from the matching flow doc.** Read each doc first and take the headings from it. Keep each recording under 30 seconds, and keep assertions to the minimum needed to let the UI settle.
+
+## Output paths
+- Specs: `care_docs/recordings/Clinical/Clinical Notes/2. Post a message to a discussion.demo.ts` and `.../3. Find discussions for a patient or an encounter.demo.ts`
+- Videos: `care_docs/Clinical/Clinical Notes/media/2. Post a message to a discussion.mp4` and `.../3. Find discussions for a patient or an encounter.mp4`
+- Posters: the matching `.png` files in the same folder
+
+Pointer rules as before: `installCursor(page)` before `page.goto`, `new Pointer(page)`, `pointer.click(locator)` rather than `locator.click()`, `pointer.reset()` once after the first load. No `slowMo`, no `video.show` annotations. Delete the raw `.webm` intermediates after conversion.
+
+## Report back
+- Safety gate result.
+- Duration and file size of each video.
+- Exact paths written.
+- Anything in the captured footage that contradicts what the flow docs say — that is a signal the docs need correcting.
+
+---
+
+Make ONE targeted correction in `/Users/rithviknishad/ohc.network/care_docs/Clinical/Clinical Notes/flows/1. Start a discussion.md`. Do not review or change anything else in the file or the folder — the module already passed a full review.
+
+**The problem.** The video embed currently uses an absolute `https://github.com/ohcnetwork/care_docs/raw/<branch>/...` URL plus a separate poster-image fallback link. The user has confirmed that **relative paths render fine on github.com**, and wants the established house style used instead.
+
+**The house style** — copy the shape of `care_docs/Clinical/Encounter/flows/create_an_encounter.md`, which reads:
+
+```html
+<video src="../media/create_an_encounter.mp4" poster="../media/create_an_encounter.png" controls width="720"></video>
+
+[Watch the demo](../media/create_an_encounter.mp4) — creating an encounter from the patient home page.
+```
+
+**What to write** in `1. Start a discussion.md`, directly under the `## Overview` section, replacing whatever embed markup is there now:
+
+```html
+<video src="../media/1.%20Start%20a%20discussion.mp4" poster="../media/1.%20Start%20a%20discussion.png" controls width="720"></video>
+
+[Watch the demo](../media/1.%20Start%20a%20discussion.mp4) — starting a discussion from the encounter Notes tab.
+```
+
+Note the difference from the Encounter example: this filename contains spaces, so encode each space as `%20` in every path, in both the `<video>` attributes and the markdown link.
+
+**Remove entirely:**
+- the absolute `https://github.com/...` URL,
+- the separate poster-image-as-a-link fallback line `[![Watch the demo](...png)](...mp4)`. It is redundant now that the `poster` attribute carries the image.
+
+Verify that `../media/1. Start a discussion.mp4` and `../media/1. Start a discussion.png` both exist on disk relative to the flow doc.
+
+Report what you changed.
