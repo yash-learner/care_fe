@@ -1,0 +1,187 @@
+Clinical / Medication Request
+
+---
+
+Clinical / Medication Request
+
+---
+
+yes, and confirm with me
+
+---
+
+yes, and confirm with me
+
+---
+
+You are researching the CARE backend (repo root: ~/ohc.network/care) to build a verified dossier for the "Medication Request" module (Parent: Clinical) for user-facing documentation.
+
+First read the codebase navigation guide for pre-verified paths/grep patterns:
+/Users/rithviknishad/ohc.network/care_docs/.github/skills/care-docs-generation/references/codebase-navigation.md
+
+Also skim the doc-rules for what facts are required:
+/Users/rithviknishad/ohc.network/care_docs/.github/skills/care-docs-generation/references/doc-rules.md
+
+Your job is READ-ONLY research. Do not write or edit any files. Focus entirely on the backend repo at ~/ohc.network/care.
+
+Investigate "Medication Request" (a FHIR MedicationRequest-aligned resource in CARE — prescribing/ordering medications for a patient, as distinct from "Medication Administration" / MedicationStatement). Likely locations:
+- care/emr/models/medication_request.py (or similar under care/emr/models/)
+- care/emr/resources/medication_request/spec.py and constants.py
+- care/emr/api/viewsets/medication_request.py
+- care/security/permissions/medication_request.py (or similarly named)
+- care/security/authorization/medication_request.py
+
+Search broadly first (grep -rn "MedicationRequest" care/ and grep -rn "medication_request" care/) to confirm actual file names/paths, since they may differ slightly.
+
+Report back a structured dossier covering:
+
+1. **Model & Resource Spec**: Full list of fields on MedicationRequest (e.g., status, intent, category, priority, medication (code/display), dosage instructions - route, method, site, dose, frequency, duration, PRN, additional instructions, as-needed condition), which are required vs optional, related resource links (encounter, patient, requester/practitioner, encounter).
+2. **Enums/Choice fields**: every enum (status, intent, priority, category, dosage route/method/site/frequency codes, etc.) with their raw values found in constants.py/spec.py. List all possible values verbatim.
+3. **FHIR alignment**: confirm alignment with FHIR R5 MedicationRequest resource (https://build.fhir.org/medicationrequest.html) — which FHIR fields map to which CARE fields, note any CARE-specific extensions or omissions.
+4. **API endpoints**: routes registered in config/api_router.py for medication request (list/create/update/retrieve, and any special actions like discontinue/cancel/hold, and administration-related endpoints if closely coupled).
+5. **Authorization flow**: For each action (create, list, retrieve, update, discontinue/cancel, etc.) trace the authorize_* hook in the viewset → AuthorizationController.call → can_<action> handler in care/security/authorization/ → permission definition in care/security/permissions/ (human-readable display name, PermissionContext, and which roles hold it — Doctor, Nurse, Staff, Pharmacist, etc.)
+6. **Config flags**: any settings in config/settings/config.py or elsewhere that affect medication request behavior (e.g., limits, defaults).
+7. **Related/adjacent resources**: how Medication Request relates to Medication Administration, Medication Statement, and any "Medication" catalog/product resource (product code lookups, valuesets e.g. SNOMED/RxNorm) — note file paths.
+8. **Suspected flows**: based on the API and model, list the discrete user-meaningful actions/flows this module supports from a clinician's perspective (e.g., prescribe/create a medication request, edit/update dosage, discontinue/stop a request, mark as on-hold, view medication request list/history). Just report what you find — do NOT finalize the flow list, that happens after merging with frontend research.
+9. **Ambiguities / unverified details**: anything unclear, inconsistent, or that requires user confirmation.
+10. **Suspected code issues**: any bugs, inconsistencies, dead code, or naming oddities you notice while reading (file path + description). Do not fix them.
+
+Return your findings as a single structured markdown dossier in your final message. Be exhaustive and precise — quote exact enum values, field names, and permission display names verbatim from the code.
+
+---
+
+You are researching the CARE frontend (repo root: ~/ohc.network/care_fe) to build a verified dossier for the "Medication Request" module (Parent: Clinical) for user-facing documentation.
+
+First read the codebase navigation guide for pre-verified paths/grep patterns:
+/Users/rithviknishad/ohc.network/care_docs/.github/skills/care-docs-generation/references/codebase-navigation.md
+
+Also skim the doc-rules for what facts are required:
+/Users/rithviknishad/ohc.network/care_docs/.github/skills/care-docs-generation/references/doc-rules.md
+
+Your job is READ-ONLY research. Do not write or edit any files. Focus entirely on the frontend repo at ~/ohc.network/care_fe.
+
+Investigate "Medication Request" (prescribing/ordering medications for a patient during an encounter — distinct from "Medication Administration" which records actually giving a dose). Likely locations (confirm actual paths via search first — grep -rn "MedicationRequest\|medication_request\|MedicationRequestApi" src/):
+- src/types/emr/medicationRequest/ (types + Api file)
+- src/components/Medicine/ or src/components/MedicationRequest/ or similar — forms, list views, cards
+- src/pages/ routes related to medications
+- src/Routers/routes/*Routes.tsx for medication-related routes
+- care.config.ts for any medication-related config flags
+
+Report back a structured dossier covering:
+
+1. **UI flows discovered**: Walk through the actual UI code to identify every discrete user-facing flow for Medication Request — e.g., prescribing a new medication (create), editing dosage/instructions, discontinuing/stopping a medication, marking on-hold/resuming, viewing the medication list/history, printing/exporting a prescription, administering from a request (if tightly coupled — note whether administration is a separate module). For each flow, note the route path, nav label the user sees, and the component file.
+2. **Form fields**: For the create/prescribe form and edit form, list every field, whether required/optional, field type (select/text/date/etc.), and default values. Include dosage-related sub-fields (route, frequency, dose quantity, duration, PRN condition, additional instructions, method, site).
+3. **i18n display labels**: For every enum/status/category value used in the UI (status: active/on-hold/cancelled/completed/entered-in-error/stopped/draft/unknown; intent; priority; category; route; frequency codes; etc.), find and quote the exact display label from public/locale/en.json using the `{PREFIX}__{value}` pattern. List every prefix/value pair found.
+4. **Routes**: exact route paths from src/Routers/routes/*.tsx that lead to medication request pages, and how a user navigates there (sidebar nav label, tab name, or button).
+5. **Frontend permission gating**: usages of useHasPermission or permission checks around medication request actions (create, edit, discontinue) — quote the permission slug used, cross-reference with src/context/PermissionContext.tsx usage pattern.
+6. **Keyboard shortcuts**: check src/config/keyboardShortcuts.json for anything relevant to medication request forms (e.g., generic submit-action shortcut `Shift+Enter`, or any medication-specific shortcuts).
+7. **care.config.ts flags**: any config flags affecting medication request UI behavior (defaults, feature toggles).
+8. **API calls**: which typed API routes (from src/types/.../*.Api.ts) each UI action calls (create, update, list, retrieve, and any custom actions like discontinue).
+9. **Ambiguities / unverified details**: anything unclear or needing user confirmation (e.g., is there a separate "Medication Administration" UI, is printing/PDF export supported, is there a distinct "hold" action vs "discontinue").
+10. **Suspected code issues**: any bugs, inconsistent labels, dead code, or naming oddities noticed while reading (file path + description). Do not fix them.
+
+Return your findings as a single structured markdown dossier in your final message. Be exhaustive and precise — quote exact i18n keys/labels, field names, and route paths verbatim from the code.
+
+---
+
+You are researching the CARE backend (repo root: ~/ohc.network/care) to build a verified dossier for the "Medication Request" module (Parent: Clinical) for user-facing documentation.
+
+First read the codebase navigation guide for pre-verified paths/grep patterns:
+/Users/rithviknishad/ohc.network/care_docs/.github/skills/care-docs-generation/references/codebase-navigation.md
+
+Also skim the doc-rules for what facts are required:
+/Users/rithviknishad/ohc.network/care_docs/.github/skills/care-docs-generation/references/doc-rules.md
+
+Your job is READ-ONLY research. Do not write or edit any files. Focus entirely on the backend repo at ~/ohc.network/care.
+
+Investigate "Medication Request" (a FHIR MedicationRequest-aligned resource in CARE — prescribing/ordering medications for a patient, as distinct from "Medication Administration" / MedicationStatement). Likely locations:
+- care/emr/models/medication_request.py (or similar under care/emr/models/)
+- care/emr/resources/medication_request/spec.py and constants.py
+- care/emr/api/viewsets/medication_request.py
+- care/security/permissions/medication_request.py (or similarly named)
+- care/security/authorization/medication_request.py
+
+Search broadly first (grep -rn "MedicationRequest" care/ and grep -rn "medication_request" care/) to confirm actual file names/paths, since they may differ slightly.
+
+Report back a structured dossier covering:
+
+1. **Model & Resource Spec**: Full list of fields on MedicationRequest (e.g., status, intent, category, priority, medication (code/display), dosage instructions - route, method, site, dose, frequency, duration, PRN, additional instructions, as-needed condition), which are required vs optional, related resource links (encounter, patient, requester/practitioner, encounter).
+2. **Enums/Choice fields**: every enum (status, intent, priority, category, dosage route/method/site/frequency codes, etc.) with their raw values found in constants.py/spec.py. List all possible values verbatim.
+3. **FHIR alignment**: confirm alignment with FHIR R5 MedicationRequest resource (https://build.fhir.org/medicationrequest.html) — which FHIR fields map to which CARE fields, note any CARE-specific extensions or omissions.
+4. **API endpoints**: routes registered in config/api_router.py for medication request (list/create/update/retrieve, and any special actions like discontinue/cancel/hold, and administration-related endpoints if closely coupled).
+5. **Authorization flow**: For each action (create, list, retrieve, update, discontinue/cancel, etc.) trace the authorize_* hook in the viewset → AuthorizationController.call → can_<action> handler in care/security/authorization/ → permission definition in care/security/permissions/ (human-readable display name, PermissionContext, and which roles hold it — Doctor, Nurse, Staff, Pharmacist, etc.)
+6. **Config flags**: any settings in config/settings/config.py or elsewhere that affect medication request behavior (e.g., limits, defaults).
+7. **Related/adjacent resources**: how Medication Request relates to Medication Administration, Medication Statement, and any "Medication" catalog/product resource (product code lookups, valuesets e.g. SNOMED/RxNorm) — note file paths.
+8. **Suspected flows**: based on the API and model, list the discrete user-meaningful actions/flows this module supports from a clinician's perspective (e.g., prescribe/create a medication request, edit/update dosage, discontinue/stop a request, mark as on-hold, view medication request list/history). Just report what you find — do NOT finalize the flow list, that happens after merging with frontend research.
+9. **Ambiguities / unverified details**: anything unclear, inconsistent, or that requires user confirmation.
+10. **Suspected code issues**: any bugs, inconsistencies, dead code, or naming oddities you notice while reading (file path + description). Do not fix them.
+
+Return your findings as a single structured markdown dossier in your final message. Be exhaustive and precise — quote exact enum values, field names, and permission display names verbatim from the code.
+
+---
+
+You are researching the CARE frontend (repo root: ~/ohc.network/care_fe) to build a verified dossier for the "Medication Request" module (Parent: Clinical) for user-facing documentation.
+
+First read the codebase navigation guide for pre-verified paths/grep patterns:
+/Users/rithviknishad/ohc.network/care_docs/.github/skills/care-docs-generation/references/codebase-navigation.md
+
+Also skim the doc-rules for what facts are required:
+/Users/rithviknishad/ohc.network/care_docs/.github/skills/care-docs-generation/references/doc-rules.md
+
+Your job is READ-ONLY research. Do not write or edit any files. Focus entirely on the frontend repo at ~/ohc.network/care_fe.
+
+Investigate "Medication Request" (prescribing/ordering medications for a patient during an encounter — distinct from "Medication Administration" which records actually giving a dose). Likely locations (confirm actual paths via search first — grep -rn "MedicationRequest\|medication_request\|MedicationRequestApi" src/):
+- src/types/emr/medicationRequest/ (types + Api file)
+- src/components/Medicine/ or src/components/MedicationRequest/ or similar — forms, list views, cards
+- src/pages/ routes related to medications
+- src/Routers/routes/*Routes.tsx for medication-related routes
+- care.config.ts for any medication-related config flags
+
+Report back a structured dossier covering:
+
+1. **UI flows discovered**: Walk through the actual UI code to identify every discrete user-facing flow for Medication Request — e.g., prescribing a new medication (create), editing dosage/instructions, discontinuing/stopping a medication, marking on-hold/resuming, viewing the medication list/history, printing/exporting a prescription, administering from a request (if tightly coupled — note whether administration is a separate module). For each flow, note the route path, nav label the user sees, and the component file.
+2. **Form fields**: For the create/prescribe form and edit form, list every field, whether required/optional, field type (select/text/date/etc.), and default values. Include dosage-related sub-fields (route, frequency, dose quantity, duration, PRN condition, additional instructions, method, site).
+3. **i18n display labels**: For every enum/status/category value used in the UI (status: active/on-hold/cancelled/completed/entered-in-error/stopped/draft/unknown; intent; priority; category; route; frequency codes; etc.), find and quote the exact display label from public/locale/en.json using the `{PREFIX}__{value}` pattern. List every prefix/value pair found.
+4. **Routes**: exact route paths from src/Routers/routes/*.tsx that lead to medication request pages, and how a user navigates there (sidebar nav label, tab name, or button).
+5. **Frontend permission gating**: usages of useHasPermission or permission checks around medication request actions (create, edit, discontinue) — quote the permission slug used, cross-reference with src/context/PermissionContext.tsx usage pattern.
+6. **Keyboard shortcuts**: check src/config/keyboardShortcuts.json for anything relevant to medication request forms (e.g., generic submit-action shortcut `Shift+Enter`, or any medication-specific shortcuts).
+7. **care.config.ts flags**: any config flags affecting medication request UI behavior (defaults, feature toggles).
+8. **API calls**: which typed API routes (from src/types/.../*.Api.ts) each UI action calls (create, update, list, retrieve, and any custom actions like discontinue).
+9. **Ambiguities / unverified details**: anything unclear or needing user confirmation (e.g., is there a separate "Medication Administration" UI, is printing/PDF export supported, is there a distinct "hold" action vs "discontinue").
+10. **Suspected code issues**: any bugs, inconsistent labels, dead code, or naming oddities noticed while reading (file path + description). Do not fix them.
+
+Return your findings as a single structured markdown dossier in your final message. Be exhaustive and precise — quote exact i18n keys/labels, field names, and route paths verbatim from the code.
+
+---
+
+You are researching the CARE frontend (repo root: ~/ohc.network/care_fe) to build a verified dossier for the "Medication Request" module (Parent: Clinical) for user-facing documentation.
+
+First read the codebase navigation guide for pre-verified paths/grep patterns:
+/Users/rithviknishad/ohc.network/care_docs/.github/skills/care-docs-generation/references/codebase-navigation.md
+
+Also skim the doc-rules for what facts are required:
+/Users/rithviknishad/ohc.network/care_docs/.github/skills/care-docs-generation/references/doc-rules.md
+
+Your job is READ-ONLY research. Do not write or edit any files. Focus entirely on the frontend repo at ~/ohc.network/care_fe.
+
+Investigate "Medication Request" (prescribing/ordering medications for a patient during an encounter — distinct from "Medication Administration" which records actually giving a dose). Likely locations (confirm actual paths via search first — grep -rn "MedicationRequest\|medication_request\|MedicationRequestApi" src/):
+- src/types/emr/medicationRequest/ (types + Api file)
+- src/components/Medicine/ or src/components/MedicationRequest/ or similar — forms, list views, cards
+- src/pages/ routes related to medications
+- src/Routers/routes/*Routes.tsx for medication-related routes
+- care.config.ts for any medication-related config flags
+
+Report back a structured dossier covering:
+
+1. **UI flows discovered**: Walk through the actual UI code to identify every discrete user-facing flow for Medication Request — e.g., prescribing a new medication (create), editing dosage/instructions, discontinuing/stopping a medication, marking on-hold/resuming, viewing the medication list/history, printing/exporting a prescription, administering from a request (if tightly coupled — note whether administration is a separate module). For each flow, note the route path, nav label the user sees, and the component file.
+2. **Form fields**: For the create/prescribe form and edit form, list every field, whether required/optional, field type (select/text/date/etc.), and default values. Include dosage-related sub-fields (route, frequency, dose quantity, duration, PRN condition, additional instructions, method, site).
+3. **i18n display labels**: For every enum/status/category value used in the UI (status: active/on-hold/cancelled/completed/entered-in-error/stopped/draft/unknown; intent; priority; category; route; frequency codes; etc.), find and quote the exact display label from public/locale/en.json using the `{PREFIX}__{value}` pattern. List every prefix/value pair found.
+4. **Routes**: exact route paths from src/Routers/routes/*.tsx that lead to medication request pages, and how a user navigates there (sidebar nav label, tab name, or button).
+5. **Frontend permission gating**: usages of useHasPermission or permission checks around medication request actions (create, edit, discontinue) — quote the permission slug used, cross-reference with src/context/PermissionContext.tsx usage pattern.
+6. **Keyboard shortcuts**: check src/config/keyboardShortcuts.json for anything relevant to medication request forms (e.g., generic submit-action shortcut `Shift+Enter`, or any medication-specific shortcuts).
+7. **care.config.ts flags**: any config flags affecting medication request UI behavior (defaults, feature toggles).
+8. **API calls**: which typed API routes (from src/types/.../*.Api.ts) each UI action calls (create, update, list, retrieve, and any custom actions like discontinue).
+9. **Ambiguities / unverified details**: anything unclear or needing user confirmation (e.g., is there a separate "Medication Administration" UI, is printing/PDF export supported, is there a distinct "hold" action vs "discontinue").
+10. **Suspected code issues**: any bugs, inconsistent labels, dead code, or naming oddities noticed while reading (file path + description). Do not fix them.
+
+Return your findings as a single structured markdown dossier in your final message. Be exhaustive and precise — quote exact i18n keys/labels, field names, and route paths verbatim from the code.
