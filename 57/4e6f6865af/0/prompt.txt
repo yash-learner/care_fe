@@ -1,0 +1,13 @@
+Request is  failing since FE sends 101 items, but BE limit is 100. Yet the mark as completed button for the order is enabled, which shouldn't be. Fix the button and add option to set env REACT_MAX_DATAPOINTS_PER_UPSERT for batch limit in FE
+
+---
+
+afteri click recieve and update stock i got the too many datapoints provided error, but the problem is all the items becom unselected so that i can't make the mark as complete button as disable for this condition , how to disable the mark as complete button for too many datapoints provided condition
+
+---
+
+no it is not about the in_progress state in that state users can unselect the item so it is about the selecting the item for recieve and update stock, like selected state donot neex to unselect after failure of api call
+
+---
+
+add the env in exampl.env file , @file:validate-env.ts

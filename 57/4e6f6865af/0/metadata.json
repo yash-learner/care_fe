@@ -1,0 +1,488 @@
+{
+  "cli_version": "0.9.0",
+  "checkpoint_id": "574e6f6865af",
+  "session_id": "24e6ef8c-eef2-4d9a-8d1c-b3196711794c",
+  "strategy": "manual-commit",
+  "created_at": "2026-08-10T12:35:27.426346Z",
+  "branch": "ENG-887-fix-internal-delivery-batch-failing",
+  "checkpoints_count": 43,
+  "save_step_count": 43,
+  "files_touched": [
+    ".example.env",
+    "care.config.ts",
+    "scripts/validate-env.ts",
+    "src/pages/Facility/services/inventory/externalSupply/deliveryOrder/DeliveryOrderShow.tsx",
+    "src/vite-env.d.ts"
+  ],
+  "agent": "Copilot CLI",
+  "model": "",
+  "turn_id": "ca9180e312ee",
+  "compact_transcript_start": 0,
+  "token_usage": {
+    "input_tokens": 0,
+    "cache_creation_tokens": 0,
+    "cache_read_tokens": 0,
+    "output_tokens": 0,
+    "api_call_count": 0
+  },
+  "session_metrics": {
+    "turn_count": 43
+  },
+  "initial_attribution": {
+    "calculated_at": "2026-08-10T12:35:27.385797Z",
+    "agent_lines": 0,
+    "agent_removed": 0,
+    "human_added": 0,
+    "human_modified": 11,
+    "human_removed": 38,
+    "total_committed": 16,
+    "total_lines_changed": 49,
+    "agent_percentage": 0,
+    "metric_version": 2
+  },
+  "prompt_attributions": [
+    {
+      "checkpoint_number": 1,
+      "user_lines_added": 80,
+      "user_lines_removed": 8,
+      "agent_lines_added": 0,
+      "agent_lines_removed": 0,
+      "user_added_per_file": {
+        "public/locale/en.json": 2,
+        "src/pages/Encounters/tabs/diagnostic-reports.tsx": 78
+      },
+      "user_removed_per_file": {
+        "public/locale/en.json": 1,
+        "src/pages/Encounters/tabs/diagnostic-reports.tsx": 7
+      }
+    },
+    {
+      "checkpoint_number": 2,
+      "user_lines_added": 73,
+      "user_lines_removed": 19,
+      "agent_lines_added": 25,
+      "agent_lines_removed": 7,
+      "user_added_per_file": {
+        "public/locale/en.json": 1,
+        "src/pages/Encounters/tabs/diagnostic-reports.tsx": 72
+      },
+      "user_removed_per_file": {
+        "public/locale/en.json": 11,
+        "src/pages/Encounters/tabs/diagnostic-reports.tsx": 8
+      }
+    },
+    {
+      "checkpoint_number": 3,
+      "user_lines_added": 0,
+      "user_lines_removed": 0,
+      "agent_lines_added": 80,
+      "agent_lines_removed": 8
+    },
+    {
+      "checkpoint_number": 4,
+      "user_lines_added": 79,
+      "user_lines_removed": 18,
+      "agent_lines_added": 26,
+      "agent_lines_removed": 7,
+      "user_added_per_file": {
+        "public/locale/en.json": 1,
+        "src/pages/Encounters/tabs/diagnostic-reports.tsx": 78
+      },
+      "user_removed_per_file": {
+        "public/locale/en.json": 11,
+        "src/pages/Encounters/tabs/diagnostic-reports.tsx": 7
+      }
+    },
+    {
+      "checkpoint_number": 5,
+      "user_lines_added": 2,
+      "user_lines_removed": 1,
+      "agent_lines_added": 87,
+      "agent_lines_removed": 7,
+      "user_added_per_file": {
+        "src/pages/Encounters/tabs/diagnostic-reports.tsx": 2
+      },
+      "user_removed_per_file": {
+        "src/pages/Encounters/tabs/diagnostic-reports.tsx": 1
+      }
+    },
+    {
+      "checkpoint_number": 6,
+      "user_lines_added": 0,
+      "user_lines_removed": 0,
+      "agent_lines_added": 90,
+      "agent_lines_removed": 7
+    },
+    {
+      "checkpoint_number": 7,
+      "user_lines_added": 46,
+      "user_lines_removed": 10,
+      "agent_lines_added": 94,
+      "agent_lines_removed": 7,
+      "user_added_per_file": {
+        "src/pages/Encounters/tabs/diagnostic-reports.tsx": 46
+      },
+      "user_removed_per_file": {
+        "src/pages/Encounters/tabs/diagnostic-reports.tsx": 10
+      }
+    },
+    {
+      "checkpoint_number": 8,
+      "user_lines_added": 0,
+      "user_lines_removed": 0,
+      "agent_lines_added": 238,
+      "agent_lines_removed": 8
+    },
+    {
+      "checkpoint_number": 9,
+      "user_lines_added": 0,
+      "user_lines_removed": 0,
+      "agent_lines_added": 273,
+      "agent_lines_removed": 9
+    },
+    {
+      "checkpoint_number": 10,
+      "user_lines_added": 8,
+      "user_lines_removed": 17,
+      "agent_lines_added": 282,
+      "agent_lines_removed": 9,
+      "user_added_per_file": {
+        "src/pages/Encounters/tabs/diagnostic-reports.tsx": 8
+      },
+      "user_removed_per_file": {
+        "src/pages/Encounters/tabs/diagnostic-reports.tsx": 17
+      }
+    },
+    {
+      "checkpoint_number": 11,
+      "user_lines_added": 31,
+      "user_lines_removed": 18,
+      "agent_lines_added": 268,
+      "agent_lines_removed": 9,
+      "user_added_per_file": {
+        "src/pages/Encounters/tabs/diagnostic-reports.tsx": 31
+      },
+      "user_removed_per_file": {
+        "src/pages/Encounters/tabs/diagnostic-reports.tsx": 18
+      }
+    },
+    {
+      "checkpoint_number": 12,
+      "user_lines_added": 3,
+      "user_lines_removed": 1,
+      "agent_lines_added": 410,
+      "agent_lines_removed": 9,
+      "user_added_per_file": {
+        "src/pages/Encounters/tabs/diagnostic-reports.tsx": 3
+      },
+      "user_removed_per_file": {
+        "src/pages/Encounters/tabs/diagnostic-reports.tsx": 1
+      }
+    },
+    {
+      "checkpoint_number": 13,
+      "user_lines_added": 0,
+      "user_lines_removed": 0,
+      "agent_lines_added": 422,
+      "agent_lines_removed": 9
+    },
+    {
+      "checkpoint_number": 14,
+      "user_lines_added": 0,
+      "user_lines_removed": 0,
+      "agent_lines_added": 430,
+      "agent_lines_removed": 9
+    },
+    {
+      "checkpoint_number": 15,
+      "user_lines_added": 2,
+      "user_lines_removed": 1,
+      "agent_lines_added": 430,
+      "agent_lines_removed": 9,
+      "user_added_per_file": {
+        "src/pages/Encounters/tabs/diagnostic-reports.tsx": 2
+      },
+      "user_removed_per_file": {
+        "src/pages/Encounters/tabs/diagnostic-reports.tsx": 1
+      }
+    },
+    {
+      "checkpoint_number": 16,
+      "user_lines_added": 1,
+      "user_lines_removed": 1,
+      "agent_lines_added": 431,
+      "agent_lines_removed": 9,
+      "user_added_per_file": {
+        "src/pages/Encounters/tabs/diagnostic-reports.tsx": 1
+      },
+      "user_removed_per_file": {
+        "src/pages/Encounters/tabs/diagnostic-reports.tsx": 1
+      }
+    },
+    {
+      "checkpoint_number": 17,
+      "user_lines_added": 3,
+      "user_lines_removed": 7,
+      "agent_lines_added": 478,
+      "agent_lines_removed": 9,
+      "user_added_per_file": {
+        "src/pages/Encounters/tabs/diagnostic-reports.tsx": 3
+      },
+      "user_removed_per_file": {
+        "src/pages/Encounters/tabs/diagnostic-reports.tsx": 7
+      }
+    },
+    {
+      "checkpoint_number": 18,
+      "user_lines_added": 0,
+      "user_lines_removed": 0,
+      "agent_lines_added": 486,
+      "agent_lines_removed": 9
+    },
+    {
+      "checkpoint_number": 19,
+      "user_lines_added": 20,
+      "user_lines_removed": 22,
+      "agent_lines_added": 488,
+      "agent_lines_removed": 9,
+      "user_added_per_file": {
+        "src/pages/Encounters/tabs/diagnostic-reports.tsx": 20
+      },
+      "user_removed_per_file": {
+        "src/pages/Encounters/tabs/diagnostic-reports.tsx": 22
+      }
+    },
+    {
+      "checkpoint_number": 20,
+      "user_lines_added": 0,
+      "user_lines_removed": 0,
+      "agent_lines_added": 629,
+      "agent_lines_removed": 11
+    },
+    {
+      "checkpoint_number": 21,
+      "user_lines_added": 18,
+      "user_lines_removed": 25,
+      "agent_lines_added": 630,
+      "agent_lines_removed": 11,
+      "user_added_per_file": {
+        "src/pages/Encounters/tabs/diagnostic-reports.tsx": 18
+      },
+      "user_removed_per_file": {
+        "src/pages/Encounters/tabs/diagnostic-reports.tsx": 25
+      }
+    },
+    {
+      "checkpoint_number": 22,
+      "user_lines_added": 13,
+      "user_lines_removed": 9,
+      "agent_lines_added": 626,
+      "agent_lines_removed": 14,
+      "user_added_per_file": {
+        "src/pages/Encounters/tabs/diagnostic-reports.tsx": 13
+      },
+      "user_removed_per_file": {
+        "src/pages/Encounters/tabs/diagnostic-reports.tsx": 9
+      }
+    },
+    {
+      "checkpoint_number": 23,
+      "user_lines_added": 0,
+      "user_lines_removed": 0,
+      "agent_lines_added": 630,
+      "agent_lines_removed": 14
+    },
+    {
+      "checkpoint_number": 24,
+      "user_lines_added": 0,
+      "user_lines_removed": 0,
+      "agent_lines_added": 633,
+      "agent_lines_removed": 14
+    },
+    {
+      "checkpoint_number": 25,
+      "user_lines_added": 36,
+      "user_lines_removed": 23,
+      "agent_lines_added": 630,
+      "agent_lines_removed": 14,
+      "user_added_per_file": {
+        "public/locale/en.json": 2,
+        "src/pages/Encounters/tabs/diagnostic-reports.tsx": 34
+      },
+      "user_removed_per_file": {
+        "public/locale/en.json": 1,
+        "src/pages/Encounters/tabs/diagnostic-reports.tsx": 22
+      }
+    },
+    {
+      "checkpoint_number": 26,
+      "user_lines_added": 0,
+      "user_lines_removed": 0,
+      "agent_lines_added": 658,
+      "agent_lines_removed": 14
+    },
+    {
+      "checkpoint_number": 27,
+      "user_lines_added": 6,
+      "user_lines_removed": 1,
+      "agent_lines_added": 661,
+      "agent_lines_removed": 14,
+      "user_added_per_file": {
+        "src/pages/Encounters/tabs/diagnostic-reports.tsx": 6
+      },
+      "user_removed_per_file": {
+        "src/pages/Encounters/tabs/diagnostic-reports.tsx": 1
+      }
+    },
+    {
+      "checkpoint_number": 28,
+      "user_lines_added": 0,
+      "user_lines_removed": 0,
+      "agent_lines_added": 667,
+      "agent_lines_removed": 14
+    },
+    {
+      "checkpoint_number": 29,
+      "user_lines_added": 200,
+      "user_lines_removed": 205,
+      "agent_lines_added": 678,
+      "agent_lines_removed": 14,
+      "user_added_per_file": {
+        "src/pages/Encounters/tabs/diagnostic-reports.tsx": 200
+      },
+      "user_removed_per_file": {
+        "src/pages/Encounters/tabs/diagnostic-reports.tsx": 205
+      }
+    },
+    {
+      "checkpoint_number": 30,
+      "user_lines_added": 0,
+      "user_lines_removed": 0,
+      "agent_lines_added": 678,
+      "agent_lines_removed": 14
+    },
+    {
+      "checkpoint_number": 31,
+      "user_lines_added": 0,
+      "user_lines_removed": 0,
+      "agent_lines_added": 678,
+      "agent_lines_removed": 14
+    },
+    {
+      "checkpoint_number": 32,
+      "user_lines_added": 0,
+      "user_lines_removed": 0,
+      "agent_lines_added": 678,
+      "agent_lines_removed": 14
+    },
+    {
+      "checkpoint_number": 33,
+      "user_lines_added": 0,
+      "user_lines_removed": 0,
+      "agent_lines_added": 678,
+      "agent_lines_removed": 14
+    },
+    {
+      "checkpoint_number": 34,
+      "user_lines_added": 0,
+      "user_lines_removed": 0,
+      "agent_lines_added": 675,
+      "agent_lines_removed": 14
+    },
+    {
+      "checkpoint_number": 35,
+      "user_lines_added": 0,
+      "user_lines_removed": 0,
+      "agent_lines_added": 675,
+      "agent_lines_removed": 14
+    },
+    {
+      "checkpoint_number": 36,
+      "user_lines_added": 5,
+      "user_lines_removed": 2,
+      "agent_lines_added": 675,
+      "agent_lines_removed": 14,
+      "user_added_per_file": {
+        "src/pages/Encounters/tabs/diagnostic-reports.tsx": 5
+      },
+      "user_removed_per_file": {
+        "src/pages/Encounters/tabs/diagnostic-reports.tsx": 2
+      }
+    },
+    {
+      "checkpoint_number": 37,
+      "user_lines_added": 20,
+      "user_lines_removed": 57,
+      "agent_lines_added": 718,
+      "agent_lines_removed": 14,
+      "user_added_per_file": {
+        "src/pages/Encounters/tabs/diagnostic-reports.tsx": 20
+      },
+      "user_removed_per_file": {
+        "src/pages/Encounters/tabs/diagnostic-reports.tsx": 57
+      }
+    },
+    {
+      "checkpoint_number": 38,
+      "user_lines_added": 2,
+      "user_lines_removed": 9,
+      "agent_lines_added": 681,
+      "agent_lines_removed": 14,
+      "user_added_per_file": {
+        "src/pages/Encounters/tabs/diagnostic-reports.tsx": 2
+      },
+      "user_removed_per_file": {
+        "src/pages/Encounters/tabs/diagnostic-reports.tsx": 9
+      }
+    },
+    {
+      "checkpoint_number": 39,
+      "user_lines_added": 1,
+      "user_lines_removed": 3,
+      "agent_lines_added": 674,
+      "agent_lines_removed": 14,
+      "user_added_per_file": {
+        "src/pages/Encounters/tabs/diagnostic-reports.tsx": 1
+      },
+      "user_removed_per_file": {
+        "src/pages/Encounters/tabs/diagnostic-reports.tsx": 3
+      }
+    },
+    {
+      "checkpoint_number": 40,
+      "user_lines_added": 0,
+      "user_lines_removed": 0,
+      "agent_lines_added": 0,
+      "agent_lines_removed": 0
+    },
+    {
+      "checkpoint_number": 41,
+      "user_lines_added": 9,
+      "user_lines_removed": 45,
+      "agent_lines_added": 54,
+      "agent_lines_removed": 4,
+      "user_added_per_file": {
+        "care.config.ts": 1,
+        "src/pages/Facility/services/inventory/externalSupply/deliveryOrder/DeliveryOrderShow.tsx": 8
+      },
+      "user_removed_per_file": {
+        "care.config.ts": 2,
+        "src/pages/Facility/services/inventory/externalSupply/deliveryOrder/DeliveryOrderShow.tsx": 43
+      }
+    },
+    {
+      "checkpoint_number": 42,
+      "user_lines_added": 0,
+      "user_lines_removed": 0,
+      "agent_lines_added": 26,
+      "agent_lines_removed": 3
+    },
+    {
+      "checkpoint_number": 43,
+      "user_lines_added": 0,
+      "user_lines_removed": 0,
+      "agent_lines_added": 20,
+      "agent_lines_removed": 6
+    }
+  ]
+}
