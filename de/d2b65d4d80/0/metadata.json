@@ -1,0 +1,49 @@
+{
+  "cli_version": "0.9.0",
+  "checkpoint_id": "ded2b65d4d80",
+  "session_id": "0206a310-9a13-4a7e-ae3e-cbff6746a406",
+  "strategy": "manual-commit",
+  "created_at": "2026-08-10T19:10:36.38601Z",
+  "branch": "bodhi/questionnaire-fill",
+  "checkpoints_count": 1,
+  "save_step_count": 2,
+  "files_touched": [],
+  "agent": "Claude Code",
+  "model": "claude-fable-5",
+  "turn_id": "dac5d73d2a7e",
+  "compact_transcript_start": 0,
+  "token_usage": {
+    "input_tokens": 641,
+    "cache_creation_tokens": 1029728,
+    "cache_read_tokens": 59878279,
+    "output_tokens": 173595,
+    "api_call_count": 201
+  },
+  "session_metrics": {
+    "turn_count": 6
+  },
+  "prompt_attributions": [
+    {
+      "checkpoint_number": 2,
+      "user_lines_added": 0,
+      "user_lines_removed": 0,
+      "agent_lines_added": 0,
+      "agent_lines_removed": 0
+    },
+    {
+      "checkpoint_number": 3,
+      "user_lines_added": 41,
+      "user_lines_removed": 0,
+      "agent_lines_added": 15334,
+      "agent_lines_removed": 0,
+      "user_added_per_file": {
+        ".context/retros/2026-03-15-1.json": 36,
+        ".husky/commit-msg": 1,
+        ".husky/post-commit": 1,
+        ".husky/post-rewrite": 1,
+        ".husky/pre-push": 1,
+        ".husky/prepare-commit-msg": 1
+      }
+    }
+  ]
+}
