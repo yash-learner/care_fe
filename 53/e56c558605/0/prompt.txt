@@ -1,0 +1,5 @@
+The abstraction and implemtnation of src/components/QuestionnaireV2/structured/core/ looks very complicated, do we really need all of those for this to work?
+
+---
+
+honest question, should we have done these level of extraction? structured could have been independent components that implemented the logic and used som common apis?
