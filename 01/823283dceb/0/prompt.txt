@@ -1,0 +1,95 @@
+<cross_session_message>
+from_session_id: 02c8e5f0-97d6-4d5d-b092-4544224c87d9
+from_display_name: General Chat
+requested_mode: autopilot
+
+To reply to the sender, use the send_session_message tool with session_id: "02c8e5f0-97d6-4d5d-b092-4544224c87d9"
+</cross_session_message>
+
+Build a new CARE frontend plug named `care_people_fe` at `apps/care_people_fe/` in this worktree. The plan below is already approved by the user — implement it, don't re-plan it. The user is away; work autonomously.
+
+## Critical setup facts (read first)
+
+- `apps/` does NOT exist in this worktree. It is **untracked** in the user's main checkout, but it is **NOT in .gitignore**, so `git add apps/care_people_fe` works fine. You must commit your work on this session's branch or it will be lost.
+- The template to clone is at the user's main checkout: `/Users/amjithtitus/Code/care_fe/apps/care_govt_hmis_fe/`. **READ ONLY from that path** — copy files OUT of it into your worktree. Never write to, build in, or modify anything under `/Users/amjithtitus/Code/care_fe/`. Use `cp -r` to bring files in.
+- The host source you will port from is in THIS worktree at `src/` — read it freely, but do **not** modify any host file. All new code goes under `apps/care_people_fe/`.
+- Plugs cannot import from the host at runtime (module federation shares only `react`, `react-dom`, `react-i18next`, `@tanstack/react-query`, `raviger`). Everything else must be copied into the plug.
+
+## Goal
+
+Two capabilities:
+1. A `primary_facility` patient extension — an autocomplete backed by the facility list, shown during patient create and update.
+2. A "People" entry in the facility left-nav, at `/facility/:facilityId/people`, listing that facility's patients with identifier-based search.
+
+**Backend is out of scope** — owned by someone else. Assume this contract:
+- `GET /api/v1/facility/{facilityId}/people/` → `{ count, results: PatientRead[] }`, accepts `limit` / `offset`.
+- `POST /api/v1/facility/{facilityId}/people/search/` → mirrors `/api/v1/patient/search/`: body `{ config, value, page_size }`, response `{ partial: boolean, results }`.
+
+## Why the patient create/update form needs ZERO plug code
+
+`src/components/Patient/PatientRegistration.tsx` (~line 145) already calls `useEntityExtensions({ entityType: ExtensionEntityType.patient, schemaType: "write", context: ExtensionContexts.registration })` and renders `{extensions.fields}` in the *Additional Details* accordion (~line 448) for both create and update. `SchemaField` dispatches `x-ui.control: "autocomplete"` to `src/components/Extensions/AutocompleteField.tsx`, which fetches options from `x-ui.metadata.url`. So once the backend registers `primary_facility`, the selector appears for free. Do NOT build a custom form component for it — only document the contract (todo 11).
+
+## Todos
+
+**1. Scaffold the plug package** at `apps/care_people_fe/`, cloning the `care_govt_hmis_fe` layout: `package.json` (name `care_people_fe`), `vite.config.ts` (module federation name `care_people_fe`, `exposes: { "./manifest": "./src/manifest.tsx" }`, same shared deps), tsconfigs, eslint/prettier, tailwind config, `.env`, `.gitignore`, `README.md`, `src/index.ts`, `src/style/index.css`, `src/vite-env.d.ts`. Rename every `care_govt_hmis_fe` occurrence to `care_people_fe`. Add `react-phone-number-input` as a dependency — the search UI needs it and the template does not have it.
+
+**2. Clone the request layer** into `src/Utils/request/` (`query.ts`, `types.ts`, `utils.ts`, `errorHandler.ts`) plus their small deps: `src/common/constants.tsx` (needs `LocalStorageKeys`, `RESULTS_PER_PAGE_LIMIT`, `GENDER_TYPES`), `src/Utils/utils.ts`, `src/lib/utils.ts` (`cn`), `src/care.config.ts` (`phoneNumberConfigSystem`). Copy verbatim from the template — it is already a working copy.
+
+**3. Clone types and add the people API routes.** Copy `types/emr/patient/patient.ts` and its transitive deps (`emr/permission`, `emr/tagConfig`, `organization/organization`, `patient/patientIdentifierConfig`, `user/user`, `facility/facility`, `facility/facilityApi`) from the template. Add `src/types/people/peopleApi.ts` with:
+- `list`: `GET /api/v1/facility/{facilityId}/people/` → `PaginatedResponse<PatientRead>`
+- `search`: `POST /api/v1/facility/{facilityId}/people/search/` → `{ partial, results }`
+Follow the exact `Route<TRes, TBody>` shape used by the template's existing api files.
+
+**4. Clone the UI primitives.** Already in the template, copy as-is: `ui/card`, `ui/button`, `ui/skeleton`, `ui/input`, `ui/table`, `ui/dialog`, `ui/dropdown-menu`, `ui/command`, `ui/popover`, `Common/SkeletonLoading` (`CardGridSkeleton`, `TableSkeleton`), `Common/Avatar`, `pages/Facility/utils/useCurrentFacility.tsx`. NOT in the template — port from this worktree's host: `src/components/ui/phone-input.tsx`.
+
+**5. Port `SearchInput` into the plug** from this worktree's `src/components/Common/SearchInput.tsx` (466 lines; `SearchOption` interface ~line 33) — **with the keyboard-shortcut hint removed**. ⚠️ This is the single most likely runtime crash: the host version renders `ShortcutBadge`, which calls `useShortcuts()`, and that hook **throws** when no `ShortcutProvider` is mounted (see the plug's own `src/context/ShortcutContext.tsx` ~line 152). The provider is NOT shared through module federation, so the plug gets its own unprovided context instance. Strip `KeyboardShortcutHint` / `ShortcutBadge` entirely — do not try to bridge the context.
+
+**6. Add a local pagination helper.** The host's `useFilters` is not in the plug template and pulls in too much. Write a minimal `src/hooks/usePagination.ts` on top of raviger's `useQueryParams` returning `{ page, limit, offset, setPage }`, plus a small `src/components/Common/Pagination.tsx`. Self-contained, no host imports.
+
+**7. Build the People browse list** at `src/pages/People/PeopleList.tsx`. Model it on this worktree's `src/pages/Organization/OrganizationPatients.tsx` (223 lines) — that is the user's explicit visual reference. `useQuery` against `peopleApi.list` with `pathParams: { facilityId }` and `queryParams: { limit, offset }`; header with title and count; `CardGridSkeleton` while fetching; empty-state card; responsive grid (`grid-cols-1 lg:grid-cols-2 xl:grid-cols-3`) of patient cards (avatar, name, phone, gender, geo organization, last modified) wrapped in raviger `<Link href={`/patient/${patient.id}`}>`; pagination footer driven by `count`.
+
+**8. Build the identifier search** in `src/pages/People/PeopleSearch.tsx`, rendered above the browse list on the same route. Full parity with this worktree's `src/components/Patient/PatientIndex.tsx` — read lines 107-137 (search state + query), 312-325 (SearchInput usage), 370-477 (results table), 681-711 (`getSearchOptions`).
+- Build search options from `useCurrentFacility().facility` identifier configs (`patient_instance_identifier_configs` + `patient_facility_identifier_configs`), replicating `getSearchOptions` ordering exactly: phone-system configs first, then other `auto_maintained`, then non-auto-maintained. The phone config gets `type: "phone"`.
+- `query.debounced` against `peopleApi.search` with `{ config, value, page_size: 20 }`, enabled only when both `config` and `value` are set.
+- Results table (name, phone via `formatPhoneNumberIntl`, gender via `GENDER_TYPES`), `TableSkeleton` while fetching, "no patient record found" empty state.
+- Row click → if the response was `partial`, open the verification dialog; otherwise navigate straight through.
+
+**9. Build the verification dialog** at `src/pages/People/VerifyPatientDialog.tsx`, porting the host's (PatientIndex.tsx lines 637-676): `Dialog` + 4-digit year-of-birth input (regex-guarded `^\d{0,4}$`, submit on Enter), cancel/verify footer, reject anything not exactly 4 digits. On verify, navigate to the **existing host route** `/facility/{facilityId}/patients/home` with `config`, `value`, `phone_number`, `year_of_birth`, `partial_id` query params — exactly what the host does. The host's `PatientHome` re-resolves via `POST /api/v1/patient/search_retrieve/`, so the plug must NEVER try to resolve a partial record itself.
+
+**10. Wire the manifest** in `src/manifest.tsx`:
+- `plugin: "care_people_fe"`
+- `routes: { "/facility/:facilityId/people": ({ facilityId }) => <People facilityId={facilityId} /> }` — plug routes are merged at the ROOT of `Routers/AppRouter.tsx`, so the path must be fully qualified. Verified: no host route shadows it.
+- `navItems: [{ name: "People", url: "people", icon: <UsersIcon /> }]` — `src/components/ui/sidebar/facility/facility-nav.tsx` prefixes this with `/facility/{facilityId}/`, so **no leading slash**.
+
+**11. Document the `primary_facility` extension contract** in the plug README with this exact snippet. ⚠️ Note `searchParam` — `FacilityViewSet` uses `DjangoFilterBackend` only and `FacilityFilters` exposes `name` (icontains); there is **no** `search` filter, so the `"search"` used in the `payment_reconciliation_credit_extension` example would silently not filter:
+
+```json
+"primary_facility": {
+  "type": "string",
+  "title": "Primary Facility",
+  "x-ui": {
+    "control": "autocomplete",
+    "metadata": {
+      "url": "/api/v1/facility/",
+      "searchParam": "name",
+      "valueField": "id",
+      "labelField": "name"
+    }
+  }
+}
+```
+
+Also document the known host gap: `src/components/ui/autocomplete.tsx` line 91 resolves its display label via `options.find(o => o.value === value)`. On patient edit the stored value is a facility UUID and options are only the unsearched first page, so the control renders the **placeholder** instead of the facility name. The value is not lost and re-saving is safe — it just looks empty. Fixing it means teaching `AutocompleteField` to resolve the selected value, which is a host change and is explicitly OUT OF SCOPE. Do not attempt it.
+
+**12. Verify.** Run `npm install && npm run build` inside `apps/care_people_fe/` and get a clean build plus clean `tsc`. Fix whatever breaks. Do not skip this.
+
+## i18n
+
+No plug locale-merging mechanism exists in the host — plug `public/locale/*.json` appears unused. Use literal strings, or reuse keys that already exist in the host bundle (`patients`, `gender`, `phone`, `organization`, `last_modified`, `no_patients_found`, `search_by_identifier`, `verify_patient_identity`, `patient_birth_year_for_identity`, `year_of_birth`, `no_patient_record_found`). Do not invent new keys and expect them to resolve.
+
+## Finishing up
+
+- `git add apps/care_people_fe && git commit` on this session's branch. This is essential — the folder is untracked in the user's main checkout, so committing here is the only thing that makes the work durable.
+- Commit message should note this is a local dev plug for review/extraction, **not** intended to be merged into the host repo upstream.
+- Do NOT open a pull request.
+- Report back: what you built, the build result, anything you had to deviate on, and the exact command the user should run to copy the plug into their dev checkout at `/Users/amjithtitus/Code/care_fe/apps/care_people_fe/`.
