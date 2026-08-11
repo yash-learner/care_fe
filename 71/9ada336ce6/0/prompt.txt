@@ -1,0 +1,29 @@
+disable the button if the selected items are greater than #sym:maxDatapointsPerUpsert
+
+---
+
+if user try to add item more than #sym:maxDatapointsPerUpsert  item a call out should be display that user cannot add more than that limit, and prevent that add item function
+
+---
+
+compare with whole items count not withe field.length
+
+---
+
+add a callout ui for hasReachedUpsertLimit become true
+
+---
+
+here add callout card
+
+---
+
+fix erros
+
+---
+
+design this like warning message
+
+---
+
+similarly in here too
