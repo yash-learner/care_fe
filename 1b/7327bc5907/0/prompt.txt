@@ -1,0 +1,37 @@
+Make this a proper button in look and feel.
+
+---
+
+Refer other tables with actions for the styles
+
+---
+
+So, I messed with the text of button. I'm not sure if we should use VIew Details in the button and navigate the user to product knowledge page. Rephrase the button text for a better clarity also try to make it short
+
+---
+
+List out more such suggestions
+
+---
+
+I have updated it again, Could you please make the icon center aligned
+
+---
+
+Make the table cell of fixed width, Just give the enough width to avoid white spaces
+
+---
+
+Is there any issues with the latest changes? Review it and tell me ur findings
+
+---
+
+Fix all the things you found
+
+---
+
+Revert the icon change and related changes
+
+---
+
+w-px is required?
