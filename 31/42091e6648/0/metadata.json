@@ -1,0 +1,103 @@
+{
+  "cli_version": "0.9.0",
+  "checkpoint_id": "3142091e6648",
+  "session_id": "24e6ef8c-eef2-4d9a-8d1c-b3196711794c",
+  "strategy": "manual-commit",
+  "created_at": "2026-08-12T15:59:59.901044Z",
+  "branch": "ENG-887-fix-internal-delivery-batch-failing",
+  "checkpoints_count": 5,
+  "save_step_count": 6,
+  "files_touched": [
+    "public/locale/en.json",
+    "src/CAREUI/display/Callout.tsx",
+    "src/pages/Facility/services/inventory/externalSupply/deliveryOrder/AddSupplyDeliveryForm.tsx",
+    "src/pages/Facility/services/inventory/externalSupply/deliveryOrder/DeliveryOrderShow.tsx",
+    "src/pages/Facility/services/pharmacy/components/AddMedicationReturnItemForm.tsx"
+  ],
+  "agent": "Copilot CLI",
+  "model": "",
+  "turn_id": "a2361a191b41",
+  "compact_transcript_start": 0,
+  "token_usage": {
+    "input_tokens": 0,
+    "cache_creation_tokens": 0,
+    "cache_read_tokens": 0,
+    "output_tokens": 0,
+    "api_call_count": 0
+  },
+  "session_metrics": {
+    "turn_count": 61
+  },
+  "initial_attribution": {
+    "calculated_at": "2026-08-12T15:59:59.845389Z",
+    "agent_lines": 33,
+    "agent_removed": 14,
+    "human_added": 0,
+    "human_modified": 66,
+    "human_removed": 2,
+    "total_committed": 83,
+    "total_lines_changed": 119,
+    "agent_percentage": 39.49579831932773,
+    "metric_version": 2
+  },
+  "prompt_attributions": [
+    {
+      "checkpoint_number": 2,
+      "user_lines_added": 0,
+      "user_lines_removed": 0,
+      "agent_lines_added": 0,
+      "agent_lines_removed": 0
+    },
+    {
+      "checkpoint_number": 3,
+      "user_lines_added": 0,
+      "user_lines_removed": 0,
+      "agent_lines_added": 15,
+      "agent_lines_removed": 23
+    },
+    {
+      "checkpoint_number": 4,
+      "user_lines_added": 17,
+      "user_lines_removed": 32,
+      "agent_lines_added": 24,
+      "agent_lines_removed": 16,
+      "user_added_per_file": {
+        "care.config.ts": 1,
+        "src/CAREUI/display/Callout.tsx": 3,
+        "src/pages/Facility/services/inventory/externalSupply/deliveryOrder/AddSupplyDeliveryForm.tsx": 9,
+        "src/pages/Facility/services/inventory/externalSupply/deliveryOrder/DeliveryOrderShow.tsx": 4
+      },
+      "user_removed_per_file": {
+        "care.config.ts": 1,
+        "src/CAREUI/display/Callout.tsx": 16,
+        "src/pages/Facility/services/inventory/externalSupply/deliveryOrder/AddSupplyDeliveryForm.tsx": 12,
+        "src/pages/Facility/services/inventory/externalSupply/deliveryOrder/DeliveryOrderShow.tsx": 3
+      }
+    },
+    {
+      "checkpoint_number": 5,
+      "user_lines_added": 0,
+      "user_lines_removed": 0,
+      "agent_lines_added": 43,
+      "agent_lines_removed": 49
+    },
+    {
+      "checkpoint_number": 6,
+      "user_lines_added": 9,
+      "user_lines_removed": 14,
+      "agent_lines_added": 49,
+      "agent_lines_removed": 53,
+      "user_added_per_file": {
+        "care.config.ts": 1,
+        "src/pages/Facility/services/inventory/externalSupply/deliveryOrder/AddSupplyDeliveryForm.tsx": 7,
+        "src/pages/Facility/services/inventory/externalSupply/deliveryOrder/DeliveryOrderShow.tsx": 1
+      },
+      "user_removed_per_file": {
+        "care.config.ts": 1,
+        "public/locale/en.json": 1,
+        "src/pages/Facility/services/inventory/externalSupply/deliveryOrder/AddSupplyDeliveryForm.tsx": 10,
+        "src/pages/Facility/services/inventory/externalSupply/deliveryOrder/DeliveryOrderShow.tsx": 2
+      }
+    }
+  ]
+}
