@@ -1,0 +1,39 @@
+Naming a prop `setIsCompleteDialogOpen` 
+leaks the parent's state setter naming convention into a child's 
+interface. The child doesn't need to know it's a React setter — call it `onOpenChange` or `onClose`. This is a component abstraction violation.
+
+---
+
+Naming a prop `setIsCompleteDialogOpen` 
+leaks the parent's state setter naming convention into a child's 
+interface. The child doesn't need to know it's a React setter — call it `onOpenChange` or `onClose`. This is a component abstraction violation. in @sym:ServiceRequestShow
+
+---
+
+You removed the `isCompletingServiceRequest`
+ guard that prevented closing the dialog mid-flight. Now a user can 
+dismiss the dialog while the mutation is still pending — the request 
+succeeds silently, the UI doesn't update, and the user has no idea what 
+happened. Put the guard back: `onOpenChange={(open) => { if (!isCompletingServiceRequest) setIsCompleteDialogOpen(open); }}`
+
+is this valid comment?
+
+---
+
+`useState(serviceRequest.note ?? "")` 
+only runs once on mount. If the user opens the dialog, edits the note, 
+cancels, then reopens — their stale edited text is still in the textarea
+ because the component doesn't remount. Old code reset the note 
+explicitly on every open. You need to either reset state on close (in 
+the cancel handler and `onOpenChange`) or use a `key` prop tied to `isCompleteDialogOpen` to force remount.
+
+is this valid? how to reproduce this?
+
+---
+
+the stale text become reset into serviceRequest.note on cancel the dialog, only the onSave the note is updated into new note, so this is not an issue
+ - is this is the correct explanation for htis?
+
+---
+
+simplify my reply
