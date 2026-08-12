@@ -1,0 +1,59 @@
+So could you please find and list any such functional bugs in the new questionnair component and steps to reproduce as well.
+
+---
+
+This is a RESEARCH-ONLY task in the repo /Users/navaspavil/Projects/ohc/care_fe. Do NOT write or modify any code.
+
+Audit the QuestionnaireV2 BUILDER/STUDIO authoring path and the DRAFT caching path for functional bugs. Focus directories:
+- src/components/QuestionnaireV2/builder/**
+- src/components/QuestionnaireV2/studio/**
+- src/components/QuestionnaireV2/fill/draft/** (fillDraftCache.ts, draftMerge.ts)
+
+I am looking for REAL functional bugs a user could hit, of this flavour (an example already confirmed elsewhere in this codebase): NumberInput stores only a parsed `number` and re-renders `value.toString()`, so typing "0.01" character-by-character yields "1" because the intermediate "0." is rewritten away — i.e. controlled-input round-trip bugs, lost keystrokes, state that silently drops user input.
+
+Specifically investigate and report on:
+1. Any controlled input in the builder/studio that round-trips user text through a parsed/normalised value and could therefore drop or mangle keystrokes (numbers, slugs, codes, ordering fields).
+2. draftMerge.ts — how a cached draft is merged back into a questionnaire. What happens if the questionnaire changed since the draft was saved (question deleted, type changed)? Note it has a type-compatibility map including `decimal: ["number"]`. Can a stale/incompatible draft value be restored into the wrong input, or silently dropped without telling the user?
+3. Any place where deleting/reordering a question or group corrupts sibling state, link_ids, or existing answers.
+4. Autosave/PUT behaviour: double-saves, lost updates, or saving stale state.
+
+For EACH bug you find, report:
+- A short title
+- The exact file path and line numbers
+- The code snippet responsible
+- Concrete step-by-step UI reproduction steps (what a user clicks/types and what they see vs expect)
+- Your confidence (high/medium/low) that this is a genuine bug rather than intentional behaviour
+
+Be rigorous: read the actual code and quote it. Do not speculate without evidence. If something looks suspicious but is actually handled correctly somewhere else, say so explicitly and do not report it as a bug. Prefer a small number of well-evidenced bugs over a long speculative list. Thoroughness: thorough.
+
+---
+
+This is a RESEARCH-ONLY task in the repo /Users/navaspavil/Projects/ohc/care_fe. Do NOT write or modify any code.
+
+Audit the QuestionnaireV2 FILL + SUBMIT + VALIDATION path for functional bugs. Focus directories:
+- src/components/QuestionnaireV2/form/validation.ts (and anything nearby)
+- src/components/QuestionnaireV2/fill/submit/** (especially serializeValues.ts)
+- src/components/QuestionnaireV2/form/engine/store.ts (entryHasContent, useQuestionResponse)
+- src/components/QuestionnaireV2/form/engine/inputs/answeredEntry.ts
+
+I am looking for REAL functional bugs a user could hit, of this flavour (an example already confirmed elsewhere in this codebase): NumberInput stores only a parsed `number` and re-renders `value.toString()`, so typing "0.01" character-by-character yields "1" because the intermediate "0." is rewritten away.
+
+Specifically investigate and report on:
+1. Required-field validation vs what actually gets serialized — can a question pass the "required" check but serialize nothing (or vice versa)? Look at entryIsAnswered vs entryHasContent vs the serializer.
+2. Values that are falsy but legitimate: number 0, boolean false, empty-string edge cases. Does any check use a plain truthiness test that would drop a legitimate 0 or false?
+3. enable_when / conditional visibility: when a question becomes hidden after being answered, is its answer cleared or does a stale answer still get submitted? Is a hidden-but-required question still blocking submit?
+4. Repeats: adding/removing rows, whether removing a middle row shifts or corrupts sibling entries (see withEntryAt / replaceEntryAt in form/engine/inputs/withEntryAt.ts).
+
+For EACH bug you find, report:
+- A short title
+- The exact file path and line numbers
+- The code snippet responsible
+- Concrete step-by-step UI reproduction steps (what a user clicks/types and what they see vs expect)
+- Your confidence (high/medium/low) that this is a genuine bug rather than intentional behaviour
+
+Be rigorous: read the actual code and quote it. Do not speculate without evidence. If something looks suspicious but is actually handled correctly somewhere else, say so explicitly and do not report it as a bug. Prefer a small number of well-evidenced bugs over a long speculative list. Thoroughness: thorough.
+
+---
+
+Can we fix Bug 3 without making it a complex calculation?
+It shouldn't have rendering overhead or minimum

@@ -1,0 +1,58 @@
+{
+  "cli_version": "0.9.0",
+  "checkpoint_id": "5596d1d0bf73",
+  "session_id": "8f35647c-04d7-4760-8c9a-74ddc8570582",
+  "strategy": "manual-commit",
+  "created_at": "2026-08-12T07:27:11.706953Z",
+  "branch": "bodhi/questionnaire-orphaned-conditions",
+  "checkpoints_count": 2,
+  "save_step_count": 1,
+  "files_touched": [
+    "src/components/QuestionnaireV2/builder/builderReducer.test.ts",
+    "src/components/QuestionnaireV2/builder/builderReducer.ts"
+  ],
+  "agent": "Copilot CLI",
+  "model": "",
+  "turn_id": "ea607cb79f1b",
+  "checkpoint_transcript_start": 176,
+  "transcript_lines_at_start": 176,
+  "compact_transcript_start": 35,
+  "token_usage": {
+    "input_tokens": 0,
+    "cache_creation_tokens": 0,
+    "cache_read_tokens": 0,
+    "output_tokens": 0,
+    "api_call_count": 0
+  },
+  "session_metrics": {
+    "turn_count": 4
+  },
+  "initial_attribution": {
+    "calculated_at": "2026-08-12T07:27:11.681382Z",
+    "agent_lines": 174,
+    "agent_removed": 1,
+    "human_added": 0,
+    "human_modified": 0,
+    "human_removed": 0,
+    "total_committed": 174,
+    "total_lines_changed": 175,
+    "agent_percentage": 100,
+    "metric_version": 2
+  },
+  "prompt_attributions": [
+    {
+      "checkpoint_number": 1,
+      "user_lines_added": 0,
+      "user_lines_removed": 0,
+      "agent_lines_added": 0,
+      "agent_lines_removed": 0
+    },
+    {
+      "checkpoint_number": 2,
+      "user_lines_added": 0,
+      "user_lines_removed": 0,
+      "agent_lines_added": 174,
+      "agent_lines_removed": 1
+    }
+  ]
+}
