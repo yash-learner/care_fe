@@ -1,0 +1,5 @@
+this status select should be disabled, if the dispense order it belongs to is either in abandoned, enterred-in-error or completed.
+
+---
+
+this status select should be disabled, if the dispense order it belongs to is either in abandoned, enterred-in-error or completed.
