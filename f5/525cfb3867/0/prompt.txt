@@ -1,0 +1,5 @@
+You know what... @sym:useAttachChargeItemsToInvoice is no longer needed, as i have recently dropped a requirement of adding only if account was there... sooo, now that the hook has become super simple, let's just directly inline the useMutation of addChargeItemsToInvoice directly wherever it's needed. @file:DispenseGroupCard.tsx @sym:EditDispenseSheet
+
+---
+
+You know what... @sym:useAttachChargeItemsToInvoice is no longer needed, as i have recently dropped a requirement of adding only if account was there... sooo, now that the hook has become super simple, let's just directly inline the useMutation of addChargeItemsToInvoice directly wherever it's needed. @file:DispenseGroupCard.tsx @sym:EditDispenseSheet

@@ -1,0 +1,30 @@
+{
+  "cli_version": "0.9.0",
+  "checkpoint_id": "f5525cfb3867",
+  "strategy": "manual-commit",
+  "branch": "feat/pharmacy-ux-upgrade",
+  "checkpoints_count": 1,
+  "files_touched": [
+    "src/pages/Facility/services/pharmacy/DispenseOrderView.tsx",
+    "src/pages/Facility/services/pharmacy/components/AddDispenseMedicationRow.tsx",
+    "src/pages/Facility/services/pharmacy/components/DispenseGroupCard.tsx",
+    "src/pages/Facility/services/pharmacy/components/EditDispenseSheet.tsx",
+    "src/pages/Facility/services/pharmacy/hooks/useAttachChargeItemsToInvoice.ts"
+  ],
+  "sessions": [
+    {
+      "metadata": "/f5/525cfb3867/0/metadata.json",
+      "transcript": "/f5/525cfb3867/0/full.jsonl",
+      "compact_transcript": "/f5/525cfb3867/0/transcript.jsonl",
+      "content_hash": "/f5/525cfb3867/0/content_hash.txt",
+      "prompt": "/f5/525cfb3867/0/prompt.txt"
+    }
+  ],
+  "token_usage": {
+    "input_tokens": 0,
+    "cache_creation_tokens": 0,
+    "cache_read_tokens": 0,
+    "output_tokens": 0,
+    "api_call_count": 0
+  }
+}
