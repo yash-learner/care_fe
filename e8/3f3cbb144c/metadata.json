@@ -1,0 +1,30 @@
+{
+  "cli_version": "0.9.0",
+  "checkpoint_id": "e83f3cbb144c",
+  "strategy": "manual-commit",
+  "branch": "amjithtitus09-ccn-beckn-referral",
+  "checkpoints_count": 9,
+  "files_touched": [
+    "public/locale/en.json",
+    "src/components/Resource/CcnConsole.tsx",
+    "src/components/Resource/ResourceForm.tsx",
+    "src/components/Resource/beckn/AppointmentWizard.tsx",
+    "src/hooks/useBecknTransaction.ts"
+  ],
+  "sessions": [
+    {
+      "metadata": "/e8/3f3cbb144c/0/metadata.json",
+      "transcript": "/e8/3f3cbb144c/0/full.jsonl",
+      "compact_transcript": "/e8/3f3cbb144c/0/transcript.jsonl",
+      "content_hash": "/e8/3f3cbb144c/0/content_hash.txt",
+      "prompt": "/e8/3f3cbb144c/0/prompt.txt"
+    }
+  ],
+  "token_usage": {
+    "input_tokens": 222,
+    "cache_creation_tokens": 728480,
+    "cache_read_tokens": 18059804,
+    "output_tokens": 135790,
+    "api_call_count": 92
+  }
+}

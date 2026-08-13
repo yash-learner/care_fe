@@ -1,0 +1,54 @@
+can we improve make the ux for the flow really good.  /Users/bodhishthomas/code/care_fe/src/components/Resource/CcnConsole.tsx
+
+---
+
+yes please, I need it fast
+
+---
+
+Go with approach C — the full-screen wizard
+
+---
+
+approved build it out don't even wait for spec
+
+---
+
+login: bodhi
+pass: bluesky
+
+---
+
+<task-notification>
+<task-id>wr5pl427u</task-id>
+<tool-use-id>toolu_01PHZjSe6njT9JqL2eHZnE2M</tool-use-id>
+<output-file>/private/tmp/claude-501/-Users-bodhishthomas-code-care-fe/6c1d4766-fa85-4629-ab70-86eb08805249/tasks/wr5pl427u.output</output-file>
+<status>completed</status>
+<summary>Dynamic workflow "Review the CCN console wizard diff across 4 dimensions, adversarially verify findings" completed</summary>
+<result>{"confirmed":[{"title":"Success view is unreachable: wizard resets to Service step the instant on_confirm lands","file":"src/components/Resource/beckn/AppointmentWizard.tsx","line":170,"severity":"critical","detail":"The reset-on-reopen effect (`if (open &amp;&amp; confirmedRef.current) startOver()`, deps `[open, startOver]`) is meant to run only when the wizard reopens after a completed booking, but `startOver` is a useCallback depending on `flow`, and `useBecknTransaction()` returns a new object literal every render — so `startOver` has a new identity every render and the effect re-runs on every commit while the dialog is open. Repro: complete the happy path (Service → Provider → Slot → Review → Confirm). When ON_CONFIRM arrives, in the same commit the phase effect sets step to \"done\" and the confirm effect sets `confirmedRef.current = true`, then this effect runs (its deps changed because `startOver` is new), sees `open &amp;&amp; confirmedRef.current`, and calls `startOver()` — which sets step back to \"service\", clears option/slot, and resets the transaction. The batched `setStep(\"service\")` wins over `setStep(\"done\")`, so the user goes from the \"Booking appointment…\" spinner straight to a blank Service step; the SuccessView (summary, resource-request id, Done button) never renders. Even if effect ordering differed, the very next render would trigger the same reset. Fix direction: detect the open *edge* (e.g. track previous `open` in a ref) or give `startOver` a stable identity by depending on `flow.reset` instead of `flow`.","dimension":"state-machine","verdict":{"isReal":true,"reasoning":"Confirmed against current code. useBecknTransaction (src/hooks/useBecknTransaction.ts:235-253) returns a new object literal every render, so startOver = useCallback(..., [flow]) (src/components/Resource/beckn/AppointmentWizard.tsx:157-166) has a new identity every render, and the reset effect at lines 170-174 (deps [open, startOver]) re-runs on every commit while the dialog is open. On the render where ON_CONFIRM lands (phase === \"confirmed\"), effects flush in declaration order: line 140 sets step to \"done\", line 150 sets confirmedRef.current = true (and fires onBooked), then line 170 re-runs (startOver identity changed), sees open &amp;&amp; confirmedRef.current, and calls startOver() — setStep(\"service\"), clearing option/slot, and flow.reset(). All setStep calls batch in one flush, so \"service\" wins over \"done\" and the SuccessView never renders; even under different effect ordering the next commit would reset anyway. The parent (CcnConsole.tsx:379-388) keeps the dialog open on booking (onBooked only sets a banner), so the user visibly goes from the \"Booking appointment…\" spinner to a blank Service step with the transaction wiped. This breaks the happy-path finale of the demo — clearly perceptible.","suggestedFix":"Make the effect fire only on the open edge, or stabilize startOver. Simplest: change startOver's dep from [flow] to [flow.reset] (flow.reset is a stable useCallback with [] deps in useBecknTransaction), i.e. destructure `const { act, reset, ... } = flow` and use `reset()` inside startOver with deps [reset]. Then the [open, startOver] effect only re-runs when open toggles, so the reset happens on reopen as intended. Alternatively (more explicit), track previous open in a ref and only call startOver() when open transitions false→true while confirmedRef.current is true."}},{"title":"Stepper back-navigation during an error state changes the highlighted step but the body stays stuck on ErrorView (and silently wipes the slot pick)","file":"src/components/Resource/beckn/AppointmentWizard.tsx","line":287,"severity":"major","detail":"The body IIFE returns `ErrorView` whenever `hasError` is true, before ever switching on `step`, and `goTo` only clears the error when the target is \"service\" (via `startOver`); targets \"provider\" and \"slot\" just `setStep`. After a NACK, `busy` is false, so completed stepper steps are clickable. Repro: reach Review, click Confirm, backend NACKs → ErrorView. Click \"Slot\" (or \"Provider\") in the stepper: the stepper re-highlights that step as current, but the body still renders the error panel — the step content is unreachable, and clicking \"Provider\" additionally runs `setSlot(undefined)/setSlotKey(undefined)`, destroying the chosen slot while showing no step change at all. The only escapes are Try Again, Start Over, or the \"service\" stepper click. Either the stepper should be non-clickable while `hasError`, or `goTo` should clear the error so the target step actually renders.","dimension":"state-machine","verdict":{"isReal":true,"reasoning":"Confirmed against current code. After a confirm NACK, both error paths in useBecknTransaction (immediate `res.result === \"nack\"` at lines 175-177, and status-poll NACK at lines 122-128/141-145) leave `acting` false and `awaiting` null, so `busy` is false while `hasError` is true (flow.error is only cleared by act/reset/resume). Step stays \"review\" (the phase effect only advances on discovered/selected/confirmed), so the stepper's service/provider/slot entries satisfy `clickable = isDone &amp;&amp; !busy &amp;&amp; step !== \"done\"` (line 446) — clickable during the error. `goTo` (lines 190-201) clears the error only for target \"service\" (via startOver→flow.reset); \"provider\"/\"slot\" just setStep (and \"provider\" wipes slot/slotKey). The body IIFE returns ErrorView on `hasError` (line 287) before switching on `step`, so clicking Slot/Provider moves the stepper highlight while the body stays stuck on the error panel, and the Provider click silently destroys the slot pick. No refutation held: busy is genuinely false, no effect resets step or error on navigation, and the stepper ignores hasError. Severity is moderated by it requiring an actual backend NACK and by Try Again / Start Over remaining as escapes, but the misbehavior is visible whenever the error panel shows.","suggestedFix":"Simplest demo-grade fix: disable stepper navigation while in error by passing the error into the stepper's busy flag — in AppointmentWizard.tsx line 358 change to `&lt;WizardStepper step={step} busy={busy || hasError} onStepClick={goTo} /&gt;` (and optionally add `if (busy || hasError || step === \"done\") return;` in goTo for defense). This keeps ErrorView's explicit Try Again / Start Over as the only escapes. Alternative: expose a clearError() from useBecknTransaction and call it at the top of goTo so the target step actually renders, but that adds hook surface for no demo benefit."}},{"title":"Retry after a NACK keeps showing ErrorView (with a live Try Again button) instead of the waiting view, allowing double-fired actions","file":"src/components/Resource/beckn/AppointmentWizard.tsx","line":128,"severity":"major","detail":"`hasError = phase === \"error\" || !!flow.error`, and the body checks `hasError` before `busy`. When the backend NACKs (status record = NACK), clicking Try Again calls `act`, which clears `flow.error` and sets acting/awaiting — but `phase` is derived from the polled status record, which still reads NACK until the post-retry refetch returns the new status (POST duration + up to one 1.5s poll). During that window the body deterministically renders ErrorView with the fallback message `t(\"something_went_wrong\")` (since `flow.error` is now undefined) and an enabled \"Try Again\" button. Repro: NACK a select/confirm, click Try Again, click it again during the window → the action POSTs twice. The busy check should win over the error check (or `hasError` should exclude the `acting || awaiting` state).","dimension":"state-machine","verdict":{"isReal":true,"reasoning":"Verified against current code. In AppointmentWizard.tsx line 128, `hasError = phase === \"error\" || !!flow.error`, and the body IIFE (lines 287–298) checks `hasError` before `busy`; ErrorView's Try Again button (line 1005) has no disabled prop. `phase` derives from the polled status rec
+... (truncated 40182 chars, full result in /private/tmp/claude-501/-Users-bodhishthomas-code-care-fe/6c1d4766-fa85-4629-ab70-86eb08805249/tasks/wr5pl427u.output)</result>
+<diagnostics>Per-agent results: /Users/bodhishthomas/.claude/projects/-Users-bodhishthomas-code-care-fe/6c1d4766-fa85-4629-ab70-86eb08805249/subagents/workflows/wf_f56eb66c-556/journal.jsonl — one {"type":"result",...} line per completed agent with its full return value.
+If the result above is empty or unexpected, Read this file BEFORE diagnosing — do not assume agents returned non-empty results.
+To re-run with edited post-processing: Workflow({scriptPath: '/Users/bodhishthomas/.claude/projects/-Users-bodhishthomas-code-care-fe/6c1d4766-fa85-4629-ab70-86eb08805249/workflows/scripts/ccn-wizard-review-wf_f56eb66c-556.js', resumeFromRunId: 'wf_f56eb66c-556'}) — agents whose (prompt, opts) are unchanged replay from cache.</diagnostics>
+<usage><agent_count>17</agent_count><agents_done>17</agents_done><agents_error>0</agents_error><agents_skipped>0</agents_skipped><agents_empty_result>0</agents_empty_result><subagent_tokens>1286134</subagent_tokens><tool_uses>187</tool_uses><duration_ms>1184293</duration_ms></usage>
+</task-notification>
+
+---
+
+<task-notification>
+<task-id>b5b2legvn</task-id>
+<tool-use-id>REDACTED</tool-use-id>
+<output-file>/private/tmp/claude-501/-Users-bodhishthomas-code-care-fe/6c1d4766-fa85-4629-ab70-86eb08805249/tasks/b5b2legvn.output</output-file>
+<status>completed</status>
+<summary>Background command "Rebuild with review fixes" completed (exit code 0)</summary>
+</task-notification>
+
+---
+
+can we also rewamp the /Users/bodhishthomas/code/care_fe/src/components/Resource/ResourceForm.tsx page
+
+if catagory is selected as Clinical Care and Social Support we should just create the resource request instead of the flow
+
+---
+
+make it looks better and polished
