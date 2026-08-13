@@ -1,0 +1,33 @@
+i need exactly older ui using callout component
+
+---
+
+use phrase/sentences with variables not do word by word translations
+
+---
+
+here too
+
+---
+
+give me a pr titile for this
+
+---
+
+look into eslint warnings... we could avoid the state all together by keeping the state in query params itself
+
+---
+
+why don't we simplify the search with to be an enum? would make things much simpler.searchWith
+
+---
+
+simplify the search with to be an enum it  would make things much simpler.
+
+---
+
+make supplyRequests also to loading gate? so that we don't need to null check in most of the places
+
+---
+
+i changed the #sym:maxDatapointsPerUpsert  to 3  my total supplydeliveries are 4 , but why #sym:isLoadingSupplyDeliveries  is true always ?
