@@ -1,0 +1,20 @@
+Can you check if the date is available when calling the dosubmit
+
+---
+
+I'm referring to the availabilitySchedule from discover; startTime and endTime of the schedule
+
+---
+
+Can you bring it in and wire it so that when you buildSelectBody, along with healthServiceType you also pass
+
+appointmentWindowStart
+appointmentWindowEnd
+
+with +5.30 at the end
+
+---
+
+availabilitySchedule is inside
+
+resource.resourceAttributes right?
