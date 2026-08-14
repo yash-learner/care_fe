@@ -64,3 +64,15 @@ interface ImportMeta {
 }
 
 declare module "@fontsource/*";
+
+interface Window {
+  Capacitor?: {
+    Plugins?: {
+      Alarm?: {
+        sync: (calendar: unknown) => Promise<void>;
+        cancel?: () => Promise<void>;
+      };
+    };
+    isNativePlatform?: () => boolean;
+  };
+}
