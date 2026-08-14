@@ -8,7 +8,7 @@ import { Button } from "@/components/ui/button";
 import { PatientBadge } from "@/components/Patient/PatientBadge";
 
 import { AlarmOccurrence } from "@/types/careReminders/careReminders";
-import { isCapacitorRuntime } from "@/Utils/capacitorAlarm";
+import { hasNativeAlarmPlugin } from "@/Utils/capacitorAlarm";
 
 interface UpcomingDosesCardProps {
   occurrences: AlarmOccurrence[];
@@ -24,7 +24,7 @@ function formatDoseWhen(scheduledAt: string): string {
 
 export function UpcomingDosesCard({ occurrences }: UpcomingDosesCardProps) {
   const { t } = useTranslation();
-  const isNative = isCapacitorRuntime();
+  const isNative = hasNativeAlarmPlugin();
   const apkUrl = careConfig.patientApkUrl;
 
   return (

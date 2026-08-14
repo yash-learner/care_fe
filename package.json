@@ -53,9 +53,13 @@
     "lint-fix": "eslint ./src --fix",
     "format": "prettier ./src ./tests --write",
     "sort-locales": "node ./scripts/sort-locales.js",
-    "clone-component": "tsx scripts/clone-component.ts"
+    "clone-component": "tsx scripts/clone-component.ts",
+    "cap:sync": "npx cap sync android",
+    "cap:open": "npx cap open android"
   },
   "dependencies": {
+    "@capacitor/android": "^7.4.4",
+    "@capacitor/core": "^7.4.4",
     "@fontsource/figtree": "^5.2.10",
     "@fontsource/libre-barcode-128-text": "^5.2.8",
     "@hookform/resolvers": "^5.4.0",
@@ -143,6 +147,7 @@
     "zod": "^4.4.3"
   },
   "devDependencies": {
+    "@capacitor/cli": "^7.4.4",
     "@eslint/js": "^9.18.0",
     "@faker-js/faker": "^10.4.0",
     "@playwright/test": "^1.60.0",

@@ -33,6 +33,7 @@
     "src/**/*.tsx",
     "src/**/*.d.ts",
     "care.config.ts",
+    "capacitor.config.ts",
     "scripts/**/*.ts",
     "playwright.config.ts",
     "plugins/**/*.ts"

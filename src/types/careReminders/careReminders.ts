@@ -29,8 +29,9 @@ export interface AlarmSyncResponse extends AlarmCalendar {
 }
 
 export interface CapacitorAlarmPlugin {
-  sync: (calendar: AlarmCalendar) => Promise<void>;
-  cancel?: () => Promise<void>;
+  sync: (calendar: AlarmCalendar & { api_url?: string }) => Promise<void>;
+  cancel: () => Promise<void>;
+  requestPermissions?: () => Promise<void>;
 }
 
 export interface CapacitorRuntime {

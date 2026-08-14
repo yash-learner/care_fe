@@ -65,6 +65,19 @@ bun.lockb
 /tests/.auth/
 test-results.json
 
+# Capacitor / Android
+android/.gradle/
+android/app/build/
+android/build/
+android/local.properties
+android/captures/
+android/.idea/
+*.iml
+android/app/release/
+*.apk
+*.aab
+
+
 # Federation Temp files
 /.__mf__temp
 public/sbom/*

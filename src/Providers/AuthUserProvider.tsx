@@ -10,6 +10,7 @@ import { AuthUserContext } from "@/hooks/useAuthUser";
 
 import { LocalStorageKeys } from "@/common/constants";
 
+import { cancelNativeAlarms } from "@/Utils/capacitorAlarm";
 import mutate from "@/Utils/request/mutate";
 import query from "@/Utils/request/query";
 import { userAtom } from "@/atoms/user-atom";
@@ -166,6 +167,7 @@ export default function AuthUserProvider({
     localStorage.removeItem(LocalStorageKeys.selectedPatient);
     setAccessToken(null);
     setPatientToken(null);
+    void cancelNativeAlarms();
 
     // Wipe all cached data so a subsequent sign-in with the same credentials
     // cannot receive stale data from the previous session.

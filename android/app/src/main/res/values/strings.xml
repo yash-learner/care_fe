@@ -1,0 +1,17 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="app_name">CARE</string>
+    <string name="title_activity_main">CARE</string>
+    <string name="package_name">network.ohc.carepatient</string>
+    <string name="custom_url_scheme">network.ohc.carepatient</string>
+    <string name="alarm_kicker">Time to take your medicine</string>
+    <string name="alarm_slot_title">%1$s · %2$d medicines</string>
+    <string name="taken">Taken</string>
+    <string name="take_all">Take all</string>
+    <string name="snooze">Snooze 10 minutes</string>
+    <string name="skip">Skip</string>
+    <string name="alarm_channel_name">Dose alarms</string>
+    <string name="alarm_channel_description">Rings at the prescribed clock time even if the app is closed.</string>
+    <string name="alarm_save_failed">Could not save %1$s on the server.</string>
+    <string name="alarm_snooze_offline">Snoozed on this phone. Server update failed.</string>
+</resources>
