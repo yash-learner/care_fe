@@ -18,6 +18,7 @@ import { PatientAvatar } from "@/components/Patient/PatientProfileCard";
 import { PatientSwitcherSheet } from "@/components/Patient/PatientSwitcherSheet";
 
 import { Button } from "@/components/ui/button";
+import { usePatientAlarmSync } from "@/hooks/usePatientAlarmSync";
 import { usePatientContext } from "@/hooks/usePatientUser";
 
 /** How long the "now showing records for X" confirmation stays up. */
@@ -114,6 +115,7 @@ export function PatientAppShell({
   const { t } = useTranslation();
   const path = usePath();
   const { selectedPatient, patients } = usePatientContext();
+  usePatientAlarmSync();
 
   const [switcherOpen, setSwitcherOpen] = useState(false);
   const [switchedTo, setSwitchedTo] = useState<string | null>(null);
