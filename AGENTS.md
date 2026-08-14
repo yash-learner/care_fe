@@ -70,3 +70,14 @@ npx tsc --noEmit
 # 3. Run related tests (requires backend + build)
 npx playwright test tests/path/to/related/
 ```
+
+## Cursor Cloud specific instructions
+
+This repo is the CARE **frontend only** (React 19 + Vite). The Django backend lives in a separate repo (`ohcnetwork/care`) and is NOT checked out here. Standard scripts live in `package.json`; deeper setup docs are in `README.md` and the [`docs/`](docs/) directory (see the Documentation Map above).
+
+- **Node version**: The app requires Node 24 (`.node-version`). `nvm` has v24 installed and set as the `default` alias, so `tmux`/login shells (`bash -l`) already use Node 24 automatically. The non-login shell may resolve to a system Node 22 on `PATH`; if `node --version` isn't 24, run `. "$NVM_DIR/nvm.sh" && nvm use 24` (or start work inside a `tmux` login shell). Node 22 also runs `npm install` fine.
+- **Backend / API URL**: By default the dev server points at the hosted staging backend (`REACT_CARE_API_URL=https://careapi.ohc.network` from `.env`), so `npm run dev` boots and is fully usable with no `.env.local`. To target a local backend, create `.env.local` with `REACT_CARE_API_URL=http://127.0.0.1:9000` (see [`docs/local-development.md`](docs/local-development.md)).
+- **Run dev server**: `npm run dev` serves http://localhost:4000 (port hardcoded in `vite.config.mts`).
+- **Credential-free smoke test**: Against the staging backend you can log in without any account via the Patient login tab — enter any valid phone number, click Send OTP, then use the hardcoded staging OTP `45612`. This lands on `/patient/home`. Useful to verify the app + API wiring end-to-end.
+- **Playwright E2E**: Requires a LOCAL backend on port 9000 plus PostgreSQL + Redis, and a prior `npm run build` (tests run against `npm run preview`). None of that is provisioned in this environment; setting it up requires cloning/running the separate backend repo. See [`docs/testing.md`](docs/testing.md) for the full flow.
+- `npm run lint` and `npm run build` each take a couple of minutes; allow generous timeouts.
