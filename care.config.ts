@@ -268,6 +268,13 @@ const careConfig = {
    */
   patientSupportPhone: env.REACT_PATIENT_SUPPORT_PHONE,
 
+  /**
+   * Optional URL to the patient Android APK. When set, Home shows an
+   * "Install the app to set alarms" button. Lock-screen alarms cannot run
+   * in the browser.
+   */
+  patientApkUrl: env.REACT_PATIENT_APK_URL || "",
+
   imageUploadMaxSizeInMB: env.REACT_APP_MAX_IMAGE_UPLOAD_SIZE_MB
     ? parseInt(env.REACT_APP_MAX_IMAGE_UPLOAD_SIZE_MB, 10)
     : 2,

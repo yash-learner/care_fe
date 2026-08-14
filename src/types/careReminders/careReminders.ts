@@ -5,6 +5,7 @@ export interface AlarmOccurrence {
   title: string;
   body: string;
   medication_name: string;
+  patient_id: string;
   patient_name: string;
   day_part: string;
   take_path: string;

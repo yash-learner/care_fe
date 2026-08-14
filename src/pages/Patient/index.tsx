@@ -11,8 +11,10 @@ import { DiagnosticReportRow } from "@/components/Patient/DiagnosticReportRow";
 import { PatientAppShell } from "@/components/Patient/PatientAppShell";
 import { patientMetaLine } from "@/components/Patient/PatientProfileCard";
 import { PrescriptionRow } from "@/components/Patient/PrescriptionRow";
+import { UpcomingDosesCard } from "@/components/Patient/UpcomingDosesCard";
 import { VisitCard } from "@/components/Patient/VisitCard";
 
+import { usePatientDoseCalendar } from "@/hooks/usePatientAlarmSync";
 import {
   READY_REPORT_STATUSES,
   usePatientAppointments,
@@ -73,6 +75,20 @@ function PatientPortalIndex() {
     usePatientPrescriptions();
   const { reports: readyReports, isLoading: isLoadingReports } =
     usePatientDiagnosticReports({ status: READY_REPORT_STATUSES });
+  const {
+    data: doseCalendar,
+    isLoading: isLoadingDoses,
+    isSuccess: dosesReady,
+  } = usePatientDoseCalendar();
+
+  const upcomingDoses = (doseCalendar?.occurrences ?? [])
+    .filter(
+      (occurrence) =>
+        !selectedPatient?.id ||
+        !occurrence.patient_id ||
+        occurrence.patient_id === selectedPatient.id,
+    )
+    .slice(0, 4);
 
   const isLoading =
     isLoadingPatients ||
@@ -110,6 +126,12 @@ function PatientPortalIndex() {
               : selectedPatient && patientMetaLine(selectedPatient, t)}
           </p>
         </div>
+
+        {isLoadingDoses ? (
+          <Skeleton className="h-36 w-full rounded-2xl" />
+        ) : (
+          dosesReady && <UpcomingDosesCard occurrences={upcomingDoses} />
+        )}
 
         {isLoading ? (
           <>
