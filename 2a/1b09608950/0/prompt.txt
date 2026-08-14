@@ -1,0 +1,19 @@
+Currently, this list out all the deliveries to the loaction. I was thinking about listing all the supplies to and fro this locaton. What all are the changes should be done for this?
+check backend and other implementations in frontend for this and make the required changes
+
+---
+
+In the workspace /Users/navaspavil/Projects/ohc/care_fe, research the supply delivery feature. Report (thorough):
+
+1. Contents of src/types/inventory/supplyDelivery/supplyDeliveryApi.ts and supplyDelivery.ts - especially the query param types for listSupplyDelivery (does it support `origin`, `destination`, `location`, or similar params?).
+2. All frontend usages of `listSupplyDelivery` - file paths and the queryParams they pass. Especially any place that lists both incoming AND outgoing deliveries for a location (e.g. tabs for "incoming"/"outgoing", or origin vs destination).
+3. The SupplyDeliveryTable component (src/pages/Facility/services/inventory/SupplyDeliveryTable.tsx) props and what `showLocations` does.
+4. Any existing tab/toggle UI patterns in the inventory/services pages for switching between incoming/outgoing.
+
+Also, if a sibling care backend checkout exists (look for /Users/navaspavil/Projects/ohc/care), report the SupplyDelivery filterset fields (search for `class SupplyDeliveryFilter` or similar in the backend) to confirm which query params the API supports (origin, destination, status, etc.).
+
+Return exact code snippets for the API types and the query param interfaces. Do not write code.
+
+---
+
+This is great, Do we need to update any tests regarding inventory list due to this change?
