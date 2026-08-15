@@ -87,6 +87,8 @@ cp -aL node_modules/@capacitor/android "$WIN/node_modules/@capacitor/"
 
 Then open `$WIN/android` in Studio. Do not copy the rest of `node_modules`.
 
+`android/capacitor-cordova-android-plugins/` is an empty Cordova shim Gradle needs even when you have no Cordova plugins. It is committed on this branch. After `git pull` on Windows it should exist; you do not copy it from WSL.
+
 If Studio still says `Failed to resolve: project :capacitor-android`:
 
 1. Opened path must end in `care_fe\android`, not `StudioProjects\android`.

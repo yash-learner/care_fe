@@ -89,8 +89,8 @@ lint/tmp/
 # Android Profiling
 *.hprof
 
-# Cordova plugins for Capacitor
-capacitor-cordova-android-plugins
+# Cordova plugins for Capacitor (empty stub is committed so Windows
+# Studio can sync without `npx cap sync`. cap sync may overwrite it.)
 
 # Copied web assets
 app/src/main/assets/public
