@@ -35,15 +35,31 @@ CAPACITOR_SERVER_URL=http://10.0.2.2:4000 npx cap sync android
 
 ## Windows + WSL
 
-Windows Android Studio does **not** reliably open a Gradle project that lives only under `\\wsl$\…`. Do not fight that. Pick one of the paths below.
+Windows Android Studio does **not** reliably open a Gradle project under `\\wsl$\…`. Studio’s Run button is itself a Windows Gradle build of the folder you opened, so “compile in WSL, Run in Studio on the WSL tree” does not work.
 
-### Recommended: clone full `care_fe` on the Windows drive
+Split the jobs:
 
-Copy or clone the **whole** frontend repo (not only `android/`). Gradle needs `package.json` and `node_modules` as siblings of `android/`.
+| Job | Where |
+| --- | --- |
+| `npm install`, `npm run dev`, `npx cap sync android` | WSL (`care_fe` Linux clone) |
+| Gradle sync / Run / emulator / USB | Windows Android Studio |
+| Django / CARE API | WSL |
 
-Leave Django / CARE API / `npm run dev` in WSL. You do not need to move the backend.
+Do **not** run a full `npm install` of `care_fe` on Windows. `postinstall` only fetches extra Rollup/esbuild binaries for Linux/macOS, `prepare` runs Husky, and Playwright helpers are bash. You do not need Vite on Windows; the debug APK loads `/patient/login` from the WSL dev server.
 
-In **PowerShell** (Windows Node.js 20+, same branch as WSL):
+### Recommended: WSL Node + Windows Studio (no full Windows `npm install`)
+
+**WSL** (source of truth for git + JS):
+
+```bash
+cd care_fe
+git checkout cursor/patient-capacitor-alarms-4f0c
+git pull
+npm install
+CAPACITOR_SERVER_URL=http://10.0.2.2:4000 npx cap sync android
+```
+
+**Windows** — clone the same repo onto NTFS (whole `care_fe`, not only `android/`), then install **only** Capacitor so Gradle can see `:capacitor-android`:
 
 ```powershell
 cd $env:USERPROFILE\StudioProjects
@@ -51,28 +67,42 @@ git clone https://github.com/yash-learner/care_fe.git
 cd care_fe
 git checkout cursor/patient-capacitor-alarms-4f0c
 git pull
-npm install
+npm install --ignore-scripts --no-save @capacitor/core @capacitor/android @capacitor/cli
 npx cap sync android
 ```
 
+`--ignore-scripts` skips Husky and `scripts/install-platform-deps.ts`.
+
 Android Studio: **File → Open** → `C:\Users\<you>\StudioProjects\care_fe\android`
 
-Do **not** copy `android/` alone into `StudioProjects\android`. Do **not** copy `node_modules` from WSL onto NTFS (Linux symlinks break). Run `npm install` on Windows.
+If you would rather not run npm on Windows at all, copy one folder from WSL after `npm install` there (dereference symlinks):
+
+```bash
+# WSL; adjust the Windows path
+WIN=/mnt/c/Users/$USER/StudioProjects/care_fe
+mkdir -p "$WIN/node_modules/@capacitor"
+rm -rf "$WIN/node_modules/@capacitor/android"
+cp -aL node_modules/@capacitor/android "$WIN/node_modules/@capacitor/"
+```
+
+Then open `$WIN/android` in Studio. Do not copy the rest of `node_modules`.
 
 If Studio still says `Failed to resolve: project :capacitor-android`:
 
-1. The opened path must end in `care_fe\android`, not `StudioProjects\android`.
-2. `care_fe\node_modules\@capacitor\android\capacitor` must exist (Windows `npm install` + `npx cap sync android`).
+1. Opened path must end in `care_fe\android`, not `StudioProjects\android`.
+2. `care_fe\node_modules\@capacitor\android\capacitor` must exist on NTFS.
 3. File → Sync Project with Gradle Files.
 4. Do not use “Fix with AI” / Project Structure for this error.
 
-Debug WebView still talks to the WSL Vite server. WSL2 usually publishes ports on Windows `localhost`, so the emulator default `http://10.0.2.2:4000` works if `npm run dev` is bound to `0.0.0.0` in WSL. Phone on Wi‑Fi: use the **Windows** LAN IP, not the WSL internal IP.
+Debug WebView talks to the WSL Vite server. WSL2 usually publishes ports on Windows `localhost`, so the emulator default `http://10.0.2.2:4000` works if `npm run dev` is bound to `0.0.0.0` in WSL. Phone on Wi‑Fi: use the **Windows** LAN IP.
 
-Keep the two clones on the same git branch. Edit Kotlin in Studio on Windows; edit React in WSL or Windows, then `git pull` the other clone. `npx cap sync android` after JS or `capacitor.config.ts` changes.
+Keep both clones on the same git branch. After JS or `capacitor.config.ts` changes: `npx cap sync android` in WSL, `git pull` on Windows, then the small Capacitor `npm install` (or the `cp -aL`) again.
 
-### Alternative: Gradle in WSL, no Android Studio
+### Alternative: assemble the APK in WSL, skip Studio
 
-Possible, but you still need the Android SDK, a JDK, and `adb` in WSL (or `adb.exe` on Windows). The emulator GPU path is worse in WSL2; USB devices need `usbipd`. Use this only if you already live in the Linux SDK and do not need the Studio UI.
+That needs a **Linux** Android SDK in WSL. The SDK that Windows Studio installed is `aapt2.exe` and will not drive WSL `./gradlew`. Do not point `ANDROID_HOME` at `/mnt/c/Users/…/AppData/Local/Android/Sdk`.
+
+If you install command-line tools + a JDK in WSL:
 
 ```bash
 cd care_fe
@@ -81,13 +111,19 @@ npx cap sync android
 cd android && ./gradlew assembleDebug
 ```
 
-Sideload `android/app/build/outputs/apk/debug/app-debug.apk`.
+Then install with Windows `adb` (emulator or USB). Studio is optional:
+
+```powershell
+adb install -r \\wsl$\Ubuntu\home\<you>\path\to\care_fe\android\app\build\outputs\apk\debug\app-debug.apk
+```
 
 ### Do not
 
 - Open `\\wsl$\Ubuntu\home\…\care_fe\android` from Windows Android Studio.
-- Install Android Studio inside WSL just to work around the `\\wsl$` limitation.
+- Full `npm install` of `care_fe` on Windows (unnecessary for the APK; can fail on Husky / Linux-only extras).
+- Copy the whole WSL `node_modules` onto NTFS.
 - Copy only the `android/` folder.
+- Install Android Studio inside WSL just to dodge `\\wsl$`.
 
 Sideload `android/app/build/outputs/apk/debug/app-debug.apk` (allow Install unknown apps).
 
