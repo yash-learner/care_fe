@@ -237,6 +237,130 @@ npm run playwright:show-report    # View the HTML test report
 
 For more details, see [tests/README.md](tests/README.md).
 
+## 🤖 AI-Assisted Development with Spec Kit
+
+This repository is set up with [Spec Kit](https://github.com/github/spec-kit) for structured, specification-driven, agentic development workflows using **GitHub Copilot**.
+
+Spec Kit introduces a disciplined flow from idea to implementation:
+
+```
+Idea → Spec → Plan → Tasks → Implementation
+```
+
+### Prerequisites
+
+- [Python 3.11+](https://www.python.org/)
+- [`uv`](https://docs.astral.sh/uv/) — fast Python package manager
+- [GitHub Copilot](https://marketplace.visualstudio.com/items?itemName=GitHub.copilot) extension in VS Code (or JetBrains IDE)
+
+### Install Spec Kit CLI
+
+```sh
+uv tool install specify-cli --from git+https://github.com/github/spec-kit.git@v0.8.0
+```
+
+### Available Copilot Commands
+
+Once Spec Kit is installed, the following slash commands are available in GitHub Copilot Chat:
+
+| Command | Description |
+|---|---|
+| `/speckit.constitution` | Establish project principles and governance rules |
+| `/speckit.specify` | Create a feature specification (spec.md) from a description |
+| `/speckit.clarify` | Ask structured questions to resolve ambiguity before planning |
+| `/speckit.plan` | Generate an implementation plan (plan.md) from a spec |
+| `/speckit.tasks` | Break the plan into actionable tasks (tasks.md) |
+| `/speckit.analyze` | Cross-artifact consistency & quality analysis |
+| `/speckit.checklist` | Generate quality checklists to validate completeness |
+| `/speckit.implement` | Execute implementation from tasks |
+
+### Example Workflow: Adding a New Feature
+
+#### 1. Set up project constitution (one-time)
+
+Open Copilot Chat and run:
+
+```
+/speckit.constitution
+```
+
+This establishes the CARE frontend's development principles (TypeScript, React patterns, accessibility, i18n requirements, etc.).
+
+#### 2. Specify the feature
+
+```
+/speckit.specify Add a patient vitals monitoring dashboard with real-time updates
+```
+
+Copilot creates `specs/<branch>/spec.md` with user stories, functional requirements, and success criteria.
+
+#### 3. Clarify ambiguities (optional but recommended)
+
+```
+/speckit.clarify
+```
+
+Copilot asks structured questions to resolve unclear areas before planning begins.
+
+#### 4. Generate an implementation plan
+
+```
+/speckit.plan
+```
+
+Copilot creates `specs/<branch>/plan.md` with architecture decisions, component structure, and phase breakdown.
+
+#### 5. Break into tasks
+
+```
+/speckit.tasks
+```
+
+Copilot creates `specs/<branch>/tasks.md` with a detailed, ordered, actionable task list.
+
+#### 6. Analyze for consistency (optional)
+
+```
+/speckit.analyze
+```
+
+Copilot checks for gaps, ambiguities, and inconsistencies across spec, plan, and tasks.
+
+#### 7. Implement
+
+```
+/speckit.implement
+```
+
+Copilot implements the tasks one by one, following the spec and plan.
+
+### Project Structure for Specs
+
+```
+specs/
+└── <branch-name>/
+    ├── spec.md       # Feature specification (from /speckit.specify)
+    ├── plan.md       # Implementation plan (from /speckit.plan)
+    └── tasks.md      # Task breakdown (from /speckit.tasks)
+```
+
+### Upgrade Spec Kit
+
+To upgrade to a newer version of Spec Kit:
+
+```sh
+uv tool install --upgrade specify-cli --from git+https://github.com/github/spec-kit.git@<new-version>
+specify integration upgrade copilot
+```
+
+### Learn More
+
+- [Spec Kit Documentation](https://github.com/github/spec-kit)
+- [Spec-Driven Development Guide](https://github.com/github/spec-kit/blob/main/spec-driven.md)
+- [Copilot Integration Reference](https://github.com/github/spec-kit/blob/main/docs/reference/integrations.md)
+
+---
+
 ## 📖 Documentations
 
 - [CARE Documentation](https://docs.ohc.network/docs/care)
