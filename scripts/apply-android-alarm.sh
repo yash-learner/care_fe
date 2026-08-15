@@ -47,6 +47,8 @@ cat > "$APP/res/drawable/splash.xml" <<'EOF'
     <item android:drawable="@color/colorPrimary" />
 </layer-list>
 EOF
+# Capacitor's default template also ships splash.png; both cannot exist.
+rm -f "$APP/res/drawable/splash.png"
 
 python3 - "$SRC/strings.xml" "$APP/res/values/strings.xml" <<'PY'
 import re

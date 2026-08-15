@@ -87,6 +87,14 @@ cp -aL node_modules/@capacitor/android "$WIN/node_modules/@capacitor/"
 
 Then open `$WIN/android` in Studio. Do not copy the rest of `node_modules`.
 
+If Gradle fails with `Duplicate resources` for `drawable/splash`, Capacitor’s default `splash.png` is still next to our `splash.xml`. Delete the PNG (git will not remove an untracked local file):
+
+```powershell
+del C:\Users\yasht\StudioProjects\care_fe\android\app\src\main\res\drawable\splash.png
+```
+
+The `flatDir` warning comes from Capacitor’s Gradle templates. Ignore it; do not “Fix with AI”.
+
 `android/capacitor-cordova-android-plugins/` is an empty Cordova shim Gradle needs even when you have no Cordova plugins. It is committed on this branch. After `git pull` on Windows it should exist; you do not copy it from WSL.
 
 If Studio still says `Failed to resolve: project :capacitor-android`:
