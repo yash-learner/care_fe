@@ -4,16 +4,18 @@ The APK is `care_fe` in a WebView. It starts at **`/patient/login`**, not the st
 
 ## Morning test (debug APK)
 
-On your machine (this cloud environment has no Android SDK):
+`android/` is already on `cursor/patient-capacitor-alarms-4f0c` with the alarm overlay applied. After a pull you only need:
 
 ```bash
 cd care_fe
-git checkout cursor/patient-capacitor-alarms-4f0c
+git pull
 npm install
-npx cap add android   # first time only
-bash scripts/apply-android-alarm.sh
 npx cap sync android
 ```
+
+`cap sync` copies Capacitor config into the Android project and points Gradle at `node_modules`. It does not create `android/` and does not rebuild the APK.
+
+Skip `npx cap add android` and `bash scripts/apply-android-alarm.sh` unless `android/` is missing (you deleted it, or a clone never had the folder). Those two recreate the Gradle app and copy Kotlin from `native/android-alarm/`.
 
 Point the WebView at your running patient portal. Default is the emulator host:
 
@@ -50,4 +52,4 @@ If alarms are late on a real OEM phone, exempt CARE from battery optimisation. N
 
 - JS: `src/Utils/capacitorAlarm.ts` (already called from `PatientAppShell`)
 - Overlay sources: `native/android-alarm/`
-- Generated Gradle app: `android/` (Capacitor). Re-run `apply-android-alarm.sh` after `cap add`.
+- Gradle app: `android/` (committed). Only re-run `apply-android-alarm.sh` after a fresh `npx cap add android`.
