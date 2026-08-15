@@ -29,9 +29,26 @@ Point the WebView at your running patient portal. Default is the emulator host:
 
 ```bash
 CAPACITOR_SERVER_URL=http://10.0.2.2:4000 npx cap sync android
-# Android Studio: File → Open → care_fe/android
+# Android Studio: File → Open → care_fe/android  (the folder next to package.json / node_modules)
 # or: cd android && ./gradlew assembleDebug
 ```
+
+Do **not** copy `android/` into `C:\Users\...\StudioProjects\android` and open that copy. Capacitor is not inside the Android folder; Gradle loads it from `care_fe/node_modules/@capacitor/android`. Opening a copy makes `:capacitor-android` fail to resolve even if a Gradle run printed `BUILD SUCCESSFUL` (that success was usually from the real `care_fe/android`, or from downloading Maven jars before the IDE model failed).
+
+If the problems report path looks like `C:/Users/…/StudioProjects/android/build/reports/…`, Studio opened the copy. Close that project. **File → Open** the folder next to `package.json`:
+
+```text
+…/care_fe/android
+```
+
+not `…/StudioProjects/android`.
+
+If Studio still says `Failed to resolve: project :capacitor-android`:
+
+1. Confirm the opened path ends in `care_fe/android` (WSL: `\\wsl$\…\care_fe\android` is fine; a Windows copy of only `android/` is not).
+2. In `care_fe`: `npm install` then `npx cap sync android` (creates `node_modules/@capacitor/android`).
+3. File → Sync Project with Gradle Files.
+4. If you already imported a copy under StudioProjects, delete that Studio project from the welcome screen and open `care_fe/android` instead. Do not “Fix with AI” / Project Structure for this error.
 
 Sideload `android/app/build/outputs/apk/debug/app-debug.apk`. Allow Install unknown apps.
 

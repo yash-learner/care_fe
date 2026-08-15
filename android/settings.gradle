@@ -3,3 +3,21 @@ include ':capacitor-cordova-android-plugins'
 project(':capacitor-cordova-android-plugins').projectDir = new File('./capacitor-cordova-android-plugins/')
 
 apply from: 'capacitor.settings.gradle'
+
+def capacitorAndroidDir = project(':capacitor-android').projectDir
+if (!capacitorAndroidDir.exists()) {
+    throw new GradleException(
+        """
+        Capacitor Android was not found at:
+          ${capacitorAndroidDir.canonicalFile}
+
+        Open the android folder that lives next to package.json and node_modules
+        (care_fe/android). Do not copy android/ into StudioProjects and open that copy.
+        Gradle loads :capacitor-android from ../node_modules/@capacitor/android/capacitor.
+
+        From care_fe:
+          npm install
+          npx cap sync android
+        """.stripIndent()
+    )
+}
