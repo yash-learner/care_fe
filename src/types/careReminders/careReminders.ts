@@ -28,6 +28,41 @@ export interface AlarmSyncResponse extends AlarmCalendar {
   occurrences_created?: number;
 }
 
+export const ALARM_CLOCK_PARTS = [
+  "morning",
+  "noon",
+  "evening",
+  "night",
+] as const;
+
+export type AlarmClockPart = (typeof ALARM_CLOCK_PARTS)[number];
+
+export interface PatientAlarmClock {
+  patient_id: string;
+  patient_name: string;
+  time_zone: string;
+  morning_at: string;
+  noon_at: string;
+  evening_at: string;
+  night_at: string;
+}
+
+export interface PatientAlarmClockList {
+  clocks: PatientAlarmClock[];
+}
+
+export interface PatientAlarmClockPatch {
+  patient_id: string;
+  morning_at?: string;
+  noon_at?: string;
+  evening_at?: string;
+  night_at?: string;
+}
+
+export interface PatientAlarmClockResponse extends AlarmSyncResponse {
+  clock: PatientAlarmClock;
+}
+
 export interface CapacitorAlarmPlugin {
   sync: (calendar: AlarmCalendar & { api_url?: string }) => Promise<void>;
   cancel: () => Promise<void>;

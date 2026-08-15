@@ -1,6 +1,7 @@
 import careConfig from "@careConfig";
 import dayjs from "dayjs";
 import { Bell } from "lucide-react";
+import { Link } from "raviger";
 import { useTranslation } from "react-i18next";
 
 import { Button } from "@/components/ui/button";
@@ -91,6 +92,13 @@ export function UpcomingDosesCard({ occurrences }: UpcomingDosesCardProps) {
           )}
         </div>
       )}
+
+      <Link
+        href="/patient/profile"
+        className="text-xs font-semibold text-primary-700"
+      >
+        {t("patient_home__change_alarm_times")}
+      </Link>
     </section>
   );
 }

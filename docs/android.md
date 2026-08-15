@@ -19,11 +19,11 @@ Skip `npx cap add android` and `bash scripts/apply-android-alarm.sh` unless `and
 
 Point the WebView at your running patient portal. Default is the emulator host:
 
-| Where the app runs | `CAPACITOR_SERVER_URL` |
-| --- | --- |
-| Android emulator | `http://10.0.2.2:4000` (default) |
-| Physical phone, USB | `http://127.0.0.1:4000` plus `adb reverse tcp:4000 tcp:4000` and reverse the CARE API port too |
-| Physical phone, Wi‑Fi | `http://YOUR_LAN_IP:4000` (`npm run dev` already binds `0.0.0.0`) |
+| Where the app runs    | `CAPACITOR_SERVER_URL`                                                                         |
+| --------------------- | ---------------------------------------------------------------------------------------------- |
+| Android emulator      | `http://10.0.2.2:4000` (default)                                                               |
+| Physical phone, USB   | `http://127.0.0.1:4000` plus `adb reverse tcp:4000 tcp:4000` and reverse the CARE API port too |
+| Physical phone, Wi‑Fi | `http://YOUR_LAN_IP:4000` (`npm run dev` already binds `0.0.0.0`)                              |
 
 `care_fe` must be able to reach the CARE API from the phone (`REACT_CARE_API_URL` / URL map). Emulator: `http://10.0.2.2:<api-port>`.
 
@@ -39,11 +39,11 @@ Windows Android Studio does **not** reliably open a Gradle project under `\\wsl$
 
 Split the jobs:
 
-| Job | Where |
-| --- | --- |
+| Job                                                  | Where                       |
+| ---------------------------------------------------- | --------------------------- |
 | `npm install`, `npm run dev`, `npx cap sync android` | WSL (`care_fe` Linux clone) |
-| Gradle sync / Run / emulator / USB | Windows Android Studio |
-| Django / CARE API | WSL |
+| Gradle sync / Run / emulator / USB                   | Windows Android Studio      |
+| Django / CARE API                                    | WSL                         |
 
 Do **not** run a full `npm install` of `care_fe` on Windows. `postinstall` only fetches extra Rollup/esbuild binaries for Linux/macOS, `prepare` runs Husky, and Playwright helpers are bash. You do not need Vite on Windows; the debug APK loads `/patient/login` from the WSL dev server.
 
@@ -140,13 +140,14 @@ Sideload `android/app/build/outputs/apk/debug/app-debug.apk` (allow Install unkn
 ### Checklist
 
 1. OTP login → Home shows **Upcoming doses**. Copy should say alarms are set on this device.
-2. Allow notifications, exact alarms, and full-screen intents when prompted.
-3. Lock the phone. At the next `scheduled_at` (or a dose a minute ahead) the full-screen UI appears.
-4. Taken / Skip / Snooze `POST`s `/api/care_reminders/alarms/{external_id}/…`. Check Django.
-5. Two medicines with the same morning clock → **one** ring, both names, **Take all** marks both `taken`.
-6. Reboot; the next dose still rings.
-7. Profile → sign out; alarms are cleared.
-8. Browser Home still lists doses and does not ring.
+2. Profile → **Alarm times** → set morning to 07:00 → Save. Home morning doses should show 7:00 AM. Two `1-0-1` medicines share one 07:00 ring.
+3. Allow notifications, exact alarms, and full-screen intents when prompted.
+4. Lock the phone. At the next `scheduled_at` (or a dose a minute ahead) the full-screen UI appears.
+5. Taken / Skip / Snooze `POST`s `/api/care_reminders/alarms/{external_id}/…`. Check Django.
+6. Two medicines with the same morning clock → **one** ring, both names, **Take all** marks both `taken`.
+7. Reboot; the next dose still rings.
+8. Profile → sign out; alarms are cleared.
+9. Browser Home still lists doses and does not ring.
 
 If alarms are late on a real OEM phone, exempt CARE from battery optimisation. No per-vendor code in v1.
 
