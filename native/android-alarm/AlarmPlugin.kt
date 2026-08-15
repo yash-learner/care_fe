@@ -41,7 +41,7 @@ class AlarmPlugin : Plugin() {
     }
 
     @PluginMethod
-    fun requestPermissions(call: PluginCall) {
+    override fun requestPermissions(call: PluginCall) {
         activity?.let { AlarmPermissions.request(it) }
         call.resolve()
     }
