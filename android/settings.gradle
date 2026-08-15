@@ -12,7 +12,9 @@ if (!capacitorAndroidDir.exists()) {
           ${capacitorAndroidDir.canonicalFile}
 
         Open the android folder that lives next to package.json and node_modules
-        (care_fe/android). Do not copy android/ into StudioProjects and open that copy.
+        (care_fe/android). On Windows, clone the full care_fe repo onto NTFS
+        (e.g. StudioProjects/care_fe) and run npm install there. Do not copy
+        only android/, and do not open a WSL path via \\\\wsl$\\ from Studio.
         Gradle loads :capacitor-android from ../node_modules/@capacitor/android/capacitor.
 
         From care_fe:
