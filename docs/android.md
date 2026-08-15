@@ -89,7 +89,7 @@ Sideload `android/app/build/outputs/apk/debug/app-debug.apk`.
 - Install Android Studio inside WSL just to work around the `\\wsl$` limitation.
 - Copy only the `android/` folder.
 
-Sideload `android/app/build/outputs/apk/debug/app-debug.apk`. Allow Install unknown apps.
+Sideload `android/app/build/outputs/apk/debug/app-debug.apk` (allow Install unknown apps).
 
 ### Checklist
 
