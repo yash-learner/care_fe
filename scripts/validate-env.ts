@@ -157,6 +157,7 @@ const envSchema = z
     REACT_DEFAULT_ENCOUNTER_TYPE: z.string().optional(),
     REACT_DEFAULT_DISCHARGE_DISPOSITION: z.string().optional(),
     REACT_PATIENT_REGISTRATION_DEFAULT_GEO_ORG: z.string().uuid().optional(),
+    REACT_PATIENT_APK_URL: z.string().url().or(z.literal("")).optional(),
     REACT_CUSTOM_REMOTE_I18N_URL: z.string().url().optional(),
     REACT_CUSTOM_SHORTCUTS: customShortcutsSchemaString.optional(),
     REACT_AUTO_REFRESH_INTERVAL: numberAsString.optional(),

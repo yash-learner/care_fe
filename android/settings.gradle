@@ -1,0 +1,19 @@
+include ':app'
+include ':capacitor-cordova-android-plugins'
+project(':capacitor-cordova-android-plugins').projectDir = new File('./capacitor-cordova-android-plugins/')
+
+apply from: 'capacitor.settings.gradle'
+
+def capacitorAndroidDir = project(':capacitor-android').projectDir
+if (!capacitorAndroidDir.exists()) {
+    throw new GradleException(
+        "Capacitor Android was not found at: ${capacitorAndroidDir.canonicalFile}. " +
+        "Open care_fe/android next to package.json and node_modules. " +
+        "On Windows, clone the full care_fe repo onto NTFS (for example StudioProjects/care_fe). " +
+        "Do not copy only android/, and do not open the project from a WSL UNC path. " +
+        "Gradle loads :capacitor-android from ../node_modules/@capacitor/android/capacitor. " +
+        "Full npm install of care_fe is not required on Windows. From that clone: " +
+        "npm install --ignore-scripts --no-save @capacitor/core @capacitor/android @capacitor/cli " +
+        "then npx cap sync android"
+    )
+}
