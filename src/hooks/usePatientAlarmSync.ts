@@ -1,7 +1,8 @@
-import { useQuery } from "@tanstack/react-query";
+import { QueryClient, useQuery } from "@tanstack/react-query";
 import { useEffect } from "react";
 
 import { usePatientContext } from "@/hooks/usePatientUser";
+import { PatientAlarmClockResponse } from "@/types/careReminders/careReminders";
 import careRemindersApi from "@/types/careReminders/careRemindersApi";
 import { isCapacitorRuntime, syncNativeAlarms } from "@/Utils/capacitorAlarm";
 import { callApi } from "@/Utils/request/query";
@@ -24,6 +25,26 @@ export function usePatientDoseCalendar() {
     retry: false,
     staleTime: 60_000,
   });
+}
+
+export function cachePatientReminderState(
+  queryClient: QueryClient,
+  token: string | undefined,
+  result: PatientAlarmClockResponse,
+) {
+  const { clock: nextClock, ...calendar } = result;
+  queryClient.setQueryData(["care-reminders", "sync", token], calendar);
+  queryClient.setQueryData(["care-reminders", "clocks", token], {
+    clocks: result.clocks?.length
+      ? result.clocks
+      : nextClock
+        ? [nextClock]
+        : [],
+    armed_medication_ids: result.armed_medication_ids ?? [],
+  });
+  if (isCapacitorRuntime()) {
+    void syncNativeAlarms(calendar);
+  }
 }
 
 /**

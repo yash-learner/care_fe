@@ -139,8 +139,8 @@ Sideload `android/app/build/outputs/apk/debug/app-debug.apk` (allow Install unkn
 
 ### Checklist
 
-1. OTP login → Home shows **Upcoming doses**. Copy should say alarms are set on this device.
-2. Profile → **Alarm times** → set morning to 07:00 → Save. Home morning doses should show 7:00 AM. Two `1-0-1` medicines share one 07:00 ring.
+1. OTP login → Home **Upcoming doses** is empty until you opt in.
+2. Records → a prescription → bell on a medicine → **Turn on reminders** (change morning to 07:00 in the same sheet). Home lists that medicine. Two armed `1-0-1` medicines share one 07:00 ring.
 3. Allow notifications, exact alarms, and full-screen intents when prompted.
 4. Lock the phone. At the next `scheduled_at` (or a dose a minute ahead) the full-screen UI appears.
 5. Taken / Skip / Snooze `POST`s `/api/care_reminders/alarms/{external_id}/…`. Check Django.

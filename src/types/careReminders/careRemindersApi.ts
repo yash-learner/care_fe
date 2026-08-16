@@ -2,9 +2,11 @@ import { HttpMethod, Type } from "@/Utils/request/types";
 import {
   AlarmCalendar,
   AlarmSyncResponse,
+  PatientAlarmArmBody,
   PatientAlarmClockList,
   PatientAlarmClockPatch,
   PatientAlarmClockResponse,
+  PatientAlarmDisarmBody,
 } from "@/types/careReminders/careReminders";
 
 export default {
@@ -28,6 +30,18 @@ export default {
     path: "/api/care_reminders/clocks/",
     method: HttpMethod.PATCH,
     TBody: Type<PatientAlarmClockPatch>(),
+    TRes: Type<PatientAlarmClockResponse>(),
+  },
+  arm: {
+    path: "/api/care_reminders/arm/",
+    method: HttpMethod.POST,
+    TBody: Type<PatientAlarmArmBody>(),
+    TRes: Type<PatientAlarmClockResponse>(),
+  },
+  disarm: {
+    path: "/api/care_reminders/disarm/",
+    method: HttpMethod.POST,
+    TBody: Type<PatientAlarmDisarmBody>(),
     TRes: Type<PatientAlarmClockResponse>(),
   },
 } as const;

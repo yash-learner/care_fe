@@ -1,10 +1,12 @@
 import { useQuery } from "@tanstack/react-query";
 import dayjs from "dayjs";
 import { Pill } from "lucide-react";
+import { useState } from "react";
 import { useTranslation } from "react-i18next";
 
 import { cn } from "@/lib/utils";
 
+import { Button } from "@/components/ui/button";
 import { EmptyState } from "@/components/ui/empty-state";
 import { Skeleton } from "@/components/ui/skeleton";
 
@@ -14,16 +16,19 @@ import {
   formatDuration,
   formatSig,
 } from "@/components/Medicine/utils";
+import { AlarmBellIcon } from "@/components/Patient/AlarmClockFields";
 import { PatientAppShell } from "@/components/Patient/PatientAppShell";
 import {
   PatientBadge,
   type PatientBadgeTone,
 } from "@/components/Patient/PatientBadge";
+import { PrescriptionAlarmSheet } from "@/components/Patient/PrescriptionAlarmSheet";
 
 import { usePatientContext } from "@/hooks/usePatientUser";
 
-import query from "@/Utils/request/query";
+import query, { callApi } from "@/Utils/request/query";
 import { formatName } from "@/Utils/utils";
+import careRemindersApi from "@/types/careReminders/careRemindersApi";
 import {
   displayMedicationName,
   fhirDosageToFrequencyValue,
@@ -121,7 +126,15 @@ function DosageStep({
   );
 }
 
-function MedicineCard({ medication }: { medication: MedicationRequestRead }) {
+function MedicineCard({
+  medication,
+  armed,
+  onAlarmClick,
+}: {
+  medication: MedicationRequestRead;
+  armed: boolean;
+  onAlarmClick: () => void;
+}) {
   const { t } = useTranslation();
 
   // A tapering course carries more than one instruction; every step is rendered
@@ -130,6 +143,8 @@ function MedicineCard({ medication }: { medication: MedicationRequestRead }) {
   const isInactive = INACTIVE_MEDICATION_STATUSES.includes(
     medication.status as (typeof INACTIVE_MEDICATION_STATUSES)[number],
   );
+  const schedulable =
+    !isInactive && !instructions.some((item) => item.as_needed_boolean);
 
   return (
     <div
@@ -142,9 +157,28 @@ function MedicineCard({ medication }: { medication: MedicationRequestRead }) {
         <span className="min-w-0 text-base font-bold text-gray-900">
           {displayMedicationName(medication)}
         </span>
-        {isInactive && (
-          <PatientBadge tone="neutral">{t(medication.status)}</PatientBadge>
-        )}
+        <div className="flex shrink-0 items-center gap-1">
+          {schedulable && (
+            <Button
+              type="button"
+              variant="ghost"
+              size="icon"
+              className="size-11"
+              aria-label={
+                armed
+                  ? t("patient_prescription__manage_alarms")
+                  : t("patient_prescription__set_alarms")
+              }
+              aria-pressed={armed}
+              onClick={onAlarmClick}
+            >
+              <AlarmBellIcon armed={armed} />
+            </Button>
+          )}
+          {isInactive && (
+            <PatientBadge tone="neutral">{t(medication.status)}</PatientBadge>
+          )}
+        </div>
       </div>
       <DosageInstructionList
         instructions={instructions}
@@ -162,7 +196,9 @@ function MedicineCard({ medication }: { medication: MedicationRequestRead }) {
 
 export default function PrescriptionDetail({ id }: { id: string }) {
   const { t } = useTranslation();
-  const { tokenData } = usePatientContext();
+  const { tokenData, selectedPatient } = usePatientContext();
+  const [alarmMedication, setAlarmMedication] =
+    useState<MedicationRequestRead | null>(null);
 
   const { data: prescription } = useQuery({
     queryKey: ["portal-prescription", id],
@@ -172,6 +208,20 @@ export default function PrescriptionDetail({ id }: { id: string }) {
     }),
     enabled: !!tokenData?.token,
   });
+
+  const { data: reminderState } = useQuery({
+    queryKey: ["care-reminders", "clocks", tokenData?.token],
+    queryFn: ({ signal }) =>
+      callApi(careRemindersApi.clocks, {
+        headers: { Authorization: `Bearer ${tokenData?.token}` },
+        silent: true,
+        signal,
+      }),
+    enabled: !!tokenData?.token,
+    retry: false,
+  });
+
+  const armedIds = reminderState?.armed_medication_ids ?? [];
 
   // Entries marked entered_in_error are void records and should never reach the patient.
   const medications = (prescription?.medications ?? []).filter(
@@ -200,7 +250,12 @@ export default function PrescriptionDetail({ id }: { id: string }) {
 
             {medications.length ? (
               medications.map((medication) => (
-                <MedicineCard key={medication.id} medication={medication} />
+                <MedicineCard
+                  key={medication.id}
+                  medication={medication}
+                  armed={armedIds.includes(medication.id)}
+                  onAlarmClick={() => setAlarmMedication(medication)}
+                />
               ))
             ) : (
               <EmptyState
@@ -223,6 +278,19 @@ export default function PrescriptionDetail({ id }: { id: string }) {
           </>
         )}
       </div>
+      {alarmMedication && (
+        <PrescriptionAlarmSheet
+          open
+          onOpenChange={(next) => {
+            if (!next) {
+              setAlarmMedication(null);
+            }
+          }}
+          medicationId={alarmMedication.id}
+          medicationName={displayMedicationName(alarmMedication)}
+          patientId={selectedPatient?.id}
+        />
+      )}
     </PatientAppShell>
   );
 }

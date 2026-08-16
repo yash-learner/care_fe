@@ -21,13 +21,6 @@ export interface AlarmCalendar {
   occurrences: AlarmOccurrence[];
 }
 
-export interface AlarmSyncResponse extends AlarmCalendar {
-  ok: boolean;
-  patients?: number;
-  medication_requests?: number;
-  occurrences_created?: number;
-}
-
 export const ALARM_CLOCK_PARTS = [
   "morning",
   "noon",
@@ -47,8 +40,18 @@ export interface PatientAlarmClock {
   night_at: string;
 }
 
+export interface AlarmSyncResponse extends AlarmCalendar {
+  ok: boolean;
+  patients?: number;
+  medication_requests?: number;
+  occurrences_created?: number;
+  armed_medication_ids?: string[];
+  clocks?: PatientAlarmClock[];
+}
+
 export interface PatientAlarmClockList {
   clocks: PatientAlarmClock[];
+  armed_medication_ids: string[];
 }
 
 export interface PatientAlarmClockPatch {
@@ -57,6 +60,18 @@ export interface PatientAlarmClockPatch {
   noon_at?: string;
   evening_at?: string;
   night_at?: string;
+}
+
+export interface PatientAlarmArmBody {
+  medication_request_id: string;
+  morning_at?: string;
+  noon_at?: string;
+  evening_at?: string;
+  night_at?: string;
+}
+
+export interface PatientAlarmDisarmBody {
+  medication_request_id?: string;
 }
 
 export interface PatientAlarmClockResponse extends AlarmSyncResponse {

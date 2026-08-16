@@ -7,7 +7,6 @@ import { useTranslation } from "react-i18next";
 import { formatPhoneNumberIntl } from "react-phone-number-input";
 
 import LanguageSelector from "@/components/Common/LanguageSelector";
-import { AlarmTimesCard } from "@/components/Patient/AlarmTimesCard";
 import { PatientAppShell } from "@/components/Patient/PatientAppShell";
 import {
   patientInitials,
@@ -110,8 +109,6 @@ export default function PatientProfileSettings() {
             {t("patient_select__add_family_member")}
           </Link>
         </div>
-
-        <AlarmTimesCard patientId={selectedPatient?.id} />
 
         <div className="overflow-hidden rounded-2xl border border-gray-200 bg-white">
           <div className="flex min-h-11 items-center gap-3 px-4 py-2.5">

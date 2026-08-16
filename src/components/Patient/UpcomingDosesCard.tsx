@@ -45,7 +45,7 @@ export function UpcomingDosesCard({ occurrences }: UpcomingDosesCardProps) {
 
       {occurrences.length === 0 ? (
         <p className="text-sm text-gray-600">
-          {t("patient_home__no_upcoming_doses")}
+          {t("patient_home__no_reminders_yet")}
         </p>
       ) : (
         <ul className="flex flex-col gap-2">
@@ -94,10 +94,10 @@ export function UpcomingDosesCard({ occurrences }: UpcomingDosesCardProps) {
       )}
 
       <Link
-        href="/patient/profile"
+        href="/patient/records?tab=prescriptions"
         className="text-xs font-semibold text-primary-700"
       >
-        {t("patient_home__change_alarm_times")}
+        {t("patient_home__set_reminders_from_prescription")}
       </Link>
     </section>
   );
