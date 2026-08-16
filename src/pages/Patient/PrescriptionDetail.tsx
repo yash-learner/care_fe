@@ -128,18 +128,29 @@ function DosageStep({
   );
 }
 
+function isSchedulableMedication(medication: MedicationRequestRead): boolean {
+  if (
+    INACTIVE_MEDICATION_STATUSES.includes(
+      medication.status as (typeof INACTIVE_MEDICATION_STATUSES)[number],
+    )
+  ) {
+    return false;
+  }
+  return !(medication.dosage_instruction ?? []).some(
+    (item) => item.as_needed_boolean,
+  );
+}
+
 function MedicineCard({
   medication,
   armed,
   doses,
   dosesLoading,
-  onAlarmClick,
 }: {
   medication: MedicationRequestRead;
   armed: boolean;
   doses: AlarmOccurrence[];
   dosesLoading: boolean;
-  onAlarmClick: () => void;
 }) {
   const { t } = useTranslation();
   const [open, setOpen] = useState(false);
@@ -150,8 +161,6 @@ function MedicineCard({
   const isInactive = INACTIVE_MEDICATION_STATUSES.includes(
     medication.status as (typeof INACTIVE_MEDICATION_STATUSES)[number],
   );
-  const schedulable =
-    !isInactive && !instructions.some((item) => item.as_needed_boolean);
 
   return (
     <div
@@ -180,22 +189,10 @@ function MedicineCard({
           </span>
         </button>
         <div className="flex shrink-0 items-center gap-1">
-          {schedulable && (
-            <Button
-              type="button"
-              variant="ghost"
-              size="icon"
-              className="size-11"
-              aria-label={
-                armed
-                  ? t("patient_prescription__manage_alarms")
-                  : t("patient_prescription__set_alarms")
-              }
-              aria-pressed={armed}
-              onClick={onAlarmClick}
-            >
-              <AlarmBellIcon armed={armed} />
-            </Button>
+          {armed && (
+            <PatientBadge tone="primary">
+              {t("patient_prescription__alarm_on")}
+            </PatientBadge>
           )}
           {isInactive && (
             <PatientBadge tone="neutral">{t(medication.status)}</PatientBadge>
@@ -222,8 +219,7 @@ function MedicineCard({
 export default function PrescriptionDetail({ id }: { id: string }) {
   const { t } = useTranslation();
   const { tokenData, selectedPatient } = usePatientContext();
-  const [alarmMedication, setAlarmMedication] =
-    useState<MedicationRequestRead | null>(null);
+  const [alarmOpen, setAlarmOpen] = useState(false);
 
   const { data: prescription } = useQuery({
     queryKey: ["portal-prescription", id],
@@ -275,12 +271,40 @@ export default function PrescriptionDetail({ id }: { id: string }) {
   const medications = (prescription?.medications ?? []).filter(
     (medication) => medication.status !== "entered_in_error",
   );
+  const reminderMedicines = medications
+    .filter(isSchedulableMedication)
+    .map((medication) => ({
+      id: medication.id,
+      name: displayMedicationName(medication),
+    }));
+  const anyRemindersOn = reminderMedicines.some((medicine) =>
+    armedIds.includes(medicine.id),
+  );
 
   return (
     <PatientAppShell
       title={t("prescription")}
       backTo="/patient/records?tab=prescriptions"
       hideTabs
+      headerAction={
+        reminderMedicines.length > 0 ? (
+          <Button
+            type="button"
+            variant="ghost"
+            size="icon"
+            className="size-11"
+            aria-label={
+              anyRemindersOn
+                ? t("patient_prescription__manage_alarms")
+                : t("patient_prescription__set_alarms")
+            }
+            aria-pressed={anyRemindersOn}
+            onClick={() => setAlarmOpen(true)}
+          >
+            <AlarmBellIcon armed={anyRemindersOn} />
+          </Button>
+        ) : undefined
+      }
     >
       <div className="flex flex-col gap-3 p-4">
         {!prescription ? (
@@ -304,7 +328,6 @@ export default function PrescriptionDetail({ id }: { id: string }) {
                   armed={armedIds.includes(medication.id)}
                   doses={dosesByMedicine[medication.id] ?? []}
                   dosesLoading={dosesLoading}
-                  onAlarmClick={() => setAlarmMedication(medication)}
                 />
               ))
             ) : (
@@ -328,16 +351,11 @@ export default function PrescriptionDetail({ id }: { id: string }) {
           </>
         )}
       </div>
-      {alarmMedication && (
+      {alarmOpen && reminderMedicines.length > 0 && (
         <PrescriptionAlarmSheet
           open
-          onOpenChange={(next) => {
-            if (!next) {
-              setAlarmMedication(null);
-            }
-          }}
-          medicationId={alarmMedication.id}
-          medicationName={displayMedicationName(alarmMedication)}
+          onOpenChange={setAlarmOpen}
+          medicines={reminderMedicines}
           patientId={selectedPatient?.id}
         />
       )}

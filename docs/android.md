@@ -142,7 +142,7 @@ The patient WebView is inset for Android 15 edge-to-edge (`adjustMarginsForEdgeT
 ### Checklist
 
 1. OTP login → Home **Upcoming doses** is empty until you opt in.
-2. Records → a prescription → **bell** to turn on reminders. Tap the **medicine name** to see upcoming / taken / skipped / missed.
+2. Records → a prescription → header **bell**. Shared morning/noon/evening/night; switch each medicine on. Tap the **medicine name** for upcoming / taken / skipped / missed.
 3. Home **Upcoming doses** collapses; the count stays on the header.
 4. Allow notifications, exact alarms, and full-screen intents when prompted.
 5. Lock the phone. At the next `scheduled_at` (or a dose a minute ahead) the full-screen UI appears.

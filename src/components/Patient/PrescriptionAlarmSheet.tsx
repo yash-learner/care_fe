@@ -5,6 +5,7 @@ import { toast } from "sonner";
 
 import ConfirmActionDialog from "@/components/Common/ConfirmActionDialog";
 import { Button } from "@/components/ui/button";
+import { Label } from "@/components/ui/label";
 import {
   Sheet,
   SheetContent,
@@ -13,6 +14,7 @@ import {
   SheetTitle,
 } from "@/components/ui/sheet";
 import { Skeleton } from "@/components/ui/skeleton";
+import { Switch } from "@/components/ui/switch";
 
 import {
   AlarmClockFields,
@@ -24,6 +26,7 @@ import { usePatientContext } from "@/hooks/usePatientUser";
 
 import {
   PatientAlarmArmBody,
+  PatientAlarmClockPatch,
   PatientAlarmClockResponse,
   PatientAlarmDisarmBody,
 } from "@/types/careReminders/careReminders";
@@ -31,19 +34,22 @@ import careRemindersApi from "@/types/careReminders/careRemindersApi";
 import mutate from "@/Utils/request/mutate";
 import { callApi } from "@/Utils/request/query";
 
+export interface PrescriptionAlarmMedicine {
+  id: string;
+  name: string;
+}
+
 interface PrescriptionAlarmSheetProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
-  medicationId: string;
-  medicationName: string;
+  medicines: PrescriptionAlarmMedicine[];
   patientId?: string;
 }
 
 export function PrescriptionAlarmSheet({
   open,
   onOpenChange,
-  medicationId,
-  medicationName,
+  medicines,
   patientId,
 }: PrescriptionAlarmSheetProps) {
   const { t } = useTranslation();
@@ -75,15 +81,31 @@ export function PrescriptionAlarmSheet({
   }, [data?.clocks, patientId]);
 
   const times = draft ?? (clock ? clockToInputs(clock) : null);
-  const armed = (data?.armed_medication_ids ?? []).includes(medicationId);
+  const armedIds = data?.armed_medication_ids ?? [];
   const timesReady = Boolean(
     times?.morning_at && times.noon_at && times.evening_at && times.night_at,
   );
+  const clockPatientId = patientId || clock?.patient_id;
 
   const applyResult = (result: PatientAlarmClockResponse) => {
     setDraft(null);
     cachePatientReminderState(queryClient, token, result);
   };
+
+  const { mutate: saveTimes, isPending: isSavingTimes } = useMutation<
+    PatientAlarmClockResponse,
+    Error,
+    PatientAlarmClockPatch
+  >({
+    mutationFn: (body) =>
+      mutate(careRemindersApi.updateClocks, {
+        headers: { Authorization: `Bearer ${token}` },
+      })(body) as Promise<PatientAlarmClockResponse>,
+    onSuccess: (result) => {
+      applyResult(result);
+      toast.success(t("patient_prescription__times_saved"));
+    },
+  });
 
   const { mutate: armReminders, isPending: isArming } = useMutation<
     PatientAlarmClockResponse,
@@ -94,12 +116,15 @@ export function PrescriptionAlarmSheet({
       mutate(careRemindersApi.arm, {
         headers: { Authorization: `Bearer ${token}` },
       })(body) as Promise<PatientAlarmClockResponse>,
-    onSuccess: (result) => {
+    onSuccess: (result, variables) => {
       applyResult(result);
+      const medicine = medicines.find(
+        (item) => item.id === variables.medication_request_id,
+      );
       toast.success(
-        armed
-          ? t("patient_prescription__times_saved")
-          : t("patient_prescription__reminders_on"),
+        t("patient_prescription__reminders_on", {
+          name: medicine?.name ?? "",
+        }),
       );
     },
   });
@@ -126,16 +151,30 @@ export function PrescriptionAlarmSheet({
     },
   });
 
-  const isPending = isArming || isDisarming;
+  const isPending = isSavingTimes || isArming || isDisarming;
 
-  const handleSave = () => {
+  const handleSaveTimes = () => {
+    if (!times || !clockPatientId) {
+      return;
+    }
+    saveTimes({
+      patient_id: clockPatientId,
+      ...times,
+    });
+  };
+
+  const handleToggle = (medicationId: string, next: boolean) => {
     if (!times) {
       return;
     }
-    armReminders({
-      medication_request_id: medicationId,
-      ...times,
-    });
+    if (next) {
+      armReminders({
+        medication_request_id: medicationId,
+        ...times,
+      });
+      return;
+    }
+    disarmReminders({ medication_request_id: medicationId });
   };
 
   return (
@@ -154,9 +193,7 @@ export function PrescriptionAlarmSheet({
               {t("patient_prescription__reminders")}
             </SheetTitle>
             <SheetDescription className="text-sm">
-              {t("patient_prescription__reminders_help", {
-                name: medicationName,
-              })}
+              {t("patient_prescription__reminders_help")}
             </SheetDescription>
           </SheetHeader>
 
@@ -172,28 +209,43 @@ export function PrescriptionAlarmSheet({
                 <AlarmClockFields times={times} onChange={setDraft} />
                 <Button
                   className="min-h-11 w-full"
-                  onClick={handleSave}
-                  disabled={isPending || !timesReady}
+                  onClick={handleSaveTimes}
+                  disabled={isPending || !timesReady || !clockPatientId}
                 >
-                  {armed
-                    ? t("patient_prescription__save_times")
-                    : t("patient_prescription__turn_on")}
+                  {t("patient_prescription__save_times")}
                 </Button>
-                {armed && (
-                  <Button
-                    variant="outline"
-                    className="min-h-11 w-full"
-                    disabled={isPending}
-                    onClick={() =>
-                      disarmReminders({
-                        medication_request_id: medicationId,
-                      })
-                    }
-                  >
-                    {t("patient_prescription__cancel_this")}
-                  </Button>
-                )}
-                {(data?.armed_medication_ids?.length ?? 0) > 0 && (
+
+                <div className="flex flex-col gap-2">
+                  <span className="text-[10px] font-bold uppercase tracking-[0.09em] text-gray-500">
+                    {t("patient_prescription__medicines")}
+                  </span>
+                  {medicines.map((medicine) => {
+                    const armed = armedIds.includes(medicine.id);
+                    return (
+                      <div
+                        key={medicine.id}
+                        className="flex min-h-11 items-center justify-between gap-3 rounded-xl border border-gray-100 bg-gray-50 px-3 py-2"
+                      >
+                        <Label
+                          htmlFor={`arm-${medicine.id}`}
+                          className="min-w-0 flex-1 text-sm font-semibold text-gray-900"
+                        >
+                          {medicine.name}
+                        </Label>
+                        <Switch
+                          id={`arm-${medicine.id}`}
+                          checked={armed}
+                          disabled={isPending || !timesReady}
+                          onCheckedChange={(next) =>
+                            handleToggle(medicine.id, next)
+                          }
+                        />
+                      </div>
+                    );
+                  })}
+                </div>
+
+                {armedIds.length > 0 && (
                   <Button
                     variant="ghost"
                     className="min-h-11 w-full text-red-600 hover:bg-red-50 hover:text-red-700"
