@@ -1,17 +1,27 @@
+export type DoseStatus = "pending" | "sent" | "taken" | "skipped" | "missed";
+
 export interface AlarmOccurrence {
   id: number;
   external_id: string;
   scheduled_at: string;
+  status?: DoseStatus;
   title: string;
   body: string;
   medication_name: string;
+  medication_request_id?: string;
   patient_id: string;
   patient_name: string;
   day_part: string;
-  take_path: string;
-  skip_path: string;
-  snooze_path: string;
-  fired_path: string;
+  taken_at?: string | null;
+  take_path?: string;
+  skip_path?: string;
+  snooze_path?: string;
+  fired_path?: string;
+}
+
+export interface DoseHistory {
+  generated_at: string;
+  occurrences: AlarmOccurrence[];
 }
 
 export interface AlarmCalendar {

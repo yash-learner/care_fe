@@ -2,6 +2,7 @@ import { HttpMethod, Type } from "@/Utils/request/types";
 import {
   AlarmCalendar,
   AlarmSyncResponse,
+  DoseHistory,
   PatientAlarmArmBody,
   PatientAlarmClockList,
   PatientAlarmClockPatch,
@@ -20,6 +21,11 @@ export default {
     path: "/api/care_reminders/alarms/",
     method: HttpMethod.GET,
     TRes: Type<AlarmCalendar>(),
+  },
+  doses: {
+    path: "/api/care_reminders/doses/",
+    method: HttpMethod.GET,
+    TRes: Type<DoseHistory>(),
   },
   clocks: {
     path: "/api/care_reminders/clocks/",

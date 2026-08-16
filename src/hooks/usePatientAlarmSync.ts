@@ -45,6 +45,9 @@ export function cachePatientReminderState(
   if (isCapacitorRuntime()) {
     void syncNativeAlarms(calendar);
   }
+  void queryClient.invalidateQueries({
+    queryKey: ["care-reminders", "doses", token],
+  });
 }
 
 /**

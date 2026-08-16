@@ -140,14 +140,15 @@ Sideload `android/app/build/outputs/apk/debug/app-debug.apk` (allow Install unkn
 ### Checklist
 
 1. OTP login → Home **Upcoming doses** is empty until you opt in.
-2. Records → a prescription → bell on a medicine → **Turn on reminders** (change morning to 07:00 in the same sheet). Home lists that medicine. Two armed `1-0-1` medicines share one 07:00 ring.
-3. Allow notifications, exact alarms, and full-screen intents when prompted.
-4. Lock the phone. At the next `scheduled_at` (or a dose a minute ahead) the full-screen UI appears.
-5. Taken / Skip / Snooze `POST`s `/api/care_reminders/alarms/{external_id}/…`. Check Django.
-6. Two medicines with the same morning clock → **one** ring, both names, **Take all** marks both `taken`.
-7. Reboot; the next dose still rings.
-8. Profile → sign out; alarms are cleared.
-9. Browser Home still lists doses and does not ring.
+2. Records → a prescription → **bell** to turn on reminders. Tap the **medicine name** to see upcoming / taken / skipped / missed.
+3. Home **Upcoming doses** collapses; the count stays on the header.
+4. Allow notifications, exact alarms, and full-screen intents when prompted.
+5. Lock the phone. At the next `scheduled_at` (or a dose a minute ahead) the full-screen UI appears.
+6. Taken / Skip / Snooze `POST`s `/api/care_reminders/alarms/{external_id}/…`. Check Django.
+7. Two medicines with the same morning clock → **one** ring, both names, **Take all** marks both `taken`.
+8. Reboot; the next dose still rings.
+9. Profile → sign out; alarms are cleared.
+10. Browser Home still lists doses and does not ring.
 
 If alarms are late on a real OEM phone, exempt CARE from battery optimisation. No per-vendor code in v1.
 

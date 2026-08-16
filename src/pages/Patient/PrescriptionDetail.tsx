@@ -1,6 +1,6 @@
 import { useQuery } from "@tanstack/react-query";
 import dayjs from "dayjs";
-import { Pill } from "lucide-react";
+import { ChevronDown, Pill } from "lucide-react";
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
 
@@ -17,6 +17,7 @@ import {
   formatSig,
 } from "@/components/Medicine/utils";
 import { AlarmBellIcon } from "@/components/Patient/AlarmClockFields";
+import { MedicineDoseLog } from "@/components/Patient/MedicineDoseLog";
 import { PatientAppShell } from "@/components/Patient/PatientAppShell";
 import {
   PatientBadge,
@@ -28,6 +29,7 @@ import { usePatientContext } from "@/hooks/usePatientUser";
 
 import query, { callApi } from "@/Utils/request/query";
 import { formatName } from "@/Utils/utils";
+import { AlarmOccurrence } from "@/types/careReminders/careReminders";
 import careRemindersApi from "@/types/careReminders/careRemindersApi";
 import {
   displayMedicationName,
@@ -129,13 +131,18 @@ function DosageStep({
 function MedicineCard({
   medication,
   armed,
+  doses,
+  dosesLoading,
   onAlarmClick,
 }: {
   medication: MedicationRequestRead;
   armed: boolean;
+  doses: AlarmOccurrence[];
+  dosesLoading: boolean;
   onAlarmClick: () => void;
 }) {
   const { t } = useTranslation();
+  const [open, setOpen] = useState(false);
 
   // A tapering course carries more than one instruction; every step is rendered
   // so the regimen is never truncated to its first step.
@@ -154,9 +161,24 @@ function MedicineCard({
       )}
     >
       <div className="flex items-start justify-between gap-2.5">
-        <span className="min-w-0 text-base font-bold text-gray-900">
-          {displayMedicationName(medication)}
-        </span>
+        <button
+          type="button"
+          className="flex min-w-0 flex-1 items-start gap-2 text-left"
+          aria-expanded={open}
+          onClick={() => setOpen((current) => !current)}
+        >
+          <ChevronDown
+            className={cn(
+              "mt-1 size-4 shrink-0 text-gray-500 transition-transform",
+              open && "rotate-180",
+            )}
+            strokeWidth={2}
+            aria-hidden
+          />
+          <span className="min-w-0 text-base font-bold text-gray-900">
+            {displayMedicationName(medication)}
+          </span>
+        </button>
         <div className="flex shrink-0 items-center gap-1">
           {schedulable && (
             <Button
@@ -190,6 +212,9 @@ function MedicineCard({
           <span className="font-semibold">{t("note")}:</span> {medication.note}
         </span>
       )}
+      {open && (
+        <MedicineDoseLog doses={doses} armed={armed} loading={dosesLoading} />
+      )}
     </div>
   );
 }
@@ -221,7 +246,30 @@ export default function PrescriptionDetail({ id }: { id: string }) {
     retry: false,
   });
 
+  const { data: doseHistory, isLoading: dosesLoading } = useQuery({
+    queryKey: ["care-reminders", "doses", tokenData?.token],
+    queryFn: ({ signal }) =>
+      callApi(careRemindersApi.doses, {
+        headers: { Authorization: `Bearer ${tokenData?.token}` },
+        silent: true,
+        signal,
+      }),
+    enabled: !!tokenData?.token,
+    retry: false,
+  });
+
   const armedIds = reminderState?.armed_medication_ids ?? [];
+  const dosesByMedicine = (doseHistory?.occurrences ?? []).reduce(
+    (groups: Record<string, AlarmOccurrence[]>, dose) => {
+      const key = dose.medication_request_id;
+      if (!key) {
+        return groups;
+      }
+      groups[key] = [...(groups[key] ?? []), dose];
+      return groups;
+    },
+    {},
+  );
 
   // Entries marked entered_in_error are void records and should never reach the patient.
   const medications = (prescription?.medications ?? []).filter(
@@ -254,6 +302,8 @@ export default function PrescriptionDetail({ id }: { id: string }) {
                   key={medication.id}
                   medication={medication}
                   armed={armedIds.includes(medication.id)}
+                  doses={dosesByMedicine[medication.id] ?? []}
+                  dosesLoading={dosesLoading}
                   onAlarmClick={() => setAlarmMedication(medication)}
                 />
               ))
