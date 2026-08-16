@@ -239,7 +239,7 @@ export function PatientAppShell({
         {sideNav}
         <div className="flex min-w-0 flex-1 justify-center">
           <div className="flex w-full min-w-0 flex-col bg-gray-50">
-            <header className="sticky top-0 z-10 shrink-0 border-b border-gray-200 bg-white">
+            <header className="sticky top-0 z-10 shrink-0 border-b border-gray-200 bg-white pt-[env(safe-area-inset-top)]">
               <div className="flex min-w-0 items-center gap-2.5 px-4 py-3">
                 {backTo && (
                   <Button
@@ -247,7 +247,7 @@ export function PatientAppShell({
                     type="button"
                     onClick={() => navigate(backTo)}
                     aria-label={t("back")}
-                    className="-ml-1 flex size-8 items-center justify-center rounded-lg text-gray-900 hover:bg-gray-100"
+                    className="-ml-1 flex size-11 items-center justify-center rounded-lg text-gray-900 hover:bg-gray-100"
                   >
                     <ArrowLeft className="size-5" strokeWidth={1.9} />
                   </Button>
@@ -298,7 +298,7 @@ export function PatientAppShell({
             {!hideTabs && (
               <nav
                 aria-label={t("patient_shell__navigation")}
-                className="sticky bottom-0 grid shrink-0 grid-cols-4 border-t border-gray-200 bg-white px-2.5 pb-4 pt-2.5 sm:rounded-b-3xl sm:pb-2 lg:hidden"
+                className="sticky bottom-0 grid shrink-0 grid-cols-4 border-t border-gray-200 bg-white px-2.5 pb-[max(1rem,env(safe-area-inset-bottom))] pt-2.5 sm:rounded-b-3xl sm:pb-[max(0.5rem,env(safe-area-inset-bottom))] lg:hidden"
               >
                 {tabBar}
               </nav>

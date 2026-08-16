@@ -21,6 +21,9 @@ const config: CapacitorConfig = {
   android: {
     allowMixedContent: true,
     webContentsDebuggingEnabled: true,
+    // Android 15+ (Pixel 6a, targetSdk 35) draws the WebView under the status
+    // bar. Push the WebView into the safe area so patient chrome stays tappable.
+    adjustMarginsForEdgeToEdge: "auto",
   },
 };
 

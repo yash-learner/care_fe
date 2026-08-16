@@ -27,7 +27,12 @@ export default function PatientAuthLayout({
         />
 
         <div className="relative flex flex-1 flex-col">
-          <div className={cn("flex flex-1 flex-col px-7 py-10", className)}>
+          <div
+            className={cn(
+              "flex flex-1 flex-col px-7 pb-10 pt-[max(2.5rem,env(safe-area-inset-top))]",
+              className,
+            )}
+          >
             <div className="mb-12 flex items-center gap-2 self-start">
               <img
                 src={careConfig.mainLogo?.dark}

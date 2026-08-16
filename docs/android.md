@@ -137,6 +137,8 @@ adb install -r \\wsl$\Ubuntu\home\<you>\path\to\care_fe\android\app\build\output
 
 Sideload `android/app/build/outputs/apk/debug/app-debug.apk` (allow Install unknown apps).
 
+The patient WebView is inset for Android 15 edge-to-edge (`adjustMarginsForEdgeToEdge: auto`). That lives in the APK, not Vite — `npx cap sync android` and rebuild after pulling, or the header sits under the status bar (back on prescription detail is untappable).
+
 ### Checklist
 
 1. OTP login → Home **Upcoming doses** is empty until you opt in.
