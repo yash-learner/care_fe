@@ -1,4 +1,8 @@
-import { CareAppsContext, useCareApps } from "@/hooks/useCareApps";
+import {
+  CareAppsContext,
+  CareAppsLoadingContext,
+  useCareApps,
+} from "@/hooks/useCareApps";
 import {
   PluginManifest,
   PluginManifestWithMeta,
@@ -70,7 +74,7 @@ export default function PluginEngine({
   children: React.ReactNode;
 }) {
   // Fetch enabled plugins from the backend API
-  const { data: enabledPlugins } = useQuery({
+  const { data: enabledPlugins, isLoading: isLoadingPluginConfigs } = useQuery({
     queryKey: ["enabled-plugins"],
     queryFn: query(plugConfigApi.list, {
       silent: (response) => response.status === 401 || response.status === 403,
@@ -147,6 +151,11 @@ export default function PluginEngine({
     };
   }, [pluginsQuery]);
 
+  // Both phases count: until the config list resolves there is nothing to load manifests
+  // for, so an empty apps array means "not known yet", not "no plugins".
+  const isLoadingPlugins =
+    isLoadingPluginConfigs || pluginsQuery.some((plugin) => plugin.isLoading);
+
   return (
     <Suspense fallback={<Loading />}>
       <ErrorBoundary
@@ -157,7 +166,9 @@ export default function PluginEngine({
         }
       >
         <CareAppsContext.Provider value={pluginsQuery}>
-          <Suspense fallback={<Loading />}>{children}</Suspense>
+          <CareAppsLoadingContext.Provider value={isLoadingPlugins}>
+            <Suspense fallback={<Loading />}>{children}</Suspense>
+          </CareAppsLoadingContext.Provider>
         </CareAppsContext.Provider>
       </ErrorBoundary>
     </Suspense>

@@ -1,7 +1,9 @@
 import careConfig from "@careConfig";
 import { Redirect, useRoutes } from "raviger";
 
-import { usePluginPublicRoutes } from "@/hooks/useCareApps";
+import { useCareAppsLoading, usePluginPublicRoutes } from "@/hooks/useCareApps";
+
+import Loading from "@/components/Common/Loading";
 
 import { Authenticate } from "@/components/Auth/Authenticate";
 import Login from "@/components/Auth/Login";
@@ -58,6 +60,7 @@ export const routes = {
 
 export default function PublicRouter() {
   const pluginPublicRoutes = usePluginPublicRoutes();
+  const isLoadingPlugins = useCareAppsLoading();
   // Core routes are spread last: a plugin cannot shadow /login or any other core
   // public page, matching how AppRouter resolves plugin routes.
   const routeResult = useRoutes({ ...pluginPublicRoutes, ...routes });
@@ -65,7 +68,11 @@ export default function PublicRouter() {
   return (
     <>
       <BrowserWarning />
-      {routeResult || <Login />}
+      {routeResult ??
+        // A plugin's public route cannot match until its manifest has loaded, so falling
+        // straight through to Login would flash the login screen over a page the visitor
+        // is entitled to see.
+        (isLoadingPlugins ? <Loading /> : <Login />)}
     </>
   );
 }

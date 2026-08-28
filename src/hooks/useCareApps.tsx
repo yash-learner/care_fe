@@ -14,6 +14,17 @@ export type CareAppsContextType = Array<
 
 export const CareAppsContext = createContext<CareAppsContextType | null>(null);
 
+/**
+ * True while the enabled-plugin list or any plugin manifest is still in flight.
+ *
+ * Separate from the apps context because that one is an array, and consumers that only
+ * need "are plugins settled yet" should not have to inspect every entry -- nor can they,
+ * since an unresolved plugin list is indistinguishable from an empty one.
+ */
+export const CareAppsLoadingContext = createContext<boolean>(false);
+
+export const useCareAppsLoading = () => useContext(CareAppsLoadingContext);
+
 export const useCareApps = () => {
   const ctx = useContext(CareAppsContext);
   if (!ctx) {
