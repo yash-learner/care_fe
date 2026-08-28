@@ -7,12 +7,14 @@ import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
 import { AppSidebar, SidebarFor } from "@/components/ui/sidebar/app-sidebar";
 
 import ErrorBoundary from "@/components/Common/ErrorBoundary";
+import Loading from "@/components/Common/Loading";
 import BrowserWarning from "@/components/ErrorPages/BrowserWarning";
 import ErrorPage from "@/components/ErrorPages/DefaultErrorPage";
 import SessionExpired from "@/components/ErrorPages/SessionExpired";
 
 import useAuthUser from "@/hooks/useAuthUser";
 import {
+  useCareAppsLoading,
   useOrganizationRoutes,
   usePluginPublicRoutes,
   usePluginRoutes,
@@ -107,6 +109,7 @@ const publicRedirects = Object.fromEntries(
 export default function AppRouter() {
   const pluginRoutes = usePluginRoutes();
   const pluginPublicRoutes = usePluginPublicRoutes();
+  const isLoadingPlugins = useCareAppsLoading();
   const organizationRoutes = useOrganizationRoutes();
   let routes = Routes;
 
@@ -114,9 +117,8 @@ export default function AppRouter() {
 
   // Merge in Plugin Routes
   routes = {
-    // Public plug routes are reachable signed in too: "public" means the page needs no
-    // account, not that it refuses one. A staff member opening a link shared with a
-    // patient should see the same page rather than a 404.
+    // Public plug routes are reachable signed in too: "public" means the page needs
+    // no account, not that it refuses one.
     ...pluginPublicRoutes,
     ...pluginRoutes,
     ...organizationRoutes,
@@ -132,7 +134,13 @@ export default function AppRouter() {
 
   const sidebarFor = isAdminPage ? SidebarFor.ADMIN : SidebarFor.FACILITY;
 
-  const pages = appPages || adminPages || publicRedirectsPages || <ErrorPage />;
+  // A plug's route cannot match until its manifest has loaded, so without this a reload
+  // shows the not-found page before the plug's page appears.
+  const pages =
+    appPages ||
+    adminPages ||
+    publicRedirectsPages ||
+    (isLoadingPlugins ? <Loading /> : <ErrorPage />);
 
   const user = useAuthUser();
 
