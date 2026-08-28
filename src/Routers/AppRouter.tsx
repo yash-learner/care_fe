@@ -12,7 +12,11 @@ import ErrorPage from "@/components/ErrorPages/DefaultErrorPage";
 import SessionExpired from "@/components/ErrorPages/SessionExpired";
 
 import useAuthUser from "@/hooks/useAuthUser";
-import { useOrganizationRoutes, usePluginRoutes } from "@/hooks/useCareApps";
+import {
+  useOrganizationRoutes,
+  usePluginPublicRoutes,
+  usePluginRoutes,
+} from "@/hooks/useCareApps";
 import useSidebarState from "@/hooks/useSidebarState";
 
 import { routes as publicRoutes } from "@/Routers/PublicRouter";
@@ -102,6 +106,7 @@ const publicRedirects = Object.fromEntries(
 
 export default function AppRouter() {
   const pluginRoutes = usePluginRoutes();
+  const pluginPublicRoutes = usePluginPublicRoutes();
   const organizationRoutes = useOrganizationRoutes();
   let routes = Routes;
 
@@ -109,6 +114,10 @@ export default function AppRouter() {
 
   // Merge in Plugin Routes
   routes = {
+    // Public plug routes are reachable signed in too: "public" means the page needs no
+    // account, not that it refuses one. A staff member opening a link shared with a
+    // patient should see the same page rather than a 404.
+    ...pluginPublicRoutes,
     ...pluginRoutes,
     ...organizationRoutes,
     ...routes,
