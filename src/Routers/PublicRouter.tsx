@@ -1,6 +1,8 @@
 import careConfig from "@careConfig";
 import { Redirect, useRoutes } from "raviger";
 
+import { usePluginPublicRoutes } from "@/hooks/useCareApps";
+
 import { Authenticate } from "@/components/Auth/Authenticate";
 import Login from "@/components/Auth/Login";
 import ResetPassword from "@/components/Auth/ResetPassword";
@@ -55,7 +57,10 @@ export const routes = {
 };
 
 export default function PublicRouter() {
-  const routeResult = useRoutes(routes);
+  const pluginPublicRoutes = usePluginPublicRoutes();
+  // Core routes are spread last: a plugin cannot shadow /login or any other core
+  // public page, matching how AppRouter resolves plugin routes.
+  const routeResult = useRoutes({ ...pluginPublicRoutes, ...routes });
 
   return (
     <>

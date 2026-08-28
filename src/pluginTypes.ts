@@ -202,6 +202,15 @@ type SupportedPluginExtensions =
 export type PluginManifest = {
   plugin: string;
   routes?: AppRoutes;
+  /**
+   * Routes served to unauthenticated visitors, merged into `PublicRouter`.
+   *
+   * These render with no user in context, so their components must not depend on
+   * `useAuthUser` or any facility/organization route parameter. Anything reachable
+   * here is world-readable: gate access on a capability carried in the URL and
+   * enforced by the plugin's own API, never on the route being hard to guess.
+   */
+  publicRoutes?: AppRoutes;
   extends?: readonly SupportedPluginExtensions[];
   navItems?: NavigationLink[];
   billingNavItems?: NavigationLink[];

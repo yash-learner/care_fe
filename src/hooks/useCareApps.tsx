@@ -110,6 +110,23 @@ export function usePluginRoutes() {
   return routes;
 }
 
+/**
+ * Plugin routes that render without a signed-in user, for `PublicRouter`.
+ *
+ * Kept separate from `usePluginRoutes` so that adding a public page is a deliberate
+ * act: a route only becomes world-readable by being declared in `publicRoutes`.
+ */
+export function usePluginPublicRoutes() {
+  const careApps = useCareApps();
+  return careApps.reduce((acc, plugin) => {
+    if (plugin.isLoading) {
+      return acc;
+    }
+
+    return { ...acc, ...(plugin.publicRoutes ?? {}) };
+  }, {});
+}
+
 export const useOrganizationRoutes = () => {
   const careApps = useCareApps();
 
