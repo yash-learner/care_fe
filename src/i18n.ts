@@ -40,8 +40,10 @@ const namespaceToUrl = (namespace: string) => {
     pluginConfig?.meta?.url &&
     z.url().safeParse(pluginConfig.meta.url).success
   ) {
+    // Keep the path prefix so plugins served under a sub-path (rather than on
+    // their own origin) resolve their locale files relative to that prefix.
     const url = new URL(pluginConfig.meta.url);
-    return url.origin.toString();
+    return url.href.replace(/\/assets\/remoteEntry\.js$/, "");
   }
 
   return undefined;
